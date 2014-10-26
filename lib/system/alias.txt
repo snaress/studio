@@ -1,0 +1,16 @@
+b = dir /ON
+ls = dir /D
+lsl = dir /OD
+c = cls
+
+rnd = cd F:\rnd
+ws = cd F:\rnd\workspace
+
+designer = "C:\Python27\Lib\site-packages\PyQt4\designer.exe"
+dsg = "C:\Python27\Lib\site-packages\PyQt4\designer.exe"
+pyUic = C:\Python27\Lib\site-packages\PyQt4\pyuic4.bat $*
+
+my = "F:\rnd\workspace\studio\lib\system\alias.txt"
+aliasSync = python F:\rnd\workspace\studio\lib\system\aliasSync.py
+
+aliasHelp = type %HOMEPATH%\alias.txt
