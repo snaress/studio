@@ -270,6 +270,97 @@ def errorDialog(message, parent):
     else:
         errorDial.showMessage(message)
 
+
+if __name__ == '__main__':
+    CompileUi(uiFile=qt.uiList['confirmDialog'])
+from lib.qt.ui import confirmDialogUI
+class ConfirmDialog(QtGui.QDialog, confirmDialogUI.Ui_Dialog):
+    """ Confirm dialog popup
+        @param message: (str) : Dialog texte
+        @param buttons: (list) : Buttons list
+        @param btnCmds: (list) : Commands list
+        @param cancelBtn: (bool) : Add cacnel button """
+
+    def __init__(self, message, buttons, btnCmds, cancelBtn=True):
+        if not len(buttons) == len(btnCmds):
+            raise KeyError, "!!! Error: Buttons list and cmds lists should have same length !!!"
+        else:
+            self.mess = message
+            buttons.reverse()
+            self.btns = buttons
+            btnCmds.reverse()
+            self.btnCmds = btnCmds
+            self.cancelBtn = cancelBtn
+            super(ConfirmDialog, self).__init__()
+            self.setupUi(self)
+            self.initDialog()
+
+    def initDialog(self):
+        """ Init dialog window """
+        self.lMessage.setText(self.mess)
+        if self.cancelBtn:
+            newButton = self.newButton('Cancel', self.close)
+            self.hlButtons.insertWidget(1, newButton)
+        for n, btn in enumerate(self.btns):
+            newButton = self.newButton(btn, self.btnCmds[n])
+            self.hlButtons.insertWidget(1, newButton)
+
+    @staticmethod
+    def newButton(label, btnCmd):
+        """ Create new button
+            @param label: (str) : Button label
+            @param btnCmd: (object) : Button command
+            @return: (object) : New QPushButton """
+        newButton = QtGui.QPushButton()
+        newButton.setText(label)
+        # noinspection PyUnresolvedReferences
+        newButton.clicked.connect(btnCmd)
+        return newButton
+
+
+if __name__ == '__main__':
+    CompileUi(uiFile=qt.uiList['promptDialog'])
+from lib.qt.ui import promptDialogUI
+class PromptDialog(QtGui.QDialog, promptDialogUI.Ui_Dialog):
+    """ Prompt dialog popup
+        @param message: (str) : Dialog texte
+        @param acceptCmd: (object) : Accept command
+        @param cancelCmd: (object) : Cancel command
+        @param Nlines: (int) : Prompt line count """
+
+    def __init__(self, message, acceptCmd, cancelCmd=None, Nlines=1):
+        self.message = message
+        self.acceptCmd = acceptCmd
+        self.cancelCmd = cancelCmd
+        self.Nlines = Nlines
+        super(PromptDialog, self).__init__()
+        self.setupUi(self)
+        self.initDialog()
+
+    def initDialog(self):
+        """ Init dialog window """
+        self.lMessage.setText(self.message)
+        for n in range(self.Nlines):
+            newWidget = QtGui.QLineEdit()
+            newItem = QtGui.QTreeWidgetItem()
+            newItem._widget = newWidget
+            self.twPrompt.addTopLevelItem(newItem)
+            self.twPrompt.setItemWidget(newItem, 0, newWidget)
+        self.bAccept.clicked.connect(self.acceptCmd)
+        if self.cancelCmd is None:
+            self.bCancel.clicked.connect(self.close)
+        else:
+            self.bCancel.clicked.connect(self.cancelCmd)
+
+    def result(self):
+        """ Get QLineEdit value
+            @return: (dict) : Prompt result """
+        results = {}
+        allItems = getTopItems(self.twPrompt)
+        for n, item in enumerate(allItems):
+            results['result_%s' % (n+1)] = str(item._widget.text())
+        return results
+
 #============================================ QStyle =============================================#
 
 class Style(object):
