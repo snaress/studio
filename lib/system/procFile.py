@@ -1,4 +1,5 @@
-import os, math, time
+import os, math, time, subprocess
+from lib.env import studio
 
 
 def conformPath(path):
@@ -149,3 +150,88 @@ class Logger(object):
     def debug(self, message):
         if self.lvlIndex >= 4:
             print "[%s] | DEBUG | %s" % (self.title, message)
+
+
+class Image(object):
+    """ Class to manipulate image or get info from file """
+
+    djvInfo = studio.djvInfo
+
+    def __init__(self):
+        pass
+
+    def getInfo(self, path, options=None, returnAs='dict'):
+        """ get image file info
+            @param path: (str) : Directory or image file absolute path
+            @param options: (list) : Options from djv_info.exe
+            @param returnAs: (str) : 'dict' or 'str'
+            @return: (dict or str) : Image file info """
+        proc = self._getInfoProc(path, options)
+        result = proc.communicate()[0]
+        if not "ERROR" in result:
+            if returnAs == 'str':
+                return result
+            elif returnAs == 'dict':
+                return self._getInfoDict(result)
+        else:
+            print result
+
+    def _getInfoProc(self, path, options):
+        """ Get info subprocess cmdArgs
+            @param path: (str) : Directory or image file absolute path
+            @param options: (list) : Options from djv_info.exe
+            @return: (object) : Subprocess """
+        cmd = [self.djvInfo, '-v', os.path.normpath(path)]
+        if options is not None:
+            for opt in options:
+                cmd.append(opt)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        return proc
+
+    def _getInfoDict(self, result):
+        """ Translate info subprocess result to dict
+            @param result: Subprocess result
+            @return: (dict) : Info dict """
+        info = {}
+        blocks = self._getBlocks(result)
+        for block in blocks:
+            label = None
+            for n, line in enumerate(block):
+                if n == 0:
+                    name = conformPath(line.strip())
+                    label = os.path.basename(name).replace('.', '|')
+                    info[label] = {'Name': name}
+                else:
+                    k = line.split('=')[0].strip()
+                    v = line.split('=')[-1].strip()
+                    info[label][k] = v
+        return info
+
+    @staticmethod
+    def _getBlocks(result):
+        """ Convert result in blocks
+            :param result: (str) : Image info
+            :return: (list) : Info blocks """
+        block = []
+        blocks = []
+        lines = result.split('\n')
+        for n, line in enumerate(lines):
+            if line == '\r' or n == (len(lines) - 1):
+                blocks.append(block)
+                block = []
+            else:
+                block.append(line)
+        return blocks
+
+
+if __name__ == "__main__":
+    ima = Image()
+    # filePath = "D:/prods/rspn/shots/logo/logo_hd_all/logo_hd.0001.png"
+    # filePath = "D:/prods/rspn/shots/logo/logo_hd_all/logo_hd.0001-0002.png"
+    filePath = "D:/prods/rspn/shots/logo/logo_hd_lin/logo_hd_lin.0001.exr"
+    # filePath = "D:/prods/rspn/shots/logo/F001_C021_0427D0.0000335.dpx"
+    # r = ima.getInfo(filePath, options=['-fp'], returnAs='dict')
+    r = ima.getInfo(filePath, options=['-fp'], returnAs='dict')
+    # print r
+    for k, v in r.iteritems():
+        print k, '=', v

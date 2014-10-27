@@ -10,7 +10,15 @@ designer = "C:\Python27\Lib\site-packages\PyQt4\designer.exe"
 dsg = "C:\Python27\Lib\site-packages\PyQt4\designer.exe"
 pyUic = C:\Python27\Lib\site-packages\PyQt4\pyuic4.bat $*
 
-my = "F:\rnd\workspace\studio\lib\system\alias.txt"
-aliasSync = python F:\rnd\workspace\studio\lib\system\aliasSync.py
+djvView = F:\apps\djvView\djv-1.0.3-Windows-64\bin\djv_view.exe $*
+djvInfo = F:\apps\djvView\djv-1.0.3-Windows-64\bin\djv_info.exe $*
+djvList = F:\apps\djvView\djv-1.0.3-Windows-64\bin\djv_ls.exe $*
+djvConvert = F:\apps\djvView\djv-1.0.3-Windows-64\bin\djv_convert.exe $*
+nConvert = F:\apps\nConvert\nconvert.exe $*
 
+aliasSync = python F:\rnd\workspace\studio\lib\system\aliasSync.py
+textEditor = python F:\rnd\workspace\studio\lib\Qt\__exeTE__.py
+scriptEditor = python F:\rnd\workspace\studio\lib\Qt\__exeSE__.py
+
+my = "F:\rnd\workspace\studio\lib\system\alias.txt"
 aliasHelp = type %HOMEPATH%\alias.txt
