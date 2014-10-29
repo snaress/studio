@@ -7,9 +7,13 @@ rnd = cd F:\rnd
 ws = cd F:\rnd\workspace
 
 designer = "C:\Python27\Lib\site-packages\PyQt4\designer.exe"
-dsg = "C:\Python27\Lib\site-packages\PyQt4\designer.exe"
-pyUic = C:\Python27\Lib\site-packages\PyQt4\pyuic4.bat $*
+photoshop = "F:\apps\adobe\Adobe Photoshop CS6 (64 Bit)\Photoshop.exe"
+illustrator = "F:\apps\adobe\Adobe Illustrator CS6 (64 Bit)\Support Files\Contents\Windows\Illustrator.exe"
+afterEffect = "F:\apps\adobe\Adobe After Effects CS6\Support Files\AfterFX.exe"
+premiere = "F:\apps\adobe\Adobe Premiere Pro CS6\Adobe Premiere Pro.exe"
+nuke = F:\apps\Nuke5.0v2\nuke5.0.exe $*
 
+pyUic = C:\Python27\Lib\site-packages\PyQt4\pyuic4.bat $*
 djvView = F:\apps\djvView\djv-1.0.3-Windows-64\bin\djv_view.exe $*
 djvInfo = F:\apps\djvView\djv-1.0.3-Windows-64\bin\djv_info.exe $*
 djvList = F:\apps\djvView\djv-1.0.3-Windows-64\bin\djv_ls.exe $*
@@ -17,6 +21,7 @@ djvConvert = F:\apps\djvView\djv-1.0.3-Windows-64\bin\djv_convert.exe $*
 nConvert = F:\apps\nConvert\nconvert.exe $*
 
 aliasSync = python F:\rnd\workspace\studio\lib\system\aliasSync.py
+userManager = python F:\rnd\workspace\studio\appli\userManager\__exe__.py $*
 textEditor = python F:\rnd\workspace\studio\lib\Qt\__exeTE__.py
 scriptEditor = python F:\rnd\workspace\studio\lib\Qt\__exeSE__.py
 
