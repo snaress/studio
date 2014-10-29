@@ -153,9 +153,14 @@ class Logger(object):
 
 
 class Image(object):
-    """ Class to manipulate image or get info from file """
+    """ Class to manipulate image or get info from file
+        Usage: ima = Image()
+               r = ima.getInfo(filePath, options=['-fp'], returnAs='dict')
+               r.resizeIma(fileIn, fileOut, resize=(200, 200), ratio=True, force=True, printCmd=True, extern=True) """
 
     djvInfo = studio.djvInfo
+    nConvert = studio.nConvert
+    djvConvert = studio.djvConvert
 
     def __init__(self):
         pass
@@ -175,6 +180,48 @@ class Image(object):
                 return self._getInfoDict(result)
         else:
             print result
+
+    def resizeIma(self, imaIn, imaOut, resize=(None, None), ratio=False, force=False, printCmd=False, extern=False):
+        """ Convert given image with given resize options via nConvert
+            :param imaIn: (str) : Image file in absolute path
+            :param imaOut: (str) : Image file out absolute path
+            :param resize: (tuple) : Width(int), Height(int)
+            :param ratio: (bool) : Keep aspect ratio
+            :param force: (bool) : Overwrite destination """
+        cmd = [self.nConvert, '-out', self._getExtKey(imaOut), '-o', os.path.normpath(imaOut), os.path.normpath(imaIn)]
+        if resize[0] is not None and resize[1] is not None:
+            if not ratio:
+                cmd.insert(3, "-resize %s %s" % (resize[0], resize[1]))
+            else:
+                cmd.insert(3, "-resize %s %s -ratio" % (resize[0], resize[1]))
+        if force:
+            cmd.insert(-3, '-overwrite')
+        if printCmd:
+            print "#-- Resize Command --#\n", ' '.join(cmd)
+        if not extern:
+            os.system(' '.join(cmd))
+        else:
+            os.system('start %s' % ' '.join(cmd))
+
+    def resizeIma2(self, imaIn, imaOut, resize=(None, None), ratio=False, printCmd=False, extern=False):
+        """ Convert given image with given resize options via djvConvert
+            :param imaIn: (str) : Image file in absolute path
+            :param imaOut: (str) : Image file out absolute path
+            :param resize: (tuple) : Width(int), Height(int)
+            :param ratio: (bool) : Keep aspect ratio """
+        cmd = [self.djvConvert, os.path.normpath(imaIn), os.path.normpath(imaOut)]
+        if resize[0] is not None and resize[1] is not None:
+            if not ratio:
+                cmd.append("-resize %s %s" % (resize[0], resize[1]))
+            else:
+                newSize = self._getNewSize(imaIn, resize)
+                cmd.append("-resize %s %s" % (newSize[0], newSize[1]))
+        if printCmd:
+            print "#-- Resize Command --#\n", ' '.join(cmd)
+        if not extern:
+            os.system(' '.join(cmd))
+        else:
+            os.system('start %s' % ' '.join(cmd))
 
     def _getInfoProc(self, path, options):
         """ Get info subprocess cmdArgs
@@ -223,15 +270,27 @@ class Image(object):
                 block.append(line)
         return blocks
 
+    @staticmethod
+    def _getExtKey(imaOut):
+        """ Get output extention argument
+            :param imaOut: (str) : Image file out absolute path
+            :return: (str) : Output extention argument """
+        if os.path.splitext(imaOut)[-1] == '.jpg':
+            return 'jpeg'
+        else:
+            return os.path.splitext(imaOut)[-1].replace('.', '')
 
-if __name__ == "__main__":
-    ima = Image()
-    # filePath = "D:/prods/rspn/shots/logo/logo_hd_all/logo_hd.0001.png"
-    # filePath = "D:/prods/rspn/shots/logo/logo_hd_all/logo_hd.0001-0002.png"
-    filePath = "D:/prods/rspn/shots/logo/logo_hd_lin/logo_hd_lin.0001.exr"
-    # filePath = "D:/prods/rspn/shots/logo/F001_C021_0427D0.0000335.dpx"
-    # r = ima.getInfo(filePath, options=['-fp'], returnAs='dict')
-    r = ima.getInfo(filePath, options=['-fp'], returnAs='dict')
-    # print r
-    for k, v in r.iteritems():
-        print k, '=', v
+    def _getNewSize(self, imaFile, resize):
+        """ Get new size with aspect ratio constrain
+            :param imaFile: Image file in absolute path
+            :param resize: (tuple) : Width(int), Height(int)
+            :return: (tuple) : New size Width(int), Height(int) """
+        datas = self.getInfo(imaFile)
+        imaDict = datas[datas.keys()[0]]
+        # noinspection PyTypeChecker
+        ratio = float(imaDict['Aspect'])
+        if ratio < 1:
+            newSize = (int(resize[1] * ratio), int(resize[1]))
+        else:
+            newSize = (int(resize[0]), int(resize[0] / ratio))
+        return newSize
