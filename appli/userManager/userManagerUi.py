@@ -44,6 +44,7 @@ class UserManagerUi(QtGui.QMainWindow, userManagerUI.Ui_userManager, pQt.Style):
             self.twTree.header().setResizeMode(n, QtGui.QHeaderView.ResizeToContents)
 
     def rf_tree(self):
+        """ Refresh userManager tree """
         self.twTree.clear()
         userItems = []
         for user in self.um.users:
