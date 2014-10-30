@@ -103,11 +103,10 @@ class Preview(QtGui.QWidget, previewUI.Ui_preview):
 
     def on_sequence(self):
         """ Command launched when 'Sequence' QPushButton is clicked """
-        #ToDo: Sequence parsing
-    #     fileName = pFile.Image().getInfo(self.sequencePath)['_order'][0]
-    #     absPath = os.path.normpath(os.path.join(self.sequencePath, fileName))
-    #     proc = subprocess.Popen([self.djvView, absPath])
-    #     proc.poll()
+        absPath = os.path.normpath(self.sequencePath)
+        print absPath
+        proc = subprocess.Popen([self.djvView, absPath])
+        proc.poll()
 
     def on_movie(self):
         """ Command launched when 'Movie' QPushButton is clicked """
@@ -139,11 +138,7 @@ class Preview(QtGui.QWidget, previewUI.Ui_preview):
         if path is None or path == '' or path == ' ':
             btn.setEnabled(False)
         else:
-            if os.path.exists(path):
-                btn.setEnabled(True)
-            else:
-                btn.setEnabled(False)
-
+            btn.setEnabled(True)
 
 
 if __name__ == '__main__':

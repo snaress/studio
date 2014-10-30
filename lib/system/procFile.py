@@ -158,6 +158,7 @@ class Image(object):
                r = ima.getInfo(filePath, options=['-fp'], returnAs='dict')
                r.resizeIma(fileIn, fileOut, resize=(200, 200), ratio=True, force=True, printCmd=True, extern=True) """
 
+    ffmpeg = studio.ffmpeg
     djvInfo = studio.djvInfo
     nConvert = studio.nConvert
     djvConvert = studio.djvConvert
@@ -187,7 +188,9 @@ class Image(object):
             :param imaOut: (str) : Image file out absolute path
             :param resize: (tuple) : Width(int), Height(int)
             :param ratio: (bool) : Keep aspect ratio
-            :param force: (bool) : Overwrite destination """
+            :param force: (bool) : Overwrite destination
+            :param printCmd: (bool) : Print resize command
+            :param extern: (bool) : Launch resize in new xtem """
         cmd = [self.nConvert, '-out', self._getExtKey(imaOut), '-o', os.path.normpath(imaOut), os.path.normpath(imaIn)]
         if resize[0] is not None and resize[1] is not None:
             if not ratio:
@@ -208,7 +211,9 @@ class Image(object):
             :param imaIn: (str) : Image file in absolute path
             :param imaOut: (str) : Image file out absolute path
             :param resize: (tuple) : Width(int), Height(int)
-            :param ratio: (bool) : Keep aspect ratio """
+            :param ratio: (bool) : Keep aspect ratio
+            :param printCmd: (bool) : Print resize command
+            :param extern: (bool) : Launch resize in new xtem """
         cmd = [self.djvConvert, os.path.normpath(imaIn), os.path.normpath(imaOut)]
         if resize[0] is not None and resize[1] is not None:
             if not ratio:
@@ -218,6 +223,40 @@ class Image(object):
                 cmd.append("-resize %s %s" % (newSize[0], newSize[1]))
         if printCmd:
             print "#-- Resize Command --#\n", ' '.join(cmd)
+        if not extern:
+            os.system(' '.join(cmd))
+        else:
+            os.system('start %s' % ' '.join(cmd))
+
+    def createMovie(self, fileIn, fileOut, resize=(None, None), ratio=False, speed='24',
+                    force=False, printCmd=False, extern=False):
+        """ Convert given file to movie via ffmpeg
+            :param fileIn: (str) : Image file in absolute path (name.%0Xd.ext)
+            :param fileOut: (str) : Movie file out absolute path
+            :param resize: (tuple) : Width(int), Height(int)
+            :param ratio: (bool) : Keep aspect ratio (fileIn must be name.start-end.ext)
+            :param speed: (str) : Frame rate, default = 24
+            :param force: (bool) : Overwrite destination
+            :param printCmd: (bool) : Print resize command
+            :param extern: (bool) : Launch resize in new xtem """
+        cmd = [self.ffmpeg, '-v', 'error', '-stats', '-r', speed, '-f', 'image2']
+        if resize[0] is not None and resize[1] is not None:
+            if not ratio:
+                cmd.append("-i %s -s %sx%s" % (fileIn, resize[0], resize[1]))
+            else:
+                if not len(os.path.basename(fileIn).split('.')) == 3:
+                    raise AttributeError, "fileIn must be name.start-end.ext !!!"
+                if not '-' in os.path.basename(fileIn).split('.')[1]:
+                    raise AttributeError, "fileIn must be name.start-end.ext !!!"
+                imaSeq, width, height = self._getMovieParams(fileIn, resize)
+                cmd.append("-i %s -s %sx%s" % (imaSeq, width, height))
+        else:
+            cmd.append("-i %s" % fileIn)
+        if force:
+            cmd.append("-y")
+        cmd.append(os.path.normpath(fileOut))
+        if printCmd:
+            print "#-- Movie Command --#\n", ' '.join(cmd)
         if not extern:
             os.system(' '.join(cmd))
         else:
@@ -249,7 +288,7 @@ class Image(object):
                     label = os.path.basename(name).replace('.', '|')
                     info[label] = {'Name': name}
                 else:
-                    k = line.split('=')[0].strip()
+                    k = line.split('=')[0].strip().replace(' ', '')
                     v = line.split('=')[-1].strip()
                     info[label][k] = v
         return info
@@ -294,3 +333,30 @@ class Image(object):
         else:
             newSize = (int(resize[0]), int(resize[0] / ratio))
         return newSize
+
+    def _getMovieParams(self, fileIn, resize):
+        """ Get movie params for resize with aspect constrain
+            :param fileIn: Image file in absolute path
+            :param resize: (tuple) : Width(int), Height(int)
+            :return: (str, int, int) : Sequence absolute path, Width, Height """
+        imaPath = os.path.normpath(os.path.dirname(fileIn))
+        imaName = os.path.basename(fileIn).split('.')[0]
+        imaFrame = os.path.basename(fileIn).split('.')[1].split('-')[0]
+        iFrame = ("%0" + str(len(imaFrame)) + "d")
+        imaExt = os.path.basename(fileIn).split('.')[2]
+        imaFile = os.path.join(imaPath, "%s.%s.%s" % (imaName, imaFrame, imaExt))
+        imaSeq = os.path.join(imaPath, "%s.%s.%s" % (imaName, iFrame, imaExt))
+        newSize = self._getNewSize(imaFile, resize)
+        if str(newSize[0])[-1] in ['1', '3', '5', '7', '9']:
+            newSize = (newSize[0] + 1, newSize[1])
+        if str(newSize[1])[-1] in ['1', '3', '5', '7', '9']:
+            newSize = (newSize[0], newSize[1] + 1)
+        return imaSeq, newSize[0], newSize[1]
+
+
+if __name__ == '__main__':
+    ima = Image()
+    fileIn = "D:/factory/stockShot/fire/embers/seq/embers_001/embers_001.0001-0070.jpg"
+    # fileIn = "D:/factory/stockShot/fire/embers/seq/embers_001/embers_001.%04d.jpg"
+    fileOut = "D:/factory/stockShot/fire/embers/seq/embers_001/toto2.mov"
+    ima.createMovie(fileIn, fileOut, resize=(200, 200), ratio=True, force=True, printCmd=True)
