@@ -3,6 +3,7 @@ import os
 
 rndPath = os.path.normpath("F:/rnd")
 rndBinPath = os.path.normpath("D:/rndBin")
+prodPath = os.path.normpath("D:/prods")
 appsPath = os.path.normpath("F:/apps")
 studioPath = os.path.normpath(os.path.join(rndPath, "workspace", "studio"))
 
