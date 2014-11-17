@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\factory\ui\wgtThumbnail.ui'
 #
-# Created: Wed Oct 29 13:43:12 2014
+# Created: Tue Nov 04 13:44:07 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_thumbnail(object):
     def setupUi(self, thumbnail):
         thumbnail.setObjectName(_fromUtf8("thumbnail"))
-        thumbnail.resize(110, 123)
+        thumbnail.resize(116, 142)
         thumbnail.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.gridLayout = QtGui.QGridLayout(thumbnail)
         self.gridLayout.setMargin(0)
@@ -37,7 +37,7 @@ class Ui_thumbnail(object):
         self.cbPreview.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.cbPreview.setText(_fromUtf8(""))
         self.cbPreview.setObjectName(_fromUtf8("cbPreview"))
-        self.gridLayout.addWidget(self.cbPreview, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.cbPreview, 3, 1, 1, 1)
         self.bPreview = QtGui.QPushButton(thumbnail)
         self.bPreview.setMinimumSize(QtCore.QSize(110, 110))
         self.bPreview.setMaximumSize(QtCore.QSize(110, 110))
@@ -46,11 +46,36 @@ class Ui_thumbnail(object):
         self.bPreview.setCheckable(True)
         self.bPreview.setFlat(False)
         self.bPreview.setObjectName(_fromUtf8("bPreview"))
-        self.gridLayout.addWidget(self.bPreview, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.bPreview, 1, 1, 1, 1)
+        self.line_3 = QtGui.QFrame(thumbnail)
+        self.line_3.setFrameShape(QtGui.QFrame.VLine)
+        self.line_3.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_3.setObjectName(_fromUtf8("line_3"))
+        self.gridLayout.addWidget(self.line_3, 1, 0, 3, 1)
+        self.line_2 = QtGui.QFrame(thumbnail)
+        self.line_2.setFrameShape(QtGui.QFrame.HLine)
+        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_2.setObjectName(_fromUtf8("line_2"))
+        self.gridLayout.addWidget(self.line_2, 0, 1, 1, 1)
+        self.lName = QtGui.QLabel(thumbnail)
+        self.lName.setAlignment(QtCore.Qt.AlignCenter)
+        self.lName.setObjectName(_fromUtf8("lName"))
+        self.gridLayout.addWidget(self.lName, 2, 1, 1, 1)
+        self.line = QtGui.QFrame(thumbnail)
+        self.line.setFrameShape(QtGui.QFrame.HLine)
+        self.line.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line.setObjectName(_fromUtf8("line"))
+        self.gridLayout.addWidget(self.line, 4, 1, 1, 1)
+        self.line_4 = QtGui.QFrame(thumbnail)
+        self.line_4.setFrameShape(QtGui.QFrame.VLine)
+        self.line_4.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_4.setObjectName(_fromUtf8("line_4"))
+        self.gridLayout.addWidget(self.line_4, 1, 2, 3, 1)
 
         self.retranslateUi(thumbnail)
         QtCore.QMetaObject.connectSlotsByName(thumbnail)
 
     def retranslateUi(self, thumbnail):
         thumbnail.setWindowTitle(_translate("thumbnail", "Thumbnail", None))
+        self.lName.setText(_translate("thumbnail", "Name", None))
 

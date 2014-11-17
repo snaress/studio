@@ -148,7 +148,7 @@
          </property>
          <widget class="QTreeWidget" name="twTexture">
           <property name="selectionMode">
-           <enum>QAbstractItemView::NoSelection</enum>
+           <enum>QAbstractItemView::SingleSelection</enum>
           </property>
           <property name="indentation">
            <number>2</number>
@@ -164,7 +164,7 @@
          </widget>
          <widget class="QTreeWidget" name="twShader">
           <property name="selectionMode">
-           <enum>QAbstractItemView::NoSelection</enum>
+           <enum>QAbstractItemView::SingleSelection</enum>
           </property>
           <property name="indentation">
            <number>2</number>
@@ -180,7 +180,7 @@
          </widget>
          <widget class="QTreeWidget" name="twStockShot">
           <property name="selectionMode">
-           <enum>QAbstractItemView::NoSelection</enum>
+           <enum>QAbstractItemView::SingleSelection</enum>
           </property>
           <property name="indentation">
            <number>2</number>
@@ -360,6 +360,10 @@
     <property name="title">
      <string>Transfert</string>
     </property>
+    <addaction name="miClearTexture"/>
+    <addaction name="miClearShader"/>
+    <addaction name="miClearStockShot"/>
+    <addaction name="separator"/>
     <addaction name="miStoredTexture"/>
     <addaction name="miStoredShader"/>
     <addaction name="miStoredStockShot"/>
@@ -421,6 +425,21 @@
   <action name="miCreateAllMovies">
    <property name="text">
     <string>Create All Movies</string>
+   </property>
+  </action>
+  <action name="miClearTexture">
+   <property name="text">
+    <string>Clear Texture</string>
+   </property>
+  </action>
+  <action name="miClearShader">
+   <property name="text">
+    <string>Clear Shader</string>
+   </property>
+  </action>
+  <action name="miClearStockShot">
+   <property name="text">
+    <string>Clear StockShot</string>
    </property>
   </action>
  </widget>

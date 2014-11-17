@@ -1,11 +1,11 @@
-import os
+import os, shutil
 from appli import factory
 from lib.system import procFile as pFile
 
 
 class Factory(object):
     """ Factory main class
-        @param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug') """
+        :param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug') """
 
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="Factory", level=logLvl)
@@ -18,7 +18,7 @@ class Factory(object):
 
     def parseTree(self, tree):
         """ Parse given tree
-            @param tree: (object) : Tree object """
+            :param tree: (object) : Tree object """
         self.log.debug("Parsing %s ..." % tree.treeName)
         tree.tree = []
         #-- Parse Category --#
@@ -46,10 +46,44 @@ class Factory(object):
                                 newSubCat._children.append(newFile)
         self.log.debug("\t Parsing done.")
 
+    def transfertTexture(self, src, dst):
+        """ Transfert texture
+            :param src: (str) : Source file
+            :param dst: (str) : Destination path """
+        try:
+            shutil.copy(src, dst)
+            self.log.info("Copy texture %s in %s" % (src, dst))
+        except:
+            self.log.error("Can not copy file: %s" %src)
+
+    def transfertStockShot(self, src, dst):
+        """ Transfert stockShot
+            :param src: (str) : Source file
+            :param dst: (str) : Destination path """
+        srcPath = os.path.dirname(src)
+        srcFile = os.path.basename(src)
+        fldName = os.path.splitext(srcFile)[0]
+        stockPath = os.path.join(srcPath, 'seq', fldName)
+        for file in os.listdir(stockPath):
+            if not file.startswith('_') and not file.startswith('.'):
+                srcAbsPath = os.path.join(stockPath, file)
+                dstPath = os.path.join(dst, fldName)
+                if not os.path.exists(dstPath):
+                    try:
+                        os.mkdir(dstPath)
+                        self.log.info("Create Tmp folder %s" % fldName)
+                    except:
+                        raise IOError, "Can not create stockShot folder: %s" % fldName
+                try:
+                    shutil.copy(srcAbsPath, dstPath)
+                    self.log.info("Copy stockShot %s in %s" % (srcAbsPath, dstPath))
+                except:
+                    self.log.error("Can not copy file: %s" %srcAbsPath)
+
     def ud_thumbnailImages(self, imaFile, imaType):
         """ Create or update thumbnail or preview image
-            @param imaFile: (str) : Original image absolute path
-            @param imaType: (str) : 'icon' or 'preview' """
+            :param imaFile: (str) : Original image absolute path
+            :param imaType: (str) : 'icon' or 'preview' """
         self.log.info("Create %s file ..." % imaType)
         srcFile = os.path.normpath(imaFile)
         thumbPath = pFile.conformPath(os.path.join(os.path.dirname(imaFile), '_%s' % imaType))
@@ -69,8 +103,8 @@ class Factory(object):
 
     def ud_thumbnailDatas(self, imaFile, treeName):
         """ Create or update thumbnail data
-            @param imaFile: (str) : Original image absolute path
-            @param treeName: (str) : Tree object name """
+            :param imaFile: (str) : Original image absolute path
+            :param treeName: (str) : Tree object name """
         self.log.info("Create data file ...")
         node = self.getNode(treeName, imaFile)
         dataPath = pFile.conformPath(os.path.dirname(node.dataFile))
@@ -95,6 +129,9 @@ class Factory(object):
             self.log.warning("Can not access fileData, skip %s" % node.nodeName)
 
     def ud_movie(self, fileIn, fileOut):
+        """ Create or update movie
+            :param fileIn: (str) : Original movie absolute path
+            :param fileOut: (str) : Destination movie absolute path """
         self.log.info("Create movie file ...")
         movPath = os.path.dirname(fileOut)
         if not os.path.exists(movPath):
@@ -105,9 +142,9 @@ class Factory(object):
 
     def getNode(self, treeName, nodePath):
         """ Get node from given treeName and nodePath
-            @param treeName: (str) : Tree object name
-            @param nodePath: (str) : Node path
-            @return: (object) : Node object """
+            :param treeName: (str) : Tree object name
+            :param nodePath: (str) : Node path
+            :return: (object) : Node object """
         tree = getattr(self, treeName)
         node = tree.getNode(nodePath=nodePath)
         return node
@@ -115,8 +152,8 @@ class Factory(object):
 
 class Tree(object):
     """ Factory tree object
-        @param treeName : (str) : Tree name
-        @param parent : (object) : Parent class """
+        :param treeName : (str) : Tree name
+        :param parent : (object) : Parent class """
 
     def __init__(self, treeName, parent=None):
         self._parent = parent
@@ -128,7 +165,7 @@ class Tree(object):
 
     def getAllNodes(self):
         """ Get all treeNodes
-            @return: (list) : Tree nodes list """
+            :return: (list) : Tree nodes list """
         allNodes = []
         for node in self.tree:
             allNodes.extend(self.getAllChildren(node))
@@ -137,9 +174,9 @@ class Tree(object):
     @staticmethod
     def getAllChildren(node, depth=-1):
         """ get all children from given node
-            @param node: (object) : Tree node
-            @param depth: (int) : recursion depth
-            @return: (list) : Tree nodes list """
+            :param node: (object) : Tree node
+            :param depth: (int) : recursion depth
+            :return: (list) : Tree nodes list """
         nodes = []
         def recurse(currentNode, depth):
             nodes.append(currentNode)
@@ -151,8 +188,8 @@ class Tree(object):
 
     def getNode(self, nodePath=None):
         """ Get node from given nodePath
-            @param nodePath: (str) : Node path
-            @return: (object) : Node object """
+            :param nodePath: (str) : Node path
+            :return: (object) : Node object """
         if nodePath is not None:
             for node in self.getAllNodes():
                 if node.nodePath == nodePath:
@@ -161,11 +198,11 @@ class Tree(object):
 
 class TreeNode(object):
     """ Factory tree node
-        @param nodeType : (str) : 'category', 'subCategory' or 'file'
-        @param nodeName : (str) : Node name
-        @param nodePath : (str) : Node path
-        @param tree : (object) : Parent tree object
-        @param parent : (object) : Parent treeNode object """
+        :param nodeType : (str) : 'category', 'subCategory' or 'file'
+        :param nodeName : (str) : Node name
+        :param nodePath : (str) : Node path
+        :param tree : (object) : Parent tree object
+        :param parent : (object) : Parent treeNode object """
 
     def __init__(self, nodeType, nodeName, nodePath, tree=None, parent=None):
         self._tree = tree
@@ -178,35 +215,35 @@ class TreeNode(object):
     @property
     def sequencePath(self):
         """ Get sequence path
-            @return: (str) : Sequence absolute path """
+            :return: (str) : Sequence absolute path """
         path = os.path.join(os.path.dirname(self.nodePath), 'seq', self.nodeName)
         return pFile.conformPath(path)
 
     @property
     def movieFile(self):
         """ Get movie file
-            @return: (str) : Movie file absolute path """
+            :return: (str) : Movie file absolute path """
         path = os.path.join(os.path.dirname(self.nodePath), 'mov')
         return pFile.conformPath(os.path.join(path, "%s.mov" % self.nodeName))
 
     @property
     def dataFile(self):
         """ get data file
-            @return: (str) : Data file absolute path """
+            :return: (str) : Data file absolute path """
         path = os.path.join(os.path.dirname(self.nodePath), '_data')
         return pFile.conformPath(os.path.join(path, "%s.py" % self.nodeName))
 
     @property
     def datas(self):
         """ Get datas
-            @return: (dict) : File datas """
+            :return: (dict) : File datas """
         if os.path.exists(self.dataFile):
             return pFile.readPyFile(self.dataFile)
 
     @property
     def datasString(self):
         """ Convert datas dict into readable string
-            @return: (str) : Datas string """
+            :return: (str) : Datas string """
         txt = []
         infoOrder = ['Path', 'Name', 'Width', 'Height', 'Aspect', 'Layer', 'Pixel', 'Duration', 'Speed']
         if self.datas is not None:
@@ -228,7 +265,7 @@ class TreeNode(object):
 
     def hasSequence(self):
         """ Check if node has sequence folder
-            @return: (bool) : True if exists """
+            :return: (bool) : True if exists """
         if os.path.exists(self.sequencePath):
             return True
         else:
@@ -236,7 +273,7 @@ class TreeNode(object):
 
     def hasMovie(self):
         """ Check if node has movie file
-            @return: (bool) : True if exists """
+            :return: (bool) : True if exists """
         if os.path.exists(self.movieFile):
             return True
         else:
@@ -244,7 +281,7 @@ class TreeNode(object):
 
     def getFileInfo(self):
         """ Get file info
-            @return: (str) : File info """
+            :return: (str) : File info """
         if self.hasSequence():
             path = self.sequencePath
         else:

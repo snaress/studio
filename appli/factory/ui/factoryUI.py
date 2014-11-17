@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\factory\ui\factory.ui'
 #
-# Created: Thu Oct 30 03:57:31 2014
+# Created: Mon Nov 17 18:30:35 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -84,19 +84,19 @@ class Ui_factory(object):
         self.splitter_2.setOrientation(QtCore.Qt.Vertical)
         self.splitter_2.setObjectName(_fromUtf8("splitter_2"))
         self.twTexture = QtGui.QTreeWidget(self.splitter_2)
-        self.twTexture.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        self.twTexture.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.twTexture.setIndentation(2)
         self.twTexture.setObjectName(_fromUtf8("twTexture"))
         self.twTexture.headerItem().setText(0, _fromUtf8("Stored Textures"))
         self.twTexture.headerItem().setTextAlignment(0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter|QtCore.Qt.AlignCenter)
         self.twShader = QtGui.QTreeWidget(self.splitter_2)
-        self.twShader.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        self.twShader.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.twShader.setIndentation(2)
         self.twShader.setObjectName(_fromUtf8("twShader"))
         self.twShader.headerItem().setText(0, _fromUtf8("Stored Shaders"))
         self.twShader.headerItem().setTextAlignment(0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter|QtCore.Qt.AlignCenter)
         self.twStockShot = QtGui.QTreeWidget(self.splitter_2)
-        self.twStockShot.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        self.twStockShot.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.twStockShot.setIndentation(2)
         self.twStockShot.setObjectName(_fromUtf8("twStockShot"))
         self.twStockShot.headerItem().setText(0, _fromUtf8("Stored StockShots"))
@@ -188,11 +188,21 @@ class Ui_factory(object):
         self.miCreateSelMovies.setObjectName(_fromUtf8("miCreateSelMovies"))
         self.miCreateAllMovies = QtGui.QAction(factory)
         self.miCreateAllMovies.setObjectName(_fromUtf8("miCreateAllMovies"))
+        self.miClearTexture = QtGui.QAction(factory)
+        self.miClearTexture.setObjectName(_fromUtf8("miClearTexture"))
+        self.miClearShader = QtGui.QAction(factory)
+        self.miClearShader.setObjectName(_fromUtf8("miClearShader"))
+        self.miClearStockShot = QtGui.QAction(factory)
+        self.miClearStockShot.setObjectName(_fromUtf8("miClearStockShot"))
         self.mThumbnail.addAction(self.miCreateSelPreviewFiles)
         self.mThumbnail.addAction(self.miCreateAllPreviewFiles)
         self.mThumbnail.addSeparator()
         self.mThumbnail.addAction(self.miCreateSelMovies)
         self.mThumbnail.addAction(self.miCreateAllMovies)
+        self.mTransfert.addAction(self.miClearTexture)
+        self.mTransfert.addAction(self.miClearShader)
+        self.mTransfert.addAction(self.miClearStockShot)
+        self.mTransfert.addSeparator()
         self.mTransfert.addAction(self.miStoredTexture)
         self.mTransfert.addAction(self.miStoredShader)
         self.mTransfert.addAction(self.miStoredStockShot)
@@ -222,4 +232,7 @@ class Ui_factory(object):
         self.miCreateAllPreviewFiles.setText(_translate("factory", "Create All Preview Files", None))
         self.miCreateSelMovies.setText(_translate("factory", "Create Selected Movies", None))
         self.miCreateAllMovies.setText(_translate("factory", "Create All Movies", None))
+        self.miClearTexture.setText(_translate("factory", "Clear Texture", None))
+        self.miClearShader.setText(_translate("factory", "Clear Shader", None))
+        self.miClearStockShot.setText(_translate("factory", "Clear StockShot", None))
 
