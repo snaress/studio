@@ -210,6 +210,13 @@ def delSelItems(twTree):
             ind = item.parent().indexOfChild(item)
             item.parent().takeChild(ind)
 
+def deselectAllItems(twTree):
+    """ Deselected QTreeWidgetItems from given QTreeWidget
+        @param twTree: (object) : QTreeWidget """
+    selItems = twTree.selectedItems()
+    for item in selItems:
+        twTree.setItemSelected(item, False)
+
 #=========================================== QComboBox ===========================================#
 
 def getComboBoxItems(QComboBox):
