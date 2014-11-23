@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\ui\wgVariables.ui'
 #
-# Created: Wed Nov 19 07:31:11 2014
+# Created: Wed Nov 19 15:49:59 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_mwVariables(object):
     def setupUi(self, mwVariables):
         mwVariables.setObjectName(_fromUtf8("mwVariables"))
-        mwVariables.resize(528, 263)
+        mwVariables.resize(630, 263)
         self.centralwidget = QtGui.QWidget(mwVariables)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
@@ -44,7 +44,7 @@ class Ui_mwVariables(object):
         self.gridLayout.addWidget(self.twVariables, 0, 0, 1, 1)
         mwVariables.setCentralWidget(self.centralwidget)
         self.mbVariables = QtGui.QMenuBar(mwVariables)
-        self.mbVariables.setGeometry(QtCore.QRect(0, 0, 528, 21))
+        self.mbVariables.setGeometry(QtCore.QRect(0, 0, 630, 21))
         self.mbVariables.setObjectName(_fromUtf8("mbVariables"))
         self.mEdit = QtGui.QMenu(self.mbVariables)
         self.mEdit.setObjectName(_fromUtf8("mEdit"))

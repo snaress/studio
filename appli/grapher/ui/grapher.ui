@@ -110,7 +110,118 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="mFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="miLoad"/>
+    <addaction name="separator"/>
+    <addaction name="miSave"/>
+    <addaction name="miSaveAs"/>
+   </widget>
+   <widget class="QMenu" name="mGraph">
+    <property name="title">
+     <string>Graph</string>
+    </property>
+    <addaction name="miNewNode"/>
+    <addaction name="miRenameNode"/>
+    <addaction name="miDeleteNode"/>
+    <addaction name="separator"/>
+    <addaction name="miCopyNodes"/>
+    <addaction name="miCopyBranch"/>
+    <addaction name="miCutNodes"/>
+    <addaction name="miCutBranch"/>
+    <addaction name="miPasteNodes"/>
+    <addaction name="separator"/>
+    <addaction name="miMoveUp"/>
+    <addaction name="miMoveDown"/>
+   </widget>
+   <widget class="QMenu" name="mLib">
+    <property name="title">
+     <string>Lib</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="mPref">
+    <property name="title">
+     <string>Pref</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="mExec">
+    <property name="title">
+     <string>Exec</string>
+    </property>
+   </widget>
+   <addaction name="mFile"/>
+   <addaction name="mGraph"/>
+   <addaction name="mExec"/>
+   <addaction name="mLib"/>
+   <addaction name="mPref"/>
   </widget>
+  <action name="miNewNode">
+   <property name="text">
+    <string>New Node</string>
+   </property>
+  </action>
+  <action name="miRenameNode">
+   <property name="text">
+    <string>Rename Node</string>
+   </property>
+  </action>
+  <action name="miDeleteNode">
+   <property name="text">
+    <string>Delete Nodes</string>
+   </property>
+  </action>
+  <action name="miCopyNodes">
+   <property name="text">
+    <string>Copy Nodes</string>
+   </property>
+  </action>
+  <action name="miCopyBranch">
+   <property name="text">
+    <string>Copy Branch</string>
+   </property>
+  </action>
+  <action name="miCutNodes">
+   <property name="text">
+    <string>Cut Nodes</string>
+   </property>
+  </action>
+  <action name="miCutBranch">
+   <property name="text">
+    <string>Cut Branch</string>
+   </property>
+  </action>
+  <action name="miPasteNodes">
+   <property name="text">
+    <string>Paste Nodes</string>
+   </property>
+  </action>
+  <action name="miMoveUp">
+   <property name="text">
+    <string>Move Up</string>
+   </property>
+  </action>
+  <action name="miMoveDown">
+   <property name="text">
+    <string>Move Down</string>
+   </property>
+  </action>
+  <action name="miSaveAs">
+   <property name="text">
+    <string>Save As</string>
+   </property>
+  </action>
+  <action name="miSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="miLoad">
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

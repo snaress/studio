@@ -10,13 +10,21 @@ class Comment(textEditor.TextEditor):
     def __init__(self, ui):
         self._ui = ui
         self.log = self._ui.log
+        self.buffer = None
         super(Comment, self).__init__()
         self._setupWidget()
+
+    @property
+    def comment(self):
+        return {'html': str(self.teText.toHtml()), 'text': str(self.teText.toPlainText())}
 
     def _setupWidget(self):
         """ Setup Comment widget """
         self.log.debug("#-- Setup Comment Widget --#")
         self._ui.cbComment.clicked.connect(self.rf_widgetVis)
+        self.bClearText.setToolTip("Cancel Edition")
+        self.bLoadFile.setToolTip("Start Edition")
+        self.bSaveFile.setToolTip("Save Edition")
 
     def rf_widgetVis(self):
         """ Refresh Comment visibility """
@@ -29,6 +37,51 @@ class Comment(textEditor.TextEditor):
             self.setVisible(False)
             self.parent().setMinimumHeight(20)
             self.parent().setMaximumHeight(20)
+
+    def rf_menuVis(self, state=False):
+        """ Refresh menu visibility
+            :param state: (bool) : Visibility state """
+        self.log.debug("\t Refresh Comment menu visibility ...")
+        self.bClearText.setEnabled(state)
+        self.bLoadFile.setEnabled(not state)
+        self.bSaveFile.setEnabled(state)
+        for grp in [self.editActionGrp, self.textActionGrp, self.fontActionGrp]:
+            for widget in grp:
+                widget.setEnabled(state)
+        self.teText.setReadOnly(not state)
+
+    def rf_comment(self, textHtml):
+        """ Refresh Grapher comment
+            :param textHtml: (str) : Comment in html form """
+        self.log.debug("\t Refresh Comment ...")
+        self.teText.setHtml(textHtml)
+
+    def on_clearText(self):
+        """ Switch widget visibility to disable edition and restore text """
+        self.log.debug("\t Restore text ...")
+        super(Comment, self).on_clearText()
+        self.teText.setHtml(self.buffer)
+        self.rf_menuVis()
+        self.buffer = None
+
+    def on_loadFile(self):
+        """ Switch widget visibility to enable edition """
+        self.log.debug("\t Enable edition ...")
+        self.buffer = self.teText.toHtml()
+        self.rf_menuVis(state=True)
+
+    def on_saveFile(self):
+        """ Switch widget visibility to disable edition and save text """
+        self.log.debug("\t Disable Edition ...")
+        self.buffer = None
+        self.rf_menuVis()
+        if self._ui.objectName() == 'mwGrapher':
+            self._ui.gp.gpComment = self.comment
+
+    def clearComment(self):
+        """ Reset Grapher comment """
+        self.log.debug("\t Clear Comment ...")
+        self.teText.clear()
 
 
 class Variables(QtGui.QMainWindow, wgVariablesUI.Ui_mwVariables):
@@ -50,8 +103,7 @@ class Variables(QtGui.QMainWindow, wgVariablesUI.Ui_mwVariables):
         self.twVariables.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
         self.twVariables.header().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
         self.twVariables.header().setResizeMode(3, QtGui.QHeaderView.ResizeToContents)
-        self.connect(self.twVariables, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),
-                     self.on_popUpMenu)
+        self.connect(self.twVariables, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'), self.on_popUpMenu)
 
     # noinspection PyUnresolvedReferences
     def _menuEdit(self):
@@ -70,6 +122,10 @@ class Variables(QtGui.QMainWindow, wgVariablesUI.Ui_mwVariables):
         self.miMoveUp.setShortcut("Ctrl+Up")
         self.miMoveDn.triggered.connect(partial(self.on_move, 'down'))
         self.miMoveDn.setShortcut("Ctrl+Down")
+        self.miPush.triggered.connect(self.on_push)
+        self.miPush.setShortcut("Alt+C")
+        self.miPull.triggered.connect(self.on_pull)
+        self.miPull.setShortcut("Alt+V")
 
     def rf_widgetVis(self):
         """ Refresh Variables visibility """
@@ -169,6 +225,14 @@ class Variables(QtGui.QMainWindow, wgVariablesUI.Ui_mwVariables):
         self.reindexVar()
         for newItem in newItems:
             self.twVariables.setItemSelected(newItem, True)
+
+    def on_push(self):
+        self.log.warning("!!! Command to do !!!")
+        #todo: Push variables
+
+    def on_pull(self):
+        self.log.warning("!!! Command to do !!!")
+        #todo: pull variables
 
     def on_popUpMenu(self, point):
         """ Command launched when right click is done
