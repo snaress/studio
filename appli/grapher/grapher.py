@@ -11,6 +11,8 @@ class Grapher(object):
         self._file = None
         self._lock = False
         self.gpComment = {'html': "", 'text': ""}
+        self.gpVariables = {}
+        self.gpGraph = {'_order': []}
 
     @property
     def fileName(self):
@@ -68,6 +70,13 @@ class Grapher(object):
         if self.graphFile is not None:
             lockFile = self.fileName.replace("gp_", "gpLock_")
             return pFile.conformPath(os.path.join(self.filePath, lockFile))
+
+    @property
+    def defaultNodeDict(self):
+        """ Get default nodeData dict
+            :return: (dict) : Node data """
+        return {'nodeName': "NewNode", 'nodeInstance': None, 'nodeEnabled': True, 'nodeExpanded': True,
+                'nodeType': "modul", 'nodeVersion': "001", 'nodeVTitle': {'001': "New Version"}, 'nodeExec': False}
 
     def loadGraphFile(self, graphFile):
         """ Load given graph file
@@ -131,6 +140,7 @@ class Grapher(object):
             return False, "Can not write file %s" % self.graphFile
 
     def update(self):
+        """ Update graph data from graphFile """
         params = pFile.readPyFile(self.graphFile)
         for k in params.keys():
             if k.startswith("gp"):

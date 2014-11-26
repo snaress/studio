@@ -1,8 +1,8 @@
 from PyQt4 import QtGui, QtCore
 from functools import partial
-from lib.qt import textEditor
 from lib.qt import procQt as pQt
-from appli.grapher.ui import wgVariablesUI
+from lib.qt import textEditor, scriptEditor
+from appli.grapher.ui import wgVariablesUI, nodeEditorUI
 
 
 class Comment(textEditor.TextEditor):
@@ -93,6 +93,17 @@ class Variables(QtGui.QMainWindow, wgVariablesUI.Ui_mwVariables):
         super(Variables, self).__init__()
         self._setupWidget()
 
+    @property
+    def varData(self):
+        """ Get variable data
+            :return: (dict) : Variable data """
+        varDict = {}
+        items = pQt.getTopItems(self.twVariables)
+        for n, item in enumerate(items):
+            index = str(n + 1).zfill(2)
+            varDict['var%s' % index] = self.getItemDict(item)
+        return varDict
+
     # noinspection PyUnresolvedReferences
     def _setupWidget(self):
         """ Setup Variables widget """
@@ -111,12 +122,12 @@ class Variables(QtGui.QMainWindow, wgVariablesUI.Ui_mwVariables):
         self.miAdd.triggered.connect(partial(self.on_addVar, index=None))
         self.miAdd.setShortcut("Ctrl+A")
         self.miDel.triggered.connect(self.on_delVar)
-        self.miDel.setShortcut("Del")
+        self.miDel.setShortcut("Ctrl+Del")
         self.miCopy.triggered.connect(partial(self.on_copy, keepSelection=False))
         self.miCopy.setShortcut("Ctrl+C")
         self.miCut.triggered.connect(self.on_cut)
         self.miCut.setShortcut("Ctrl+X")
-        self.miPaste.triggered.connect(partial(self.on_paste, newIdex=None))
+        self.miPaste.triggered.connect(partial(self.on_paste, newIndex=None))
         self.miPaste.setShortcut("Ctrl+V")
         self.miMoveUp.triggered.connect(partial(self.on_move, 'up'))
         self.miMoveUp.setShortcut("Ctrl+Up")
@@ -138,6 +149,16 @@ class Variables(QtGui.QMainWindow, wgVariablesUI.Ui_mwVariables):
             self.setVisible(False)
             self.parent().setMinimumHeight(20)
             self.parent().setMaximumHeight(20)
+
+    def rf_variables(self, **kwargs):
+        """ Refresh Variables tree
+            :param kwargs: (dict) : VarData dict """
+        self.log.debug("\t Refresh Variables ...")
+        self.twVariables.clear()
+        for var in sorted(kwargs.keys()):
+            newItem = self.on_addVar()
+            self.setItem(newItem, **kwargs[var])
+            self.on_varEnable(newItem)
 
     def on_addVar(self, index=None):
         """ Add new variable
@@ -313,3 +334,139 @@ class Variables(QtGui.QMainWindow, wgVariablesUI.Ui_mwVariables):
             :return: (object) : QLineEdit """
         newWidget = QtGui.QLineEdit()
         return newWidget
+
+
+class ScriptEditor(scriptEditor.ScriptEditor):
+
+    def __init__(self, parent):
+        self.parent = parent
+        super(ScriptEditor, self).__init__()
+        self._setupWidget()
+
+    def _setupWidget(self):
+        """ Setup ScriptEditor widget """
+        self.tbEdit.setVisible(False)
+
+    @property
+    def script(self):
+        """ Get script
+            :return: (str) : Script """
+        return str(self._widget.toPlainText())
+
+
+class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_nodeEditor):
+
+    def __init__(self, mainUi, ui):
+        self.mainUi = mainUi
+        self._ui = ui
+        self.log = self._ui.log
+        self.graphNode = None
+        super(NodeEditor, self).__init__()
+        self._setupUi()
+        self._initUi()
+
+    @property
+    def nodeData(self):
+        """ Get nodeDataClass from stored graphNode
+            :return: (object) : NodeData class """
+        if self.graphNode is not None:
+            return self.graphNode.nodeData
+
+    @property
+    def nodeType(self):
+        """ Ge current nodeType
+            :return: (srt) : Node type """
+        return str(self.cbNodeType.itemText(self.cbNodeType.currentIndex()))
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup NodeEditor widget """
+        self.log.debug("#-- Setup Node Editor --#")
+        self.setupUi(self)
+        self.wgComment = Comment(self)
+        self.vlComment.addWidget(self.wgComment)
+        self.wgVariables = Variables(self)
+        self.vlVariables.addWidget(self.wgVariables)
+        self.wgScript = ScriptEditor(self)
+        self.vlScript.addWidget(self.wgScript)
+        self.cbNodeType.currentIndexChanged.connect(self.on_nodeType)
+        self.cbTrash.clicked.connect(self.rf_trashVis)
+        self.bSave.clicked.connect(self.on_save)
+
+    def _initUi(self):
+        """ Init NodeEditor widget """
+        self.wgComment.rf_widgetVis()
+        self.wgComment.rf_menuVis()
+        self.wgVariables.rf_widgetVis()
+        self.rf_trashVis()
+        if self._ui.objectName() == 'mwGrapher':
+            self.bClose.setVisible(False)
+        self.on_nodeType()
+
+    def _updateUi(self, graphNode=None):
+        """ Update nodeEditor ui
+            :param graphNode: (object) : QWidget """
+        if graphNode is not None:
+            self.graphNode = graphNode
+        self.rf_nodeName()
+        self.rf_nodeType()
+        self.on_nodeType()
+
+    def rf_nodeName(self):
+        """ Refresh nodeName """
+        if self.graphNode is None:
+            self.leNodeName.clear()
+        else:
+            self.leNodeName.setText(self.nodeData.nodeName)
+
+    def rf_nodeType(self):
+        """ Refresh nodeType """
+        if self.graphNode is None:
+            self.cbNodeType.setCurrentIndex(self.cbNodeType.findText('modul'))
+        else:
+            self.cbNodeType.setCurrentIndex(self.cbNodeType.findText(self.nodeData.nodeType))
+
+    def rf_trashVis(self):
+        """ Refresh trash visibility """
+        if self.cbTrash.isChecked():
+            self.teTrash.setVisible(True)
+            self.flTrash.setMinimumHeight(40)
+            self.flTrash.setMaximumHeight(300)
+        else:
+            self.teTrash.setVisible(False)
+            self.flTrash.setMinimumHeight(20)
+            self.flTrash.setMaximumHeight(20)
+
+    def ud_nodeType(self):
+        """ Update graphNode type """
+        self.nodeData.nodeType = self.nodeType
+
+    def on_nodeType(self):
+        """ Command launched when nodeType has changed """
+        if self.nodeType in ['sysData', 'cmdData', 'purData']:
+            self.qfLoop.setVisible(False)
+            self.qfScript.setVisible(True)
+            self.qfScriptSpacer.setVisible(False)
+            if self.nodeType == 'cmdData':
+                self.qfCmd.setVisible(True)
+            else:
+                self.qfCmd.setVisible(False)
+        elif self.nodeType == 'loop':
+            self.qfLoop.setVisible(True)
+            self.qfScript.setVisible(False)
+            self.qfScriptSpacer.setVisible(True)
+            # self.on_loopType()
+        elif self.nodeType == 'modul' or self.graphNode is None:
+            self.qfLoop.setVisible(False)
+            self.qfScript.setVisible(False)
+            self.qfScriptSpacer.setVisible(True)
+        if self.nodeType not in ['sysData', 'cmdData']:
+            self.cbExecNode.setChecked(False)
+            self.cbExecNode.setEnabled(False)
+        else:
+            self.cbExecNode.setEnabled(True)
+
+    def on_save(self):
+        """ Command launched when QPushButton 'Save' is clicked """
+        self.ud_nodeType()
+        self.graphNode.rf_nodeBgc()

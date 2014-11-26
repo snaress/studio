@@ -14,81 +14,99 @@
    <string>Grapher</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="glGrapher">
+   <layout class="QGridLayout" name="gridLayout">
     <property name="margin">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="spacing">
-     <number>2</number>
+     <number>0</number>
     </property>
     <item row="0" column="0">
-     <widget class="QSplitter" name="splitter">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="midLineWidth">
-       <number>0</number>
-      </property>
+     <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QFrame" name="vfComment">
+      <widget class="QSplitter" name="splitter">
        <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+        <enum>QFrame::NoFrame</enum>
        </property>
-       <layout class="QVBoxLayout" name="vlComment">
-        <property name="spacing">
-         <number>0</number>
+       <property name="midLineWidth">
+        <number>0</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QFrame" name="vfComment">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
         </property>
-        <property name="margin">
-         <number>0</number>
+        <layout class="QVBoxLayout" name="vlComment">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QCheckBox" name="cbComment">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <underline>true</underline>
+            </font>
+           </property>
+           <property name="text">
+            <string>Comments</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QFrame" name="vfVariables">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
         </property>
-        <item>
-         <widget class="QCheckBox" name="cbComment">
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <underline>true</underline>
-           </font>
-          </property>
-          <property name="text">
-           <string>Comments</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+        <layout class="QVBoxLayout" name="vlVariables">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QCheckBox" name="cbVariables">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <underline>true</underline>
+            </font>
+           </property>
+           <property name="text">
+            <string>Variables</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QFrame" name="vfGraph">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <layout class="QVBoxLayout" name="vlGraph">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
       </widget>
-      <widget class="QFrame" name="vfVariables">
+      <widget class="QFrame" name="vfNodeEditor">
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
        </property>
-       <layout class="QVBoxLayout" name="vlVariables">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QCheckBox" name="cbVariables">
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <underline>true</underline>
-           </font>
-          </property>
-          <property name="text">
-           <string>Variables</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QFrame" name="vfGraph">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <layout class="QVBoxLayout" name="vlGraph">
+       <layout class="QVBoxLayout" name="vlNodeEditor">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -118,6 +136,8 @@
     <addaction name="separator"/>
     <addaction name="miSave"/>
     <addaction name="miSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="miQuit"/>
    </widget>
    <widget class="QMenu" name="mGraph">
     <property name="title">
@@ -145,11 +165,14 @@
     <property name="title">
      <string>Pref</string>
     </property>
+    <addaction name="miNodeEditor"/>
    </widget>
    <widget class="QMenu" name="mExec">
     <property name="title">
      <string>Exec</string>
     </property>
+    <addaction name="miXterm"/>
+    <addaction name="miXplorer"/>
    </widget>
    <addaction name="mFile"/>
    <addaction name="mGraph"/>
@@ -220,6 +243,29 @@
   <action name="miLoad">
    <property name="text">
     <string>Load</string>
+   </property>
+  </action>
+  <action name="miXterm">
+   <property name="text">
+    <string>Xterm</string>
+   </property>
+  </action>
+  <action name="miXplorer">
+   <property name="text">
+    <string>Xplorer</string>
+   </property>
+  </action>
+  <action name="miQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="miNodeEditor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Node Editor</string>
    </property>
   </action>
  </widget>

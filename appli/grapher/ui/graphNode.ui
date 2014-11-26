@@ -25,7 +25,7 @@
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>20</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="font">
@@ -58,8 +58,8 @@
     <widget class="QCheckBox" name="cbNode">
      <property name="maximumSize">
       <size>
-       <width>18</width>
-       <height>20</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="autoFillBackground">
@@ -75,10 +75,16 @@
    </item>
    <item row="0" column="0">
     <widget class="QPushButton" name="pbExpand">
+     <property name="minimumSize">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="maximumSize">
       <size>
        <width>20</width>
-       <height>20</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="text">
@@ -97,7 +103,7 @@
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>20</height>
+       <height>16777215</height>
       </size>
      </property>
      <property name="text">

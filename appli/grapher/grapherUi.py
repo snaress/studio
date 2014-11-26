@@ -1,4 +1,4 @@
-import sys
+import os, sys
 from PyQt4 import QtGui
 from lib.env import studio
 from lib.qt import procQt as pQt
@@ -9,13 +9,15 @@ from appli.grapher import grapher, gpWidget, graphTree
 
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
 
-    def __init__(self, logLvl='info'):
+    def __init__(self, graph=None, logLvl='info'):
         self.log = pFile.Logger(title="Grapher-UI", level=logLvl)
         self.log.info("#-- Launching Grapher Ui --#")
         self.gp = grapher.Grapher(logLvl=logLvl)
         super(GrapherUi, self).__init__()
         self._setupUi()
         self._initUi()
+        if graph is not None:
+            self.loadGraph(graphFile=graph)
 
     def _setupUi(self):
         """ Setup main ui """
@@ -28,22 +30,37 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.vlVariables.addWidget(self.wgVariables)
         self.wgGraph = graphTree.GraphTree(self)
         self.vlGraph.addWidget(self.wgGraph)
+        self.wgNodeEditor = gpWidget.NodeEditor(self, self)
+        self.vlNodeEditor.addWidget(self.wgNodeEditor)
         self._menuFile()
         self._menuGraph()
+        self._menuExec()
+        self._menuPref()
 
     def _initUi(self):
         """ Init main ui """
         self.log.debug("#-- Init Grapher Ui --#")
         self.setWindowTitle("Grapher: Untitled")
+        self.on_nodeEditor()
         self.wgComment.rf_widgetVis()
         self.wgComment.rf_menuVis()
         self.wgVariables.rf_widgetVis()
+        self.wgGraph.setStyleSheet("background-color:rgb(0,0,0);")
 
     def _updateUi(self):
         """ Update Ui """
         self.log.debug("#-- Update Grapher Ui --#")
         self.setWindowTitle("Grapher: %s" % self.gp.graphFile)
         self.wgComment.rf_comment(self.gp.gpComment['html'])
+        self.wgVariables.rf_variables(**self.gp.gpVariables)
+        self.wgGraph.rf_graph()
+
+    def _updateGp(self):
+        """ Update Grapher object """
+        self.log.debug("#-- Update Grapher Object --#")
+        self.gp.gpComment = self.wgComment.comment
+        self.gp.gpVariables = self.wgVariables.varData
+        self.gp.gpGraph = self.wgGraph.graphData
 
     # noinspection PyUnresolvedReferences
     def _menuFile(self):
@@ -54,14 +71,31 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.miSave.setShortcut("Ctrl+S")
         self.miSaveAs.triggered.connect(self.on_saveGraphAs)
         self.miSaveAs.setShortcut("Ctrl+Shift+S")
+        self.miQuit.triggered.connect(self.on_quitGrapher)
+        self.miQuit.setShortcut("Ctrl+Shift+Q")
 
     # noinspection PyUnresolvedReferences
     def _menuGraph(self):
         """ Init menu Graph """
         self.miNewNode.triggered.connect(self.wgGraph.on_newNode)
         self.miNewNode.setShortcut("N")
+        self.miRenameNode.triggered.connect(self.wgGraph.on_renameNode)
         self.miRenameNode.setShortcut("F2")
         self.miDeleteNode.setShortcut("Del")
+
+    # noinspection PyUnresolvedReferences
+    def _menuExec(self):
+        """ Init menu Exec """
+        self.miXterm.triggered.connect(self.on_xTerm)
+        self.miXterm.setShortcut("Alt+X")
+        self.miXplorer.triggered.connect(self.on_xPlorer)
+        self.miXplorer.setShortcut("Alt+D")
+
+    # noinspection PyUnresolvedReferences
+    def _menuPref(self):
+        """ Init menu Pref """
+        self.miNodeEditor.triggered.connect(self.on_nodeEditor)
+        self.miNodeEditor.setShortcut("Ctrl+E")
 
     def on_loadGraph(self):
         """ Command launched when miLoad is clicked """
@@ -81,6 +115,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
             if self.gp.graphFile is None:
                 self.on_saveGraphAs()
             else:
+                self._updateGp()
                 result, log = self.gp.writeGraphFile(graphFile=None, force=True)
                 if not result:
                     self._errorDialog(log, self)
@@ -98,6 +133,30 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.fdSaveAs = pQt.fileDialog(fdMode='save', fdFileMode='AnyFile', fdRoot=rootDir,
                                        fdFilters=['gp_*.py'], fdCmd=self.saveGraphAs)
         self.fdSaveAs.exec_()
+
+    def on_quitGrapher(self):
+        """ Command launched when miQuitGraph is clicked """
+        mess = "Are you sure you want to close Grapher ?"
+        self.quitDialog = pQt.ConfirmDialog(mess, ["Close"], [self.quitGrapher])
+        self.quitDialog.exec_()
+
+    def on_xTerm(self):
+        """ Command launched when miXterm is clicked """
+        if self.gp.graphFile is not None:
+            os.system('start cmd.exe /K "cd /d %s"' % os.path.normpath(self.gp.filePath))
+        else:
+            os.system('start cmd.exe')
+
+    def on_xPlorer(self):
+        """ Command launched when miXplorer is clicked """
+        if self.gp.graphFile is not None:
+            os.system('start %s' % os.path.normpath(self.gp.filePath))
+        else:
+            os.system('start %s' % os.path.normpath(studio.prodPath))
+
+    def on_nodeEditor(self):
+        """ Command launched when miNodeEditor is clicked """
+        self.vfNodeEditor.setVisible(self.miNodeEditor.isChecked())
 
     def loadGraph(self, graphFile=None):
         """ Open selected graph
@@ -133,7 +192,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         """ Load graphFile in read only """
         self.lockDialog.close()
         self.gp.lock = True
-        self.setStyleSheet(self.applyStyle(styleName='redGrey'))
+        self.wgGraph.setStyleSheet("background-color:rgb(255,0,0);")
         self._updateUi()
 
     def breakLock(self):
@@ -142,7 +201,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.gp._removeLockFile(self.gp.lockFile)
         self.gp.lock = False
         self.gp._createLockFile(self.gp.lockFile)
-        self.setStyleSheet(self.applyStyle(styleName='darkOrange'))
+        self.wgGraph.setStyleSheet("background-color:rgb(0,0,0);")
         self._updateUi()
 
     def saveGraphAs(self):
@@ -151,12 +210,27 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         selPath = self.fdSaveAs.selectedFiles()
         if selPath:
             graphFile = str(selPath[0])
+            self._updateGp()
             result, log = self.gp.writeGraphFile(graphFile=graphFile, force=True)
             if not result:
                 self._errorDialog(log, self)
             else:
                 self.log.info(log)
                 self.fdSaveAs.close()
+
+    def quitGrapher(self):
+        """ Ask confirmaton before closing """
+        self.log.debug("#-- Quit Grapher --#")
+        self.quitDialog.close()
+        self.close()
+
+    def closeEvent(self, *args, **kwargs):
+        """ Command launch when GrapherUi is closed """
+        self.log.debug("#-- Close GrapherUi --#")
+        if self.gp.lockFile is not None:
+            if os.path.exists(self.gp.lockFile):
+                if not self.gp.lock:
+                    self.gp._removeLockFile(self.gp.lockFile)
 
     @staticmethod
     def _errorDialog(message, parent):
@@ -171,14 +245,16 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
 
 
 
-def launch(logLvl='info'):
+def launch(graph=None, logLvl='info'):
     """ Grapher launcher
         :param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug') """
     app = QtGui.QApplication(sys.argv)
-    window = GrapherUi(logLvl=logLvl)
+    window = GrapherUi(graph=graph, logLvl=logLvl)
     window.show()
     sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
-    launch(logLvl='debug')
+    # graphFile = None
+    graphFile = "D:/prods/gp_test.py"
+    launch(graph=graphFile, logLvl='debug')
