@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\factory\ui\wgtThumbnail.ui'
 #
-# Created: Tue Nov 04 13:44:07 2014
+# Created: Thu Nov 27 17:27:00 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -58,6 +58,7 @@ class Ui_thumbnail(object):
         self.line_2.setObjectName(_fromUtf8("line_2"))
         self.gridLayout.addWidget(self.line_2, 0, 1, 1, 1)
         self.lName = QtGui.QLabel(thumbnail)
+        self.lName.setMaximumSize(QtCore.QSize(110, 16777215))
         self.lName.setAlignment(QtCore.Qt.AlignCenter)
         self.lName.setObjectName(_fromUtf8("lName"))
         self.gridLayout.addWidget(self.lName, 2, 1, 1, 1)

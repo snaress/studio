@@ -14,11 +14,15 @@ class FactoryUi(QtGui.QMainWindow, factoryUI.Ui_factory, pQt.Style):
         :param logLvl : ('critical', 'error', 'warning', 'info', 'debug')
         :type logLvl: str """
 
-    def __init__(self, logLvl='info'):
+    def __init__(self, parent=None, logLvl='info'):
         self.log = pFile.Logger(title="Factory-UI", level=logLvl)
         self.log.info("#-- Launching Factory --#")
         self.factory = factory.Factory()
-        super(FactoryUi, self).__init__()
+        if parent is None:
+            self.inMaya = False
+        else:
+            self.inMaya = True
+        super(FactoryUi, self).__init__(parent)
         self._setupUi()
         self.rf_tree()
 
@@ -39,6 +43,7 @@ class FactoryUi(QtGui.QMainWindow, factoryUI.Ui_factory, pQt.Style):
         self.miCreateAllPreviewFiles.triggered.connect(partial(self.on_createPreviewFiles, 'all'))
         self.miCreateSelMovies.triggered.connect(partial(self.on_createMovieFile, 'sel'))
         self.miCreateAllMovies.triggered.connect(partial(self.on_createMovieFile, 'all'))
+        self.miSaveShader.setEnabled(self.inMaya)
         self.wgPreview = Preview(self)
         self.vlLeftZone.insertWidget(0, self.wgPreview)
         self.rbTexture.clicked.connect(self.on_switch)

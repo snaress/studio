@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1086</width>
+    <width>1095</width>
     <height>637</height>
    </rect>
   </property>
@@ -342,7 +342,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1086</width>
+     <width>1095</width>
      <height>21</height>
     </rect>
    </property>
@@ -355,6 +355,8 @@
     <addaction name="separator"/>
     <addaction name="miCreateSelMovies"/>
     <addaction name="miCreateAllMovies"/>
+    <addaction name="separator"/>
+    <addaction name="miSaveShader"/>
    </widget>
    <widget class="QMenu" name="mTransfert">
     <property name="title">
@@ -440,6 +442,11 @@
   <action name="miClearStockShot">
    <property name="text">
     <string>Clear StockShot</string>
+   </property>
+  </action>
+  <action name="miSaveShader">
+   <property name="text">
+    <string>Save Shader</string>
    </property>
   </action>
  </widget>

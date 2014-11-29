@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\factory\ui\factory.ui'
 #
-# Created: Mon Nov 17 18:30:35 2014
+# Created: Sat Nov 29 02:10:29 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_factory(object):
     def setupUi(self, factory):
         factory.setObjectName(_fromUtf8("factory"))
-        factory.resize(1086, 637)
+        factory.resize(1095, 637)
         self.centralwidget = QtGui.QWidget(factory)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
@@ -156,7 +156,7 @@ class Ui_factory(object):
         self.gridLayout.addWidget(self.splitter, 0, 1, 1, 1)
         factory.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(factory)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1086, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1095, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.mThumbnail = QtGui.QMenu(self.menubar)
         self.mThumbnail.setObjectName(_fromUtf8("mThumbnail"))
@@ -194,11 +194,15 @@ class Ui_factory(object):
         self.miClearShader.setObjectName(_fromUtf8("miClearShader"))
         self.miClearStockShot = QtGui.QAction(factory)
         self.miClearStockShot.setObjectName(_fromUtf8("miClearStockShot"))
+        self.miSaveShader = QtGui.QAction(factory)
+        self.miSaveShader.setObjectName(_fromUtf8("miSaveShader"))
         self.mThumbnail.addAction(self.miCreateSelPreviewFiles)
         self.mThumbnail.addAction(self.miCreateAllPreviewFiles)
         self.mThumbnail.addSeparator()
         self.mThumbnail.addAction(self.miCreateSelMovies)
         self.mThumbnail.addAction(self.miCreateAllMovies)
+        self.mThumbnail.addSeparator()
+        self.mThumbnail.addAction(self.miSaveShader)
         self.mTransfert.addAction(self.miClearTexture)
         self.mTransfert.addAction(self.miClearShader)
         self.mTransfert.addAction(self.miClearStockShot)
@@ -235,4 +239,5 @@ class Ui_factory(object):
         self.miClearTexture.setText(_translate("factory", "Clear Texture", None))
         self.miClearShader.setText(_translate("factory", "Clear Shader", None))
         self.miClearStockShot.setText(_translate("factory", "Clear StockShot", None))
+        self.miSaveShader.setText(_translate("factory", "Save Shader", None))
 

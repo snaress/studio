@@ -99,7 +99,10 @@ class Factory(object):
         else:
             iconSize = 80
         ima = pFile.Image()
-        ima.resizeIma2(srcFile, thumbAbsPath, resize=(iconSize, iconSize), ratio=True)
+        if os.path.splitext(srcFile)[1] in ['.bmp', '.hdr']:
+            ima.resizeIma(srcFile, thumbAbsPath, resize=(iconSize, iconSize), ratio=True, force=True)
+        else:
+            ima.resizeIma2(srcFile, thumbAbsPath, resize=(iconSize, iconSize), ratio=True)
 
     def ud_thumbnailDatas(self, imaFile, treeName):
         """ Create or update thumbnail data
@@ -112,19 +115,22 @@ class Factory(object):
             os.mkdir(dataPath)
             self.log.info("Create path %s" % dataPath)
         tmpDict = node.getFileInfo()
-        dataDict = tmpDict[tmpDict.keys()[0]]
-        if dataDict is not None:
-            dataTxt = ['Path = %r' % pFile.conformPath(os.path.dirname(imaFile))]
-            for k, v in dataDict.iteritems():
-                if isinstance(v, str):
-                    dataTxt.append("%s = %r" % (k, v))
-                else:
-                    dataTxt.append("%s = %s" % (k, v))
-            try:
-                pFile.writeFile(node.dataFile, '\n'.join(dataTxt))
-                self.log.info("Create thumbnail datas successfully: %s" % node.nodeName)
-            except:
-                self.log.error("Can not create thumbnail datas for %s" % node.nodeName)
+        if tmpDict is not None:
+            dataDict = tmpDict[tmpDict.keys()[0]]
+            if dataDict is not None:
+                dataTxt = ['Path = %r' % pFile.conformPath(os.path.dirname(imaFile))]
+                for k, v in dataDict.iteritems():
+                    if isinstance(v, str):
+                        dataTxt.append("%s = %r" % (k, v))
+                    else:
+                        dataTxt.append("%s = %s" % (k, v))
+                try:
+                    pFile.writeFile(node.dataFile, '\n'.join(dataTxt))
+                    self.log.info("Create thumbnail datas successfully: %s" % node.nodeName)
+                except:
+                    self.log.error("Can not create thumbnail datas for %s" % node.nodeName)
+            else:
+                self.log.warning("Can not access fileData, skip %s" % node.nodeName)
         else:
             self.log.warning("Can not access fileData, skip %s" % node.nodeName)
 
