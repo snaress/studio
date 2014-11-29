@@ -374,7 +374,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_nodeEditor):
 
     @property
     def nodeType(self):
-        """ Ge current nodeType
+        """ Get current nodeType
             :return: (srt) : Node type """
         return str(self.cbNodeType.itemText(self.cbNodeType.currentIndex()))
 
