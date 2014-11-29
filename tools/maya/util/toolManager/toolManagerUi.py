@@ -5,8 +5,10 @@ from lib.system import procFile as pFile
 from tools.maya.util import toolManager as tm
 from tools.maya.util.proc import procUi as pUi
 from tools.maya.util.toolManager.ui import toolManagerUI
-reload(tm)
-reload(toolManagerUI)
+try:
+    import maya.cmds as mc
+except:
+    pass
 
 
 class ToolManagerUi(QtGui.QMainWindow, toolManagerUI.Ui_mwToolManager):
@@ -18,9 +20,11 @@ class ToolManagerUi(QtGui.QMainWindow, toolManagerUI.Ui_mwToolManager):
         super(ToolManagerUi, self).__init__(parent)
         self._setupUi()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """ Setup main ui """
         self.setupUi(self)
+        self.dockCtrl = mc.dockControl(aa=['right', 'left'], a='right', content=str(self.objectName()), label='ToolManager')
         self.twTools.itemDoubleClicked.connect(self.on_tool)
         self._refresh()
 
@@ -52,7 +56,9 @@ class ToolManagerUi(QtGui.QMainWindow, toolManagerUI.Ui_mwToolManager):
         """ Command launched when tool QTreeWidgetItem is doubleClicked """
         selItems = self.twTools.selectedItems() or []
         if selItems:
-            execfile(selItems[0].launcher)
+            if hasattr(selItems[0], 'launcher'):
+                self.log.info("Launching %s ..." % selItems[0].nodeName)
+                execfile(selItems[0].launcher)
 
     @staticmethod
     def _newItem(nodeName, nodeType):
@@ -61,11 +67,22 @@ class ToolManagerUi(QtGui.QMainWindow, toolManagerUI.Ui_mwToolManager):
             :param nodeType: (str) : 'step' or 'tool'
             :return: (object) : QTreeWidgetItem """
         newItem = QtGui.QTreeWidgetItem()
+        newItem.nodeName = nodeName
         if nodeType == 'step':
             newItem.setText(0, nodeName.upper())
         else:
             newItem.setText(0, nodeName)
         return newItem
+
+    def closeEvent(self, event):
+        """ Clean mayaUi when closing ToolManager
+            :param event: (object) : Signal """
+        self.log.info("#-- Closing ToolManager Ui --#")
+        mc.deleteUI(self.dockCtrl)
+        try:
+            QtGui.QWidget.closeEvent(self, event)
+        except:
+            pass
 
 
 def launch():
@@ -75,5 +92,4 @@ def launch():
     if pm.window(toolName, q=True, ex=True):
         pm.deleteUI(toolName, wnd=True)
     window = ToolManagerUi(parent=pUi.getMayaMainWindow())
-    window.show()
     return window
