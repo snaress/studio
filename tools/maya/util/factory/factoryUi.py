@@ -5,6 +5,7 @@ from appli.factory import factoryUi
 from lib.system import procFile as pFile
 from tools.maya.util.proc import procUi as pUi
 from tools.maya.util.factory.ui import dialShaderUI
+from tools.maya.util.factory import factoryCmds as fCmds
 
 
 class FactoryUi(factoryUi.FactoryUi):
@@ -34,7 +35,6 @@ class ShaderUi(QtGui.QMainWindow, dialShaderUI.Ui_Shader):
         super(ShaderUi, self).__init__(self._ui.mayaWnd)
         self._setupUi()
         self._initUi()
-        print self.shaderPath
 
     @property
     def category(self):
@@ -52,6 +52,9 @@ class ShaderUi(QtGui.QMainWindow, dialShaderUI.Ui_Shader):
     def _setupUi(self):
         """ Setup dialog ui """
         self.setupUi(self)
+        self.bImport.clicked.connect(self.on_importPresentoir)
+        self.bInit.clicked.connect(self.on_initShader)
+        self.bParamRender.clicked.connect(self.on_paramRender)
         self.cbCategory.currentIndexChanged.connect(self.rf_subCategory)
         self.bCancel.clicked.connect(self.close)
 
@@ -73,6 +76,40 @@ class ShaderUi(QtGui.QMainWindow, dialShaderUI.Ui_Shader):
         subCats = os.listdir(pFile.conformPath(os.path.join(self.shaderPath, self.category))) or []
         if subCats:
             self.cbSubCategory.addItems(subCats)
+
+    def on_importPresentoir(self):
+        """ Import default model """
+        modelPath = pFile.conformPath(os.path.join(self._ui.factory.path, "_lib", "maya", "presentoir.ma"))
+        fCmds.importPresentoir(modelPath)
+
+    def on_initShader(self):
+        """ Command launched when bInit is clicked """
+        matDict = fCmds.getMat('S_factory_ball')
+        if matDict['ss'] is not None:
+            self.leShader.setText(matDict['ss'])
+            self.lSSValue.setText(matDict['ss'])
+        else:
+            self.leShader.clear()
+            self.lSSValue.setText("None")
+        if matDict['ds'] is not None:
+            self.lDSValue.setText(matDict['ds'])
+        else:
+            self.lDSValue.setText("None")
+        if matDict['vs'] is not None:
+            self.lVSValue.setText(matDict['vs'])
+        else:
+            self.lVSValue.setText("None")
+
+    def on_paramRender(self):
+        """ Command launched when bParamRender is clicked """
+        if fCmds.checkRenderEngine():
+            fCmds.paramCam()
+            envPath = os.path.join(self._ui.factory.path, 'texture', 'hdr_env', 'inside', 'JapanSubway_env.hdr')
+            fCmds.paramRender('shader_preview', envPath)
+
+    def on_render(self):
+        """ Command launched when bRender is clicked """
+
 
 
 
