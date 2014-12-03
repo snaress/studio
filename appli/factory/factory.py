@@ -12,6 +12,7 @@ class Factory(object):
         self.log.info("#-- Init Factory --#")
         self.path = factory.factoryPath
         self.libPath = factory.libPath
+        self.rndBinPath = factory.rndBinPath
         self.texture = Tree('texture', parent=self)
         self.shader = Tree('shader', parent=self)
         self.stockShot = Tree('stockShot', parent=self)
@@ -251,23 +252,40 @@ class TreeNode(object):
         """ Convert datas dict into readable string
             :return: (str) : Datas string """
         txt = []
-        infoOrder = ['Path', 'Name', 'Width', 'Height', 'Aspect', 'Layer', 'Pixel', 'Duration', 'Speed']
-        if self.datas is not None:
-            txt.append("#-- %s --#" % self.datas['Name'])
-            for info in infoOrder:
-                if info in self.datas.keys():
-                    if isinstance(self.datas[info], str):
-                        txt.append("%s = %r" % (info, self.datas[info]))
-                    else:
-                        txt.append("%s = %s" % (info, self.datas[info]))
-            txt.append("\n#----------------------------------------#\n")
-            for dataKey in self.datas.keys():
-                if not dataKey in infoOrder:
-                    if isinstance(self.datas[dataKey], str):
-                        txt.append("%s = %r" % (dataKey, self.datas[dataKey]))
-                    else:
-                        txt.append("%s = %s" % (dataKey, self.datas[dataKey]))
-        return '\n'.join(txt)
+        if self._tree.treeName is not 'shader':
+            infoOrder = ['Path', 'Name', 'Width', 'Height', 'Aspect', 'Layer', 'Pixel', 'Duration', 'Speed']
+            if self.datas is not None:
+                txt.append("#-- %s --#" % self.datas['Name'])
+                for info in infoOrder:
+                    if info in self.datas.keys():
+                        if isinstance(self.datas[info], str):
+                            txt.append("%s = %r" % (info, self.datas[info]))
+                        else:
+                            txt.append("%s = %s" % (info, self.datas[info]))
+                txt.append("\n#----------------------------------------#\n")
+                for dataKey in self.datas.keys():
+                    if not dataKey in infoOrder:
+                        if isinstance(self.datas[dataKey], str):
+                            txt.append("%s = %r" % (dataKey, self.datas[dataKey]))
+                        else:
+                            txt.append("%s = %s" % (dataKey, self.datas[dataKey]))
+            return '\n'.join(txt)
+        else:
+            infoOrder = ['SurfaceShader', 'DisplaceShader', 'VolumeShader', 'mapFiles']
+            if self.datas is not None:
+                txt.append("#-- %s --#" % self.datas['Name'])
+                for info in infoOrder:
+                    if info in self.datas.keys():
+                        if info == 'mapFiles':
+                            txt.append("\n#--------------- Textures ---------------#\n")
+                            for mapFile in self.datas[info]:
+                                txt.append(mapFile)
+                        else:
+                            if isinstance(self.datas[info], str):
+                                txt.append("%s = %r" % (info, self.datas[info]))
+                            else:
+                                txt.append("%s = %s" % (info, self.datas[info]))
+            return '\n'.join(txt)
 
     def hasSequence(self):
         """ Check if node has sequence folder

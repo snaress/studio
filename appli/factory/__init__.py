@@ -11,6 +11,7 @@ toolPack = __package__
 #-- Global Var --#
 user = os.environ.get('username')
 libPath = os.path.join(toolPath, '_lib')
+rndBinPath = os.path.join("D:/rndBin/factory")
 factoryPath = os.path.normpath("D:/factory")
 
 

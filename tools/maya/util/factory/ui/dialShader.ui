@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>524</width>
-    <height>223</height>
+    <width>617</width>
+    <height>247</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,6 +25,12 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
        <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
       </property>
       <item>
        <widget class="QPushButton" name="bImport">
@@ -124,7 +130,7 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
-            <height>20</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -167,7 +173,7 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
-            <height>20</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -210,7 +216,7 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
-            <height>20</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -225,11 +231,85 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="bParamRender">
-        <property name="text">
-         <string>Param Render</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QRadioButton" name="rbDraft">
+          <property name="text">
+           <string>Draft</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">bgQuality</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rbPreview">
+          <property name="text">
+           <string>Preview</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">bgQuality</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="bParamRender">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Param Render</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="bRender">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Render</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="hlPreview">
@@ -313,7 +393,7 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
-            <height>20</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -340,7 +420,7 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
-            <height>20</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -349,6 +429,77 @@
       </item>
       <item>
        <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="hlShaderName">
+        <item>
+         <widget class="QLabel" name="lShaderName">
+          <property name="text">
+           <string>Shader Name: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leShaderName"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="bCheck">
+          <property name="minimumSize">
+           <size>
+            <width>75</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>75</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Check</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="lCheckResult">
+          <property name="text">
+           <string>Check Result: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lCheckValue">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="Line" name="line_5">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -364,7 +515,7 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
-            <height>20</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -412,18 +563,11 @@
      </layout>
     </item>
    </layout>
-   <zorder>line</zorder>
-   <zorder>line_2</zorder>
-   <zorder>bImport</zorder>
-   <zorder>lSurfaceShader</zorder>
-   <zorder>lSSValue</zorder>
-   <zorder>horizontalSpacer_4</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>layoutWidget_2</zorder>
-   <zorder>line_3</zorder>
-   <zorder>line_4</zorder>
   </widget>
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="bgQuality"/>
+ </buttongroups>
 </ui>

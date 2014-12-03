@@ -43,7 +43,6 @@ class FactoryUi(QtGui.QMainWindow, factoryUI.Ui_factory, pQt.Style):
         self.miCreateAllPreviewFiles.triggered.connect(partial(self.on_createPreviewFiles, 'all'))
         self.miCreateSelMovies.triggered.connect(partial(self.on_createMovieFile, 'sel'))
         self.miCreateAllMovies.triggered.connect(partial(self.on_createMovieFile, 'all'))
-        self.miSaveShader.setEnabled(self.inMaya)
         self.wgPreview = Preview(self)
         self.vlLeftZone.insertWidget(0, self.wgPreview)
         self.rbTexture.clicked.connect(self.on_switch)
@@ -55,6 +54,8 @@ class FactoryUi(QtGui.QMainWindow, factoryUI.Ui_factory, pQt.Style):
         self.twStockShot.itemClicked.connect(partial(self.on_storageItem, 'stockShot'))
         self.sbColumns.editingFinished.connect(self.rf_thumbnail)
         self.cbStorage.clicked.connect(self.on_showStorage)
+        if not self.inMaya:
+            self.tabShader.deleteLater()
 
     def rf_tree(self):
         """ Refresh factory tree """
@@ -142,7 +143,8 @@ class FactoryUi(QtGui.QMainWindow, factoryUI.Ui_factory, pQt.Style):
             self.log.info("#-- Create Preview Files %s --#" % w.node.nodeName)
             self.factory.ud_thumbnailImages(w.node.nodePath, 'icon')
             self.factory.ud_thumbnailImages(w.node.nodePath, 'preview')
-            self.factory.ud_thumbnailDatas(w.node.nodePath, self.getSelTree())
+            if not self.getSelTree() == 'shader':
+                self.factory.ud_thumbnailDatas(w.node.nodePath, self.getSelTree())
 
     def on_createMovieFile(self, mode):
         """ Command launched when 'Create Movie File' menuItems are clicked
