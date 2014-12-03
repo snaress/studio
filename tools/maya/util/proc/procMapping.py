@@ -9,21 +9,15 @@ def getShadingEngine(model):
         :param model: (str) : Transform name or mesh name
         :return: (str) : Shading engine """
     if mc.objectType(model, isType='transform'):
-        shapes = mc.listRelatives(model, s=True, ni=True)
+        sets = mc.listSets(type=1, o=model, ets=True)
     elif mc.objectType(model, isType='mesh'):
-        shapes = [model]
+        sets = mc.listSets(type=1, o=model, ets=False)
     else:
-        shapes = []
-    if not shapes:
-        print "Error: Shape not found."
+        sets = []
+    if not sets:
+        print "!!! Error: Shading engine not found."
     else:
-        shapeName = shapes[0]
-        connections = mc.listConnections(shapeName, s=True, d=True, c=True)
-        for n, connect in enumerate(connections):
-            if connect == "%s.instObjGroups" % shapeName:
-                sg = connections[n+1]
-                if mc.objectType(sg, isType='shadingEngine'):
-                    return sg
+        return sets
 
 def getMatFromSg(sg):
     """ Get material from given shading engine
