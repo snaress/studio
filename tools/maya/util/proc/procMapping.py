@@ -36,4 +36,9 @@ def getMatFromSg(sg):
     connections = mc.listConnections('%s.volumeShader' % sg, s=True)
     if connections:
         matDict['vs'] = connections[0]
+    #-- Mental Ray Shader --#
+    connections = mc.listConnections(sg, s=True, d=True, c=True, p=True)
+    for n in range(0, len(connections), 2):
+        if connections[n].split('.')[-1].startswith('mi'):
+            matDict[connections[n].split('.')[-1]] = connections[n+1].split('.')[0]
     return matDict
