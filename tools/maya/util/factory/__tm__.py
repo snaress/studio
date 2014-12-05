@@ -10,11 +10,17 @@ reload(factoryUI)
 reload(wgtThumbnailUI)
 reload(dialTransfertUI)
 
+#-- Global Proc --#
+from lib.system import procFile as pFile
+reload(pFile)
+
 #-- Maya Proc --#
 from tools.maya.util.proc import procScene as pScene
 reload(pScene)
 from tools.maya.util.proc import procMapping as pMap
 reload(pMap)
+from tools.maya.util.proc import procRender as pRender
+reload(pRender)
 
 #-- Factory Tool --#
 from tools.maya.util import factory as initMayaFactory

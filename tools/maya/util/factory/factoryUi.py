@@ -100,30 +100,53 @@ class ShaderUi(QtGui.QMainWindow, dialShaderUI.Ui_Shader):
         """ Command launched when bInit is clicked """
         sg = pMap.getShadingEngine('S_factory_ball')
         matDict = fCmds.getMat('S_factory_ball')
-        if matDict['ss'] is not None:
-            self.leShader.setText(sg[0])
-            self.lSSValue.setText(matDict['ss'])
-        else:
-            self.leShader.clear()
-            self.lSSValue.setText("None")
-        if matDict['ds'] is not None:
-            self.lDSValue.setText(matDict['ds'])
-        else:
+        self.leShader.setText(sg[0])
+        #-- Maya Shader --#
+        if matDict['ss'] is not None or matDict['ds'] is not None or matDict['vs'] is not None:
+            if matDict['ss'] is not None:
+                self.lSSValue.setText(matDict['ss'])
+            else:
+                self.leShader.clear()
+                self.lSSValue.setText("None")
+            if matDict['ds'] is not None:
+                self.lDSValue.setText(matDict['ds'])
+            else:
+                self.lDSValue.setText("None")
+            if matDict['vs'] is not None:
+                self.lVSValue.setText(matDict['vs'])
+            else:
+                self.lVSValue.setText("None")
+        #-- Mental Ray Shader --#
+        if matDict['ss'] is None and matDict['ds'] is None and matDict['vs'] is None:
+            txt = []
+            for k, v in matDict.iteritems():
+                if k.startswith('mi'):
+                    line = "%s -- (mrShader)" % v
+                    if not line in txt:
+                        txt.append(line)
+            self.lSSValue.setText('\n'.join(txt))
             self.lDSValue.setText("None")
-        if matDict['vs'] is not None:
-            self.lVSValue.setText(matDict['vs'])
-        else:
             self.lVSValue.setText("None")
 
     def on_paramRender(self):
         """ Command launched when bParamRender is clicked """
-        if fCmds.checkRenderEngine():
+        #-- Get Renderer --#
+        if self.cbTurtle.isChecked():
+            renderer = 'turtle'
+            plugInName = 'Turtle'
+        else:
+            renderer = 'mentalRay'
+            plugInName = 'Mayatomr'
+        if fCmds.checkRenderEngine(plugInName):
+            #-- Param Scene --#
             fCmds.paramCam()
+            fCmds.paramLight(renderer)
             envPath = os.path.join(self._ui.factory.path, 'texture', 'hdr_env', 'inside', 'JapanSubway_env.hdr')
+            #-- Param Render --#
             if not self.rbPreview.isChecked():
-                fCmds.paramRender('shader_preview', envPath, quality='draft')
+                fCmds.paramRender(renderer, 'shader_preview', envPath, quality='draft')
             else:
-                fCmds.paramRender('shader_preview', envPath, quality='preview')
+                fCmds.paramRender(renderer, 'shader_preview', envPath, quality='preview')
 
     def on_render(self):
         """ Command launched when bRender is clicked """

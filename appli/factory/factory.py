@@ -252,6 +252,7 @@ class TreeNode(object):
         """ Convert datas dict into readable string
             :return: (str) : Datas string """
         txt = []
+        #-- Texture & StockShot --#
         if self._tree.treeName is not 'shader':
             infoOrder = ['Path', 'Name', 'Width', 'Height', 'Aspect', 'Layer', 'Pixel', 'Duration', 'Speed']
             if self.datas is not None:
@@ -270,21 +271,24 @@ class TreeNode(object):
                         else:
                             txt.append("%s = %s" % (dataKey, self.datas[dataKey]))
             return '\n'.join(txt)
+        #-- Shader --#
         else:
-            infoOrder = ['SurfaceShader', 'DisplaceShader', 'VolumeShader', 'mapFiles']
+            mayaShaders = ['SurfaceShader', 'DisplaceShader', 'VolumeShader']
             if self.datas is not None:
                 txt.append("#-- %s --#" % self.datas['Name'])
-                for info in infoOrder:
-                    if info in self.datas.keys():
-                        if info == 'mapFiles':
-                            txt.append("\n#--------------- Textures ---------------#\n")
-                            for mapFile in self.datas[info]:
-                                txt.append(mapFile)
-                        else:
-                            if isinstance(self.datas[info], str):
-                                txt.append("%s = %r" % (info, self.datas[info]))
-                            else:
-                                txt.append("%s = %s" % (info, self.datas[info]))
+                #-- Maya Shader --#
+                for mShader in mayaShaders:
+                    if mShader in self.datas.keys():
+                        txt.append("%s = %r" % (mShader, self.datas[mShader]))
+                #-- Mental Ray Shader --#
+                for k, v in self.datas.iteritems():
+                    if k not in mayaShaders and not k == 'Name' and not k == 'mapFiles':
+                        txt.append("%s = %r" % (k, v))
+                #-- Map Files --#
+                if 'mapFiles' in self.datas.keys():
+                    txt.append("\n#--------------- Textures ---------------#\n")
+                    for mapFile in self.datas['mapFiles']:
+                        txt.append(mapFile)
             return '\n'.join(txt)
 
     def hasSequence(self):

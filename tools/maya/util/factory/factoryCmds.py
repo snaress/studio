@@ -43,19 +43,20 @@ def getSceneMap():
             maps.append(f)
     return maps
 
-def checkRenderEngine():
+def checkRenderEngine(plugInName):
     """ Check if Turtle is loaded
+        :param plugInName: (str) : PlugIn name
         :return: (bool) : True if render engine is loaded """
-    if not mc.pluginInfo('Turtle', q=True, l=True):
+    if not mc.pluginInfo(plugInName, q=True, l=True):
         try:
-            mc.loadPlugin('Turtle')
-            print "Render engine successfully loaded"
+            mc.loadPlugin(plugInName)
+            print "Render engine %s successfully loaded" % plugInName
             return True
         except:
-            print "Error: Can not load Turtle"
+            print "Error: Can not load %s" % plugInName
             return False
     else:
-        print "Turtle already loaded"
+        print "%s already loaded" % plugInName
         return True
 
 def paramCam():
@@ -67,27 +68,53 @@ def paramCam():
     mc.setAttr('sideShape.renderable', False)
     mc.setAttr('topShape.renderable', False)
 
-def paramRender(imaOut, envMap, quality='draft'):
+def paramLight(renderer):
+    """ Edit lights considering renderer
+        :param renderer: (str) : 'turtle' or 'mentalRay' """
+    print "Param Light ..."
+    if renderer == 'turtle':
+        mc.setAttr("lum_dir1.visibility", 0)
+        mc.setAttr("lum_amb1.visibility", 0)
+        mc.setAttr("env_mrIbl1.visibility", 0)
+    elif renderer == 'mentalRay':
+        mc.setAttr("lum_dir1.visibility", 1)
+        mc.setAttr("lum_amb1.visibility", 1)
+        mc.setAttr("env_mrIbl1.visibility", 1)
+
+def paramRender(renderer, imaOut, envMap, quality='draft'):
     """ Param render for preview image
+        :param renderer: (str) : 'turtle' or 'mentalRay'
         :param imaOut: (str) : Image out file absolute path
         :param envMap: (str) : Light env map file absolute path
         :param quality: (str) : 'draft' or 'preview' """
     drg = "defaultRenderGlobals"
     dr = "defaultResolution"
-    tro = "TurtleRenderOptions"
     #-- Default Render Params --#
     print "Param default render globals ..."
-    mc.setAttr('%s.currentRenderer' % drg, 'turtle', type='string')
+    mc.setAttr('%s.currentRenderer' % drg, renderer, type='string')
     mc.setAttr('%s.imageFilePrefix' % drg, imaOut, type='string')
     mc.setAttr('%s.imfPluginKey' % drg, 'png', type='string')
     mc.setAttr('%s.animation' % drg, False)
     mc.setAttr('%s.fieldExtControl' % drg, 0)
+    mc.setAttr('%s.motionBlur' % drg, 0)
     mc.setAttr('%s.width' % dr, 600)
     mc.setAttr('%s.height' % dr, 600)
     mc.setAttr('%s.deviceAspectRatio' % dr, 1)
     mc.setAttr('%s.imageSizeUnits' % dr, 0)
     mc.setAttr('%s.dotsPerInch' % dr, 72)
     mc.setAttr('%s.pixelDensityUnits' % dr, 0)
+    #-- Renderer params --#
+    if renderer == 'turtle':
+        paramTurtleRenderer(imaOut, envMap, quality)
+    elif renderer == 'mentalRay':
+        paramMentalRayRender(quality)
+
+def paramTurtleRenderer(imaOut, envMap, quality):
+    """ Param turtle params
+        :param imaOut: (str) : Image out file absolute path
+        :param envMap: (str) : Light env map file absolute path
+        :param quality: (str) : 'draft' or 'preview' """
+    tro = "TurtleRenderOptions"
     #-- Turtle Render params --#
     print "Param turtle render params ..."
     mc.setAttr('%s.renderer' % tro, 0)
@@ -119,6 +146,19 @@ def paramRender(imaOut, envMap, quality='draft'):
         mc.setAttr('%s.aaMinSampleRate' % tro, 0)
         mc.setAttr('%s.aaMaxSampleRate' % tro, 2)
         mc.setAttr('%s.iblSamples' %tro, 200)
+
+def paramMentalRayRender(quality):
+    """ Param mentalRay params
+        :param quality: (str) : 'draft' or 'preview' """
+    mdo = "miDefaultOptions"
+    #-- Mental Ray Render Params --#
+    mc.setAttr('%s.motionBlur' % mdo, 0)
+    mc.setAttr('%s.miRenderUsing' % mdo, 2)
+    mc.setAttr('%s.minSamples' % mdo, -2)
+    mc.setAttr('%s.maxSamples' % mdo, 0)
+    if quality == 'preview':
+        mc.setAttr('%s.minSamples' % mdo, 0)
+        mc.setAttr('%s.maxSamples' % mdo, 2)
 
 def renderPreview(imaPath):
     """ Launch rendering and save image in user path
@@ -214,14 +254,15 @@ def saveMat(matDict, matPath, matName):
         :param matDict: (dict) : Shader dict
         :param matPath: (str) : Material absolute path
         :param matName: (str) : Shader name """
+    mayaShaders = ['ss', 'ds', 'vs']
     #-- Get Materials --#
     mc.select(cl=True)
-    if matDict['ss'] is not None:
-        mc.select(matDict['ss'], add=True)
-    if matDict['ds'] is not None:
-        mc.select(matDict['ds'], add=True)
-    if matDict['vs'] is not None:
-        mc.select(matDict['vs'], add=True)
+    for k in matDict.keys():
+        if k in mayaShaders:
+            if matDict[k] is not None:
+                mc.select(matDict[k], add=True)
+        else:
+            mc.select(matDict[k], add=True)
     #-- Create Shader Folder --#
     shaderPath = pFile.conformPath(os.path.join(matPath, 'shader'))
     if not os.path.exists(shaderPath):
@@ -236,14 +277,25 @@ def saveMat(matDict, matPath, matName):
     pScene.exportSel(shaderFile)
 
 def saveData(matPath, matName, matDict, mapFiles):
-    #-- Get Data --#
+    """ Write shader's data to python file
+        :param matPath: (str) : Material absolute path
+        :param matName: (str) : Shader name
+        :param matDict: (dict) : Shader dict
+        :param mapFiles: (list) : Texture files """
     data = ['Name = "%s"' % matName]
+    mayaShaders = ['ss', 'ds', 'vs']
+    #-- Maya Shaders --#
     if matDict['ss'] is not None:
         data.append('SurfaceShader = "%s"' % matDict['ss'])
     if matDict['ds'] is not None:
         data.append('DisplaceShader = "%s"' % matDict['ds'])
     if matDict['vs'] is not None:
         data.append('VolumeShader = "%s"' % matDict['vs'])
+    #-- Mental Ray Shaders --#
+    for k, v in matDict.iteritems():
+        if k not in mayaShaders:
+            data.append('%s = "%s -- (mrShader)"' % (k, v))
+    #-- Map Files --#
     if mapFiles is not None:
         data.append('mapFiles = %s' % mapFiles)
     #-- Create Data Path --#
