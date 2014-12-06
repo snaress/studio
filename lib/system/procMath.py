@@ -36,6 +36,7 @@ def coordOp(p1, p2, operation):
     elif operation == 'average':
         for x, y in zip(p1, p2):
             newCoord.append((x + y) / 2)
+    return newCoord
 
 
 class RandomSequence(object):
