@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\util\factory\ui\dialShader.ui'
 #
-# Created: Thu Dec 04 21:40:57 2014
+# Created: Sat Dec 06 00:14:31 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -173,6 +173,7 @@ class Ui_Shader(object):
         self.lCategory.setObjectName(_fromUtf8("lCategory"))
         self.hlCategory.addWidget(self.lCategory)
         self.cbCategory = QtGui.QComboBox(self.centralwidget)
+        self.cbCategory.setMinimumSize(QtCore.QSize(90, 0))
         self.cbCategory.setModelColumn(0)
         self.cbCategory.setObjectName(_fromUtf8("cbCategory"))
         self.hlCategory.addWidget(self.cbCategory)
@@ -182,6 +183,7 @@ class Ui_Shader(object):
         self.lSubCategory.setObjectName(_fromUtf8("lSubCategory"))
         self.hlCategory.addWidget(self.lSubCategory)
         self.cbSubCategory = QtGui.QComboBox(self.centralwidget)
+        self.cbSubCategory.setMinimumSize(QtCore.QSize(90, 0))
         self.cbSubCategory.setModelColumn(0)
         self.cbSubCategory.setObjectName(_fromUtf8("cbSubCategory"))
         self.hlCategory.addWidget(self.cbSubCategory)

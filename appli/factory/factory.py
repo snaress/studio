@@ -1,5 +1,6 @@
 import os, shutil
 from appli import factory
+from lib.system import maFile
 from lib.system import procFile as pFile
 
 
@@ -80,6 +81,26 @@ class Factory(object):
                     self.log.info("Copy stockShot %s in %s" % (srcAbsPath, dstPath))
                 except:
                     self.log.error("Can not copy file: %s" %srcAbsPath)
+
+    def transfertShader(self, src, dst):
+        """ Transfert Shader
+            :param src: (str) : Source file
+            :param dst: (str) : Destination path """
+        srcPath = os.path.dirname(src)
+        srcName = os.path.splitext(os.path.basename(src))[0]
+        sceneFile = pFile.conformPath(os.path.join(srcPath, 'shader', '%s.ma' % srcName))
+        if not os.path.exists(sceneFile):
+            raise IOError, "Scene file not found: %s" % sceneFile
+        ma = maFile.MaFile(scene=sceneFile)
+        mapNodes = ma.getNodesByType('file')
+        #-- Check Texture --#
+        if mapNodes:
+            print "Texture file detected ..."
+            for mapNode in mapNodes:
+                print mapNode
+                if '.ftn' in ma.getAttrList(mapNode):
+                    mapFile = ma.getAttrValue(mapNode, '.ftn')
+                    print mapFile
 
     def ud_thumbnailImages(self, imaFile, imaType):
         """ Create or update thumbnail or preview image

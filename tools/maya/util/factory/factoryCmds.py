@@ -159,6 +159,9 @@ def paramMentalRayRender(quality):
     if quality == 'preview':
         mc.setAttr('%s.minSamples' % mdo, 0)
         mc.setAttr('%s.maxSamples' % mdo, 2)
+    #-- Mental Ray Environment Params --#
+    shape = mc.listRelatives("env_mrIbl1", s=True, ni=True)
+    mc.connectAttr("%s.message" % shape[0], "mentalrayGlobals.imageBasedLighting", f=True)
 
 def renderPreview(imaPath):
     """ Launch rendering and save image in user path
@@ -167,6 +170,9 @@ def renderPreview(imaPath):
     imaOut = mc.getAttr("defaultRenderGlobals.imageFilePrefix")
     outFile = pFile.conformPath(os.path.join(imaPath, '%s.png' % imaOut))
     ml.eval('renderWindowRenderCamera render renderView %s;' % cam)
+    if os.path.exists(outFile):
+        print "Remove outFile file: %s" % outFile
+        os.remove(outFile)
     result = mc.renderWindowEditor('renderView', e=True, wi=outFile)
     return result
 

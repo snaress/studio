@@ -451,7 +451,7 @@ class Transfert(QtGui.QDialog, dialTransfertUI.Ui_transfert, pQt.Style):
                 if self.storageTree.objectName() == 'twTexture':
                     self.mainUi.factory.transfertTexture(item.nodePath, destPath)
                 elif self.storageTree.objectName() == 'twShader':
-                    self.log.info("Command in DEV")
+                    self.mainUi.factory.transfertShader(item.nodePath, destPath)
                 elif self.storageTree.objectName() == 'twStockShot':
                     self.mainUi.factory.transfertStockShot(item.nodePath, destPath)
 
