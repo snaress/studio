@@ -73,22 +73,22 @@ class ToolManagerUi(QtGui.QMainWindow, toolManagerUI.Ui_mwToolManager):
             newItem.setText(0, nodeName)
         return newItem
 
-    def closeEvent(self, event):
-        """ Clean mayaUi when closing ToolManager
-            :param event: (object) : Signal """
+    def close(self):
         self.log.info("#-- Closing ToolManager Ui --#")
-        try:
-            QtGui.QWidget.closeEvent(self, event)
-        except:
-            pass
+        super(ToolManagerUi, self).close()
+
 
 
 def launch():
     """ Launch ToolManager
         :return: (object) : Launched window """
     toolName = 'mwToolManager'
-    if pm.window(toolName, q=True, ex=True):
+    if 'tmDock' in mc.lsUI(type='dockControl'):
+        print "Delete ToolManager DockControl"
+        mc.deleteUI('tmDock')
+    if mc.window(toolName, q=True, ex=True):
+        print "Delete ToolManager Window"
         pm.deleteUI(toolName, wnd=True)
     window = ToolManagerUi(parent=pUi.getMayaMainWindow())
-    mc.dockControl(aa=['right', 'left'], a='right', content=str(window.objectName()), label='ToolManager')
+    mc.dockControl('tmDock', aa=['right', 'left'], a='right', content=str(window.objectName()), label='ToolManager')
     return window
