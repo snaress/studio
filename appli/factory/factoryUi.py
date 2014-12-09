@@ -413,6 +413,7 @@ class Transfert(QtGui.QDialog, dialTransfertUI.Ui_transfert, pQt.Style):
     def __init__(self, mainUi, storageTree):
         self.mainUi = mainUi
         self.storageTree = storageTree
+        self.storageName = str(self.storageTree.objectName().replace('tw', '')).lower()
         super(Transfert, self).__init__()
         self._setupUi()
         self.on_tmpFolder()
@@ -421,11 +422,17 @@ class Transfert(QtGui.QDialog, dialTransfertUI.Ui_transfert, pQt.Style):
     def _setupUi(self):
         self.setupUi(self)
         self.setStyleSheet(self.applyStyle(styleName='darkOrange'))
-        self.lTransfert.setText("Transfert %s:" % self.storageTree.objectName().replace('tw', ''))
+        self.lTransfert.setText("Transfert %s:" % self.storageName)
         self.bOpen.clicked.connect(self.on_open)
+        self.bOpen2.clicked.connect(self.on_open)
         self.cbTmpFolder.clicked.connect(self.on_tmpFolder)
         self.bTransfert.clicked.connect(self.on_transfert)
         self.bCancel.clicked.connect(self.close)
+        if not self.storageName == 'shader':
+            self.qfDestination2.setVisible(False)
+        else:
+            self.lDestination.setText("Shader Path: ")
+            self.lDestination2.setText("Texture Path: ")
 
     def on_open(self):
         """ Command launched when 'Open' QPushButton is clicked """
@@ -441,19 +448,25 @@ class Transfert(QtGui.QDialog, dialTransfertUI.Ui_transfert, pQt.Style):
 
     def on_transfert(self):
         """ Command launched when 'Transfert' QPushButton is clicked """
-        if not self._checkDest():
+        self.mainUi.log.info("Launch Transfert ...")
+        if not self._checkDest(self.leDestination.text()):
             raise IOError, "Destination path doesn't exist: %s" % str(self.leDestination.text())
+        if self.storageName == 'shader':
+            if not self._checkDest(self.leDestination2.text()):
+                raise IOError, "Destination2 path doesn't exist: %s" % str(self.leDestination2.text())
         if not self.getStoredItems():
             raise IOError, "No item found in %s" % self.storageTree.objectName()
-        destPath = self._checkTmpFolder()
+        destPath = self._checkTmpFolder(str(self.leDestination.text()))
+        destPath2 = self._checkTmpFolder(str(self.leDestination2.text()))
         if destPath is not None:
             for item in self.getStoredItems():
-                if self.storageTree.objectName() == 'twTexture':
+                if self.storageName == 'texture':
                     self.mainUi.factory.transfertTexture(item.nodePath, destPath)
-                elif self.storageTree.objectName() == 'twShader':
-                    self.mainUi.factory.transfertShader(item.nodePath, destPath)
-                elif self.storageTree.objectName() == 'twStockShot':
+                elif self.storageName == 'shader':
+                    self.mainUi.factory.transfertShader(item.nodePath, destPath, destPath2)
+                elif self.storageName == 'stockShot':
                     self.mainUi.factory.transfertStockShot(item.nodePath, destPath)
+            self.close()
 
     def ud_path(self):
         """ Update path widget """
@@ -466,22 +479,21 @@ class Transfert(QtGui.QDialog, dialTransfertUI.Ui_transfert, pQt.Style):
             :return: (list) : List of QTreeWidgetItems """
         return pQt.getAllItems(self.storageTree)
 
-    def _checkDest(self):
+    def _checkDest(self, dst):
         """ Check if destination path is valid
             :return: (bool) : True if exists, else False """
-        dest = str(self.leDestination.text())
-        if dest not in ['', ' ']:
-            if os.path.exists(dest):
+        if dst not in ['', ' ']:
+            if os.path.exists(dst):
                 return True
             else:
                 return False
         else:
             return False
 
-    def _checkTmpFolder(self):
+    def _checkTmpFolder(self, dst):
         """ Create tmp folder if needed
             :return: (str) : Destination path """
-        destPath = str(self.leDestination.text())
+        destPath = dst
         if self.cbTmpFolder.isChecked():
             tmpPath = str(self.leTmpFolder.text())
             if not tmpPath in ['', ' ']:
@@ -493,6 +505,8 @@ class Transfert(QtGui.QDialog, dialTransfertUI.Ui_transfert, pQt.Style):
                             os.mkdir(destPath)
                         except:
                             raise IOError, "Can not create folder %s: %s" % (fld, destPath)
+            else:
+                raise IOError, "Given path not valid: %s" % tmpPath
         return destPath
 
 

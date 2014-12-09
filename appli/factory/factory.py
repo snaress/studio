@@ -1,6 +1,6 @@
 import os, shutil
 from appli import factory
-from lib.system import maFile
+from lib.env import studio
 from lib.system import procFile as pFile
 
 
@@ -56,7 +56,7 @@ class Factory(object):
             shutil.copy(src, dst)
             self.log.info("Copy texture %s in %s" % (src, dst))
         except:
-            self.log.error("Can not copy file: %s" %src)
+            self.log.error("Can not copy file: %s" % src)
 
     def transfertStockShot(self, src, dst):
         """ Transfert stockShot
@@ -80,27 +80,51 @@ class Factory(object):
                     shutil.copy(srcAbsPath, dstPath)
                     self.log.info("Copy stockShot %s in %s" % (srcAbsPath, dstPath))
                 except:
-                    self.log.error("Can not copy file: %s" %srcAbsPath)
+                    self.log.error("Can not copy file: %s" % srcAbsPath)
 
-    def transfertShader(self, src, dst):
+    def transfertShader(self, src, dst1, dst2):
         """ Transfert Shader
             :param src: (str) : Source file
             :param dst: (str) : Destination path """
         srcPath = os.path.dirname(src)
         srcName = os.path.splitext(os.path.basename(src))[0]
+        dataFile = pFile.conformPath(os.path.join(srcPath, '_data', '%s.py' % srcName))
         sceneFile = pFile.conformPath(os.path.join(srcPath, 'shader', '%s.ma' % srcName))
         if not os.path.exists(sceneFile):
             raise IOError, "Scene file not found: %s" % sceneFile
-        ma = maFile.MaFile(scene=sceneFile)
-        mapNodes = ma.getNodesByType('file')
+        if not os.path.exists(dataFile):
+            raise IOError, "Data file not found: %s" % dataFile
+        mayaLines = pFile.readFile(sceneFile)
+        dataDict = pFile.readPyFile(dataFile)
         #-- Check Texture --#
-        if mapNodes:
-            print "Texture file detected ..."
-            for mapNode in mapNodes:
-                print mapNode
-                if '.ftn' in ma.getAttrList(mapNode):
-                    mapFile = ma.getAttrValue(mapNode, '.ftn')
-                    print mapFile
+        if 'mapFiles' in dataDict.keys():
+            self.log.info("Texture files detected ...")
+            for mapFile in dataDict['mapFiles']:
+                newMapFile = pFile.conformPath(os.path.join(dst2, os.path.basename(mapFile)))
+                if os.path.exists(newMapFile):
+                    newFile = "%s__%s__%s" % (pFile.getDate(), pFile.getTime(), os.path.basename(mapFile))
+                    newMapFile = pFile.conformPath(os.path.join(dst2, newFile))
+                self.log.debug("  mapFile: %s\n  newMapFile: %s" % (mapFile, newMapFile))
+                for n, line in enumerate(mayaLines):
+                    if mapFile in line:
+                        self.log.debug("\t Replace line %s" % (n+1))
+                        mayaLines[n] = line.replace(mapFile, newMapFile)
+                #-- Copy Texture --#
+                try:
+                    shutil.copy(mapFile, newMapFile)
+                    self.log.info("Copy texture %s in %s" % (mapFile, newMapFile))
+                except:
+                    self.log.error("Can not copy file: %s" % mapFile)
+        #-- Copy Shader --#
+        shaderFile = pFile.conformPath(os.path.join(dst1, '%s.ma' % srcName))
+        if os.path.exists(shaderFile):
+            newShaderFile = "%s__%s__%s.ma" % (pFile.getDate(), pFile.getTime(), srcName)
+            shaderFile = pFile.conformPath(os.path.join(dst1, newShaderFile))
+        try:
+            pFile.writeFile(shaderFile, mayaLines)
+            self.log.info("Copy shader %s in %s" % (sceneFile, shaderFile))
+        except:
+            self.log.error("Can not write shader: %s" % shaderFile)
 
     def ud_thumbnailImages(self, imaFile, imaType):
         """ Create or update thumbnail or preview image
