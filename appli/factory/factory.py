@@ -1,6 +1,5 @@
 import os, shutil
 from appli import factory
-from lib.env import studio
 from lib.system import procFile as pFile
 
 
