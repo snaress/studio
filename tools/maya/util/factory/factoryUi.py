@@ -12,6 +12,9 @@ from tools.maya.util.factory import factoryCmds as fCmds
 
 
 class FactoryUi(factoryUi.FactoryUi):
+    """ Maya factory main class
+        :param parent: (object) : Maya Window
+        :param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug') """
 
     def __init__(self, parent=None, logLvl='info'):
         self.mayaWnd = parent
@@ -28,6 +31,8 @@ class FactoryUi(factoryUi.FactoryUi):
 
 
 class ShaderUi(QtGui.QMainWindow, dialShaderUI.Ui_Shader):
+    """ Maya factory shader class
+        :param ui: (object) : Maya factory ui """
 
     def __init__(self, ui):
         self._ui = ui

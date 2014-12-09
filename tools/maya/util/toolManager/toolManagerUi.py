@@ -24,7 +24,6 @@ class ToolManagerUi(QtGui.QMainWindow, toolManagerUI.Ui_mwToolManager):
     def _setupUi(self):
         """ Setup main ui """
         self.setupUi(self)
-        self.dockCtrl = mc.dockControl(aa=['right', 'left'], a='right', content=str(self.objectName()), label='ToolManager')
         self.twTools.itemDoubleClicked.connect(self.on_tool)
         self._refresh()
 
@@ -78,7 +77,6 @@ class ToolManagerUi(QtGui.QMainWindow, toolManagerUI.Ui_mwToolManager):
         """ Clean mayaUi when closing ToolManager
             :param event: (object) : Signal """
         self.log.info("#-- Closing ToolManager Ui --#")
-        mc.deleteUI(self.dockCtrl)
         try:
             QtGui.QWidget.closeEvent(self, event)
         except:
@@ -92,4 +90,5 @@ def launch():
     if pm.window(toolName, q=True, ex=True):
         pm.deleteUI(toolName, wnd=True)
     window = ToolManagerUi(parent=pUi.getMayaMainWindow())
+    mc.dockControl(aa=['right', 'left'], a='right', content=str(window.objectName()), label='ToolManager')
     return window

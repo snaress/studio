@@ -84,7 +84,8 @@ class Factory(object):
     def transfertShader(self, src, dst1, dst2):
         """ Transfert Shader
             :param src: (str) : Source file
-            :param dst: (str) : Destination path """
+            :param dst1: (str) : Shader path
+            :param dst2: (str) : Texture path """
         srcPath = os.path.dirname(src)
         srcName = os.path.splitext(os.path.basename(src))[0]
         dataFile = pFile.conformPath(os.path.join(srcPath, '_data', '%s.py' % srcName))
