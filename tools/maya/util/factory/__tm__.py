@@ -25,12 +25,12 @@ reload(pRender)
 #-- Factory Tool --#
 from tools.maya.util import factory as initMayaFactory
 reload(initMayaFactory)
+from tools.maya.util.factory.ui import dialShaderUI
+reload(dialShaderUI)
 from tools.maya.util.factory import factoryUi as mayaFactoryUi
 reload(mayaFactoryUi)
 from tools.maya.util.factory import factoryCmds as fCmds
 reload(fCmds)
-from tools.maya.util.factory.ui import dialShaderUI
-reload(dialShaderUI)
 
 
 mayaFactoryUi.launch()
