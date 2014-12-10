@@ -5,8 +5,9 @@ except:
     pass
 
 
-def creeBox():
+def creeBox(name=None):
     """ Create bbox from selection
+        :param name: (str) : Bbox name
         :return: (str) : Bbox name """
     #-- Recup Info --#
     modelList = mc.ls(sl=True, type="transform") or []
@@ -51,6 +52,9 @@ def creeBox():
         D = pMath.getDistance(p2, p4)
         P = pMath.coordOp(Vmin, Vmax, "average")
         #-- Genere Bbox --#
-        boxName = mc.polyCube(n="newBox1", w=W, h=H, d=D)
+        if name is None:
+            boxName = mc.polyCube(n="newBox1", w=W, h=H, d=D)
+        else:
+            boxName = mc.polyCube(n=name, w=W, h=H, d=D)
         mc.xform(t=(P[0], P[1], P[2]))
         return boxName
