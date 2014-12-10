@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\util\toolManager\ui\toolManager.ui'
 #
-# Created: Thu Nov 27 03:34:05 2014
+# Created: Wed Dec 10 01:25:25 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,19 +26,26 @@ except AttributeError:
 class Ui_mwToolManager(object):
     def setupUi(self, mwToolManager):
         mwToolManager.setObjectName(_fromUtf8("mwToolManager"))
-        mwToolManager.resize(268, 352)
+        mwToolManager.resize(268, 435)
         self.centralwidget = QtGui.QWidget(mwToolManager)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
-        self.gridLayout.setMargin(1)
-        self.gridLayout.setHorizontalSpacing(1)
-        self.gridLayout.setVerticalSpacing(0)
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
-        self.twTools = QtGui.QTreeWidget(self.centralwidget)
+        self.splitter = QtGui.QSplitter(self.centralwidget)
+        self.splitter.setOrientation(QtCore.Qt.Vertical)
+        self.splitter.setObjectName(_fromUtf8("splitter"))
+        self.twTools = QtGui.QTreeWidget(self.splitter)
         self.twTools.setObjectName(_fromUtf8("twTools"))
         self.twTools.headerItem().setText(0, _fromUtf8("1"))
         self.twTools.header().setVisible(False)
-        self.gridLayout.addWidget(self.twTools, 0, 0, 1, 1)
+        self.vfToolBox = QtGui.QFrame(self.splitter)
+        self.vfToolBox.setObjectName(_fromUtf8("vfToolBox"))
+        self.vlToolBox = QtGui.QVBoxLayout(self.vfToolBox)
+        self.vlToolBox.setSpacing(1)
+        self.vlToolBox.setObjectName(_fromUtf8("vlToolBox"))
+        self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         mwToolManager.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(mwToolManager)
