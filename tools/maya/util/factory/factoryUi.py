@@ -226,6 +226,7 @@ def launch():
     toolName = 'factory'
     if pm.window(toolName, q=True, ex=True):
         pm.deleteUI(toolName, wnd=True)
+    global window
     window = FactoryUi(parent=pUi.getMayaMainWindow(), logLvl='debug')
     window.show()
     return window

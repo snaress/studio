@@ -16,21 +16,29 @@ class CamPrez(QtGui.QMainWindow, camPrezUI.Ui_mwCamPrez):
         self.log.info("#-- Launching CamPrez Ui --#")
         super(CamPrez, self).__init__(parent)
         self._setupUi()
+        self.rf_ui()
+        print 'launch 1'
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """ Setup main ui """
         self.setupUi(self)
+        print 'connect'
         self.bCreateCamTurn.clicked.connect(self.on_createCamTurn)
+
+    def rf_ui(self):
+        print 'toto'
 
     def on_createCamTurn(self):
         """ Command launched when 'Create Camera Turn' is clicked """
+        print 'launch 2'
         cpCmds.createCamTurn(self.getFrontAxe('turn'), self.getDuration('turn'))
 
     def getFrontAxe(self, mode):
         """ Get front axe from given mode
             :param mode: (str) : 'turn' or 'quadra'
             :return: (str) : Front axe """
+        print self.tabWidget.currentIndex()
         if mode == 'turn':
             if self.cbTurnX.isChecked():
                 if self.cbTurnInvert.isChecked():
@@ -62,6 +70,7 @@ def launch():
     if mc.window(toolName, q=True, ex=True):
         print "Delete CamPrez Window"
         mc.deleteUI(toolName, wnd=True)
+    global window
     window = CamPrez(parent=pUi.getMayaMainWindow())
     window.show()
     return window
