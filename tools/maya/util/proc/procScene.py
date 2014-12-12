@@ -59,3 +59,26 @@ def exportSel(sceneName, force=True):
         mc.file(sceneName, es=True, f=force, op="v=0", typ="mayaBinary", pr=True)
     else:
         print "Error: Unrecognize extention: %s" % ext
+
+def wsToDict():
+    """ Store workspace info to dict
+        :return: (dict) : Workspace info """
+    wsDict = {'projectName': mc.workspace(q=True, fn=True).split('/')[-1],
+              'projectPath': mc.workspace(q=True, fn=True), 'fileRules': {}}
+    fr = mc.workspace(q=True, fr=True)
+    for n in range(0, len(fr), 2):
+        wsDict['fileRules'][fr[n]] = fr[n+1]
+    return wsDict
+
+def wsDictToStr(wsDict=None):
+    """ Convert workspace dict to string
+        :param wsDict: (dict) : Workspace info (If None, use current workspace)
+        :return: (str) : Workspace info """
+    if wsDict is None:
+        wsDict = wsToDict
+    txt = ["#-- Workspace Info --#",
+           "Project Name = %s" % wsDict['projectName'], "Project Path = %s" % wsDict['projectPath'],
+           "#-- File Rules --#"]
+    for k, v in wsDict['fileRules'].iteritems():
+        txt.append("%s = %s" % (k, v))
+    return '\n'.join(txt)
