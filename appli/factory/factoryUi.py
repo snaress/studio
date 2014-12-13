@@ -11,8 +11,7 @@ from appli.factory.ui import factoryUI, wgtThumbnailUI, dialTransfertUI
 
 class FactoryUi(QtGui.QMainWindow, factoryUI.Ui_factory, pQt.Style):
     """ FactoryUi MainWindow
-        :param logLvl : ('critical', 'error', 'warning', 'info', 'debug')
-        :type logLvl: str """
+        :param logLvl: (str) : ('critical', 'error', 'warning', 'info', 'debug') """
 
     def __init__(self, parent=None, logLvl='info'):
         self.log = pFile.Logger(title="Factory-UI", level=logLvl)
@@ -121,7 +120,7 @@ class FactoryUi(QtGui.QMainWindow, factoryUI.Ui_factory, pQt.Style):
 
     def on_clear(self, storageTree):
         """ Clear given storage tree
-            :param storageTree: object) : QTreeWidget """
+            :param storageTree: (object) : QTreeWidget """
         storageTree.clear()
         self.rf_thumbnail()
 
@@ -479,7 +478,8 @@ class Transfert(QtGui.QDialog, dialTransfertUI.Ui_transfert, pQt.Style):
             :return: (list) : List of QTreeWidgetItems """
         return pQt.getAllItems(self.storageTree)
 
-    def _checkDest(self, dst):
+    @staticmethod
+    def _checkDest(dst):
         """ Check if destination path is valid
             :return: (bool) : True if exists, else False """
         if dst not in ['', ' ']:
