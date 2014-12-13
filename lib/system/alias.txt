@@ -10,7 +10,9 @@ studio = cd F:\rnd\workspace\studio
 designer = "C:\Python27\Lib\site-packages\PyQt4\designer.exe"
 nuke = F:\apps\Nuke5.0v2\nuke5.0.exe $*
 maya = F:\apps\Autodesk\Maya2014\bin\maya.exe $*
-mayapy = F:\apps\Autodesk\Maya2014\bin\mayapy.exe $*
+mayaPy = F:\apps\Autodesk\Maya2014\bin\mayapy.exe $*
+mayaBatch = F:\apps\Autodesk\Maya2014\bin\mayabatch.exe $*
+mayaRender = F:\apps\Autodesk\Maya2014\bin\Render.exe $*
 
 pyUic = C:\Python27\Lib\site-packages\PyQt4\pyuic4.bat $*
 djvView = F:\apps\djvView\djv-1.0.3-Windows-64\bin\djv_view.exe $*
