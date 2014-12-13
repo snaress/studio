@@ -1,6 +1,8 @@
-import math
+import os, math
+from lib.system import procFile as pFile
 from lib.system import procMath as pMath
 from tools.maya.util.proc import procModeling as pMode
+from tools.maya.util.proc import procRender as pRender
 try:
     import maya.cmds as mc
 except:
@@ -86,13 +88,18 @@ def cameraLocator(boxName):
     if mc.objExists(grpName):
         mc.delete(grpName)
     mc.group(n=grpName, em=True)
+    #-- Lock Attributes --#
     for attr in ['tx', 'ty', 'tz', 'rx', 'ry', 'rz', 'sx', 'sy', 'sz']:
         mc.setAttr("%s.%s" % (grpName, attr), l=True, k=False, cb=False)
     #-- Create Locator --#
     locName = 'N_camTurn'
     if mc.objExists(locName):
         mc.delete(locName)
-    mc.spaceLocator(n=locName, a=True, p=mc.getAttr("%s.translate" % boxName)[0])
+    # mc.spaceLocator(n=locName, a=True, p=mc.getAttr("%s.translate" % boxName)[0])
+    mc.spaceLocator(n=locName)
+    mc.setAttr("%s.tx" % locName, mc.getAttr("%s.translate" % boxName)[0][0])
+    mc.setAttr("%s.ty" % locName, mc.getAttr("%s.translate" % boxName)[0][1])
+    mc.setAttr("%s.tz" % locName, mc.getAttr("%s.translate" % boxName)[0][2])
     mc.parent(locName, grpName)
 
 def cameraTurn(axe, boxName):
@@ -104,19 +111,28 @@ def cameraTurn(axe, boxName):
     refD = getBoxInfo(boxName)
     if mc.objExists(camName):
         mc.delete(camName)
-    pBox = mc.getAttr("%s.translate" % boxName)[0]
+    mc.camera(n=camName, ar=1, fl=50)
+    #-- Set Attributes --#
     if axe == 'x':
-        mc.camera(n=camName, ar=1, fl=50, p=(refD*2, pBox[1], pBox[2]), rot=(0, 90, 0))
+        mc.setAttr("%s.tx" % camName, refD*2)
+        mc.setAttr("%s.ry" % camName, 90)
     elif axe == '-x':
-        mc.camera(n=camName, ar=1, fl=50, p=((refD*2)*-1, pBox[1], pBox[2]), rot=(0, -90, 0))
+        mc.setAttr("%s.tx" % camName, (refD*2)*-1)
+        mc.setAttr("%s.ry" % camName, -90)
     elif axe == 'y':
-        mc.camera(n=camName, ar=1, fl=50, p=(pBox[0], refD*2, pBox[2]), rot=(-90, 0, 0))
+        mc.setAttr("%s.ty" % camName, refD*2)
+        mc.setAttr("%s.rx" % camName, -90)
     elif axe == '-y':
-        mc.camera(n=camName, ar=1, fl=50, p=(pBox[0], (refD*2)*-1, pBox[2]), rot=(90, 0, 0))
+        mc.setAttr("%s.ty" % camName, (refD*2)*-1)
+        mc.setAttr("%s.rx" % camName, 90)
     elif axe == 'z':
-        mc.camera(n=camName, ar=1, fl=50, p=(pBox[0], pBox[1], refD*2))
+        mc.setAttr("%s.tz" % camName, refD*2)
     elif axe == '-z':
-        mc.camera(n=camName, ar=1, fl=50, p=(pBox[0], pBox[1], (refD*2)*-1), rot=(0, 180, 0))
+        mc.setAttr("%s.tz" % camName, (refD*2)*-1)
+        mc.setAttr("%s.ry" % camName, 180)
+    #-- Lock Attributes --#
+    for attr in ['tx', 'ty', 'tz', 'rx', 'ry', 'rz', 'sx', 'sy', 'sz']:
+        mc.setAttr("%s.%s" % (camName, attr), l=True, k=False, cb=False)
     mc.parent(camName, 'N_camTurn')
 
 def animTurn(duration, invert=False):
@@ -150,3 +166,40 @@ def createCamTurn(axe, duration):
     else:
         raise IOError, "Selection or scene not valide !!!"
     print "#-- Create Camera Turn Done --#"
+
+def paramRender(**kwargs):
+    """ Param Render
+        :param kwargs: (dict) : Param render """
+    options = pRender.paramRenderOptions()
+    options['camera'] = 'cam_turnPreviz1'
+    options['output'] = "%s/%s" % (kwargs['imaPath'], kwargs['imaName'])
+    options['format'] = kwargs['extension']
+    options['anim'] = 1
+    options['padding'] = kwargs['padding']
+    options['range'] = (kwargs['start'], kwargs['stop'], kwargs['step'])
+    options['skipExistingFrames'] = 0
+    options['size'] = (kwargs['width'], kwargs['height'])
+    options['pixelAspect'] = 1
+    options['samples'] = (0, 3)
+    options['shadows'] = 'simple'
+    options['shadowMaps'] = 'on'
+    options['motionBlur'] = 'off'
+    pRender.ParamRender('mentalRay', options, logLvl='debug')
+
+def createPath(rootPath, imagePath):
+    """ Check rootPath and create folder if needed
+        :param rootPath: (str) : Root path
+        :param imagePath: (str) : Relative path
+        :return: (bool) : True if success """
+    if not os.path.exists(rootPath):
+        raise IOError, "Root path not found !!!: %s" % rootPath
+    checkPath = rootPath
+    for path in imagePath.split('/'):
+        checkPath = pFile.conformPath(os.path.join(checkPath, path))
+        if not os.path.exists(checkPath):
+            try:
+                os.mkdir(checkPath)
+                print "Create folder %s in %s" % (path, checkPath)
+            except:
+                raise IOError, "Can not create folder %s in %s" % (path, checkPath)
+    return True
