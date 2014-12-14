@@ -26,7 +26,7 @@ def importScene(sceneName, force=True):
     else:
         print "Error: Unrecognize extention: %s" % ext
 
-def saveSceneAs(sceneName, force=True, keepCurrentName=False):
+def saveSceneAs(sceneName, force=False, keepCurrentName=False):
     """ Save scene with given name
         :param sceneName: (str) : Scene absolut path
         :param force: (bool) : Force opening
