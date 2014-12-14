@@ -36,6 +36,7 @@ class CamPrez(QtGui.QMainWindow, camPrezUI.Ui_mwCamPrez):
         self.sbPadding.editingFinished.connect(self.rf_resultInfo)
         self.cbImageExt.currentIndexChanged.connect(self.rf_resultInfo)
         self.sbByFrame.editingFinished.connect(self.rf_resultInfo)
+        self.bRender.clicked.connect(self.on_renderPreviz)
 
     def rf_renderInfo(self):
         """ Refresh ui render info """
@@ -67,7 +68,8 @@ class CamPrez(QtGui.QMainWindow, camPrezUI.Ui_mwCamPrez):
 
     def on_paramRender(self):
         """ Command launched when QPushButton 'Param Render' is clicked """
-        cpCmds.paramRender(renderPath=str(self.leRenderPath.text()), imaPath=str(self.leImagePath.text()),
+        cpCmds.paramRender(renderer=self.getRenderer,
+                           renderPath=str(self.leRenderPath.text()), imaPath=str(self.leImagePath.text()),
                            imaName=str(self.leImageName.text()), extension=self.getExtension,
                            start=1, stop=self.getDuration, step=self.getFrameStep, padding=self.getPadding,
                            width=self.sbWidth.value(), height=self.sbHeight.value())
@@ -77,6 +79,17 @@ class CamPrez(QtGui.QMainWindow, camPrezUI.Ui_mwCamPrez):
         self.fdImaPath = pQt.fileDialog(fdFileMode='DirectoryOnly', fdRoot=str(self.leRenderPath.text()),
                                         fdCmd=self.ud_imagePath)
         self.fdImaPath.exec_()
+
+    def on_renderPreviz(self):
+        """ Command launched when QPushButton 'Render Previz' is clicked """
+        self.log.info("Launch render ...")
+        renderer = None
+        if self.getRenderer == 'mentalRay':
+            renderer = 'mr'
+        elif self.getRenderer == 'turtle':
+            renderer = 'turtle'
+        if renderer is not None:
+            cpCmds.launchRender(renderer)
 
     def ud_imagePath(self):
         """ Update image path """
@@ -114,6 +127,15 @@ class CamPrez(QtGui.QMainWindow, camPrezUI.Ui_mwCamPrez):
             if self.cbInvertRotate.isChecked():
                 return int(self.sbTurnDuration.value())*-1
             return int(self.sbTurnDuration.value())
+
+    @property
+    def getRenderer(self):
+        """ Get selected renderer
+            :return: (str) : Render engine """
+        if self.cbMentalRay.isChecked():
+            return 'mentalRay'
+        elif self.cbTurtle.isChecked():
+            return 'turtle'
 
     @property
     def getPadding(self):

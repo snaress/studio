@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\camera\camPrez\ui\camPrez.ui'
 #
-# Created: Sat Dec 13 03:48:16 2014
+# Created: Sat Dec 13 17:04:55 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,6 +44,22 @@ class Ui_mwCamPrez(object):
         self.bRefreshInfo = QtGui.QPushButton(self.centralwidget)
         self.bRefreshInfo.setObjectName(_fromUtf8("bRefreshInfo"))
         self.hlParams.addWidget(self.bRefreshInfo)
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.hlParams.addItem(spacerItem)
+        self.lRenderer = QtGui.QLabel(self.centralwidget)
+        self.lRenderer.setObjectName(_fromUtf8("lRenderer"))
+        self.hlParams.addWidget(self.lRenderer)
+        self.cbMentalRay = QtGui.QCheckBox(self.centralwidget)
+        self.cbMentalRay.setChecked(True)
+        self.cbMentalRay.setObjectName(_fromUtf8("cbMentalRay"))
+        self.bgRenderer = QtGui.QButtonGroup(mwCamPrez)
+        self.bgRenderer.setObjectName(_fromUtf8("bgRenderer"))
+        self.bgRenderer.addButton(self.cbMentalRay)
+        self.hlParams.addWidget(self.cbMentalRay)
+        self.cbTurtle = QtGui.QCheckBox(self.centralwidget)
+        self.cbTurtle.setObjectName(_fromUtf8("cbTurtle"))
+        self.bgRenderer.addButton(self.cbTurtle)
+        self.hlParams.addWidget(self.cbTurtle)
         self.bParamRender = QtGui.QPushButton(self.centralwidget)
         self.bParamRender.setObjectName(_fromUtf8("bParamRender"))
         self.hlParams.addWidget(self.bParamRender)
@@ -136,8 +152,8 @@ class Ui_mwCamPrez(object):
         self.sbHeight.setProperty("value", 2000)
         self.sbHeight.setObjectName(_fromUtf8("sbHeight"))
         self.hlImageSize.addWidget(self.sbHeight)
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.hlImageSize.addItem(spacerItem)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.hlImageSize.addItem(spacerItem1)
         self.lByFrame = QtGui.QLabel(self.centralwidget)
         self.lByFrame.setObjectName(_fromUtf8("lByFrame"))
         self.hlImageSize.addWidget(self.lByFrame)
@@ -221,8 +237,8 @@ class Ui_mwCamPrez(object):
         self.cbTurnZ.setObjectName(_fromUtf8("cbTurnZ"))
         self.bgTurnFrontAxe.addButton(self.cbTurnZ)
         self.hlTurnAxe.addWidget(self.cbTurnZ)
-        spacerItem1 = QtGui.QSpacerItem(40, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.hlTurnAxe.addItem(spacerItem1)
+        spacerItem2 = QtGui.QSpacerItem(40, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.hlTurnAxe.addItem(spacerItem2)
         self.cbTurnInvert = QtGui.QCheckBox(self.tabTurn)
         self.cbTurnInvert.setMinimumSize(QtCore.QSize(80, 0))
         self.cbTurnInvert.setObjectName(_fromUtf8("cbTurnInvert"))
@@ -244,8 +260,8 @@ class Ui_mwCamPrez(object):
         self.lTurnFrames = QtGui.QLabel(self.tabTurn)
         self.lTurnFrames.setObjectName(_fromUtf8("lTurnFrames"))
         self.hlTurnDuration.addWidget(self.lTurnFrames)
-        spacerItem2 = QtGui.QSpacerItem(40, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.hlTurnDuration.addItem(spacerItem2)
+        spacerItem3 = QtGui.QSpacerItem(40, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.hlTurnDuration.addItem(spacerItem3)
         self.cbInvertRotate = QtGui.QCheckBox(self.tabTurn)
         self.cbInvertRotate.setMinimumSize(QtCore.QSize(80, 0))
         self.cbInvertRotate.setObjectName(_fromUtf8("cbInvertRotate"))
@@ -270,6 +286,9 @@ class Ui_mwCamPrez(object):
     def retranslateUi(self, mwCamPrez):
         mwCamPrez.setWindowTitle(_translate("mwCamPrez", "CamPrez", None))
         self.bRefreshInfo.setText(_translate("mwCamPrez", "Refresh Info", None))
+        self.lRenderer.setText(_translate("mwCamPrez", "Renderer: ", None))
+        self.cbMentalRay.setText(_translate("mwCamPrez", "MentalRay", None))
+        self.cbTurtle.setText(_translate("mwCamPrez", "Turtle", None))
         self.bParamRender.setText(_translate("mwCamPrez", "Param Render", None))
         self.lRenderPath.setText(_translate("mwCamPrez", "Render Path: ", None))
         self.lImagePath.setText(_translate("mwCamPrez", "Image Path: ", None))

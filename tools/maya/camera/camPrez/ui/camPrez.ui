@@ -54,6 +54,49 @@
          </widget>
         </item>
         <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="lRenderer">
+          <property name="text">
+           <string>Renderer: </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cbMentalRay">
+          <property name="text">
+           <string>MentalRay</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">bgRenderer</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cbTurtle">
+          <property name="text">
+           <string>Turtle</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">bgRenderer</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="bParamRender">
           <property name="text">
            <string>Param Render</string>
@@ -616,5 +659,6 @@
  <connections/>
  <buttongroups>
   <buttongroup name="bgTurnFrontAxe"/>
+  <buttongroup name="bgRenderer"/>
  </buttongroups>
 </ui>

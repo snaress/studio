@@ -1,6 +1,8 @@
 import os, math
+from lib.env import studio
 from lib.system import procFile as pFile
 from lib.system import procMath as pMath
+from tools.maya.util.proc import procScene as pScene
 from tools.maya.util.proc import procModeling as pMode
 from tools.maya.util.proc import procRender as pRender
 try:
@@ -170,21 +172,22 @@ def createCamTurn(axe, duration):
 def paramRender(**kwargs):
     """ Param Render
         :param kwargs: (dict) : Param render """
-    options = pRender.paramRenderOptions()
-    options['camera'] = 'cam_turnPreviz1'
-    options['output'] = "%s/%s" % (kwargs['imaPath'], kwargs['imaName'])
-    options['format'] = kwargs['extension']
-    options['anim'] = 1
-    options['padding'] = kwargs['padding']
-    options['range'] = (kwargs['start'], kwargs['stop'], kwargs['step'])
-    options['skipExistingFrames'] = 0
-    options['size'] = (kwargs['width'], kwargs['height'])
-    options['pixelAspect'] = 1
-    options['samples'] = (0, 3)
-    options['shadows'] = 'simple'
-    options['shadowMaps'] = 'on'
-    options['motionBlur'] = 'off'
-    pRender.ParamRender('mentalRay', options, logLvl='debug')
+    if createPath(kwargs['renderPath'], kwargs['imaPath']):
+        options = pRender.paramRenderOptions()
+        options['camera'] = 'cam_turnPreviz1'
+        options['output'] = "%s/%s" % (kwargs['imaPath'], kwargs['imaName'])
+        options['format'] = kwargs['extension']
+        options['anim'] = 1
+        options['padding'] = kwargs['padding']
+        options['range'] = (kwargs['start'], kwargs['stop'], kwargs['step'])
+        options['skipExistingFrames'] = 0
+        options['size'] = (kwargs['width'], kwargs['height'])
+        options['pixelAspect'] = 1
+        options['samples'] = (0, 2)
+        options['shadows'] = 'simple'
+        options['shadowMaps'] = 'on'
+        options['motionBlur'] = 'off'
+        pRender.ParamRender(kwargs['renderer'], options, logLvl='debug')
 
 def createPath(rootPath, imagePath):
     """ Check rootPath and create folder if needed
@@ -203,3 +206,19 @@ def createPath(rootPath, imagePath):
             except:
                 raise IOError, "Can not create folder %s in %s" % (path, checkPath)
     return True
+
+def launchRender(renderer):
+    """ Launch render in external process """
+    #-- save Tmp File --#
+    wsInfo = pScene.wsToDict()
+    tmpPath = pFile.conformPath(os.path.join(wsInfo['projectPath'], wsInfo['fileRules']['diskCache']))
+    tmpFile = "previz_turn_%s__%s__%s.ma" % (wsInfo['projectName'], pFile.getDate(), pFile.getTime())
+    tmpAbsPath = pFile.conformPath(os.path.join(tmpPath, tmpFile))
+    print "Saving tmp file: ", tmpAbsPath
+    pScene.saveSceneAs(tmpAbsPath, force=True, keepCurrentName=False)
+    if renderer == 'mr':
+        cmd = '%s -r %s -mr:v 5 %s' % (os.path.normpath(studio.mayaRender), renderer, os.path.normpath(tmpAbsPath))
+    else:
+        cmd = '%s -r %s %s' % (os.path.normpath(studio.mayaRender), renderer, os.path.normpath(tmpAbsPath))
+    os.system('start %s' % cmd)
+
