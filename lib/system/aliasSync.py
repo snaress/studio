@@ -1,7 +1,5 @@
 import os, shutil
 toolPath = os.path.normpath(os.path.dirname(__file__))
-envFile = os.path.normpath("F:/rnd/workspace/studio/lib/env/env.py")
-execfile(envFile)
 
 
 def syncAlias():
