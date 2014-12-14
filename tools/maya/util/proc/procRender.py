@@ -51,22 +51,36 @@ def initMrDefaultNodes(verbose=True):
                 if verbose:
                     print "\tSkip connection %s to %s" % (src, dst)
 
-def getImageFormatIndex(format):
+def getImageFormatIndex(format, turtleRE=False):
     """ Get format index
         :param format: (str) : Image file format
         :return: (int), (int) : Image format, Image data type """
-    if format == 'tif':
-        return 3, 2
-    elif format == 'iff':
-        return 7, 2
-    elif format == 'jpg':
-        return 8, 2
-    elif format == 'tga':
-        return 19, 2
-    elif format == 'png':
-        return 32, 2
-    elif format == 'exr':
-        return 51, 5
+    if not turtleRE:
+        if format == 'tif':
+            return 3, 2
+        elif format == 'iff':
+            return 7, 2
+        elif format == 'jpg':
+            return 8, 0
+        elif format == 'tga':
+            return 19, 2
+        elif format == 'png':
+            return 32, 2
+        elif format == 'exr':
+            return 51, 5
+    else:
+        if format == 'tif':
+            return 3, 2
+        elif format == 'iff':
+            return 6, 2
+        elif format == 'jpg':
+            print "No jpg format with turtle !!!"
+        elif format == 'tga':
+            return 0, 2
+        elif format == 'png':
+            return 9, 2
+        elif format == 'exr':
+            return 2, 5
 
 def getRenderableCameraShape():
     """ List renderable cameraShape in scene
@@ -110,6 +124,7 @@ def paramRenderOptions():
             :keyword depthChannel: (int) : Camera depth channel on or off
             :keyword output: (str) : Image file output name (relativePath/imageName)
             :keyword format: (str) : 'jpg', 'png', 'exr' or 'tga'
+            :keyword anim: (int) : Enable sequence mode
             :keyword padding: (int) : Frame padding
             :keyword range: (int) or (list) or (tuple): Single Frame, Frames list, range
             :keyword skipExistingFrames: (int) : Skip existing file on or off
@@ -143,12 +158,14 @@ class ParamRender(object):
         self.drg = "defaultRenderGlobals"
         self.dr = "defaultResolution"
         self.mido = "miDefaultOptions"
+        self.tro = "TurtleRenderOptions"
         self.renderer = renderer
         self.options = options
         self.setParamRender()
 
     def setParamRender(self):
         """ Set param render with given options """
+        #-- Default Render Globals --#
         self.initRenderEngine()
         self.setProject()
         self.setCamera()
@@ -156,14 +173,17 @@ class ParamRender(object):
         self.setRange()
         self.setSize()
         self.setMotionBlur()
+        #-- MentalRay Default Options --#
         if self.renderer == 'mentalRay':
-            self.setMentalRayOptions()
-
-    def setMentalRayOptions(self):
-        """ Set mental ray render options """
-        self.setMrSamples()
-        self.setMrShadows()
-        self.setMrMotionBlur()
+            self.setMrSamples()
+            self.setMrShadows()
+            self.setMrMotionBlur()
+        #-- Turtle Default Options --#
+        elif self.renderer == 'turtle':
+            self.setTurtleOutput()
+            self.setTurtleRange()
+            self.setTurtleSize()
+            self.setTurtleSamples()
 
     def initRenderEngine(self):
         """ Init render engine plugin """
@@ -304,6 +324,9 @@ class ParamRender(object):
             self.log.debug("Option 'size' detected: %s x %s" % (self.options['size'][0], self.options['size'][1]))
             mc.setAttr("%s.width" % self.dr, self.options['size'][0])
             mc.setAttr("%s.height" % self.dr, self.options['size'][1])
+            #-- Aspect Ratio --#
+            ar = ( float(self.options['size'][0]) / float(self.options['size'][1]) )
+            mc.setAttr("%s.deviceAspectRatio" % self.dr, ar)
         #-- Pixel Aspect --#
         if self.options['pixelAspect'] is None:
             self.log.debug("Use current pixel aspect: %s" % mc.getAttr("%s.pixelAspect" % self.dr))
@@ -426,3 +449,75 @@ class ParamRender(object):
         else:
             self.log.debug("Option 'motionBlurSteps' detected: %s" % self.options['mbSteps'])
             mc.setAttr("%s.motionSteps" % self.mido, self.options['mbSteps'])
+
+    def setTurtleOutput(self):
+        """ Set Turtle Output options """
+        self.log.info("#-- Set Turtle Output --#")
+        mc.setAttr('%s.renderer' % self.tro, 0)
+        #-- File Name Format --#
+        if self.options['output'] is None:
+            self.log.debug("Use current output: %s" % mc.getAttr("%s.fileNamePrefix" % self.tro))
+        else:
+            self.log.debug("Option 'output' detected: %s" % self.options['output'])
+            mc.setAttr("%s.fileNamePrefix" % self.tro, self.options['output'], type='string')
+        #-- Image Format --#
+        if self.options['format'] is None:
+            self.log.debug("Use current 'fileFormat': %s" % mc.getAttr("%s.imageFormat" % self.tro))
+        else:
+            self.log.debug("Option 'imageFileFormat' detected: %s" % self.options['format'])
+            if self.options['format'] == 'jpg':
+                self.log.error("jpg format not allowed with turtle, use png instead !!!")
+                extIndex, dataIndex = getImageFormatIndex('png', turtleRE=True)
+            else:
+                extIndex, dataIndex = getImageFormatIndex(self.options['format'], turtleRE=True)
+            mc.setAttr("%s.imageFormat" % self.tro, extIndex)
+        #-- Image File Format --#
+        if self.options['anim'] is None:
+            self.log.debug("Use current 'imageFileFormat': %s" % mc.getAttr("%s.fileNameFormat" % self.tro))
+        else:
+            self.log.debug("Option 'imageFileFormat' detected: %s" % self.options['anim'])
+            if self.options['anim']:
+                mc.setAttr("%s.fileNameFormat" % self.tro, 2)
+            else:
+                mc.setAttr("%s.fileNameFormat" % self.tro, 1)
+
+    def setTurtleRange(self):
+        """ Set turtle frame range """
+        self.log.info("#-- Set Turtle Range --#")
+        if self.options['range'] is None:
+            self.log.debug("Use current range: (%s, %s, %s)" % (mc.getAttr("%s.startFrame" % self.tro),
+                                                                mc.getAttr("%s.endFrame" % self.tro),
+                                                                mc.getAttr("%s.frameStep" % self.tro)))
+        else:
+            self.log.debug("Option 'range' detected: %s" % str(self.options['range']))
+            if isinstance(self.options['range'], tuple):
+                mc.setAttr("%s.startFrame" % self.tro, self.options['range'][0])
+                mc.setAttr("%s.endFrame" % self.tro, self.options['range'][1])
+                mc.setAttr("%s.frameStep" % self.tro, self.options['range'][2])
+
+    def setTurtleSize(self):
+        """ Set turtle frame size """
+        self.log.info("#-- Set Turtle Size --#")
+        #-- Frame Size --#
+        if self.options['size'] is None:
+            self.log.debug("Use current frame size: %s x %s" % (mc.getAttr("%s.width" % self.tro),
+                                                                mc.getAttr("%s.height" % self.tro)))
+        else:
+            self.log.debug("Option 'size' detected: %s x %s" % (self.options['size'][0], self.options['size'][1]))
+            mc.setAttr("%s.width" % self.tro, self.options['size'][0])
+            mc.setAttr("%s.height" % self.tro, self.options['size'][1])
+            #-- Aspect Ratio --#
+            ar = ( float(self.options['size'][0]) / float(self.options['size'][1]) )
+            mc.setAttr("%s.aspectRatio" % self.tro, ar)
+
+    def setTurtleSamples(self):
+        """ Set turtle samples """
+        self.log.info("#-- Set Turtle Samples --#")
+        if self.options['samples'] is None:
+            self.log.debug("Use current samples: %s x %s" % (mc.getAttr("%s.aaMinSampleRate" % self.tro),
+                                                             mc.getAttr("%s.aaMaxSampleRate" % self.tro)))
+        else:
+            self.log.debug("Option 'samples' detected: %s x %s" % (self.options['samples'][0],
+                                                                   self.options['samples'][1]))
+            mc.setAttr('%s.aaMinSampleRate' % self.tro, self.options['samples'][0])
+            mc.setAttr('%s.aaMaxSampleRate' % self.tro, self.options['samples'][1])
