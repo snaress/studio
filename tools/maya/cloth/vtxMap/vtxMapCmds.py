@@ -5,7 +5,6 @@ except:
     pass
 
 
-
 def getAllClothNodes(nodeType):
     """ Get scene nodes from given nodeType
         :param nodeType: (str) : 'nCloth' or 'nRigid'
@@ -94,25 +93,6 @@ def getModelFromClothNode(clothNode):
 def getModelSelVtx(clothNode, indexOnly=False):
     """ Get selected vertex on model
         :param clothNode: (str) : Cloth shape node name
+        :param indexOnly: (bool) : If True, return index only, else fullName
         :return: (list) : selection list """
-    sel = mc.ls(sl=True) or []
-    model = pCloth.getModelFromClothNode(clothNode)
-    selVtx = []
-    for node in sel:
-        if node.startswith(model) and node.endswith(']'):
-            selName = node.split('.')[0]
-            ind = node.split('.')[-1].replace('vtx[', '').replace(']','')
-            if not ':' in ind:
-                if indexOnly:
-                    selVtx.append(int(ind))
-                else:
-                    selVtx.append("%s.vtx[%s]" % (selName, ind))
-            else:
-                deb = int(ind.split(':')[0])
-                fin = int(ind.split(':')[1])
-                for n in range(deb, (fin + 1), 1):
-                    if indexOnly:
-                        selVtx.append(n)
-                    else:
-                        selVtx.append("%s.vtx[%s]" % (selName, n))
-    return selVtx
+    return pCloth.getModelSelectedVtx(clothNode, indexOnly=indexOnly)

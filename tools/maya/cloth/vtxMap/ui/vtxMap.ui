@@ -335,7 +335,7 @@
       </widget>
       <widget class="QTabWidget" name="tabVertex">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabVtxTools">
         <attribute name="title">
@@ -378,6 +378,13 @@
            <item>
             <layout class="QHBoxLayout" name="hlVtxSelRange">
              <item>
+              <widget class="QLabel" name="lRangeMin">
+               <property name="text">
+                <string>Min=</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QDoubleSpinBox" name="sbRangeMin">
                <property name="minimumSize">
                 <size>
@@ -385,8 +392,21 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::NoButtons</enum>
+               </property>
                <property name="decimals">
-                <number>3</number>
+                <number>5</number>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="lRangeMax">
+               <property name="text">
+                <string>Max=</string>
                </property>
               </widget>
              </item>
@@ -398,11 +418,27 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::NoButtons</enum>
+               </property>
                <property name="decimals">
-                <number>3</number>
+                <number>5</number>
+               </property>
+               <property name="value">
+                <double>1.000000000000000</double>
                </property>
               </widget>
              </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <property name="spacing">
+              <number>2</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QPushButton" name="pbVtxSelect">
                <property name="maximumSize">
@@ -417,17 +453,17 @@
               </widget>
              </item>
              <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
+              <widget class="QPushButton" name="pbVtxClear">
+               <property name="maximumSize">
                 <size>
-                 <width>40</width>
+                 <width>16777215</width>
                  <height>20</height>
                 </size>
                </property>
-              </spacer>
+               <property name="text">
+                <string>Clear</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
