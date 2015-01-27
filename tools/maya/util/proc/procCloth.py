@@ -1,5 +1,6 @@
 try:
     import maya.cmds as mc
+    import maya.mel as ml
 except:
     pass
 
@@ -160,3 +161,49 @@ def getModelSelectedVtx(clothNode, indexOnly=False):
                     else:
                         selVtx.append("%s.vtx[%s]" % (selName, n))
     return selVtx
+
+def selectVtxOnModel(clothNode, vtxMap, selMode, value=None, minInf=None, maxInf=None):
+    """ Select vertex on model given by value or range
+        :param clothNode: (str) : Cloth shape node name
+        :param vtxMap: (str) : Vertex map name (must ends with 'PerVertex')
+        :param selMode: (str) : 'range' or 'value'
+        :param value: (float) : Influence value
+        :param minInf: (float) : Range minimum influence
+        :param maxInf: (float) : Range maximum influence """
+    #-- Get Data --#
+    data = getVtxMapData(clothNode, vtxMap)
+    if data is not None:
+        vtxSel = []
+        model = getModelFromClothNode(clothNode)
+        if model is not None:
+            for n, val in enumerate(data):
+                if selMode == 'range':
+                    if minInf <= val <= maxInf:
+                        vtxSel.append("%s.vtx[%s]" % (model, n))
+                elif selMode == 'value':
+                    if value == val:
+                        vtxSel.append("%s.vtx[%s]" % (model, n))
+        #-- Select Matching Values --#
+        if vtxSel:
+            mc.select(vtxSel, r=True)
+        else:
+            print "!!! WARNING: No matching values found !!!"
+
+def paintVtxMap(clothNode, mapName):
+    """ Enable maya vertex paint tool
+        :param clothNode: (str) : Cloth shape node name
+        :param mapName: (str) : Vertex map name """
+    if not mc.objExists(clothNode) and mc.nodeType(clothNode) in ['nCloth', 'nRigid']:
+        print "!!! WARNING: ClothNode not found, or is not a cloth node: %s" % clothNode
+    else:
+        if not getVtxMapType(clothNode, '%sMapType' % mapName) == 1:
+            print "!!! WARNING: Vertex map disabled !!!"
+        else:
+            model = getModelFromClothNode(clothNode)
+            shape = mc.listRelatives(model, s=True, ni=True)
+            if not shape:
+                print "!!! WARNING: No shape found !!!"
+            else:
+                mc.select(shape[0], r=True)
+                ml.eval('setNClothMapType("%s","",1);' % mapName)
+                ml.eval('artAttrNClothToolScript 3 %s;' % mapName)
