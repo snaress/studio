@@ -2,11 +2,11 @@ from PyQt4 import QtGui, Qt
 from functools import partial
 from lib.qt import procQt as pQt
 from tools.maya.util.proc import procUi as pUi
-from tools.maya.cloth.vtxMap.ui import vtxMapUI, wgVtxMapUI
+from tools.maya.cloth.vtxMap.ui import vtxMapUI
 from tools.maya.cloth.vtxMap import vtxMapCmds as vmCmds
+from tools.maya.cloth.vtxMap import vtxMapWdgt as vmWdgt
 try:
     import maya.cmds as mc
-    import maya.mel as ml
 except:
     pass
 
@@ -40,8 +40,8 @@ class VtxMapUi(QtGui.QMainWindow, vtxMapUI.Ui_mwVtxMap):
         self.pbTexture.setStyleSheet("color: rgb(0, 150, 255)")
         self.pbTexture.clicked.connect(partial(self.on_editAll, 'Texture'))
         #-- Vertex Map Tools --#
-        self.pbVtxSelect.clicked.connect(self.on_vtxRangeSel)
-        self.pbVtxClear.clicked.connect(self.on_vtxClearSel)
+        self.wgVtxEdit = vmWdgt.VtxEditUi(self)
+        self.vlVtxEdition.insertWidget(0, self.wgVtxEdit)
         #-- Vertex Map Influence --#
         self.pbUpdateInf.clicked.connect(self.on_updateInfFromScene)
         self.twVtxValues.setHeaderHidden(False)
@@ -170,11 +170,7 @@ class VtxMapUi(QtGui.QMainWindow, vtxMapUI.Ui_mwVtxMap):
         """ Command launched when QTreeWidgetItem 'MapType Nodes' is double clicked """
         selItems = self.twMapType.selectedItems()
         if selItems:
-            if selItems[0]._widget.vtxMapType == 'Vertex':
-                model = vmCmds.getModelFromClothNode(selItems[0]._widget.clothNode)
-                mc.select(model, add=True)
-                ml.eval('setNClothMapType("%s","",1);' % selItems[0]._widget.mapName)
-                ml.eval('artAttrNClothToolScript 3 %s;' % selItems[0]._widget.mapName)
+            vmCmds.paintVtxMap(selItems[0]._widget.clothNode, selItems[0]._widget.mapName)
 
     def on_editAll(self, mapType):
         """ Command launched when QPushButton 'None', 'Vertex' or 'Texture' is clicked """
@@ -186,27 +182,6 @@ class VtxMapUi(QtGui.QMainWindow, vtxMapUI.Ui_mwVtxMap):
                 item._widget.cbState.setCurrentIndex(1)
             elif mapType == 'Texture':
                 item._widget.cbState.setCurrentIndex(2)
-
-    def on_vtxRangeSel(self):
-        """ Command launched when QPushButton 'Select' (range) is clicked """
-        minInf = self.sbRangeMin.value()
-        maxInf = self.sbRangeMax.value()
-        selItems = self.twMapType.selectedItems()
-        if selItems:
-            data = vmCmds.getVtxMapData(selItems[0]._widget.clothNode, selItems[0]._widget.vtxMap)
-            if data is not None:
-                vtxSel = []
-                model = vmCmds.getModelFromClothNode(selItems[0]._widget.clothNode)
-                if model is not None:
-                    for n, val in enumerate(data):
-                        if minInf <= val <= maxInf:
-                            vtxSel.append("%s.vtx[%s]" % (model, n))
-                mc.select(vtxSel, r=True)
-
-    @staticmethod
-    def on_vtxClearSel():
-        """ Command launched when QPushButton 'Clear' (range) is clicked """
-        mc.select(cl=True)
 
     def on_updateInfFromScene(self):
         """ Command launched when QPushButton 'Update From Scene' is clicked """
@@ -263,7 +238,7 @@ class VtxMapUi(QtGui.QMainWindow, vtxMapUI.Ui_mwVtxMap):
             :param mapName: (str) : Cloth node map type
             :return: (object) : QTreeWidgetItem """
         newItem = QtGui.QTreeWidgetItem()
-        newItem._widget = VtxMapNode(clothNode, mapName)
+        newItem._widget = vmWdgt.VtxMapNode(clothNode, mapName)
         return newItem
 
     @staticmethod
@@ -281,52 +256,6 @@ class VtxMapUi(QtGui.QMainWindow, vtxMapUI.Ui_mwVtxMap):
         newItem.vtxIndex = n
         newItem.vtxInf = val
         return newItem
-
-
-class VtxMapNode(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
-
-    def __init__(self, clothNode, mapName):
-        self.clothNode = clothNode
-        self.mapName = mapName
-        self.mapType = "%sMapType" % self.mapName
-        self.vtxMap = "%sPerVertex" % self.mapName
-        super(VtxMapNode, self).__init__()
-        self._setupUi()
-
-    @property
-    def vtxMapIndex(self):
-        """ Get vtxMap current type
-            :return: (int) : VtxMap type (0 = None, 1 = Vertex, 2 = Texture) """
-        return self.cbState.currentIndex()
-
-    @property
-    def vtxMapType(self):
-        """ Get vtxMap current type
-            :return: (str) : VtxMap type (None, Vertex or Texture) """
-        return str(self.cbState.currentText())
-
-    # noinspection PyUnresolvedReferences
-    def _setupUi(self):
-        """ Setup widget ui """
-        self.setupUi(self)
-        self.lVtxMap.setText(self.mapName)
-        self.cbState.setCurrentIndex(vmCmds.getVtxMapType(self.clothNode, self.mapType))
-        self.cbState.currentIndexChanged.connect(self.on_mapType)
-        self.rf_vtxMapLabel()
-
-    def rf_vtxMapLabel(self):
-        """ Refresh mapType label color """
-        if self.vtxMapIndex == 0:
-            self.lVtxMap.setStyleSheet("color: rgb(175, 175, 175)")
-        elif self.vtxMapIndex == 1:
-            self.lVtxMap.setStyleSheet("color: rgb(0, 255, 0)")
-        elif self.vtxMapIndex == 2:
-            self.lVtxMap.setStyleSheet("color: rgb(0, 125, 255)")
-
-    def on_mapType(self):
-        """ Command launched when QComboBox 'mapType' current index changed """
-        vmCmds.setVtxMapType(self.clothNode, self.mapType, self.cbState.currentIndex())
-        self.rf_vtxMapLabel()
 
 
 def launch():

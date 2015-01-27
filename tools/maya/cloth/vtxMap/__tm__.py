@@ -11,11 +11,15 @@ from tools.maya.cloth.vtxMap.ui import vtxMapUI as vmUi
 reload(vmUi)
 from tools.maya.cloth.vtxMap.ui import wgVtxMapUI
 reload(wgVtxMapUI)
+from tools.maya.cloth.vtxMap.ui import wgVtxEditUI
+reload(wgVtxEditUI)
 from tools.maya.cloth import vtxMap
 reload(vtxMap)
 from tools.maya.cloth.vtxMap import vtxMapUi
 reload(vtxMapUi)
 from tools.maya.cloth.vtxMap import vtxMapCmds as vmCmds
 reload(vmCmds)
+from tools.maya.cloth.vtxMap import vtxMapWdgt as vmWdgt
+reload(vmWdgt)
 
 vtxMapUi.launch()

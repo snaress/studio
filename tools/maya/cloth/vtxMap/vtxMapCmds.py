@@ -96,3 +96,22 @@ def getModelSelVtx(clothNode, indexOnly=False):
         :param indexOnly: (bool) : If True, return index only, else fullName
         :return: (list) : selection list """
     return pCloth.getModelSelectedVtx(clothNode, indexOnly=indexOnly)
+
+def selectVtx(clothNode, vtxMap, selMode, value=None, minInf=None, maxInf=None):
+    """ Select vertex on model given by value or range
+        :param clothNode: (str) : Cloth shape node name
+        :param vtxMap: (str) : Vertex map name (must ends with 'PerVertex')
+        :param selMode: (str) : 'range' or 'value'
+        :param value: (float) : Influence value
+        :param minInf: (float) : Range minimum influence
+        :param maxInf: (float) : Range maximum influence """
+    if selMode == 'range':
+        pCloth.selectVtxOnModel(clothNode, vtxMap, selMode, minInf=minInf, maxInf=maxInf)
+    elif selMode == 'value':
+        pCloth.selectVtxOnModel(clothNode, vtxMap, selMode, value=value)
+
+def paintVtxMap(clothNode, mapName):
+    """ Enable maya vertex paint tool
+        :param clothNode: (str) : Cloth shape node name
+        :param mapName: (str) : Vertex map name """
+    pCloth.paintVtxMap(clothNode, mapName)
