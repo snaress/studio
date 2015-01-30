@@ -1,6 +1,6 @@
 b = dir /ON
 ls = dir /D
-bls = python F:\rnd\workspace\studio\lib\system\seqListing.py $*
+sls = python F:\rnd\workspace\studio\lib\system\seqList.py $*
 lsl = dir /OD
 c = cls
 
