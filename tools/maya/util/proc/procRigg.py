@@ -6,11 +6,16 @@ except:
 
 def findTypeInHistory(obj, objType, future=False, past=False):
     """ returns the node of the specified type that is the closest traversal to the input object
-        :param obj: (str) : Object name
-        :param objType: (str) : Object type
-        :param future: (int) : Future depth
-        :param past: (int) : Past depth
-        :return: (str) : Closest node connected """
+        :param obj: Object name
+        :type obj: str
+        :param objType: Object type
+        :type objType: str
+        :param future: Future depth
+        :type future: bool
+        :param past: Past depth
+        :type past: bool
+        :return: Closest node connected
+        :rtype: str """
     if past and future:
         # In the case that the object type exists in both past and future,
         # find the one that is fewer connections away.
@@ -48,6 +53,55 @@ def findTypeInHistory(obj, objType, future=False, past=False):
 
 def listTransforms(mesh):
     """ get transform from given mesh
-        :param mesh: (str) : Mesh node name
-        :return: (str): Transform node """
+        :param mesh: Mesh node name
+        :type mesh: str
+        :return: Transform node
+        :rtype: str """
     return mc.listRelatives(mesh, p=True, pa=True)
+
+def getNextFreeMultiIndex(attr, start=0):
+    """ Returns the next multi index that's available for the given destination attribute
+        :param attr:  Name of the multi attribute
+        :type attr: str
+        :param start: the first index to check from (use zero if last index is not known)
+        :type start: int
+        :return: Available index
+        :rtype: int """
+    for n in range(start, 10000000, 1):
+        conn = mc.connectionInfo('%s[%s]' % (attr, n))
+        if not conn:
+            return n
+    return 0
+
+def plugNode(connectionPlug):
+    """ Get plug node from given connection
+        :param connectionPlug: Connection plug
+        :type connectionPlug: str
+        :return: Plug node name
+        :rtype: str """
+    return connectionPlug.split('.')[0]
+
+def plugAttr(connectionPlug):
+    """ Get plug attribute from given connection
+        :param connectionPlug: Connection plug
+        :type connectionPlug: str
+        :return: Plug attribute name
+        :rtype: str """
+    return '.'.join(connectionPlug.split('.')[1:])
+
+def transfertWrapConns(wrapPlugs, newNode):
+    """ Given a list of wrap plugs, transfer the connections from
+        their current source to the given newNode.
+        :param wrapPlugs: Wrap connection plugs
+        :type wrapPlugs: list
+        :param newNode: Destination node
+        :type newNode: str """
+    for wrapPlug in wrapPlugs:
+        wrapAttr = plugAttr(wrapPlug)
+        if wrapAttr.startswith('driverPoints'):
+            meshConns = mc.listConnections(wrapPlug, s=True, p=True, sh=True, type='mesh')
+            if meshConns:
+                #-- Transfert connections --#
+                meshAttr = plugAttr(meshConns[0])
+                mc.disconnectAttr(meshConns[0], wrapPlug)
+                mc.connectAttr('%s.%s' % (newNode, meshAttr), wrapPlug)
