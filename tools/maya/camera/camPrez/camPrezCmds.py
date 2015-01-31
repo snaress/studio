@@ -65,7 +65,7 @@ def createBbox():
     if mc.objExists(boxName):
         print "Clean existing boxCam ..."
         mc.delete(boxName)
-    pMode.creeBox(name=boxName)
+    pMode.creeBoxOld(name=boxName)
     return boxName
 
 def getBoxInfo(boxName):
