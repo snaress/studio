@@ -3,9 +3,12 @@ import math, random
 
 def getDistance(p1, p2):
     """ Get distance between two 3d points
-        @param p1: (list) : First point coord (list[float(x), float(y), float(z)])
-        @param p2: (list) : Second point coord (list[float(x), float(y), float(z)])
-        @return: (float) : Distance between p1 and p2 """
+        :param p1: First point coord
+        :type p1: tuple
+        :param p2: Second point coord
+        :type p2: tuple
+        :return: Distance between p1 and p2
+        :rtype: float """
     dist = math.sqrt(math.pow((p1[0]-p2[0]), 2) +
                      math.pow((p1[1]-p2[1]), 2) +
                      math.pow((p1[2]-p2[2]), 2))
@@ -13,10 +16,14 @@ def getDistance(p1, p2):
 
 def coordOp(p1, p2, operation):
     """ Coord operations
-        @param p1: (list) : First point coord (list[float(x), float(y), float(z)])
-        @param p2: (list) : Second point coord (list[float(x), float(y), float(z)])
-        @param operation: (str) : 'plus', 'minus', 'mult', 'divide' or 'average'
-        @return: (list) : New coord (list[float(x), float(y), float(z)]) """
+        :param p1: First point coord
+        :type p1: tuple
+        :param p2: Second point coord
+        :type p2: tuple
+        :param operation: 'plus', 'minus', 'mult', 'divide' or 'average'
+        :type operation: str
+        :return: New coords
+        :rtype: tuple """
     operations = ('plus', 'minus', 'mult', 'divide', 'average')
     if not operation in operations:
         raise NotImplementedError("The operation must be in %s" % ", ".join(operations))
@@ -36,7 +43,8 @@ def coordOp(p1, p2, operation):
     elif operation == 'average':
         for x, y in zip(p1, p2):
             newCoord.append((x + y) / 2)
-    return newCoord
+    result = (newCoord[0], newCoord[1], newCoord[2])
+    return result
 
 
 class RandomSequence(object):
@@ -44,14 +52,22 @@ class RandomSequence(object):
         Usage: r = RandomSequence('sinusoidal', -5, 5, 10, 2, bias=True, biasMin=-3, biasMax=3)
                r.printRandParams()
                rand = r.generate()
-        @param randType: (str) : 'uniform' or 'sinusoidal'
-        @param ampMin: (float) : Amplitude Minimum
-        @param ampMax: (float) : Amplitude Maximum
-        @param octaves: (int) : Number of random value to create
-        @param frequence: (int) : Octaves repetition
-        @param bias: (bool) : Amplitude Bias on or off
-        @param biasMin: (float) : Bias Minimum
-        @param biasMax: (float) : Bias Maximum """
+        :param randType: 'uniform' or 'sinusoidal'
+        :type randType: str
+        :param ampMin: Amplitude Minimum
+        :type ampMin: float
+        :param ampMax: Amplitude Maximum
+        :type ampMax: float
+        :param octaves: Number of random value to create
+        :type octaves: int
+        :param frequence: Octaves repetition
+        :type frequence: int
+        :param bias: Amplitude Bias on or off
+        :type bias: bool
+        :param biasMin: Bias Minimum
+        :type biasMin: float
+        :param biasMax: Bias Maximum
+        :type biasMax: float """
 
     def __init__(self, randType, ampMin, ampMax, octaves, frequence, bias=False, biasMin=0, biasMax=0):
         self.randType = randType
@@ -65,7 +81,8 @@ class RandomSequence(object):
 
     def generate(self):
         """ Generate random sequence
-            @return: (list) : Random sequence """
+            :return: Random sequence
+            :rtype: list """
         if self.randType == 'uniform':
             return self.getUniformRand
         elif self.randType == 'sinusoidal':
@@ -74,7 +91,8 @@ class RandomSequence(object):
     @property
     def getUniformRand(self):
         """ Create uniform random sequence from params
-            @return: (list) : Uniform random sequence """
+            :return: Uniform random sequence
+            :rtype: list """
         #-- Create Random Sequence --#
         randSeq = []
         for n in range(self.octaves):
@@ -95,7 +113,8 @@ class RandomSequence(object):
     @property
     def getSinusoidalRand(self):
         """ Create sinusoidal random sequence from params
-            @return: (list) : Sinusoidal random sequence """
+            :return: Sinusoidal random sequence
+            :rtype: list """
         #-- Create Sinusoidal Random Sequence --#
         randSeq = []
         rand = 0
@@ -133,9 +152,12 @@ class RandomSequence(object):
 
     def getSinBiasValue(self, rand, sign):
         """ Get bias value from given params
-            @param rand: (float) : Random value
-            @param sign: (str) : '-' or '+'
-            @return: (float) : Bias value """
+            :param rand: Random value
+            :type rand: float
+            :param sign: '-' or '+'
+            :type sign: str
+            :return: Bias value
+            :rtype: float """
         if not rand > self.biasMax and not rand < self.biasMin:
             if sign == '+':
                 rand = random.uniform(self.ampMin, self.biasMin)
