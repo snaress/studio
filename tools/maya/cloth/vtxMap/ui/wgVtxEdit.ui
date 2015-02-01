@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>346</width>
-    <height>171</height>
+    <width>444</width>
+    <height>211</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,119 +23,12 @@
    <property name="margin">
     <number>0</number>
    </property>
-   <item row="8" column="0">
-    <widget class="QPushButton" name="pbFlood">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Flood</string>
+   <item row="14" column="0">
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
-   </item>
-   <item row="2" column="0">
-    <layout class="QHBoxLayout" name="hlSelBtn">
-     <property name="spacing">
-      <number>2</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QPushButton" name="pbVtxSelect">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Select</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbVtxClear">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Clear</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="0">
-    <layout class="QHBoxLayout" name="hlSelMode">
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="lSelRange">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Vertex Selection: </string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="rbVtxRange">
-       <property name="text">
-        <string>Range</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-       <attribute name="buttonGroup">
-        <string notr="true">bgVtxSelection</string>
-       </attribute>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="rbVtxValue">
-       <property name="text">
-        <string>Value</string>
-       </property>
-       <property name="autoExclusive">
-        <bool>true</bool>
-       </property>
-       <attribute name="buttonGroup">
-        <string notr="true">bgVtxSelection</string>
-       </attribute>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
    </item>
    <item row="7" column="0">
     <layout class="QHBoxLayout" name="hlClampVal">
@@ -265,6 +158,127 @@
      </item>
     </layout>
    </item>
+   <item row="11" column="0">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="hlSelBtn">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="pbVtxSelect">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Select</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbVtxClear">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="5" column="0">
+    <layout class="QHBoxLayout" name="hlEditMode">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="lEditMode">
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>80</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Vertex Edition:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbEditReplace">
+       <property name="text">
+        <string>Replace</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgVtxEdition</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbEditAdd">
+       <property name="text">
+        <string>Add</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgVtxEdition</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rbEditMult">
+       <property name="text">
+        <string>Multiply</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">bgVtxEdition</string>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="hlSelRange">
      <item>
@@ -367,6 +381,26 @@
      </property>
     </widget>
    </item>
+   <item row="10" column="0">
+    <widget class="Line" name="line_6">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QPushButton" name="pbFlood">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Flood</string>
+     </property>
+    </widget>
+   </item>
    <item row="6" column="0">
     <layout class="QHBoxLayout" name="hlEditVal">
      <property name="spacing">
@@ -422,93 +456,135 @@
      </item>
     </layout>
    </item>
-   <item row="5" column="0">
-    <layout class="QHBoxLayout" name="hlEditMode">
-     <property name="spacing">
-      <number>2</number>
-     </property>
+   <item row="0" column="0">
+    <layout class="QHBoxLayout" name="hlSelMode">
      <property name="topMargin">
       <number>0</number>
      </property>
      <item>
-      <widget class="QLabel" name="lEditMode">
+      <widget class="QLabel" name="lSelRange">
        <property name="minimumSize">
         <size>
-         <width>80</width>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>80</width>
+         <width>16777215</width>
          <height>16777215</height>
         </size>
        </property>
        <property name="text">
-        <string>Vertex Edition:</string>
+        <string>Vertex Selection: </string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="rbEditReplace">
+      <widget class="QRadioButton" name="rbVtxRange">
        <property name="text">
-        <string>Replace</string>
+        <string>Range</string>
        </property>
        <property name="checked">
         <bool>true</bool>
        </property>
-       <property name="autoExclusive">
-        <bool>true</bool>
-       </property>
        <attribute name="buttonGroup">
-        <string notr="true">bgVtxEdition</string>
+        <string notr="true">bgVtxSelection</string>
        </attribute>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="rbEditAdd">
+      <widget class="QRadioButton" name="rbVtxValue">
        <property name="text">
-        <string>Add</string>
+        <string>Value</string>
        </property>
        <property name="autoExclusive">
         <bool>true</bool>
        </property>
        <attribute name="buttonGroup">
-        <string notr="true">bgVtxEdition</string>
+        <string notr="true">bgVtxSelection</string>
        </attribute>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="rbEditMult">
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="13" column="0">
+    <layout class="QHBoxLayout" name="hlVtxStorage">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="lVtxStorage">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <underline>true</underline>
+        </font>
+       </property>
        <property name="text">
-        <string>Multiply</string>
+        <string>Vtx Storage:</string>
        </property>
-       <property name="autoExclusive">
-        <bool>true</bool>
-       </property>
-       <attribute name="buttonGroup">
-        <string notr="true">bgVtxEdition</string>
-       </attribute>
       </widget>
      </item>
     </layout>
    </item>
-   <item row="10" column="0">
-    <widget class="Line" name="line_6">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="15" column="0">
+    <layout class="QHBoxLayout" name="hlDataStorage">
+     <property name="spacing">
+      <number>2</number>
      </property>
-    </widget>
+     <item>
+      <widget class="QLabel" name="lDataStorage">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <underline>true</underline>
+        </font>
+       </property>
+       <property name="text">
+        <string>Data Storage:</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="4" column="0">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="0">
-    <widget class="Line" name="line_2">
+   <item row="16" column="0">
+    <widget class="Line" name="line_4">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -519,7 +595,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="bgVtxEdition"/>
   <buttongroup name="bgVtxSelection"/>
+  <buttongroup name="bgVtxEdition"/>
  </buttongroups>
 </ui>
