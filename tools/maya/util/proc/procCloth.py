@@ -1,4 +1,6 @@
+import math
 from tools.maya.util.proc import procRigg as pRigg
+from tools.maya.util.proc import procModeling as pMode
 try:
     import maya.cmds as mc
     import maya.mel as ml
@@ -6,168 +8,119 @@ except:
     pass
 
 
-def getClothNodeFromSel(returnLog=False):
-    """ Try to find cloth node connected to selected object.
-        Only one object must be selected
-        :param returnLog: (bool) : Log return enable
-        :return: (str) : Cloth node name, or None if cloth node not found """
-    selection = mc.ls(sl=True)
-    #-- Check Selection --#
-    if not len(selection) == 1:
-        if returnLog:
-            return None, "!!! WARNING: Select only one object !!!"
-        return None
+def getClothNodeFromSel():
+    """ Try to find cloth nodes connected to selected objects
+        :return: Cloth node names
+        :rtype: list """
+    clothNodes = []
+    selected = mc.ls(sl=True)
     #-- Search Cloth Node --#
-    if returnLog:
-        clothNode, log = getClothNode(selection[0], returnLog=True)
-        return clothNode, log
-    clothNode = getClothNode(selection[0], returnLog=False)
-    return clothNode
+    for node in selected:
+        clothNode = getClothNode(node)
+        if clothNode:
+            if not clothNode in clothNodes:
+                clothNodes.append(clothNode)
+    return clothNodes
 
-def getClothNode(objectName, returnLog=False):
+def getClothNode(nodeName):
     """ Try to find cloth node connected to given object
-        :param objectName: (str) : Transform or Mesh node name
-        :param returnLog: (bool) : Log return enable
-        :returns: (str) : Cloth node name, or None if cloth node not found
-                  (str) : Result log (optionnal) """
-    result = pRigg.findTypeInHistory(objectName, ['nCloth', 'nRigid'], future=True, past=True)
-    if not result:
-        if returnLog:
-            return None, "No cloth node found !"
-        return None
-    if returnLog:
-        return result, "Cloth node found: %s" % result
-
-def getClothNodeOld(objectName, returnLog=False):
-    """ Try to find cloth node connected to given object
-        :param objectName: (str) : Transform or Mesh node name
-        :param returnLog: (bool) : Log return enable
-        :returns: (str) : Cloth node name, or None if cloth node not found
-                  (str) : Result log (optionnal) """
-    selObj = objectName
-    #-- Object Type: Transform --#
-    if mc.nodeType(selObj) == "transform":
-        shapes = mc.listRelatives(selObj, s=True, ni=True)
-        #-- Check Connected Shape --#
-        if shapes is None:
-            if returnLog:
-                return None, "!!! WARNING: Shape not found !!!"
-            return None
-        #-- Check No-Intermediate Shape --#
-        if not len(shapes) == 1:
-            if returnLog:
-                return None, "!!! WARNING: Selection should have only one non-intermediate shape !!!"
-            return None
-        selShape = shapes[0]
-    #-- Object Type: Shape --#
-    elif mc.nodeType(selObj) in ["mesh", "nCloth", "nRigid"]:
-        selShape = selObj
-    #-- Object Type: Unknown --#
-    else:
-        if returnLog:
-            return None, "!!! WARNING: SelType should be 'transform' or 'mesh', get %s" % mc.nodeType(selObj)
-        return None
-    #-- ClothNode Given --#
-    if mc.nodeType(selShape) in ["nCloth", "nRigid"]:
-        if returnLog:
-            return selShape, "---> getClothNode result: Cloth node found: %s" % selShape
-        return selShape
-    #-- ClothNode Search --#
-    connections = mc.listConnections(selShape, s=True, d=True, p=True)
-    for c in connections:
-        nodeName = c.split('.')[0]
-        if mc.nodeType(nodeName) in ["nCloth", "nRigid"]:
-            if returnLog:
-                return nodeName, "---> getClothNode result: Cloth node found: %s" % nodeName
-            return nodeName
-    #-- No ClothNode --#
-    if returnLog:
-        return None, "---> getClothNode result: No cloth node found"
-    return None
+        :param nodeName: Transform or Mesh node name
+        :type nodeName: str
+        :return: Cloth node name
+        :rtype: str """
+    clothNode = pRigg.findTypeInHistory(nodeName, ['nCloth', 'nRigid'], future=True, past=True)
+    if clothNode:
+        return clothNode
 
 def getVtxMaps(clothNode):
     """ Get vertex map list from given clothNode
-        :param clothNode: (str) : Cloth shape node name
-        :return: (list) : Vertex map list """
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :return: Vertex map list
+        :rtype: list """
     maps = []
     if mc.objExists(clothNode) and mc.nodeType(clothNode) in ['nCloth', 'nRigid']:
-        #-- Get vertex mapType list --#
         attrs = mc.listAttr(clothNode)
         for attr in attrs:
             if attr.endswith("MapType"):
                 mapName = attr.replace('MapType', '')
                 maps.append(mapName)
-    else:
-        print "!!! WARNING: No vertex map found !!!"
     return maps
 
 def getVtxMapType(clothNode, mapType):
     """ Get given clothNode vtxMap type
-        :param clothNode: (str) : Cloth shape node name
-        :param mapType: (str) : Cloth node vtxMap name (must ends with 'MapType')
-        :return: (int) : VtxMap type (0 = None, 1 = Vertex, 2 = Texture) """
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :param mapType: Cloth node vtxMap name (must ends with 'MapType')
+        :type mapType: str
+        :return: VtxMap type (0 = None, 1 = Vertex, 2 = Texture)
+        :rtype: int """
     if mc.objExists(clothNode) and mc.nodeType(clothNode) in ['nCloth', 'nRigid']:
         return mc.getAttr("%s.%s" % (clothNode, mapType))
-    print "!!! WARNING: ClothNode not found, or is not a cloth node: %s" % clothNode
-    return None
 
 def setVtxMapType(clothNode, mapType, value):
     """ Set given clothNode vtxMap value
-        :param clothNode: (str) : Cloth shape node name
-        :param mapType: (str) : Cloth node vtxMap name (must ends with 'MapType')
-        :param value: (int) : VtxMap type (0 = None, 1 = Vertex, 2 = Texture)
-        :return: (bool) : True if success, else False """
+        :param clothNode: Cloth shape node name
+        :type clothNode: str
+        :param mapType: Cloth node vtxMap name (must ends with 'MapType')
+        :type mapType: str
+        :param value: VtxMap type (0 = None, 1 = Vertex, 2 = Texture)
+        :type value: int
+        :return: True if success, else False
+        :rtype: bool """
     if mc.objExists(clothNode) and mc.nodeType(clothNode) in ['nCloth', 'nRigid']:
         mc.setAttr("%s.%s" % (clothNode, mapType), value)
         return True
     else:
-        print "!!! WARNING: ClothNode not found, or is not a cloth node: %s" % clothNode
         return False
 
 def getVtxMapData(clothNode, vtxMap):
     """ Get vertex map influence per vertex
-        :param clothNode: (str) : Cloth shape node name
-        :param vtxMap: (str) : Vertex map name (must ends with 'PerVertex')
-        :return: (list) : Influence list per vertex """
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :param vtxMap: Vertex map name (must ends with 'PerVertex')
+        :type vtxMap: str
+        :return: Influence list per vertex
+        :rtype: list """
     if mc.objExists(clothNode) and mc.nodeType(clothNode) in ['nCloth', 'nRigid']:
         return mc.getAttr("%s.%s" % (clothNode, vtxMap))
-    else:
-        print "!!! WARNING: ClothNode not found, or is not a cloth node: %s" % clothNode
-        return None
 
 def setVtxMapData(clothNode, vtxMap, value, refresh=False):
     """ Set vertex map influence per vertex
-        :param clothNode: (str) : Cloth shape node name
-        :param vtxMap: (str) : Vertex map name (must ends with 'PerVertex')
-        :param value: (list) : Influence list per vertex
-        :param refresh: (bool) : Refresh maya ui """
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :param vtxMap: Vertex map name (must ends with 'PerVertex')
+        :type vtxMap: str
+        :param value: Influence list per vertex
+        :type value: list
+        :param refresh: Refresh maya ui
+        :type refresh: bool """
     if isinstance(value, list):
         mc.setAttr('%s.%s' % (clothNode, vtxMap), value, type='doubleArray')
         if refresh:
             mc.refresh()
     else:
-        print "!!! WARNING: Value arg should be a list !!!"
+        print "!!! WARNING: setVtxMapData(): Value arg should be a list !!!"
 
 def getModelFromClothNode(clothNode):
     """ Get model from given clothNode
-        :param clothNode: (str) : Cloth shape node name
-        :return: (str) : Connected model """
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :return: Connected model
+        :rtype: str """
     if mc.objExists(clothNode) and mc.nodeType(clothNode) in ['nCloth', 'nRigid']:
         model = mc.listConnections("%s.inputMesh" %clothNode, s=True)
         if model:
             return model[0]
-        else:
-            print "!!! WARNING: No 'inputMesh' connection found !!!"
-            return None
-    else:
-        print "!!! WARNING: ClothNode not found, or is not a cloth node: %s" % clothNode
-        return None
 
 def getModelSelectedVtx(clothNode, indexOnly=False):
     """ Get selected vertex on model
-        :param clothNode: (str) : Cloth shape node name
-        :param indexOnly: (bool) : If True, return index only, else fullName
-        :return: (list) : selection list """
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :param indexOnly: If True, return index only, else fullName
+        :type indexOnly: bool
+        :return: selection list
+        :rtype: list """
     sel = mc.ls(sl=True) or []
     model = getModelFromClothNode(clothNode)
     selVtx = []
@@ -190,14 +143,20 @@ def getModelSelectedVtx(clothNode, indexOnly=False):
                         selVtx.append("%s.vtx[%s]" % (selName, n))
     return selVtx
 
-def selectVtxOnModel(clothNode, vtxMap, selMode, value=None, minInf=None, maxInf=None):
+def selectVtxInfOnModel(clothNode, vtxMap, selMode, value=None, minInf=None, maxInf=None):
     """ Select vertex on model given by value or range
-        :param clothNode: (str) : Cloth shape node name
-        :param vtxMap: (str) : Vertex map name (must ends with 'PerVertex')
-        :param selMode: (str) : 'range' or 'value'
-        :param value: (float) : Influence value
-        :param minInf: (float) : Range minimum influence
-        :param maxInf: (float) : Range maximum influence """
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :param vtxMap: Vertex map name (must ends with 'PerVertex')
+        :type vtxMap: str
+        :param selMode: 'range' or 'value'
+        :type selMode: str
+        :param value: Influence value
+        :type value: float
+        :param minInf: Range minimum influence
+        :type minInf: float
+        :param maxInf: Range maximum influence
+        :type maxInf: float """
     #-- Get Data --#
     data = getVtxMapData(clothNode, vtxMap)
     if data is not None:
@@ -219,8 +178,10 @@ def selectVtxOnModel(clothNode, vtxMap, selMode, value=None, minInf=None, maxInf
 
 def paintVtxMap(clothNode, mapName):
     """ Enable maya vertex paint tool
-        :param clothNode: (str) : Cloth shape node name
-        :param mapName: (str) : Vertex map name """
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :param mapName: Vertex map name
+        :type mapName: str """
     if not mc.objExists(clothNode) and mc.nodeType(clothNode) in ['nCloth', 'nRigid']:
         print "!!! WARNING: ClothNode not found, or is not a cloth node: %s" % clothNode
     else:
@@ -237,6 +198,8 @@ def paintVtxMap(clothNode, mapName):
                 ml.eval('setNClothMapType("%s","",1);' % mapName)
                 ml.eval('artAttrNClothToolScript 3 %s;' % mapName)
 
+
+
 def createNSystem():
     """ Create a new nucleus node
         :return: (str) : Nucleus node """
@@ -251,20 +214,17 @@ def createNSystem():
         mc.setAttr('%s.gravityDirection' % nucleus, 0, 0, -1)
     return nucleus
 
-
-
-def createNCloth(worldSpace=True):
-    """ Create nCloth node on selection
-        :param worldSpace: (bool) : If true, use worldSpace, else use localSpace
-        :return: (list) : New nCloth nodes """
-    result = ml.eval("createNCloth %s;" % int(worldSpace))
-    return result
-
-def createNRigid():
-    """ Create nRigid node on selection
-        :return: (list) : New nRigid nodes """
-    result = ml.eval("makeCollideNCloth;")
-    return result
+def addActiveToNSystem(active, nucleus):
+    """ Connect nCloth or nRigid to given nucleus
+        :param active: (str) : nCloth or nRigid node
+        :param nucleus: (str) : Nucleus node
+        :return: (int) : InputActive attribute index """
+    ind = pRigg.getNextFreeMultiIndex('%s.inputActive' % nucleus)
+    mc.connectAttr('%s.currentState' % active, '%s.inputActive[%s]' % (nucleus, ind))
+    mc.connectAttr('%s.startState' % active, '%s.inputActiveStart[%s]' % (nucleus, ind))
+    mc.connectAttr('%s.outputObjects[%s]' % (nucleus, ind), '%s.nextState' % active)
+    mc.setAttr('%s.active' % active, True)
+    return ind
 
 def hideParticleAttrs(node):
     """ Hides the particle attributes for the given nCloth/nRigid,
@@ -284,21 +244,116 @@ def hideAllParticleAttrs():
         for shape in shapes:
             hideParticleAttrs(shape)
 
+def getDefaultThickness(mesh, clothFlags=False, maxRatio=0.005, thicknessCoef=0.13, minWidth=0.0001):
+    """ Try to find a reasonnable thickness for given mesh
+        :param mesh: Shape name
+        :type mesh: str
+        :param clothFlags: Enable clothFlags return
+        :type clothFlags: bool
+        :param maxRatio: Ratio of width to bounding box size
+        :type maxRatio: float
+        :param thicknessCoef: Default thickness coef
+        :type thicknessCoef: float
+        :param minWidth: Min width for precision issues
+        :type minWidth: float
+        :return: Thicknass value, ClothFlags dict
+        :rtype: (float, dict) """
+    #-- Get mesh info --#
+    bboxDict = pMode.getBboxInfoFromMesh(mesh)
+    numFaces = mc.polyEvaluate(mesh, face=True)
+    objSize = math.sqrt(bboxDict['surfaceArea'])
+    newWidth = (objSize * maxRatio)
+    clothFlagsDict = {'selfCollisionFlag': None, 'selfCollideWidthScale': None, 'thickness':None, 'pushOutRadius': None}
+    #-- Try to find default thickness --#
+    if numFaces:
+        estimatedEdgeLength = math.sqrt(bboxDict['surfaceArea'] / numFaces)
+        thickness = (thicknessCoef * estimatedEdgeLength)
+        if thickness > newWidth:
+            clothFlagsDict['selfCollisionFlag'] = 3
+        else:
+            clothFlagsDict['selfCollideWidthScale'] = 3
+            newWidth = thickness
+    if newWidth < minWidth:
+        newWidth = minWidth
+    clothFlagsDict['thickness'] = newWidth
+    clothFlagsDict['pushOutRadius'] = (newWidth * 4.0)
+    #-- Result --#
+    if clothFlags:
+        return newWidth, clothFlagsDict
+    return newWidth
 
-class CreateNCloth(object):
 
-    def __init__(self, useNucleus=None, selectExisting=False, createNew=False, worldSpace=True):
+class FromMel(object):
+    """ List of NCloth commands calling melScript """
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def createNSystem():
+        """ If there is an nucleus node selected, return it, otherwise, create a new one and return it
+            :return: Nucleus node name
+            :rtype: str """
+        return ml.eval("createNSystem:")
+
+    @staticmethod
+    def addActiveToNSystem(active, nucleus):
+        """ Connect nCloth or nRigid to given nucleus
+            :param active: nCloth or nRigid node
+            :type active: str
+            :param nucleus: Nucleus node
+            :type nucleus: str
+            :return: Nucleus inputActive attribute index
+            :rtype: int """
+        return ml.eval('addActiveToNSystem("%s", "%s");' % (active, nucleus))
+
+    @staticmethod
+    def getActiveNucleusNode(selectExisting=True, createNew=False):
+        """ Find the currently active nucleus node, if none found, create one
+            :param selectExisting: Select exisitng nucleus node
+            :type selectExisting: bool
+            :param createNew: Force new nucleus node creation
+            :type createNew: bool
+            :return: Active nucleus node
+            :rtype: str """
+        return ml.eval("getActiveNucleusNode(%s, %s);" % (int(selectExisting), int(createNew)))
+
+    @staticmethod
+    def createNCloth(worldSpace=False):
+        """ Create nCloth node on selection
+            :param worldSpace: If true, use worldSpace, else use localSpace
+            :type worldSpace: bool
+            :return: New nCloth nodes
+            :rtype: list """
+        return ml.eval("createNCloth %s;" % int(worldSpace))
+
+    @staticmethod
+    def createNRigid():
+        """ Create nRigid node on selection
+            :return: New nRigid nodes
+            :rtype: list """
+        return ml.eval("makeCollideNCloth;")
+
+    @staticmethod
+    def removeNCloth(delMode='selected'):
+        """ Remove nCloth or nRigid nodes
+            :param delMode: 'selected', 'allNCloths', 'allNRigids'
+            :type delMode: str """
+        ml.eval('removeNCloth "%s";' % delMode)
+
+
+class CreateNClothBeta(object):
+
+    def __init__(self, useNucleus=None, selectExisting=False, createNewNucleus=False, worldSpace=False):
         #-- Store kwargs --#
         self.useNucleus = useNucleus
         self.selectExisting = selectExisting
-        self.createNew = createNew
+        self.createNewNucleus = createNewNucleus
         self.worldSpace = worldSpace
         #-- Init --#
         self.selected = self._initSelection()
         self.meshes = self._initMeshes()
         self.outMeshName = 'outputCloth1'
-        print self.selected
-        print self.meshes
 
     @staticmethod
     def _initSelection():
@@ -319,10 +374,10 @@ class CreateNCloth(object):
 
     def createNode(self):
         #-- Get Active Nucleus --#
-        nuc = GetActiveNucleusNode()
-        nucleus = nuc.getActiveNucleus( nucleusName=self.useNucleus,
-                                        selectExisting=self.selected,
-                                        createNew=self.createNew )
+        nuc = GetActiveNucleusNodeBeta()
+        nucleus = nuc.getActiveNucleus(nucleusName=self.useNucleus,
+                                       selectExisting=self.selected,
+                                       createNew=self.createNewNucleus)
         #-- Create nCloth Nodes --#
         newClothNodes = []
         for mesh in self.meshes:
@@ -352,10 +407,32 @@ class CreateNCloth(object):
                     mc.sets(outMesh, add=outMesh)
                 mc.setAttr('%s.quadSplit' % outMesh, 0) # match nCloth quad tessellation
                 mc.connectAttr('%s.outputMesh' % nCloth, '%s.inMesh' % outMesh)
+                addActiveToNSystem(nCloth, nucleus)
+                mc.connectAttr('%s.startFrame' % nucleus, '%s.startFrame' % nCloth)
+                mc.setAttr('%s.intermediateObject' % mesh, 1)
+                clothTforms = pRigg.listTransforms(nCloth)
+                mc.setAttr('%s.translate' % clothTforms[0], l=True)
+                mc.setAttr('%s.rotate' % clothTforms[0], l=True)
+                mc.setAttr('%s.scale' % clothTforms[0], l=True)
+                # Try to pick a good default thickness
+                thickness, clothFlagsDict = getDefaultThickness(mesh, clothFlags=True)
+                for k, v in clothFlagsDict.iteritems():
+                    if v is not None:
+                        mc.setAttr('%s.%s' % (nCloth, k), v)
+                # Now for each wrap deformer that was using the input surface as an input
+                # to the driverPoints attribute, transfer the connection to the output surface.
+                if wrapPlugs:
+                    pRigg.transfertWrapConns(wrapPlugs, outMesh)
+        #-- Batch mode refresh --#
+        if mc.about(batch=True):
+            for cloth in newClothNodes:
+                mc.getAttr('%s.forceDynamics' % cloth)
+        #-- Result --#
+        mc.select(newClothNodes)
+        return newClothNodes
 
 
-
-class GetActiveNucleusNode(object):
+class GetActiveNucleusNodeBeta(object):
     """ Returns a nucleus node based on current selection, last referenced,
         last created, or dag order. """
 
@@ -412,7 +489,7 @@ class GetActiveNucleusNode(object):
             #-- Look for cloth nodes indirectly selected through meshes --#
             meshes = mc.ls(sl=True, dag=True, type='mesh')
             for mesh in meshes:
-                nBase = pRigg.findTypeInHistory(mesh, 'nBase', future=True, past=True)
+                nBase = pRigg.findTypeInHistory(mesh, ['nBase'], future=True, past=True)
                 if nBase is not None:
                     nBases.append(nBase)
         else:
@@ -453,4 +530,3 @@ class GetActiveNucleusNode(object):
         self.activeNucleus = nucleusNodes[0]
         print "!!! Warning: Multiple possible nucleus nodes: Will use %s" % self.activeNucleus
         return self.activeNucleus
-
