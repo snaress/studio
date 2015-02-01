@@ -96,10 +96,12 @@ def popupMenu(menuDict):
         :return: QMenu
         :rtype: QtGui.QMenu """
     pmMenu = QtGui.QMenu()
+    pmMenu.items = []
     pmMenu.popup(QtGui.QCursor.pos())
     for ind in sorted(menuDict.keys()):
         qAction = pmMenu.addAction(menuDict[ind][0])
         qAction.triggered.connect(menuDict[ind][1])
+        pmMenu.items.append(qAction)
     return pmMenu
 
 class ClickHandler(object):
