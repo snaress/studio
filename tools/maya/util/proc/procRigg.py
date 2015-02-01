@@ -8,8 +8,8 @@ def findTypeInHistory(obj, objType, future=False, past=False):
     """ returns the node of the specified type that is the closest traversal to the input object
         :param obj: Object name
         :type obj: str
-        :param objType: Object type
-        :type objType: str
+        :param objType: Object type list
+        :type objType: list
         :param future: Future depth
         :type future: bool
         :param past: Past depth
@@ -48,8 +48,6 @@ def findTypeInHistory(obj, objType, future=False, past=False):
             objs = mc.ls(hist, type=objType)
             if objs:
                 return objs[0]
-    print "!!! Error: No depth given !!!"
-    return None
 
 def listTransforms(mesh):
     """ get transform from given mesh
@@ -68,7 +66,7 @@ def getNextFreeMultiIndex(attr, start=0):
         :return: Available index
         :rtype: int """
     for n in range(start, 10000000, 1):
-        conn = mc.connectionInfo('%s[%s]' % (attr, n))
+        conn = mc.connectionInfo('%s[%s]' % (attr, n), sfd=True)
         if not conn:
             return n
     return 0
@@ -98,10 +96,11 @@ def transfertWrapConns(wrapPlugs, newNode):
         :type newNode: str """
     for wrapPlug in wrapPlugs:
         wrapAttr = plugAttr(wrapPlug)
-        if wrapAttr.startswith('driverPoints'):
-            meshConns = mc.listConnections(wrapPlug, s=True, p=True, sh=True, type='mesh')
-            if meshConns:
-                #-- Transfert connections --#
-                meshAttr = plugAttr(meshConns[0])
-                mc.disconnectAttr(meshConns[0], wrapPlug)
-                mc.connectAttr('%s.%s' % (newNode, meshAttr), wrapPlug)
+        for attr in ['driverPoints', 'basePoints']:
+            if wrapAttr.startswith(attr):
+                meshConns = mc.listConnections(wrapPlug, s=True, p=True, sh=True, type='mesh')
+                if meshConns:
+                    #-- Transfert connections --#
+                    meshAttr = plugAttr(meshConns[0])
+                    mc.disconnectAttr(meshConns[0], wrapPlug)
+                    mc.connectAttr('%s.%s' % (newNode, meshAttr), wrapPlug)
