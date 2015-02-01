@@ -7,10 +7,14 @@ from lib.system import procFile as pFile
 
 class CompileUi(object):
     """ Convert uiFile to pyFile
-        @param uiFile: (str) : uiFile absolut path
-        @param pyFile: (str) : pyFile absolut path
-        @param uiDir: (str) : Path to list
-        @param pyUic: (str) : pyuic.bat absolut path """
+        :param uiFile: uiFile absolut path
+        :type uiFile: str
+        :param pyFile: pyFile absolut path
+        :type pyFile: str
+        :param uiDir: Path to list
+        :type uiDir: str
+        :param pyUic: pyuic.bat absolut path
+        :type pyUic: str """
 
     def __init__(self, uiFile=None, pyFile=None, uiDir=None, pyUic=None):
         print "#----- Compile UI -----#"
@@ -24,7 +28,8 @@ class CompileUi(object):
 
     def uiToPy(self):
         """ Check kwargs
-            @return: (list), (list) : uiFiles ansolut path, pyFiles absolut path """
+            :return: uiFiles ansolut path, pyFiles absolut path
+            :rtype: (list, list) """
         if self.uiFile is None and self.pyFile is None and self.uiDir is None:
             raise KeyError, "Error: All kwargs are empty !!!"
         if self.uiFile is not None and self.pyFile is not None:
@@ -48,9 +53,12 @@ class CompileUi(object):
     @staticmethod
     def checkDate(uiFile, pyFile):
         """ Compare uiFile and pyFile modif date
-            @param uiFile: (str) : uiFile absolut path
-            @param pyFile: (str) : pyFile absolut path
-            return: (str) : 'create', 'update', 'ok' """
+            :param uiFile: uiFile absolut path
+            :type uiFile: str
+            :param pyFile: pyFile absolut path
+            :type pyFile: str
+            :return: 'create', 'update', 'ok'
+            :rtype: str """
         if pyFile is None:
             print "%s \t ---> \t CREATE" % os.path.basename(pyFile)
             return 'create'
@@ -70,8 +78,10 @@ class CompileUi(object):
 
     def convert(self, uiFile, pyFile):
         """ Convert uiFile into pyFile
-            @param uiFile: (str) : uiFile absolut path
-            @param pyFile: (str) : pyFile absolut path """
+            :param uiFile: uiFile absolut path
+            :type uiFile: str
+            :param pyFile: pyFile absolut path
+            :type pyFile: str """
         try:
             os.system("%s %s > %s" % (self.pyUic, uiFile, pyFile))
         except:
@@ -79,11 +89,27 @@ class CompileUi(object):
 
 #============================================ Action =============================================#
 
+def popupMenu(menuDict):
+    """ Create a popup menu with given dict
+        :param menuDict: {0: ['label', 'cmd']}
+        :type menuDict: dict
+        :return: QMenu
+        :rtype: QtGui.QMenu """
+    pmMenu = QtGui.QMenu()
+    pmMenu.popup(QtGui.QCursor.pos())
+    for ind in sorted(menuDict.keys()):
+        qAction = pmMenu.addAction(menuDict[ind][0])
+        qAction.triggered.connect(menuDict[ind][1])
+    return pmMenu
+
 class ClickHandler(object):
     """ Activate double click for QPushButton
-        @param dcTimer: (int) : Time in milliSec
-        @param singleClickCmd: (object) : Command launch when single click is detected
-        @param doubleClickCmd: (object) : Command launch when double click is detected """
+        :param dcTimer: Time in milliSec
+        :type dcTimer: int
+        :param singleClickCmd: Command launch when single click is detected
+        :type singleClickCmd: function
+        :param doubleClickCmd: Command launch when double click is detected
+        :type doubleClickCmd: function """
 
     def __init__(self, dcTimer=200, singleClickCmd=None, doubleClickCmd=None):
         self.singleCmd = singleClickCmd
@@ -113,8 +139,10 @@ class ClickHandler(object):
 
 def getAllItems(QTreeWidget):
     """ Get all QTreeWidgetItem of given QTreeWidget
-        @param QTreeWidget: (object) : QTreeWidget object
-        @return: (list) : All QTreeWidgetItem list """
+        :param QTreeWidget: QTreeWidget object
+        :type QTreeWidget: QtGui.QTreeWidget
+        :return: All QTreeWidgetItem list
+        :rtype: list """
     items = []
     allItems = QtGui.QTreeWidgetItemIterator(QTreeWidget, QtGui.QTreeWidgetItemIterator.All) or None
     if allItems is not None:
@@ -126,8 +154,10 @@ def getAllItems(QTreeWidget):
 
 def getTopItems(QTreeWidget):
     """ Get all topLevelItems of given QTreeWidget
-        @param QTreeWidget: (object) : QTreeWidget object
-        @return: (list) : All topLevelItem list """
+        :param QTreeWidget: QTreeWidget object
+        :type QTreeWidget: QtGui.QTreeWidget
+        :return: All topLevelItem list
+        :rtype: list """
     items = []
     nTop = QTreeWidget.topLevelItemCount()
     for n in range(nTop):
@@ -136,9 +166,12 @@ def getTopItems(QTreeWidget):
 
 def getAllChildren(QTreeWidgetItem, depth=-1):
     """ Get all children of given QTreeWidgetItem
-        @param QTreeWidgetItem: (object) : Recusion start QTreeWidgetItem
-        @param depth: (int) : Number of recursion (-1 = infinite)
-        @return: (list) : QTreeWigdetItem list """
+        :param QTreeWidgetItem: Recusion start QTreeWidgetItem
+        :type QTreeWidgetItem: QTreeWidgetItem
+        :param depth: Number of recursion (-1 = infinite)
+        :type depth: int
+        :return: QTreeWigdetItem list
+        :rtype: list """
     items = []
 
     def recurse(currentItem, depth):
@@ -152,9 +185,12 @@ def getAllChildren(QTreeWidgetItem, depth=-1):
 
 def getAllParent(QTreeWidgetItem, depth=-1):
     """ Get all parent of given QTreeWidgetItem
-        @param QTreeWidgetItem: (object) : Recusion start QTreeWidgetItem
-        @param depth: (int) : Number of recursion (-1 = infinite)
-        @return: (list) : QTreeWigdetItem list """
+        :param QTreeWidgetItem: Recusion start QTreeWidgetItem
+        :type QTreeWidgetItem: QtGui.QTreeWidgetItem
+        :param depth: Number of recursion (-1 = infinite)
+        :type depth: int
+        :return: QTreeWigdetItem list
+        :rtype: list """
     items = []
 
     def recurse(currentItem, depth):
@@ -168,9 +204,12 @@ def getAllParent(QTreeWidgetItem, depth=-1):
 
 def moveSelItems(twTree, item, side):
     """ Move Selected items
-        @param twTree: (object) : QTreeWidget
-        @param side: (str) : 'up' or 'down'
-        @return: (list) : Moved QTreeWidgetItems """
+        :param twTree: (object) : QTreeWidget
+        :type twTree: QtGui.QTreeWidget
+        :param side: (str) : 'up' or 'down'
+        :type side: str
+        :return: Moved QTreeWidgetItems
+        :rtype: list """
     movedItem = None
     #-- Move Child Item --#
     if item.parent() is not None:
@@ -200,7 +239,8 @@ def moveSelItems(twTree, item, side):
 
 def delSelItems(twTree):
     """ Remove selected QTreeWidgetItems from given QTreeWidget
-        @param twTree: (object) : QTreeWidget """
+        :param twTree: QTreeWidget
+        :type twTree: QtGui.QTreeWidget"""
     selItems = twTree.selectedItems()
     for item in selItems:
         if item.parent() is None:
@@ -212,7 +252,8 @@ def delSelItems(twTree):
 
 def deselectAllItems(twTree):
     """ Deselected QTreeWidgetItems from given QTreeWidget
-        @param twTree: (object) : QTreeWidget """
+        :param twTree: QTreeWidget
+        :type twTree: QtGui.QTreeWidget"""
     selItems = twTree.selectedItems()
     for item in selItems:
         twTree.setItemSelected(item, False)
@@ -221,8 +262,10 @@ def deselectAllItems(twTree):
 
 def getComboBoxItems(QComboBox):
     """ Get all given conboBox items
-        @param QComboBox: (object) : QComboBox
-        @return: (list) : Items text list """
+        :param QComboBox: QComboBox
+        :type QComboBox: QtGui.QComboBox
+        :return: Items text list
+        :rtype: list """
     items = []
     for n in range(QComboBox.count()):
         items.append(str(QComboBox.itemText(n)))
@@ -233,13 +276,20 @@ def getComboBoxItems(QComboBox):
 def fileDialog(fdMode='open', fdFileMode='AnyFile', fdRoot=None, fdRoots=None,
                fdFilters=None, fdCmd=None):
     """ FileDialog popup
-        @param fdMode: (str) : setAcceptMode 'open' or 'save'
-        @param fdFileMode: (str) : setFileMode 'AnyFile', 'ExistingFile', 'Directory', 'DirectoryOnly'
-        @param fdRoot: (str) : Start root path
-        @param fdRoots: (list) : List of recent files (list[str(QUrl)])
-        @param fdFilters: (list) : List of extensions
-        @param fdCmd: (object) : Command for accepted execution
-        @return: (object) : QFileDiaolog widget object """
+        :param fdMode: setAcceptMode 'open' or 'save'
+        :type fdMode: str
+        :param fdFileMode: setFileMode 'AnyFile', 'ExistingFile', 'Directory', 'DirectoryOnly'
+        :type fdFileMode: str
+        :param fdRoot: Start root path
+        :type fdRoot: str
+        :param fdRoots: List of recent files (list[str(QUrl)])
+        :type fdRoots: list
+        :param fdFilters: List of extensions
+        :type fdFilters: list
+        :param fdCmd: Command for accepted execution
+        :type fdCmd: function
+        :return: (object) : QFileDialog widget object
+        :rtype: QtGui.QFileDialog """
     fd = QtGui.QFileDialog()
     #-- FileDialog AcceptedMode --#
     if fdMode == 'open':
@@ -269,8 +319,10 @@ def fileDialog(fdMode='open', fdFileMode='AnyFile', fdRoot=None, fdRoots=None,
 
 def errorDialog(message, parent):
     """ Launch default error dialog
-        @param message: (str or list): Message to print
-        @param parent: (object) : Parent ui """
+        :param message: (str or list): Message to print
+        :type message: str | list
+        :param parent: (object) : Parent ui
+        :type parent: QtGui.QMainWindow | QtGui.QWidget """
     errorDial = QtGui.QErrorMessage(parent)
     if isinstance(message, list):
         errorDial.showMessage('\n'.join(message))
@@ -283,10 +335,14 @@ if __name__ == '__main__':
 from lib.qt.ui import confirmDialogUI
 class ConfirmDialog(QtGui.QDialog, confirmDialogUI.Ui_Dialog):
     """ Confirm dialog popup
-        @param message: (str) : Dialog texte
-        @param buttons: (list) : Buttons list
-        @param btnCmds: (list) : Commands list
-        @param cancelBtn: (bool) : Add cacnel button """
+        :param message: Dialog texte
+        :type message: str
+        :param buttons: Buttons list
+        :type buttons: list
+        :param btnCmds: Commands list
+        :type btnCmds: list
+        :param cancelBtn: Add cacnel button
+        :type cancelBtn: bool """
 
     def __init__(self, message, buttons, btnCmds, cancelBtn=True):
         if not len(buttons) == len(btnCmds):
@@ -315,9 +371,12 @@ class ConfirmDialog(QtGui.QDialog, confirmDialogUI.Ui_Dialog):
     @staticmethod
     def newButton(label, btnCmd):
         """ Create new button
-            @param label: (str) : Button label
-            @param btnCmd: (object) : Button command
-            @return: (object) : New QPushButton """
+            :param label: Button label
+            :type label: str
+            :param btnCmd: Button command
+            :type btnCmd: function
+            :return: New QPushButton
+            :rtype: QtGui.QPushButton """
         newButton = QtGui.QPushButton()
         newButton.setText(label)
         # noinspection PyUnresolvedReferences
@@ -330,10 +389,14 @@ if __name__ == '__main__':
 from lib.qt.ui import promptDialogUI
 class PromptDialog(QtGui.QDialog, promptDialogUI.Ui_Dialog):
     """ Prompt dialog popup
-        @param message: (str) : Dialog texte
-        @param acceptCmd: (object) : Accept command
-        @param cancelCmd: (object) : Cancel command
-        @param Nlines: (int) : Prompt line count """
+        :param message: Dialog texte
+        :type message: str
+        :param acceptCmd: Accept command
+        :type acceptCmd: function
+        :param cancelCmd: Cancel command
+        :type cancelCmd: function
+        :param Nlines: Prompt line count
+        :type Nlines: int """
 
     def __init__(self, message, acceptCmd, cancelCmd=None, Nlines=1):
         self.message = message
@@ -361,7 +424,8 @@ class PromptDialog(QtGui.QDialog, promptDialogUI.Ui_Dialog):
 
     def result(self):
         """ Get QLineEdit value
-            @return: (dict) : Prompt result """
+            :return: Prompt result
+            :rtype: dict """
         results = {}
         allItems = getTopItems(self.twPrompt)
         for n, item in enumerate(allItems):
@@ -382,8 +446,10 @@ class Style(object):
 
     def applyStyle(self, styleName='darkOrange'):
         """ Apply given styleSheet
-            @param styleName: (str) : ['darkOrange', 'darkGrey']
-            @return: (str) : Style sheet """
+            :param styleName: ['darkOrange', 'darkGrey']
+            :type styleName: str
+            :return: Style sheet
+            :rtype: str """
         styleList = ['darkOrange', 'darkGrey', 'redGrey']
         if not styleName in styleList:
             raise KeyError, "Error: StyleName not found: %s. Should be in %s" % (styleName, styleList)
@@ -394,8 +460,10 @@ class Style(object):
     @staticmethod
     def _hexToRgb(value):
         """ Convert hex color value to rgb value
-            @param value: (str) : Hex color value
-            @return: (tuple) : Rgb color """
+            :param value: Hex color value
+            :type value: str
+            :return: Rgb color
+            :rtype: tuple """
         value = value.lstrip('#')
         lv = len(value)
         return tuple(int(value[i:i+lv/3], 16) for i in range(0, lv, lv/3))
@@ -403,6 +471,8 @@ class Style(object):
     @staticmethod
     def _rgbToHex(rgb):
         """ Convert rgb value to hex color value
-            @param rgb: (tuple) : Rgb color
-            @return: (str) : Hex color value """
+            :param rgb: Rgb color
+            :type rgb: tuple
+            :return: Hex color value
+            :rtype: str """
         return '%02x%02x%02x' % rgb
