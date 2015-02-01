@@ -4,14 +4,18 @@ from lib.env import studio
 
 def conformPath(path):
     """ Comform path separator with '/'
-        @param path: (str) : Path to conform
-        @return: (str) : Conformed path """
+        :param path: Path to conform
+        :type path: str
+        :return: Conformed path
+        :rtype: str """
     return path.replace('\\', '/')
 
 def pathToDict(path):
     """ Translate directory contents to dict
-        @param path: (str) : Absolut path
-        @return: (dict) : Path contents """
+        :param path: Absolut path
+        :type path: str
+        :return: Path contents
+        :rtype: dict """
     if not os.path.exists(path):
         raise IOError, "!!! ERROR: Path not found!!!\n%s" % path
     pathDict = {'_order': []}
@@ -22,9 +26,12 @@ def pathToDict(path):
 
 def mkPathFolders(rootPath, absPath, sep=None):
     """ Create absPath folders not in rootPath
-        @param rootPath: (str) : Root path
-        @param absPath: (str) : Absolut Path
-        @param sep: (str) : Os separator """
+        :param rootPath: Root path
+        :type rootPath: str
+        :param absPath: Absolut Path
+        :type absPath: str
+        :param sep: Os separator
+        :type sep: str """
     if not os.path.exists(rootPath):
         raise IOError, "!!! ERROR: rootPath not found !!!"
     if sep is None:
@@ -42,8 +49,10 @@ def mkPathFolders(rootPath, absPath, sep=None):
 
 def readFile(filePath):
     """ Get text from file
-        @param filePath: (str) : File absolut path
-        @return: (list) : Text line by line """
+        :param filePath: File absolut path
+        :type filePath: str
+        :return: Text line by line
+        :rtype: list """
     if not os.path.exists(filePath):
         raise IOError, "!!! Error: Can't read, file doesn't exists !!!"
     fileId = open(filePath, 'r')
@@ -53,9 +62,12 @@ def readFile(filePath):
 
 def readPyFile(filePath, keepBuiltin=False):
     """ Get text from pyFile
-        @param filePath: (str) : Python file absolut path
-        @param keepBuiltin: (bool) : Keep builtins key
-        @return: (dict) : File dict """
+        :param filePath: Python file absolut path
+        :type filePath: str
+        :param keepBuiltin: Keep builtins key
+        :type keepBuiltin: bool
+        :return: File dict
+        :rtype: dict """
     if not os.path.exists(filePath):
         raise IOError, "!!! Error: Can't read, file doesn't exists !!!"
     params = {}
@@ -69,9 +81,12 @@ def readPyFile(filePath, keepBuiltin=False):
 
 def writeFile(filePath, textToWrite, add=False):
     """ Create and edit text file. If file already exists, it is overwritten
-        @param filePath: (str) : File absolut path
-        @param textToWrite: (str or list) : Text to edit in file
-        @param add: (bool) : Add text to existing one in file """
+        :param filePath: File absolut path
+        :type filePath: str
+        :param textToWrite: Text to edit in file
+        :type textToWrite: str | list
+        :param add: Add text to existing one in file
+        :type add: bool """
     oldTxt = ""
     if add:
         oldTxt = ''.join(readFile(filePath))
@@ -88,9 +103,12 @@ def writeFile(filePath, textToWrite, add=False):
 
 def fileSizeFormat(_bytes, precision=2):
     """ Returns a humanized string for a given amount of bytes
-        @param _bytes: (int) : File size in bytes
-        @keyword precision: (int) : Precision after coma
-        @return: (str) : Humanized string """
+        :param _bytes: File size in bytes
+        :type _bytes: int
+        :param precision: Precision after coma
+        :type precision: int
+        :return: Humanized string
+        :rtype: str """
     _bytes = int(_bytes)
     if _bytes is 0:
         return '0 b'
@@ -100,8 +118,10 @@ def fileSizeFormat(_bytes, precision=2):
 
 def secondsToStr(seconds):
     """ Convert number of seconds into humanized string
-        @param seconds: (int) : Number of seconds
-        @return: (str) : Humanized string """
+        :param seconds: Number of seconds
+        :type seconds: int
+        :return: Humanized string
+        :rtype: str """
     S = int(seconds)
     hours = S / 3600
     S -= hours * 3600
@@ -111,19 +131,23 @@ def secondsToStr(seconds):
 
 def getDate():
     """ Get current date
-        @return: (str) : yyyy_mm_dd """
+        :return: yyyy_mm_dd
+        :rtype: str """
     return time.strftime("%Y_%m_%d")
 
 def getTime():
     """ Get current time
-        @return: (str) : hh_mm_ss """
+        :return: hh_mm_ss
+        :rtype: str """
     return time.strftime("%H_%M_%S")
 
 
 class Logger(object):
     """ Print given message using log levels
-        @param title: (str) : Log title
-        @param level: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug') """
+        :param title: Log title
+        :type title: str
+        :param level: Log level ('critical', 'error', 'warning', 'info', 'debug')
+        :type level: str """
 
     def __init__(self, title='LOG', level='info'):
         self.levels = ['critical', 'error', 'warning', 'info', 'debug']
