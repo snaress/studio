@@ -1,5 +1,4 @@
-b = dir /ON
-ls = dir /D
+ls = dir /ON
 sls = python F:\rnd\workspace\studio\lib\system\seqList.py $*
 lsl = dir /OD
 c = cls
@@ -29,4 +28,4 @@ textEditor = python F:\rnd\workspace\studio\lib\Qt\__exeTE__.py
 scriptEditor = python F:\rnd\workspace\studio\lib\Qt\__exeSE__.py
 
 my = "F:\rnd\workspace\studio\lib\system\alias.txt"
-aliasHelp = type %HOMEPATH%\alias.txt
+aliasHelp = type C:%HOMEPATH%\alias.txt
