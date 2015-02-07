@@ -32,7 +32,7 @@ class ToolManagerUi(QtGui.QMainWindow, toolManagerUI.Ui_mwToolManager):
         steps = os.listdir(self.toolsPath) or []
         #-- Add Steps --#
         for step in steps:
-            if not step.startswith('_') and not step.startswith('.'):
+            if not step.startswith('_') and not step.startswith('.') and not step == 'cmds':
                 stepPath = pFile.conformPath(os.path.join(self.toolsPath, step))
                 if os.path.isdir(stepPath):
                     stepItem = self._newItem(step, 'step')
