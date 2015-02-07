@@ -3,8 +3,8 @@ from lib.env import studio
 from lib.system import procFile as pFile
 from lib.system import procMath as pMath
 from tools.maya.util.proc import procScene as pScene
-from tools.maya.util.proc import procModeling as pMode
 from tools.maya.util.proc import procRender as pRender
+import tools.maya.cmds as smc
 try:
     import maya.cmds as mc
 except:
@@ -65,7 +65,7 @@ def createBbox():
     if mc.objExists(boxName):
         print "Clean existing boxCam ..."
         mc.delete(boxName)
-    pMode.creeBoxOnSelected(name=boxName, returnShape=True)
+    smc.creeBoxOnSelected(name=boxName, returnShape=True)
     return boxName
 
 def getBoxInfo(boxName):
