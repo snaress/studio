@@ -7,8 +7,8 @@ from lib.system import procMath as pMath
 reload(pMath)
 
 #-- Maya Proc --#
-from tools.maya.util.proc import procModeling as pMode
-reload(pMode)
+import tools.maya.cmds as smc
+reload(smc)
 from tools.maya.util.proc import procRender as pRender
 reload(pRender)
 
