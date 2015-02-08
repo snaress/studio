@@ -1,6 +1,6 @@
 from PyQt4 import QtGui
+import tools.maya.cmds as smc
 from functools import partial
-from tools.maya.util.proc import procUi as pUi
 from tools.maya.cloth.vtxMap.ui import vtxMapUI
 from tools.maya.cloth.vtxMap import vtxMapWgts as vmWgts
 from tools.maya.cloth.vtxMap import vtxMapCmds as vmCmds
@@ -120,6 +120,6 @@ def launch():
     if mc.window(toolName, q=True, ex=True):
         mc.deleteUI(toolName, wnd=True)
     global window
-    window = VtxMapUi(parent=pUi.getMayaMainWindow())
+    window = VtxMapUi(parent=smc.getMayaMainWindow())
     window.show()
     return window

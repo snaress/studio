@@ -521,3 +521,4 @@ class ParamRender(object):
                                                                    self.options['samples'][1]))
             mc.setAttr('%s.aaMinSampleRate' % self.tro, self.options['samples'][0])
             mc.setAttr('%s.aaMaxSampleRate' % self.tro, self.options['samples'][1])
+

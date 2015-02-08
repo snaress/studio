@@ -1,15 +1,12 @@
 import os, math
+import tools.maya.cmds as smc
 from lib.env import studio
 from lib.system import procFile as pFile
 from lib.system import procMath as pMath
-from tools.maya.util.proc import procScene as pScene
-from tools.maya.util.proc import procRender as pRender
-import tools.maya.cmds as smc
 try:
     import maya.cmds as mc
 except:
     pass
-
 
 def getModels():
     """ Get selected models or list scene models if selection is empty
@@ -173,7 +170,7 @@ def paramRender(**kwargs):
     """ Param Render
         :param kwargs: (dict) : Param render """
     if createPath(kwargs['renderPath'], kwargs['imaPath']):
-        options = pRender.paramRenderOptions()
+        options = smc.paramRenderOptions()
         options['camera'] = 'cam_turnPreviz1'
         options['output'] = "%s/%s" % (kwargs['imaPath'], kwargs['imaName'])
         options['format'] = kwargs['extension']
@@ -187,7 +184,7 @@ def paramRender(**kwargs):
         options['shadows'] = 'simple'
         options['shadowMaps'] = 'on'
         options['motionBlur'] = 'off'
-        pRender.ParamRender(kwargs['renderer'], options, logLvl='debug')
+        smc.ParamRender(kwargs['renderer'], options, logLvl='debug')
 
 def createPath(rootPath, imagePath):
     """ Check rootPath and create folder if needed
@@ -210,12 +207,12 @@ def createPath(rootPath, imagePath):
 def launchRender(renderer):
     """ Launch render in external process """
     #-- save Tmp File --#
-    wsInfo = pScene.wsToDict()
+    wsInfo = smc.wsToDict()
     tmpPath = pFile.conformPath(os.path.join(wsInfo['projectPath'], wsInfo['fileRules']['diskCache']))
     tmpFile = "previz_turn_%s__%s__%s.ma" % (wsInfo['projectName'], pFile.getDate(), pFile.getTime())
     tmpAbsPath = pFile.conformPath(os.path.join(tmpPath, tmpFile))
     print "Saving tmp file: ", tmpAbsPath
-    pScene.saveSceneAs(tmpAbsPath, force=True, keepCurrentName=False)
+    smc.saveSceneAs(tmpAbsPath, force=True, keepCurrentName=False)
     if renderer == 'mr':
         cmd = '%s -r %s -mr:v 5 %s' % (os.path.normpath(studio.mayaRender), renderer, os.path.normpath(tmpAbsPath))
     else:

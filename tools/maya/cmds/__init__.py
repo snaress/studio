@@ -113,7 +113,7 @@ class SanityCheck(object):
                 print "\t %s" % func
             for k in self.cmdDict[fileName].keys():
                 if not k == '_functions':
-                    print "\n\t %s" % k
+                    print "\n\t %s" % k.strip()
                     for v in self.cmdDict[fileName][k]:
                         print "\t\t %s" % v
         #-- Launch dict parsing
@@ -122,6 +122,7 @@ class SanityCheck(object):
                 parseDict(f)
         else:
             parseDict(cmdFile)
+        print ""
 
     def _compareFunctions(self, fileName, function):
         """ Compare given function to all cmds and proc modules to find doublon
@@ -212,16 +213,25 @@ class SanityCheck(object):
 
 
 
-if not SanityCheck().checkAuto():
+if not SanityCheck().checkAuto(printCmds=True):
     raise IOError, "Sanity Check failed !!!"
 
 
 print "\n#========== IMPORT MODULES ==========#"
+#-- UI --#
+print "Importing procUi.py ..."
+from tools.maya.cmds.procUi import *
+#-- SCENE --#
+print "Importing procScene.py ..."
+from tools.maya.cmds.procScene import *
 #-- MODELING --#
 print "Importing modeling.py ..."
 from tools.maya.cmds.modeling import *
 print "Importing procModeling.py ..."
 from tools.maya.cmds.procModeling import *
+#-- MAPING --#
+print "Importing procMapping.py ..."
+from tools.maya.cmds.procMapping import *
 #-- RIGG --#
 print "Importing rigg.py ..."
 from tools.maya.cmds.rigg import *
@@ -230,6 +240,9 @@ print "Importing cloth.py ..."
 from tools.maya.cmds.cloth import *
 print "Importing procCloth.py ..."
 from tools.maya.cmds.procCloth import *
+#-- RENDER --#
+print "Importing procRender.py ..."
+from tools.maya.cmds.procRender import *
 
 
 print  "\n#========== CREATE CLASS 'FROM MEL' ==========#"
@@ -239,3 +252,6 @@ class FromMel(riggMel.FromMel, clothMel.FromMel):
 
     def __init__(self):
         pass
+
+print "Mel script eval: smc.FromMel()"
+print "\n"

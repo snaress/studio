@@ -9,8 +9,6 @@ reload(pMath)
 #-- Maya Proc --#
 import tools.maya.cmds as smc
 reload(smc)
-from tools.maya.util.proc import procRender as pRender
-reload(pRender)
 
 #-- CamPrez Tool --#
 from tools.maya.camera.camPrez.ui import camPrezUI

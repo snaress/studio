@@ -1,7 +1,6 @@
 import os, shutil
+import tools.maya.cmds as smc
 from lib.system import procFile as pFile
-from tools.maya.util.proc import procScene as pScene
-from tools.maya.util.proc import procMapping as pMap
 try:
     import maya.cmds as mc
     import maya.mel as ml
@@ -23,15 +22,15 @@ def importPresentoir(sceneFile):
         print "Warning: %s already in scene, clean before importing new ..." % shader
         mc.delete(shader)
     #-- Import Model --#
-    pScene.importScene(sceneFile)
+    smc.importScene(sceneFile)
 
 def getMat(model):
     """ Get material assigned on model
         :param model: (str) : Transform name
         :return: (dict) : Connected material """
-    sg = pMap.getShadingEngine(model)
+    sg = smc.getShadingEngine(model)
     if sg:
-        return pMap.getMatFromSg(sg[0])
+        return smc.getMatFromSg(sg[0])
 
 def getSceneMap():
     """ Get all texture files
@@ -280,7 +279,7 @@ def saveMat(matDict, matPath, matName):
             raise IOError, "Can not create folder 'shader'"
     #-- Save Materials --#
     shaderFile = os.path.join(shaderPath, '%s.ma' % matName)
-    pScene.exportSel(shaderFile)
+    smc.exportSel(shaderFile)
 
 def saveData(matPath, matName, matDict, mapFiles):
     """ Write shader's data to python file

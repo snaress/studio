@@ -1,9 +1,9 @@
 import os
 import pymel.core as pm
+import tools.maya.cmds as smc
 from PyQt4 import QtGui
 from lib.system import procFile as pFile
 from tools.maya.util import toolManager as tm
-from tools.maya.util.proc import procUi as pUi
 from tools.maya.util.toolManager.ui import toolManagerUI
 try:
     import maya.cmds as mc
@@ -89,6 +89,6 @@ def launch():
     if mc.window(toolName, q=True, ex=True):
         print "Delete ToolManager Window"
         pm.deleteUI(toolName, wnd=True)
-    window = ToolManagerUi(parent=pUi.getMayaMainWindow())
+    window = ToolManagerUi(parent=smc.getMayaMainWindow())
     mc.dockControl('tmDock', aa=['right', 'left'], a='right', content=str(window.objectName()), label='ToolManager')
     return window

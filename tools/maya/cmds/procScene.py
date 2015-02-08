@@ -7,15 +7,19 @@ except:
 
 def loadScene(sceneName, force=True):
     """ Open given maya scene
-        :param sceneName: (str) : Scene absolut path
-        :param force: (bool) : Force opening """
+        :param sceneName: Scene absolut path
+        :type sceneName: str
+        :param force: Force opening
+        :type force: bool """
     print "Opening Maya Scene: %s" % sceneName
     mc.file(sceneName, o=True, f=force)
 
 def importScene(sceneName, force=True):
     """ Import given scene
-        :param sceneName: (str) : Scene absolut path
-        :param force: (bool) : Force opening """
+        :param sceneName: Scene absolut path
+        :type sceneName: str
+        :param force: Force opening
+        :type force: bool """
     ext = os.path.splitext(sceneName)[-1]
     if ext == '.ma':
         print "Importing Maya Scene from ascii file: %s" % sceneName
@@ -24,13 +28,16 @@ def importScene(sceneName, force=True):
         print "Importing Maya Scene from binary file: %s" % sceneName
         mc.file(sceneName, i=True, type="mayaBinary", pr=True, lrd="all", f=force)
     else:
-        print "Error: Unrecognize extention: %s" % ext
+        raise IOError, "Error: Unrecognize extention: %s" % ext
 
 def saveSceneAs(sceneName, force=False, keepCurrentName=False):
     """ Save scene with given name
-        :param sceneName: (str) : Scene absolut path
-        :param force: (bool) : Force opening
-        :param keepCurrentName: (bool) : Keep original scene name """
+        :param sceneName: Scene absolut path
+        :type sceneName: str
+        :param force: Force opening
+        :type force: bool
+        :param keepCurrentName: Keep original scene name
+        :type keepCurrentName: bool """
     currentSceneName = mc.file(q=True, sn=True)
     mc.file(rn=sceneName)
     ext = os.path.splitext(sceneName)[-1]
@@ -41,15 +48,17 @@ def saveSceneAs(sceneName, force=False, keepCurrentName=False):
         print "Saving Maya Scene from binary file: %s" % sceneName
         mc.file(s=True, type="mayaBinary", f=force)
     else:
-        print "Error: Unrecognize extention: %s" % ext
+        raise IOError, "Error: Unrecognize extention: %s" % ext
     if keepCurrentName:
         print "Keep Scene Name: %s" % currentSceneName
         mc.file(rn=currentSceneName)
 
 def exportSel(sceneName, force=True):
     """ Save selection with given name
-        :param sceneName: (str) : Scene absolut path
-        :param force: (bool) : Force opening """
+        :param sceneName: Scene absolut path
+        :type sceneName: str
+        :param force: (bool) : Force opening
+        :type force: bool """
     ext = os.path.splitext(sceneName)[-1]
     if ext == '.ma':
         print "Saving Maya Scene from ascii file: %s" % sceneName
@@ -62,7 +71,8 @@ def exportSel(sceneName, force=True):
 
 def wsToDict():
     """ Store workspace info to dict
-        :return: (dict) : Workspace info """
+        :return: Workspace info
+        :rtype: dict """
     wsDict = {'projectName': mc.workspace(q=True, fn=True).split('/')[-1],
               'projectPath': mc.workspace(q=True, fn=True), 'fileRules': {}}
     fr = mc.workspace(q=True, fr=True)
@@ -72,8 +82,10 @@ def wsToDict():
 
 def wsDictToStr(wsDict=None):
     """ Convert workspace dict to string
-        :param wsDict: (dict) : Workspace info (If None, use current workspace)
-        :return: (str) : Workspace info """
+        :param wsDict: Workspace info (If None, use current workspace)
+        :type wsDict: dict
+        :return: Workspace info
+        :rtype: str """
     if wsDict is None:
         wsDict = wsToDict
     txt = ["#-- Workspace Info --#",

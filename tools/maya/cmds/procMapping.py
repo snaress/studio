@@ -6,8 +6,10 @@ except:
 
 def getShadingEngine(model):
     """ Get shading engine from given mesh
-        :param model: (str) : Transform name or mesh name
-        :return: (str) : Shading engine """
+        :param model: Transform name or mesh name
+        :type model: str
+        :return: Shading engine
+        :rtype: str """
     if mc.objectType(model, isType='transform'):
         sets = mc.listSets(type=1, o=model, ets=True)
     elif mc.objectType(model, isType='mesh'):
@@ -21,8 +23,10 @@ def getShadingEngine(model):
 
 def getMatFromSg(sg):
     """ Get material from given shading engine
-        :param sg: (str) : Shading engine
-        :return: (dict) : Connected materials """
+        :param sg: Shading engine
+        :type sg: str
+        :return: Connected materials
+        :rtype: dict """
     matDict = {'ss': None, 'ds': None, 'vs': None}
     #-- Surface shader --#
     connections = mc.listConnections('%s.surfaceShader' % sg, s=True)

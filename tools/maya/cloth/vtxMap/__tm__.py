@@ -3,10 +3,18 @@ from lib.qt import procQt as pQt
 reload(pQt)
 
 #-- Maya Proc --#
-from tools.maya.util.proc import procCloth as pCloth
+import tools.maya.cmds as smc
+reload(smc)
+import tools.maya.cmds.modeling as smcModeling
+reload(smcModeling)
+import tools.maya.cmds.procModeling as pMode
+reload(pMode)
+import tools.maya.cmds.rigg as smcRigg
+reload(smcRigg)
+import tools.maya.cmds.cloth as smcCloth
+reload(smcCloth)
+import tools.maya.cmds.procCloth as pCloth
 reload(pCloth)
-from tools.maya.util.proc import procRigg as pRigg
-reload(pRigg)
 
 #-- VtxMap Tool --#
 from tools.maya.cloth import vtxMap
