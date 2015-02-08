@@ -212,8 +212,7 @@ class SanityCheck(object):
         print "Path:", os.path.normpath(os.path.dirname(__file__))
 
 
-
-if not SanityCheck().checkAuto(printCmds=True):
+if not SanityCheck().checkAuto():
     raise IOError, "Sanity Check failed !!!"
 
 
@@ -255,3 +254,25 @@ class FromMel(riggMel.FromMel, clothMel.FromMel):
 
 print "Mel script eval: smc.FromMel()"
 print "\n"
+
+
+'''
+from tools.maya.cmds import procUi
+reload(procUi)
+from tools.maya.cmds import procScene
+reload(procScene)
+from tools.maya.cmds import modeling
+reload(modeling)
+from tools.maya.cmds import procModeling
+reload(procModeling)
+from tools.maya.cmds import rigg
+reload(rigg)
+from tools.maya.cmds import cloth
+reload(cloth)
+from tools.maya.cmds import procCloth
+reload(procCloth)
+from tools.maya.cmds import procRender
+reload(procRender)
+import tools.maya.cmds as smc
+reload(smc)
+'''

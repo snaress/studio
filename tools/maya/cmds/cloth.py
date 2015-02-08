@@ -105,6 +105,87 @@ def addActiveToNSystem(active, nucleus):
     mc.setAttr('%s.active' % active, True)
     return ind
 
+def createNCloth(useNucleus=None, selectExisting=False, createNew=False, worldSpace=False):
+    """ This turns all the selected objects into nCloth. The current nucleus node is used
+        or a new one is created if none yet exist
+        :param useNucleus: Force given nucleus to be used
+        :type useNucleus: str
+        :param selectExisting: select the first existing one, if any
+        :type selectExisting: bool
+        :param createNew: force the creation of a new one
+        :type createNew: bool
+        :param worldSpace: if true, cache and current positions maintained in worldspace
+        :type worldSpace: bool
+        :return: Created nodes
+        :rtype: list """
+    outMeshName = "outputCloth1"
+    #-- Get the selected meshes --#
+    selected = mc.ls(sl=True)
+    if not selected:
+        print "!!! ERROR: No selection found !!!"
+        return None
+    meshes = mc.listRelatives(selected, f=True, ni=True, s=True, type='mesh')
+    if not meshes:
+        print "!!! ERROR: No meshes found to add nCloth !!!"
+        return None
+    #-- Get Active Nucleus --#
+    nuc = GetActiveNucleusNode()
+    nucleus = nuc.getActiveNucleus(useNucleus=useNucleus, selectExisting=selectExisting, createNew=createNew)
+    #// Find the mesh(es) that have no nBase associated with them and setup an nCloth node for each
+    newClothNodes = []
+    for mesh in meshes:
+        conns = mc.listConnections(mesh, sh=True, type='nBase')
+        if not conns:
+            #// This mesh has no nBase associated with it, connect it
+            meshTforms = rigg.listTransforms(mesh)
+            tForm = meshTforms[0]
+            nCloth = mc.createNode('nCloth')
+            hideParticleAttrs(nCloth)
+            newClothNodes.append(nCloth)
+            mc.connectAttr('time1.outTime', '%s.currentTime' % nCloth)
+            #// Check if this mesh is already being used as an input
+            #// to the driverPoints attribute of a wrap deformer.
+            wrapPlugs = mc.listConnections('%s.worldMesh' % mesh, d=True, p=True, sh=True, type='wrap')
+            mc.connectAttr('%s.worldMesh' % mesh, '%s.inputMesh' % nCloth)
+            #-- Create a mesh node, hook it up as output --#
+            if not worldSpace:
+                outMesh = mc.createNode('mesh', p=tForm, n=outMeshName)
+                mc.setAttr('%s.localSpaceOutput' % nCloth, True)
+            else:
+                outMesh = mc.createNode('mesh', n=outMeshName)
+            #// Transfert shader connections
+            shadConns = mc.listConnections('%s.instObjGroups[0]' % mesh, d=True, sh=True, type='shadingEngine')
+            if shadConns and not mc.about(batch=True):
+                mc.hyperShade(assign=shadConns[0]) # outMesh should be currently selected
+            else:
+                mc.sets(outMesh, add=outMesh)
+            #-- Connect Output --#
+            mc.setAttr('%s.quadSplit' % outMesh, 0) # match nCloth quad tessellation
+            mc.connectAttr('%s.outputMesh' % nCloth, '%s.inMesh' % outMesh)
+            addActiveToNSystem(nCloth, nucleus)
+            mc.connectAttr('%s.startFrame' % nucleus, '%s.startFrame' % nCloth)
+            mc.setAttr('%s.intermediateObject' % mesh, 1)
+            clothTforms = rigg.listTransforms(nCloth)
+            mc.setAttr('%s.translate' % clothTforms[0], l=True)
+            mc.setAttr('%s.rotate' % clothTforms[0], l=True)
+            mc.setAttr('%s.scale' % clothTforms[0], l=True)
+            #// Try to pick a good default thickness
+            thickness, clothFlagsDict = getDefaultThickness(mesh, clothFlags=True)
+            for k, v in clothFlagsDict.iteritems():
+                if v is not None:
+                    mc.setAttr('%s.%s' % (nCloth, k), v)
+            #// Now for each wrap deformer that was using the input surface
+            #// as an input to the driverPoints attribute, transfer the
+            #// connection to the output surface.
+            rigg.transfertWrapConns(wrapPlugs, outMesh)
+    #-- Batch mode refresh --#
+    if mc.about(batch=True):
+        for cloth in newClothNodes:
+            mc.getAttr('%s.forceDynamics' % cloth)
+    #-- Result --#
+    mc.select(newClothNodes)
+    return newClothNodes
+
 
 class GetActiveNucleusNode(object):
     """ Returns a nucleus node based on current selection, last referenced,
@@ -113,14 +194,22 @@ class GetActiveNucleusNode(object):
     def __init__(self):
         self.activeNucleus = None
 
-    def getActiveNucleus(self, selectExisting=False, createNew=False):
+    def getActiveNucleus(self, useNucleus=None, selectExisting=False, createNew=False):
         """ Find the currently active nucleus node, if none found, execute kargs
+            :param useNucleus: Force given nucleus to be used
+            :type useNucleus: str
             :param selectExisting: select the first existing one, if any
             :type selectExisting: bool
             :param createNew: force the creation of a new one
             :type createNew: bool
             :return: Active nucleus node
             :rtype: str """
+        #-- Force with given nucleus --#
+        if useNucleus is not None:
+            if mc.objExists(useNucleus):
+                self.activeNucleus = useNucleus
+                return self.activeNucleus
+        #-- Get active nucleuse --#
         if self.findActiveNucleus() is None:
             if selectExisting:
                 #-- Select an existing nucleus node, if there is one --#
@@ -201,93 +290,3 @@ class GetActiveNucleusNode(object):
         self.activeNucleus = nucleusNodes[0]
         print "!!! Warning: Multiple possible nucleus nodes: Will use %s" % self.activeNucleus
         return self.activeNucleus
-
-
-class CreateNClothBeta(object):
-
-    def __init__(self, useNucleus=None, selectExisting=False, createNewNucleus=False, worldSpace=False):
-        #-- Store kwargs --#
-        self.useNucleus = useNucleus
-        self.selectExisting = selectExisting
-        self.createNewNucleus = createNewNucleus
-        self.worldSpace = worldSpace
-        #-- Init --#
-        self.selected = self._initSelection()
-        self.meshes = self._initMeshes()
-        self.outMeshName = 'outputCloth1'
-
-    @staticmethod
-    def _initSelection():
-        """ Get Current selection
-            :return: (list) : Selected objects """
-        selected = mc.ls(sl=True)
-        if not selected:
-            raise IndexError, "!!! ERROR: No selection found !!!"
-        return selected
-
-    def _initMeshes(self):
-        """ Get selected meshes
-            :return: (list) : Selected meshes """
-        meshes = mc.listRelatives(self.selected, f=True, ni=True, s=True, type='mesh')
-        if not meshes:
-            raise IndexError, "!!! ERROR: No shape found, check your selection !!!"
-        return meshes
-
-    def createNode(self):
-        #-- Get Active Nucleus --#
-        nuc = GetActiveNucleusNode()
-        nucleus = nuc.getActiveNucleus(selectExisting=self.selected,
-                                       createNew=self.createNewNucleus)
-        #-- Create nCloth Nodes --#
-        newClothNodes = []
-        for mesh in self.meshes:
-            conns = mc.listConnections(mesh, sh=True, type='nBase')
-            if not conns:
-                # This mesh has no nBase associated with it, connect it
-                meshTforms = rigg.listTransforms(mesh)
-                tForm = meshTforms[0]
-                nCloth = mc.createNode('nCloth')
-                hideParticleAttrs(nCloth)
-                newClothNodes.append(nCloth)
-                mc.connectAttr('time1.outTime', '%s.currentTime' % nCloth)
-                # Check if this mesh is already being used as an input
-                # to the driverPoints attribute of a wrap deformer
-                wrapPlugs = mc.listConnections('%s.worldMesh' % mesh, d=True, p=True, sh=True, type='wrap')
-                mc.connectAttr('%s.worldMesh' % mesh, '%s.inputMesh' % nCloth)
-                # Create a mesh node, and hook it up as output
-                if not self.worldSpace:
-                    outMesh = mc.createNode('mesh', p=tForm, n=self.outMeshName)
-                    mc.setAttr('%s.localSpaceOutput' % nCloth, True)
-                else:
-                    outMesh = mc.createNode('mesh', n=self.outMeshName)
-                shadConns = mc.listConnections('%s.instObjGroups[0]' % mesh, d=True, sh=True, type='shadingEngine')
-                if shadConns and not mc.about(batch=True):
-                    mc.hyperShade(assign=shadConns[0]) # outMesh should be currently selected
-                else:
-                    mc.sets(outMesh, add=outMesh)
-                mc.setAttr('%s.quadSplit' % outMesh, 0) # match nCloth quad tessellation
-                mc.connectAttr('%s.outputMesh' % nCloth, '%s.inMesh' % outMesh)
-                addActiveToNSystem(nCloth, nucleus)
-                mc.connectAttr('%s.startFrame' % nucleus, '%s.startFrame' % nCloth)
-                mc.setAttr('%s.intermediateObject' % mesh, 1)
-                clothTforms = rigg.listTransforms(nCloth)
-                mc.setAttr('%s.translate' % clothTforms[0], l=True)
-                mc.setAttr('%s.rotate' % clothTforms[0], l=True)
-                mc.setAttr('%s.scale' % clothTforms[0], l=True)
-                # Try to pick a good default thickness
-                thickness, clothFlagsDict = getDefaultThickness(mesh, clothFlags=True)
-                for k, v in clothFlagsDict.iteritems():
-                    if v is not None:
-                        mc.setAttr('%s.%s' % (nCloth, k), v)
-                # Now for each wrap deformer that was using the input surface as an input
-                # to the driverPoints attribute, transfer the connection to the output surface.
-                if wrapPlugs:
-                    rigg.transfertWrapConns(wrapPlugs, outMesh)
-        #-- Batch mode refresh --#
-        if mc.about(batch=True):
-            for cloth in newClothNodes:
-                mc.getAttr('%s.forceDynamics' % cloth)
-        #-- Result --#
-        mc.select(newClothNodes)
-        return newClothNodes
-
