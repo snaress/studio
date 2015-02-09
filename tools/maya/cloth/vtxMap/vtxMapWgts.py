@@ -49,10 +49,11 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         self.rf_sceneNodes()
         allItems = pQt.getAllItems(self.twSceneNodes)
         selected = vmCmds.getClothNodesFromSel()
-        for item in allItems:
-            if item.nodeShape == selected[0]:
-                self.twSceneNodes.setItemSelected(item, True)
-                break
+        if selected:
+            for item in allItems:
+                if item.nodeShape == selected[0]:
+                    self.twSceneNodes.setItemSelected(item, True)
+                    break
 
     def on_sceneNodes(self):
         """ Command launched when QTreeWidgetItem 'Scene Nodes' is clicked,
