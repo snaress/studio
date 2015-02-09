@@ -19,14 +19,25 @@ class FromMel(object):
 
     @staticmethod
     def addActiveToNSystem(active, nucleus):
-        """ Connect nCloth or nRigid to given nucleus
-            :param active: nCloth or nRigid node
+        """ Connect nCloth to given nucleus
+            :param active: nCloth node
             :type active: str
             :param nucleus: Nucleus node
             :type nucleus: str
             :return: Nucleus inputActive attribute index
             :rtype: int """
         return ml.eval('addActiveToNSystem("%s", "%s");' % (active, nucleus))
+
+    @staticmethod
+    def addPassiveToNSystem(passive, nucleus):
+        """ Connect nCloth or nRigid to given nucleus
+            :param passive: nRigid node
+            :type passive: str
+            :param nucleus: Nucleus node
+            :type nucleus: str
+            :return: Nucleus inputPassive attribute index
+            :rtype: int """
+        return ml.eval('addPassiveToNSystem("%s", "%s");' % (passive, nucleus))
 
     @staticmethod
     def getActiveNucleusNode(selectExisting=True, createNew=False):

@@ -91,18 +91,32 @@ def createNSystem():
         return nSys[0]
 
 def addActiveToNSystem(active, nucleus):
-    """ Connect nCloth or nRigid to given nucleus
-        :param active: nCloth or nRigid node
+    """ Connect nCloth to given nucleus
+        :param active: nCloth node
         :type active: str
         :param nucleus: Nucleus node
         :type nucleus: str
         :return: InputActive attribute index
         :rtype: int """
-    ind = rigg.getNextFreeMultiIndex('%s.inputActive' % nucleus)
-    mc.connectAttr('%s.currentState' % active, '%s.inputActive[%s]' % (nucleus, ind))
-    mc.connectAttr('%s.startState' % active, '%s.inputActiveStart[%s]' % (nucleus, ind))
-    mc.connectAttr('%s.outputObjects[%s]' % (nucleus, ind), '%s.nextState' % active)
-    mc.setAttr('%s.active' % active, True)
+    ind = rigg.getNextFreeMultiIndex("%s.inputActive" % nucleus)
+    mc.connectAttr("%s.currentState" % active, "%s.inputActive[%s]" % (nucleus, ind))
+    mc.connectAttr("%s.startState" % active, "%s.inputActiveStart[%s]" % (nucleus, ind))
+    mc.connectAttr("%s.outputObjects[%s]" % (nucleus, ind), "%s.nextState" % active)
+    mc.setAttr("%s.active" % active, True)
+    return ind
+
+def addPassiveToNSystem(passive, nucleus):
+    """ Connect nRigid to given nucleus
+        :param passive: nRigid node
+        :type passive: str
+        :param nucleus: Nucleus node
+        :type nucleus: str
+        :return: InputPasive attribute index
+        :rtype: int """
+    ind = rigg.getNextFreeMultiIndex("%s.inputPassive" % nucleus)
+    mc.connectAttr("%s.currentState" % passive, "%s.inputPassive[%s]" % (nucleus, ind))
+    mc.connectAttr("%s.startState" % passive, "%s.inputPassiveStart[%s]" % (nucleus, ind))
+    mc.setAttr("%s.active" % passive, 0)
     return ind
 
 def createNCloth(useNucleus=None, selectExisting=False, createNew=False, worldSpace=False):
@@ -110,13 +124,13 @@ def createNCloth(useNucleus=None, selectExisting=False, createNew=False, worldSp
         or a new one is created if none yet exist
         :param useNucleus: Force given nucleus to be used
         :type useNucleus: str
-        :param selectExisting: select the first existing one, if any
+        :param selectExisting: select the first existing nucleus
         :type selectExisting: bool
-        :param createNew: force the creation of a new one
+        :param createNew: force the creation of a new nucleus
         :type createNew: bool
         :param worldSpace: if true, cache and current positions maintained in worldspace
         :type worldSpace: bool
-        :return: Created nodes
+        :return: Created nCloth nodes
         :rtype: list """
     outMeshName = "outputCloth1"
     #-- Get the selected meshes --#
@@ -177,7 +191,8 @@ def createNCloth(useNucleus=None, selectExisting=False, createNew=False, worldSp
             #// Now for each wrap deformer that was using the input surface
             #// as an input to the driverPoints attribute, transfer the
             #// connection to the output surface.
-            rigg.transfertWrapConns(wrapPlugs, outMesh)
+            if wrapPlugs is not None:
+                rigg.transfertWrapConns(wrapPlugs, outMesh)
     #-- Batch mode refresh --#
     if mc.about(batch=True):
         for cloth in newClothNodes:
@@ -185,6 +200,85 @@ def createNCloth(useNucleus=None, selectExisting=False, createNew=False, worldSp
     #-- Result --#
     mc.select(newClothNodes)
     return newClothNodes
+
+def createNRigid(useNucleus=None, selectExisting=False, createNew=False):
+    """ This turns all the selected objects into nRigid. The current nucleus node is used
+        or a new one is created if none yet exist
+        :param useNucleus: Force given nucleus to be used
+        :type useNucleus: str
+        :param selectExisting: select the first existing nucleus
+        :type selectExisting: bool
+        :param createNew: force the creation of a new nucleus
+        :type createNew: bool
+        :return: Created nRigid nodes
+        :rtype: list """
+    #-- Get the selected meshes --#
+    selected = mc.ls(sl=True)
+    if not selected:
+        print "!!! ERROR: No selection found !!!"
+        return None
+    meshes = mc.listRelatives(selected, f=True, ni=True, s=True, type='mesh')
+    if not meshes:
+        print "!!! ERROR: No meshes found to add nCloth !!!"
+        return None
+    #-- Get Active Nucleus --#
+    nuc = GetActiveNucleusNode()
+    nucleus = nuc.getActiveNucleus(useNucleus=useNucleus, selectExisting=selectExisting, createNew=createNew)
+    #// The selected objects hopefully include a cloth mesh and a potential collision mesh
+    #// So we'll go through the selected meshes, set aside the ones that aren't already
+    #// downstream of a cloth mesh. We'll also keep track of the nBase nodes for
+    #// the ones that ARE cloth, so that we can hook up the collision meshes to their nucleus
+    inputMeshes = []
+    for mesh in meshes:
+        nBase = rigg.findTypeInHistory(mesh, ['nCloth'], past=True)
+        if nBase is None:
+            inputMeshes.append(mesh)
+    if not inputMeshes:
+        print "!!! ERROR: Not valide mesh found to add nRigid !!!"
+        return None
+    #-- Create Collision --#
+    nRigid = None
+    newRigidNodes = []
+    for mesh in inputMeshes:
+        #// check to see if this mesh is already in collision with the
+        #// specified nucleus node
+        nBase = rigg.findTypeInHistory(mesh, ['nRigid'], future=True)
+        create = True
+        if nBase is not None:
+            conns = mc.listConnections("%s.currentState" % nBase)
+            if conns and conns[0] == nucleus:
+                nRigid = nBase
+                collide = mc.getAttr("%s.collide" % nRigid)
+                if collide:
+                    print "!!! WARNING: %s already in collision solver !!!" % nRigid
+                else:
+                    mc.setAttr("%s.collide" % nRigid, True)
+                    create = False
+        #-- Create NRigid --#
+        if create:
+            nRigid = mc.createNode('nRigid')
+            newRigidNodes.append(nRigid)
+            hideParticleAttrs(nRigid)
+            mc.setAttr("%s.selfCollide" % nRigid, False)
+            mc.connectAttr("time1.outTime", "%s.currentTime" % nRigid)
+            mc.connectAttr("%s.worldMesh" % mesh, "%s.inputMesh" % nRigid)
+            addPassiveToNSystem(nRigid, nucleus)
+            mc.connectAttr("%s.startFrame" % nucleus, "%s.startFrame" % nRigid)
+        mc.setAttr("%s.quadSplit" % mesh, 0)
+        rigidTforms = rigg.listTransforms(nRigid)
+        mc.setAttr("%s.translate" % rigidTforms[0], l=True)
+        mc.setAttr("%s.rotate" % rigidTforms[0], l=True)
+        mc.setAttr("%s.scale" % rigidTforms[0], l=True)
+        #// Try to pick a good default thickness
+        thickness, clothFlagsDict = getDefaultThickness(mesh, clothFlags=True, maxRatio=0.003)
+        mc.setAttr("%s.thickness" % nRigid, clothFlagsDict['thickness'])
+        mc.setAttr("%s.pushOutRadius" % nRigid, clothFlagsDict['pushOutRadius'])
+        mc.setAttr("%s.trappedCheck" % nRigid, True)
+    #-- Refresh --#
+    mc.getAttr("%s.forceDynamics" % nucleus)
+    #-- Result --#
+    mc.select(newRigidNodes)
+    return newRigidNodes
 
 
 class GetActiveNucleusNode(object):
