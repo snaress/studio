@@ -155,25 +155,81 @@ class Logger(object):
         self.level = level
         self.lvlIndex = self.levels.index(self.level)
 
-    def critical(self, message):
+    def critical(self, message, newLinesBefor=0, newLinesAfter=0):
+        """ Print given message with critical level
+            :param message: Message to print
+            :type message: str
+            :param newLinesBefor: New lines to insert befor message
+            :type newLinesBefor: int
+            :param newLinesAfter: New lines to insert after message
+            :type newLinesAfter: int """
         if self.lvlIndex >= 0:
+            self._addNewLines(newLinesBefor)
             print "[%s] | CRITICAL | %s" % (self.title, message)
+            self._addNewLines(newLinesAfter)
 
-    def error(self, message):
+    def error(self, message, newLinesBefor=0, newLinesAfter=0):
+        """ Print given message with error level
+            :param message: Message to print
+            :type message: str
+            :param newLinesBefor: New lines to insert befor message
+            :type newLinesBefor: int
+            :param newLinesAfter: New lines to insert after message
+            :type newLinesAfter: int """
         if self.lvlIndex >= 1:
+            self._addNewLines(newLinesBefor)
             print "[%s] | ERROR | %s" % (self.title, message)
+            self._addNewLines(newLinesAfter)
 
-    def warning(self, message):
+    def warning(self, message, newLinesBefor=0, newLinesAfter=0):
+        """ Print given message with warning level
+            :param message: Message to print
+            :type message: str
+            :param newLinesBefor: New lines to insert befor message
+            :type newLinesBefor: int
+            :param newLinesAfter: New lines to insert after message
+            :type newLinesAfter: int """
         if self.lvlIndex >= 2:
+            self._addNewLines(newLinesBefor)
             print "[%s] | WARNING | %s" % (self.title, message)
+            self._addNewLines(newLinesAfter)
 
-    def info(self, message):
+    def info(self, message, newLinesBefor=0, newLinesAfter=0):
+        """ Print given message with info level
+            :param message: Message to print
+            :type message: str
+            :param newLinesBefor: New lines to insert befor message
+            :type newLinesBefor: int
+            :param newLinesAfter: New lines to insert after message
+            :type newLinesAfter: int """
         if self.lvlIndex >= 3:
+            self._addNewLines(newLinesBefor)
             print "[%s] | INFO | %s" % (self.title, message)
+            self._addNewLines(newLinesAfter)
 
-    def debug(self, message):
+    def debug(self, message, newLinesBefor=0, newLinesAfter=0):
+        """ Print given message with debug level
+            :param message: Message to print
+            :type message: str
+            :param newLinesBefor: New lines to insert befor message
+            :type newLinesBefor: int
+            :param newLinesAfter: New lines to insert after message
+            :type newLinesAfter: int """
         if self.lvlIndex >= 4:
+            self._addNewLines(newLinesBefor)
             print "[%s] | DEBUG | %s" % (self.title, message)
+            self._addNewLines(newLinesAfter)
+
+    @staticmethod
+    def _addNewLines(newLines):
+        """ Print new empty lines
+            :param newLines: Number of new lines to print
+            :type newLines: int """
+        if newLines > 0:
+            if newLines == 1:
+                print ""
+            else:
+                print '\n' * (newLines - 1)
 
 
 class Image(object):
