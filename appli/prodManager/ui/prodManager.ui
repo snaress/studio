@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mwProdManager</class>
+ <widget class="QMainWindow" name="mwProdManager">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ProdManager</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>300</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTabWidget" name="tabWidget">
+        <widget class="QWidget" name="tab">
+         <attribute name="title">
+          <string>Tab 1</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="tab_2">
+         <attribute name="title">
+          <string>Tab 2</string>
+         </attribute>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="mProject">
+    <property name="title">
+     <string>Project</string>
+    </property>
+    <addaction name="miNewProject"/>
+    <addaction name="miLoadProject"/>
+    <addaction name="separator"/>
+    <addaction name="miEditProject"/>
+   </widget>
+   <widget class="QMenu" name="mPref">
+    <property name="title">
+     <string>Pref</string>
+    </property>
+    <addaction name="miUserPref"/>
+    <addaction name="separator"/>
+    <addaction name="miToolSettings"/>
+   </widget>
+   <addaction name="mProject"/>
+   <addaction name="mPref"/>
+  </widget>
+  <action name="miNewProject">
+   <property name="text">
+    <string>New Project</string>
+   </property>
+  </action>
+  <action name="miLoadProject">
+   <property name="text">
+    <string>Load Project</string>
+   </property>
+  </action>
+  <action name="miEditProject">
+   <property name="text">
+    <string>Edit Project</string>
+   </property>
+  </action>
+  <action name="miUserPref">
+   <property name="text">
+    <string>User Pref</string>
+   </property>
+  </action>
+  <action name="miToolSettings">
+   <property name="text">
+    <string>Tool Settings</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
