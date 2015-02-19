@@ -7,7 +7,9 @@ rndBin = cd D:\rndBin
 studio = cd F:\rnd\workspace\studio
 
 designer = "C:\Python27\Lib\site-packages\PyQt4\designer.exe"
-nuke = F:\apps\Nuke5.0v2\nuke5.0.exe $*
+foundry = "C:\Program Files (x86)\The Foundry\LicensingTools7.0\bin\RLM\rlm.foundry.exe"
+nuke5 = F:\apps\Nuke5.0v2\nuke5.0.exe $*
+nuke9 = F:\apps\Nuke9.0v1\nuke9.0.exe F:\rnd\workspace\studio\tools\nuke\util\nkInit.py $*
 maya = F:\apps\Autodesk\Maya2014\bin\maya.exe $*
 mayaPy = F:\apps\Autodesk\Maya2014\bin\mayapy.exe $*
 mayaBatch = F:\apps\Autodesk\Maya2014\bin\mayabatch.exe $*
