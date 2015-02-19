@@ -71,25 +71,13 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="mProject">
+   <widget class="QMenu" name="menuProject">
     <property name="title">
      <string>Project</string>
     </property>
-    <addaction name="miNewProject"/>
-    <addaction name="miLoadProject"/>
-    <addaction name="separator"/>
-    <addaction name="miEditProject"/>
+    <addaction name="miProjectSettings"/>
    </widget>
-   <widget class="QMenu" name="mPref">
-    <property name="title">
-     <string>Pref</string>
-    </property>
-    <addaction name="miUserPref"/>
-    <addaction name="separator"/>
-    <addaction name="miToolSettings"/>
-   </widget>
-   <addaction name="mProject"/>
-   <addaction name="mPref"/>
+   <addaction name="menuProject"/>
   </widget>
   <action name="miNewProject">
    <property name="text">
@@ -114,6 +102,11 @@
   <action name="miToolSettings">
    <property name="text">
     <string>Tool Settings</string>
+   </property>
+  </action>
+  <action name="miProjectSettings">
+   <property name="text">
+    <string>Project Settings</string>
    </property>
   </action>
  </widget>

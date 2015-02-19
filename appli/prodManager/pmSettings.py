@@ -1,59 +1,110 @@
 from functools import partial
 from PyQt4 import QtGui, QtCore
+from lib.qt import procQt as pQt
 from appli.prodManager.ui import settingsUI, defaultSettingsWgtUI
 
 
 class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
 
-    def __init__(self, newProject=False):
-        self.newProject = newProject
+    def __init__(self, mainUi):
+        self.mainUi = mainUi
+        self.pm = self.mainUi.pm
         super(ProjectSettingsUi, self).__init__()
         self._setupUi()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """ Setup main ui """
         self.setupUi(self)
-        self.leProjectRootPath.setText("D:/prods")
-        if self.newProject:
-            self.qfSettings.setEnabled(False)
-        else:
-            self.qfNewProject.setEnabled(False)
+        self.rf_projectInfo()
+        self.twSettings.itemClicked.connect(self.on_settings)
         self.addWidgets()
+        # self.teInfo.clear()
+
+    def rf_projectInfo(self):
+        """ Refresh project info """
+        self.lNameValue.setText(self.pm.project.name)
+        self.lAliasValue.setText(self.pm.project.alias)
+        self.lTypeValue.setText(self.pm.project.type)
+        if self.pm.project.type is 'Movie':
+            self.qfProject_2.setVisible(False)
+        else:
+            self.qfProject_2.setVisible(True)
+            self.lSeason.setText(self.pm.project.season)
+            if self.pm.project.episode is None:
+                self.lEpisode.setVisible(False)
+                self.lEpisodeValue.setVisible(False)
+            else:
+                self.lEpisode.setVisible(True)
+                self.lEpisodeValue.setVisible(True)
+                self.lEpisodeValue.setText(self.pm.project.episode)
+
+    def rf_settingsInfo(self, info):
+        """ Refresh settings info
+            :param info: Settings info to print
+            :type info: str | list """
+        self.teInfo.clear()
+        if isinstance(info, str):
+            self.teInfo.setPlainText(info)
+        else:
+            self.teInfo.setPlainText('\n'.join(info))
 
     def addWidgets(self):
         """ Parent all settings widget to ui """
-        self.addGeneralWidget()
-        self.addTasksWidget()
+        self.addWidget('General', General(self))
+        self.addWidget('Tasks', Tasks(self))
 
-    def addGeneralWidget(self):
-        newItem = self.newSettingsItem("General")
-        self.twSettings.addTopLevelItem(newItem)
-        self.wgGeneral = General()
-        self.vlSettings.insertWidget(0, self.wgGeneral)
-
-    def addTasksWidget(self):
-        """ Add 'Tasks' widget """
-        newItem = self.newSettingsItem("Tasks")
-        self.twSettings.addTopLevelItem(newItem)
-        self.wgTasks = Tasks(self)
-        self.vlSettings.insertWidget(0, self.wgTasks)
-
-    @staticmethod
-    def newSettingsItem(label):
+    def addWidget(self, label, QWidget):
+        """ Set andparent given widget
+            :param label: Widget label
+            :type label: str
+            :param QWidget: QWidget to add
+            :type QWidget: QtGui.QWidget """
         newItem = QtGui.QTreeWidgetItem()
         newItem.setText(0, label)
-        return newItem
+        newItem.label = label
+        newItem.widget = QWidget
+        newItem.widget.setVisible(False)
+        self.twSettings.addTopLevelItem(newItem)
+        self.vlSettings.insertWidget(1, newItem.widget)
+
+    def on_settings(self):
+        """ Command launched when 'twProject' QTreeWidgetItem is clicked """
+        selItems = self.twSettings.selectedItems()
+        if selItems:
+            allItems = pQt.getAllItems(self.twSettings)
+            for item in allItems:
+                item.widget.setVisible(False)
+                if item.label == selItems[0].label:
+                    item.widget.setVisible(True)
+                    self.rf_settingsInfo(item.widget.widgetInfo)
 
 
 class General(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
 
-    def __init__(self):
+    def __init__(self, settingsUi):
+        self.settingsUi = settingsUi
         super(General, self).__init__()
         self._setupUi()
 
     def _setupUi(self):
         """ Setup widget """
         self.setupUi(self)
+        self.setMinimumHeight(100)
+        self.setMaximumHeight(100)
+        self.pbAddItem.setText("Add Root Path")
+        self.pbDelItem.setText("Del RootPath")
+        self.twTree.setColumnCount(1)
+        self.twTree.setHeaderLabels(['Root Path'])
+        self.twTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
+
+    @property
+    def widgetInfo(self):
+        """ Widget info printed in settings ui
+            :return: Widget info to print
+            :rtype: list """
+        return ["ProdManager Root path:",
+                "First path in tree will be the project main root path."]
 
     @property
     def defaultRootPath(self):
@@ -62,8 +113,8 @@ class General(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
 
 class Tasks(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
 
-    def __init__(self, pWidget):
-        self.pWidget = pWidget
+    def __init__(self, settingsUi):
+        self.settingsUi = settingsUi
         super(Tasks, self).__init__()
         self._setupUi()
 
@@ -78,8 +129,13 @@ class Tasks(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
         self.twTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
         self.twTree.header().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
         self.twTree.header().setResizeMode(2, QtGui.QHeaderView.ResizeToContents)
-        if self.pWidget.newProject:
-            self._refresh(self.defaultTasks)
+
+    @property
+    def widgetInfo(self):
+        """ Widget info printed in settings ui
+            :return: Widget info to print
+            :rtype: str """
+        return "Project tasks: Tasks avalable for project."
 
     @property
     def defaultTasks(self):
@@ -99,12 +155,18 @@ class Tasks(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
                 10: {'name': "Final", 'color': (85, 255, 0), 'stat': True}}
 
     def _refresh(self, tasksDict):
+        """ Refresh task widget """
         self.twTree.clear()
         for n in sorted(tasksDict.keys()):
             newItem = self.newTaskItem(tasksDict[n])
             self.twTree.addTopLevelItem(newItem)
 
     def newTaskItem(self, taskDict):
+        """ Cretae new task TreeWidgetItem
+            :param taskDict: Task info
+            :type taskDict: dict
+            :return: New QTreeWidgetItem
+            :rtype: QtGui.QTreeWidgetItem """
         newItem = QtGui.QTreeWidgetItem()
         newItem.setText(0, taskDict['name'])
         for k, v in taskDict.iteritems():
@@ -116,8 +178,8 @@ class Tasks(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
         newColor = QtGui.QPushButton()
         newColor.setText('')
         newColor.setMaximumWidth(40)
-        # if dialog:
-        #     newColor.connect(newColor, QtCore.SIGNAL("clicked()"), partial(self.on_taskColor, taskItem))
+        if dialog:
+            newColor.connect(newColor, QtCore.SIGNAL("clicked()"), partial(self.on_taskColor, taskItem))
         if taskColor is None:
             taskItem.taskColor = (200, 200, 200)
         else:

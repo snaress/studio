@@ -1,10 +1,9 @@
 import sys
-from PyQt4 import QtGui, QtCore, Qt
 from lib.qt import procQt as pQt
+from PyQt4 import QtGui, QtCore, Qt
 from lib.system import procFile as pFile
 from appli.prodManager import prodManager, pmSettings
 from appli.prodManager.ui import prodLoaderUI, prodManagerUI, newProjectUI
-
 
 class ProdLoaderUi(QtGui.QMainWindow, prodLoaderUI.Ui_mwProdLoader):
 
@@ -24,6 +23,7 @@ class ProdLoaderUi(QtGui.QMainWindow, prodLoaderUI.Ui_mwProdLoader):
         for n in range(4):
             self.twProjects.header().setResizeMode(n, QtGui.QHeaderView.ResizeToContents)
         self.twProjects.sortItems(0, QtCore.Qt.AscendingOrder)
+        self.twProjects.itemDoubleClicked.connect(self.on_loadProject)
         self.cbMovie.setStyleSheet(self.colorCode('Movie'))
         self.cbMovie.clicked.connect(self.rf_projects)
         self.cbMarketing.setStyleSheet(self.colorCode('Marketing'))
@@ -238,7 +238,7 @@ class ProdManagerUi(QtGui.QMainWindow, prodManagerUI.Ui_mwProdManager):
         """ Setup main ui """
         self.setupUi(self)
         self._setWindowTitle()
-        self.miEditProject.triggered.connect(self.on_editProject)
+        self.miProjectSettings.triggered.connect(self.on_projectSettings)
 
     def _setWindowTitle(self):
         """ Set window title """
@@ -251,18 +251,27 @@ class ProdManagerUi(QtGui.QMainWindow, prodManagerUI.Ui_mwProdManager):
             self.setWindowTitle("ProdManager: %s -- %s -- %s -- %s" % (self.pm.project.name, self.pm.project.season,
                                                                        self.pm.project.episode, self.pm.project.alias))
 
-    def on_editProject(self):
-        self.ps = pmSettings.ProjectSettingsUi(newProject=False)
+    def on_projectSettings(self):
+        """ Command launched when QMenuItem 'Project Settings' is clicked """
+        self.ps = pmSettings.ProjectSettingsUi(self)
         self.ps.show()
 
 
-def launch():
-    """ Grapher launcher """
+def launch(prodId=None, logLvl='info'):
+    """ Grapher launcher
+        :param prodId: Project alias
+        :type prodId: str
+        :param logLvl: Verbose log level ('critical', 'error', 'warning', 'info', 'debug')
+        :type logLvl: str """
     app = QtGui.QApplication(sys.argv)
-    window = ProdLoaderUi(logLvl='debug')
+    if prodId is None:
+        window = ProdLoaderUi(logLvl=logLvl)
+    else:
+        window = ProdManagerUi(prodId=prodId, logLvl=logLvl)
     window.show()
     sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
-    launch()
+    # launch()
+    launch(prodId='tdk')

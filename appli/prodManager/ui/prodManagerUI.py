@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\prodManager\ui\prodManager.ui'
 #
-# Created: Tue Feb 10 02:26:06 2015
+# Created: Tue Feb 17 23:51:19 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -57,10 +57,8 @@ class Ui_mwProdManager(object):
         self.menubar = QtGui.QMenuBar(mwProdManager)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
-        self.mProject = QtGui.QMenu(self.menubar)
-        self.mProject.setObjectName(_fromUtf8("mProject"))
-        self.mPref = QtGui.QMenu(self.menubar)
-        self.mPref.setObjectName(_fromUtf8("mPref"))
+        self.menuProject = QtGui.QMenu(self.menubar)
+        self.menuProject.setObjectName(_fromUtf8("menuProject"))
         mwProdManager.setMenuBar(self.menubar)
         self.miNewProject = QtGui.QAction(mwProdManager)
         self.miNewProject.setObjectName(_fromUtf8("miNewProject"))
@@ -72,15 +70,10 @@ class Ui_mwProdManager(object):
         self.miUserPref.setObjectName(_fromUtf8("miUserPref"))
         self.miToolSettings = QtGui.QAction(mwProdManager)
         self.miToolSettings.setObjectName(_fromUtf8("miToolSettings"))
-        self.mProject.addAction(self.miNewProject)
-        self.mProject.addAction(self.miLoadProject)
-        self.mProject.addSeparator()
-        self.mProject.addAction(self.miEditProject)
-        self.mPref.addAction(self.miUserPref)
-        self.mPref.addSeparator()
-        self.mPref.addAction(self.miToolSettings)
-        self.menubar.addAction(self.mProject.menuAction())
-        self.menubar.addAction(self.mPref.menuAction())
+        self.miProjectSettings = QtGui.QAction(mwProdManager)
+        self.miProjectSettings.setObjectName(_fromUtf8("miProjectSettings"))
+        self.menuProject.addAction(self.miProjectSettings)
+        self.menubar.addAction(self.menuProject.menuAction())
 
         self.retranslateUi(mwProdManager)
         QtCore.QMetaObject.connectSlotsByName(mwProdManager)
@@ -89,11 +82,11 @@ class Ui_mwProdManager(object):
         mwProdManager.setWindowTitle(_translate("mwProdManager", "ProdManager", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("mwProdManager", "Tab 1", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("mwProdManager", "Tab 2", None))
-        self.mProject.setTitle(_translate("mwProdManager", "Project", None))
-        self.mPref.setTitle(_translate("mwProdManager", "Pref", None))
+        self.menuProject.setTitle(_translate("mwProdManager", "Project", None))
         self.miNewProject.setText(_translate("mwProdManager", "New Project", None))
         self.miLoadProject.setText(_translate("mwProdManager", "Load Project", None))
         self.miEditProject.setText(_translate("mwProdManager", "Edit Project", None))
         self.miUserPref.setText(_translate("mwProdManager", "User Pref", None))
         self.miToolSettings.setText(_translate("mwProdManager", "Tool Settings", None))
+        self.miProjectSettings.setText(_translate("mwProdManager", "Project Settings", None))
 
