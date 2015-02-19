@@ -314,6 +314,7 @@ class GetActiveNucleusNode(object):
             if createNew:
                 #-- Force the creation of a new nucleus node --#
                 self.activeNucleus = createNucleus()
+        #-- Result --#
         return self.activeNucleus
 
     def findActiveNucleus(self):
