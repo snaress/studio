@@ -210,8 +210,8 @@ def moveSelItems(twTree, item, side):
         :type twTree: QtGui.QTreeWidget
         :param side: (str) : 'up' or 'down'
         :type side: str
-        :return: Moved QTreeWidgetItems
-        :rtype: list """
+        :return: Moved QTreeWidgetItem
+        :rtype: QtGui.QTreeWidgetItem """
     movedItem = None
     #-- Move Child Item --#
     if item.parent() is not None:
