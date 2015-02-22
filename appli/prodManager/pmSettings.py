@@ -1,12 +1,21 @@
+import os
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
-from appli.prodManager.ui import settingsUI, defaultSettingsWgtUI
+from lib.system import procFile as pFile
+from appli.prodManager.ui import settingsUI, defaultSettingsWgtUI, newRootUI, newTaskUI
 
 
 class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
+    """ QMainWindow class used by 'ProdManager' QMainWindow.
+        :param mainUi: ProdManager window
+        :type mainUi: QtGui.QMainWindow
+        :param logLvl: Print log level
+        :type logLvl: str """
 
-    def __init__(self, mainUi):
+    def __init__(self, mainUi, logLvl='info'):
+        self.log = pFile.Logger(title="Settings", level=logLvl)
+        self.log.info("########## PROJECT SETTINGS ##########", newLinesBefor=1)
         self.mainUi = mainUi
         self.pm = self.mainUi.pm
         super(ProjectSettingsUi, self).__init__()
@@ -19,10 +28,13 @@ class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
         self.rf_projectInfo()
         self.twSettings.itemClicked.connect(self.on_settings)
         self.addWidgets()
-        # self.teInfo.clear()
+        self.pbReset.setEnabled(False)
+        self.pbSave.clicked.connect(self.on_save)
+        self.pbClose.clicked.connect(self.close)
 
     def rf_projectInfo(self):
         """ Refresh project info """
+        self.log.debug("Refresh project info ...")
         self.lNameValue.setText(self.pm.project.name)
         self.lAliasValue.setText(self.pm.project.alias)
         self.lTypeValue.setText(self.pm.project.type)
@@ -30,7 +42,7 @@ class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
             self.qfProject_2.setVisible(False)
         else:
             self.qfProject_2.setVisible(True)
-            self.lSeason.setText(self.pm.project.season)
+            self.lSeasonValue.setText(self.pm.project.season)
             if self.pm.project.episode is None:
                 self.lEpisode.setVisible(False)
                 self.lEpisodeValue.setVisible(False)
@@ -51,8 +63,11 @@ class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
 
     def addWidgets(self):
         """ Parent all settings widget to ui """
-        self.addWidget('General', General(self))
-        self.addWidget('Tasks', Tasks(self))
+        self.log.debug("Add widgets ...")
+        self.general = General(self)
+        self.addWidget('General', self.general)
+        self.tasks = Tasks(self)
+        self.addWidget('Tasks', self.tasks)
 
     def addWidget(self, label, QWidget):
         """ Set andparent given widget
@@ -60,6 +75,7 @@ class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
             :type label: str
             :param QWidget: QWidget to add
             :type QWidget: QtGui.QWidget """
+        self.log.debug("\t %s" % label)
         newItem = QtGui.QTreeWidgetItem()
         newItem.setText(0, label)
         newItem.label = label
@@ -79,21 +95,43 @@ class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
                     item.widget.setVisible(True)
                     self.rf_settingsInfo(item.widget.widgetInfo)
 
+    def on_save(self):
+        self.log.info("#-- Save Project Settings --#")
+        self.pm.project.setParam('rootPath', self.general.getParams())
+        self.pm.project.setParam('tasks', self.tasks.getParams())
+        self.pm.project.saveSettings()
+        self.pbReset.setEnabled(False)
+
+    def closeEvent(self, *args, **kwargs):
+        """ Command launched when QPushButton 'Close' is clicked, or dialog is closed """
+        self.log.debug("Closing project settings ui ...")
+
 
 class General(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
+    """ QWidget class used by 'ProjectSettings' QMainWindow.
+        :param settingsUi: Parent window
+        :type settingsUi: QtGui.QMainWindow """
 
     def __init__(self, settingsUi):
         self.settingsUi = settingsUi
+        self.pm = self.settingsUi.pm
+        self.log = self.settingsUi.log
         super(General, self).__init__()
         self._setupUi()
+        self._refresh()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """ Setup widget """
         self.setupUi(self)
         self.setMinimumHeight(100)
         self.setMaximumHeight(100)
         self.pbAddItem.setText("Add Root Path")
-        self.pbDelItem.setText("Del RootPath")
+        self.pbAddItem.clicked.connect(self.on_addRoot)
+        self.pbDelItem.setText("Del Root Path")
+        self.pbDelItem.clicked.connect(self.on_delRoot)
+        self.pbItemUp.clicked.connect(partial(self.on_moveRoot, 'up'))
+        self.pbItemDn.clicked.connect(partial(self.on_moveRoot, 'down'))
         self.twTree.setColumnCount(1)
         self.twTree.setHeaderLabels(['Root Path'])
         self.twTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
@@ -103,86 +141,372 @@ class General(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
         """ Widget info printed in settings ui
             :return: Widget info to print
             :rtype: list """
-        return ["ProdManager Root path:",
+        return ["Project Root path: List of work directories root path.",
                 "First path in tree will be the project main root path."]
 
     @property
     def defaultRootPath(self):
+        """ Default work directories root path
+            :return: Root path
+            :rtype: str """
         return "D:/prods"
+
+    def getParams(self):
+        """ Get widget project params
+            :return: General params
+            :rtype: list """
+        params = []
+        allItems = pQt.getAllItems(self.twTree)
+        for item in allItems:
+            params.append(item.rootPath)
+        return params
+
+    def _refresh(self):
+        """ Refresh general widget """
+        if self.pm.project.rootPath is None:
+            self.pm.project.rootPath = [self.defaultRootPath]
+        self.twTree.clear()
+        newItems = []
+        for path in self.pm.project.rootPath:
+            newItem = self.newPathItem(path)
+            newItems.append(newItem)
+        self.twTree.addTopLevelItems(newItems)
+
+    def on_addRoot(self):
+        """ Command launched when QPushButton 'Add Root Path' is clicked """
+        rootUi = NewRootUi(self)
+        rootUi.exec_()
+
+    def on_delRoot(self):
+        """ Command launch when 'Del Item' QPushButton is clicked """
+        pQt.delSelItems(self.twTree)
+        self.settingsUi.pbReset.setEnabled(True)
+
+    def on_moveRoot(self, side):
+        """ Command launch when 'up' or 'down' QPushButton is clicked
+            :param side: 'up' or 'down'
+            :type side: str """
+        selItems = self.twTree.selectedItems()
+        if selItems:
+            movedItem = pQt.moveSelItem(self.twTree, selItems[0], side)
+            if movedItem is not None:
+                pQt.deselectAllItems(self.twTree)
+                movedItem.setSelected(True)
+                self.settingsUi.pbReset.setEnabled(True)
+
+    @staticmethod
+    def newPathItem(path):
+        """ Create new path QTreeWidgetItem
+            :param path: Project root path
+            :type path: str
+            :return: Root path QTreeWidgetItem
+            :rtype: QtGui.QTreeWidgetItem """
+        newItem = QtGui.QTreeWidgetItem()
+        newItem.setText(0, path)
+        newItem.rootPath = path
+        return newItem
+
+
+class NewRootUi(QtGui.QDialog, newRootUI.Ui_newRoot):
+    """ QDialog class used by 'General' QWidget. Launch new path edit window
+        :param QWidget: Parent widget
+        :type QWidget: QtGui.QWidget """
+
+    def __init__(self, QWidget):
+        self.pWidget = QWidget
+        self.log = self.pWidget.log
+        super(NewRootUi, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup dialog """
+        self.setupUi(self)
+        self.pbOpen.clicked.connect(self.on_open)
+        self.pbAdd.clicked.connect(self.accept)
+        self.pbCancel.clicked.connect(self.close)
+
+    def on_open(self):
+        """ Command launched when QPushButton 'Open' is clicked. Launch QFileDialog """
+        self.fdOpen = pQt.fileDialog(fdMode='open', fdFileMode='DirectoryOnly',
+                                     fdRoot=self.pWidget.defaultRootPath, fdCmd=self.editNewPath)
+        self.fdOpen.exec_()
+
+    def editNewPath(self):
+        """ Command launched when QFileDialog 'Open' is accepted"""
+        selectedPath = str(self.fdOpen.selectedFiles()[0])
+        self.lePath.setText(selectedPath)
+        self.fdOpen.close()
+
+    def accept(self):
+        """ Command launched when QPushButton 'Add' is clicked. Update parent widget """
+        newPath = str(self.lePath.text())
+        if newPath not in ['', ' ']:
+            if os.path.exists(newPath):
+                self._checkNewPath(newPath)
+                newItem = self.pWidget.newPathItem(newPath)
+                self.pWidget.twTree.addTopLevelItem(newItem)
+                self.pWidget.settingsUi.pbReset.setEnabled(True)
+                self.close()
+            else:
+                self.log.error("New path doesn't exist !!!")
+        else:
+            self.log.error("Path can not be empty !!!")
+
+    def _checkNewPath(self, path):
+        """ Check if new path is already in path list
+            :param path: New root path
+            :type path: str """
+        allItems = pQt.getAllItems(self.pWidget.twTree)
+        for item in allItems:
+            if path == item.rootPath:
+                log = "New path %s already exists !!!" % path
+                self.log.error(log)
+                raise ValueError, log
 
 
 class Tasks(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
+    """ QWidget class used by 'ProjectSettings' QMainWindow.
+        :param settingsUi: Parent window
+        :type settingsUi: QtGui.QMainWindow """
 
     def __init__(self, settingsUi):
         self.settingsUi = settingsUi
+        self.pm = self.settingsUi.pm
+        self.log = self.settingsUi.log
         super(Tasks, self).__init__()
         self._setupUi()
+        self._refresh()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """ Setup widget """
         self.setupUi(self)
-        self.setMinimumHeight(250)
+        self.setMinimumHeight(350)
         self.pbAddItem.setText("Add Task")
+        self.pbAddItem.clicked.connect(self.on_addTask)
         self.pbDelItem.setText("Del Task")
-        self.twTree.setColumnCount(3)
-        self.twTree.setHeaderLabels(['Task', 'Color', 'Stat'])
-        self.twTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
-        self.twTree.header().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
-        self.twTree.header().setResizeMode(2, QtGui.QHeaderView.ResizeToContents)
+        self.pbDelItem.clicked.connect(self.on_delTask)
+        self.pbItemUp.clicked.connect(partial(self.on_moveTask, 'up'))
+        self.pbItemDn.clicked.connect(partial(self.on_moveTask, 'down'))
+        self.twTree.setColumnCount(4)
+        self.twTree.setHeaderLabels(['Name', 'Label', 'Color', 'Stat'])
+        for n in range(4):
+            self.twTree.header().setResizeMode(n, QtGui.QHeaderView.ResizeToContents)
 
     @property
     def widgetInfo(self):
         """ Widget info printed in settings ui
             :return: Widget info to print
             :rtype: str """
-        return "Project tasks: Tasks avalable for project."
+        return ["Project tasks: Asset or shot progression.",
+                "If 'Stat' is True, all shotnode with this task progression",
+                "will count in project statistics."]
 
     @property
     def defaultTasks(self):
         """ Default Tasks when creating a new project
             :return: Default tasks data
             :rtype: dict """
-        return {0: {'name': "Out", 'color': (0, 0, 0), 'stat': False},
-                1: {'name': "StandBy", 'color': (229, 229, 229), 'stat': True},
-                2: {'name': "Ready", 'color': (229, 229, 229), 'stat': True},
-                3: {'name': "ToDo", 'color': (155, 232, 232), 'stat': True},
-                4: {'name': "Retake", 'color': (255, 170, 0), 'stat': True},
-                5: {'name': "InProgress", 'color': (255, 255, 0), 'stat': True},
-                6: {'name': "Warning", 'color': (255, 0, 0), 'stat': True},
-                7: {'name': "WaitApproval", 'color': (255, 85, 255), 'stat': True},
-                8: {'name': "Review", 'color': (85, 85, 255), 'stat': True},
-                9: {'name': "Approved", 'color': (85, 255, 0), 'stat': True},
-                10: {'name': "Final", 'color': (85, 255, 0), 'stat': True}}
+        return {0: {'name': "out", 'label': "Out", 'color': (0, 0, 0), 'stat': False},
+                1: {'name': "sb", 'label': "Stand By", 'color': (125, 125, 125), 'stat': True},
+                2: {'name': "warn", 'label': "Warning", 'color': (255, 0, 0), 'stat': True},
+                3: {'name': "rdy", 'label': "Ready", 'color': (229, 229, 229), 'stat': True},
+                4: {'name': "toDo", 'label': "To Do", 'color': (155, 232, 232), 'stat': True},
+                5: {'name': "rtk", 'label': "Retake", 'color': (255, 170, 0), 'stat': True},
+                6: {'name': "wip", 'label': "Work In Progress", 'color': (255, 255, 0), 'stat': True},
+                7: {'name': "wfa", 'label': "Waiting For Approval", 'color': (0, 0, 255), 'stat': True},
+                8: {'name': "rvw", 'label': "Review", 'color': (0, 170, 255), 'stat': True},
+                9: {'name': "cbb", 'label': "Could Be Better", 'color': (171, 194, 255), 'stat': True},
+                10: {'name': "app", 'label': "Approved", 'color': (85, 255, 127), 'stat': True},
+                11: {'name': "vld", 'label': "Valide", 'color': (170, 255, 0), 'stat': True},
+                12: {'name': "fin", 'label': "Final", 'color': (85, 255, 0), 'stat': True}}
 
-    def _refresh(self, tasksDict):
+    def getParams(self):
+        """ Get widget task params
+            :return: Task params
+            :rtype: dict """
+        taskDict = {}
+        taskKeys = ['name', 'label', 'color', 'stat']
+        allItems = pQt.getAllItems(self.twTree)
+        for n, item in enumerate(allItems):
+            taskDict[n] = {}
+            for key in taskKeys:
+                taskDict[n][key] = getattr(item, key)
+        return taskDict
+
+    def getTaskList(self, key='name'):
+        """ List all project tasks
+            :param key: 'name' or 'label'
+            :type key: str
+            :return: task list
+            :rtype: list """
+        tasks = []
+        taskDict = self.getParams()
+        for n in sorted(taskDict.keys()):
+            tasks.append(taskDict[n][key])
+        return tasks
+
+    def _refresh(self):
         """ Refresh task widget """
         self.twTree.clear()
-        for n in sorted(tasksDict.keys()):
-            newItem = self.newTaskItem(tasksDict[n])
-            self.twTree.addTopLevelItem(newItem)
+        if self.pm.project.tasks is None:
+            self.pm.project.tasks = self.defaultTasks
+        for n in sorted(self.pm.project.tasks.keys()):
+            self.addTask(self.pm.project.tasks[n]['name'], self.pm.project.tasks[n]['label'],
+                         color=self.pm.project.tasks[n]['color'], stat=self.pm.project.tasks[n]['stat'])
 
-    def newTaskItem(self, taskDict):
+    def on_addTask(self):
+        """ Command launched when 'Add Task' QPushButton is clicked """
+        taskUi = NewTaskUi(self)
+        taskUi.exec_()
+
+    def on_delTask(self):
+        """ Command launch when 'Del Item' QPushButton is clicked """
+        pQt.delSelItems(self.twTree)
+        self.settingsUi.pbReset.setEnabled(True)
+
+    def on_moveTask(self, side):
+        """ Command launch when 'up' or 'down' QPushButton is clicked
+            :param side: 'up' or 'down'
+            :type side: str """
+        selItems = self.twTree.selectedItems()
+        if selItems:
+            movedItem = pQt.moveSelItem(self.twTree, selItems[0], side)
+            if movedItem is not None:
+                pQt.deselectAllItems(self.twTree)
+                movedItem._wgColor = self.newTaskColor(movedItem, movedItem.color)
+                movedItem._wgStat = self.newTaskStat(movedItem, movedItem.stat)
+                self.twTree.setItemWidget(movedItem, 2, movedItem._wgColor)
+                self.twTree.setItemWidget(movedItem, 3, movedItem._wgStat)
+                movedItem.setSelected(True)
+                self.settingsUi.pbReset.setEnabled(True)
+
+    def addTask(self, name, label, color=None, stat=True):
+        """ Add new task to QTreeWidget
+            :param name: Task Name
+            :type name: str
+            :param label: Task Label
+            :type label: str
+            :param color: Rgb color
+            :type color: tuple
+            :param stat: Task count in stats
+            :type stat: bool
+            :return: New task item
+            :rtype: QtGui.QTreeWidgetItem """
+        if not name in self.getTaskList(key='name') and not label in self.getTaskList(key='label'):
+            newItem = self.newTaskItem(name, label, color=color, stat=stat)
+            self.twTree.addTopLevelItem(newItem)
+            self.twTree.setItemWidget(newItem, 2, newItem._wgColor)
+            self.twTree.setItemWidget(newItem, 3, newItem._wgStat)
+            return newItem
+
+    def newTaskItem(self, name, label, color=None, stat=True):
         """ Cretae new task TreeWidgetItem
-            :param taskDict: Task info
-            :type taskDict: dict
+            :param name: Task name
+            :type name: str
+            :param label: Task label
+            :type label: str
+            :param color: Task color
+            :type color: tuple
+            :param stat: Task count in statistic
+            :type stat: bool
             :return: New QTreeWidgetItem
             :rtype: QtGui.QTreeWidgetItem """
         newItem = QtGui.QTreeWidgetItem()
-        newItem.setText(0, taskDict['name'])
-        for k, v in taskDict.iteritems():
-            setattr(newItem, k, v)
-        newItem._wgColor = self.newTaskColor(newItem, taskDict['color'])
+        newItem.setText(0, name)
+        newItem.setText(1, label)
+        newItem.name = name
+        newItem.label = label
+        newItem.color = color
+        newItem.stat = stat
+        newItem._wgColor = self.newTaskColor(newItem, color)
+        newItem._wgStat = self.newTaskStat(newItem, stat)
         return newItem
 
-    def newTaskColor(self, taskItem, taskColor, dialog=True):
+    def newTaskColor(self, item, color):
+        """ New task color QPushButton
+            :param item: Parent QTreeWidgetItem
+            :type item: QtGui.QTreeWidgetItem
+            :param color: Rgb color
+            :type color: tuple
+            :return: New task color QPushButton
+            :rtype: QtGui.QPushButton """
         newColor = QtGui.QPushButton()
         newColor.setText('')
         newColor.setMaximumWidth(40)
-        if dialog:
-            newColor.connect(newColor, QtCore.SIGNAL("clicked()"), partial(self.on_taskColor, taskItem))
-        if taskColor is None:
-            taskItem.taskColor = (200, 200, 200)
+        newColor.connect(newColor, QtCore.SIGNAL("clicked()"), partial(self.on_taskColor, item))
+        if color is None:
+            item.color = (200, 200, 200)
         else:
-            taskItem.taskColor = taskColor
-            newColor.setStyleSheet("background:rgb(%s, %s, %s)" % (taskColor[0], taskColor[1], taskColor[2]))
+            item.color = color
+            newColor.setStyleSheet("background:rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
         return newColor
+
+    def on_taskColor(self, item):
+        """ Command launch when 'colorChoice' QPushButton is clicked
+            :param item: Task item
+            :type item: QtGui.QTreeWidgetItem """
+        # noinspection PyArgumentList
+        color = QtGui.QColorDialog.getColor()
+        if color.isValid():
+            rgba = color.getRgb()
+            item._wgColor.setStyleSheet("background:rgb(%s, %s, %s)" % (rgba[0], rgba[1], rgba[2]))
+            item.color = (rgba[0], rgba[1], rgba[2])
+            self.log.debug("\t %s color = %s" % (item.name, (rgba[0], rgba[1], rgba[2])))
+
+    def newTaskStat(self, item, stat):
+        """ New task stat QCheckBox
+            :param item: Task item
+            :type item: QtGui.QTreeWidgetItem
+            :param stat: Task count in stats
+            :type stat: bool
+            :return: New task stat checkBox
+            :rtype: QCheckBox """
+        newStat = QtGui.QCheckBox()
+        newStat.setText('')
+        newStat.setChecked(stat)
+        newStat.connect(newStat, QtCore.SIGNAL("clicked()"), partial(self.on_taskStat, item, newStat))
+        return newStat
+
+    @staticmethod
+    def on_taskStat(item, QCheckBox):
+        """ Command launch when 'Stat' QCheckBox is clicked
+            :param item: Task item
+            :type item: QtGui.QTreeWidgetItem
+            :param QCheckBox: Task stat
+            :type QCheckBox: QtGui.QCheckBox """
+        item.stat = QCheckBox.isChecked()
+
+
+class NewTaskUi(QtGui.QDialog, newTaskUI.Ui_newTask):
+    """ QDialog class used by 'Tasks' QWidget. Launch new task window
+        :param QWidget: Parent widget
+        :type QWidget: QtGui.QWidget """
+
+    def __init__(self, QWidget):
+        self.pWidget = QWidget
+        self.log = self.pWidget.log
+        super(NewTaskUi, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup dialog """
+        self.setupUi(self)
+        self.pbAdd.clicked.connect(self.accept)
+        self.pbCancel.clicked.connect(self.close)
+
+    def accept(self):
+        """ Command launched when QPushButton 'Add' is clicked. Update parent widget """
+        name = str(self.leName.text())
+        label = str(self.leLabel.text())
+        errorFilters = ['', ' ']
+        if name in errorFilters or label in errorFilters:
+            log = "Task 'name' or 'label' can not be empty !!!"
+            self.log.error(log)
+            raise ValueError, log
+        result = self.pWidget.addTask(name, label)
+        if result is not None:
+            self.close()
+            self.log.debug("Task successfully added.")

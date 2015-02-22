@@ -28,7 +28,7 @@ class ProdManager(object):
         self._log.info("Loading project %r ..." % prodId)
         #-- Update Project Alias --#
         self._prodId = prodId
-        self.project.alias = self._prodId
+        self.project.setParam('alias', self._prodId)
         projectFile = self.project.projectFilePath
         #-- Check Project File Attribute --#
         if projectFile is  None:
@@ -44,7 +44,7 @@ class ProdManager(object):
         self._log.debug("\t Parse project file ...")
         prodDict = pFile.readPyFile(projectFile)
         self._log.debug("\t Update project params ...")
-        self.project.updateParams(prodDict['project'])
+        self.project.updateParams(prodDict)
 
     @staticmethod
     def isCleanPath(rootPath, item, checkMode='folder'):
@@ -71,11 +71,14 @@ class Project(object):
     def __init__(self, prodManager):
         self._pm = prodManager
         self._log = self._pm._log
+        self._projectKeys = ['type', 'name', 'alias', 'season', 'episode']
         self.type = None
         self.name = None
         self.alias = None
         self.season = None
         self.episode = None
+        self.rootPath = None
+        self.tasks = None
 
     @property
     def projectPath(self):
@@ -112,12 +115,40 @@ class Project(object):
                 classDict[k] = currentDict[k]
         return classDict
 
+    def paramsToTxt(self):
+        """ Convert params dict to text lines
+            :return: Params text lines
+            :rtype: list """
+        txt = []
+        for k, v in self.getParams().iteritems():
+            if isinstance(v, str):
+                txt.append("%s = %r" % (k, v))
+            else:
+                txt.append("%s = %s" % (k, v))
+        return txt
+
     def updateParams(self, projectDict):
         """ Update class params with given projectDict
             :param projectDict: Project params
             :type projectDict: dict """
+        self._log.debug("#-- Update project params --#")
         for k in projectDict.keys():
+            self._log.debug("\t Updating %s" % k)
             setattr(self, k, projectDict[k])
+
+    def setParam(self, param, value):
+        """ Set given class params with given value
+            :param param: Param name to set
+            :type param: str
+            :param value: Param value
+            :type value: str | list """
+        if param in self.getParams().keys():
+            self._log.debug("Set project param '%s'" % param)
+            setattr(self, param, value)
+        else:
+            log = "Param '%s' not found !!!" % param
+            self._log.error(log)
+            raise KeyError, log
 
     def printParams(self):
         """ Print current project params """
@@ -140,21 +171,38 @@ class Project(object):
                 projectFile = pFile.conformPath(os.path.join(projectPath, "%s.py" % project))
                 if os.path.exists(projectFile):
                     fileDict = pFile.readPyFile(projectFile)
-                    projectDict[fileDict['project']['alias']] = fileDict['project']
+                    projectDict[fileDict['alias']] = {}
+                    for k in self._projectKeys:
+                        projectDict[fileDict['alias']][k] = fileDict[k]
         #-- Result --#
         if projectDict.keys():
             return projectDict
 
+    def printAllProject(self):
+        """ Print all projects in data base """
+        self._log.info("########## PRODMANAGER PROJECT LIST ##########", newLinesBefor=1)
+        projectsDict = self.getAllProjects()
+        for project in sorted(projectsDict.keys()):
+            txt = ["#-- %s --#" % project]
+            for k in self._projectKeys:
+                txt.append("%s = %r" % (k, projectsDict[project][k]))
+            txt.append("")
+            print '\n'.join(txt)
+
     def createNewProject(self, projectDict):
         """ Create new project in data base
             :param projectDict: Project info {'type', 'name', 'alias', 'season', 'episode'}
-            :type projectDict: dict """
-        if self.checkProjectDict(projectDict):
-            projectPath = self.createProjectFolder(projectDict['alias'])
-            self.createProjectFile(projectPath, projectDict)
+            :type projectDict: dict
+            :return: Project file absolute path
+            :rtype: str """
+        if self._checkProjectDict(projectDict):
+            projectPath = self._createProjectFolder(projectDict['alias'])
             self.updateParams(projectDict)
+            projectFile = self._createProjectFile(projectPath, projectDict)
+            self._log.info("Project succesfully created: %s" % projectFile)
+            return projectFile
 
-    def checkProjectDict(self, projectDict):
+    def _checkProjectDict(self, projectDict):
         """ Check project Dict values
             :param projectDict: Project params
             :type projectDict: dict
@@ -179,7 +227,7 @@ class Project(object):
                 raise AttributeError, log
             return True
 
-    def createProjectFolder(self, alias):
+    def _createProjectFolder(self, alias):
         """ Create project folder in data base
             :param alias: Project alias
             :type alias: str
@@ -201,26 +249,52 @@ class Project(object):
             self._log.error(log)
             raise IOError, log
 
-    def createProjectFile(self, projectPath, projectDict):
-        """ Create project file in data base
+    def _createProjectFile(self, projectPath, projectDict):
+        """ Create project file
             :param projectPath: Projet path in data base
             :type projectPath: str
             :param projectDict: Project info
             :type projectDict: dict
-            :return: Project file
+            :return: Project file if success
             :rtype: str """
         self._log.debug("Create project file ...")
-        txt = "project = %s" % projectDict
+        txt = self.paramsToTxt()
         projectFile = pFile.conformPath(os.path.join(projectPath, "%s.py" % projectDict['alias']))
         if not os.path.exists(projectFile):
-            try:
-                pFile.writeFile(projectFile, txt)
-                self._log.debug("Write project file %s" % projectFile)
-                return projectFile
-            except:
-                log = "Can not write project file !!! (%s) !!!" % projectFile
+            return self.writeProjectFile(projectFile, txt)
+        else:
+            log = "Project file already exists !!! (%s) !!!" % projectFile
+            self._log.error(log)
+            raise IOError, log
+
+    def saveSettings(self):
+        """ Save project settings to file
+            :return: Project file if success
+            :rtype: str """
+        self._log.debug("Save project settings ...")
+        txt = self.paramsToTxt()
+        projectFile = self.projectFilePath
+        if projectFile is not None:
+            if os.path.exists(projectFile):
+                return self.writeProjectFile(projectFile, txt)
+            else:
+                log = "Can not save settings, project file not found !!! (%s) !!!" % projectFile
                 self._log.error(log)
                 raise IOError, log
-        log = "Project file already exists !!! (%s) !!!" % projectFile
-        self._log.error(log)
-        raise IOError, log
+
+    def writeProjectFile(self, projectFile, txt):
+        """ Write project setings in data base
+            :param projectFile: Project file absolute path
+            :type projectFile: str
+            :param txt: Text lines to write
+            :type txt: list
+            :return: Project file if success
+            :rtype: str """
+        try:
+            pFile.writeFile(projectFile, '\n'.join(txt))
+            self._log.debug("Write project file %s" % projectFile)
+            return projectFile
+        except:
+            log = "Can not write project file !!! (%s) !!!" % projectFile
+            self._log.error(log)
+            raise IOError, log

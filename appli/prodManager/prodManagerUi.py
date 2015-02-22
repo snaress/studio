@@ -6,6 +6,9 @@ from appli.prodManager import prodManager, pmSettings
 from appli.prodManager.ui import prodLoaderUI, prodManagerUI, newProjectUI
 
 class ProdLoaderUi(QtGui.QMainWindow, prodLoaderUI.Ui_mwProdLoader):
+    """ QMainWindow class launched when ProdManager QMainWindow is called
+        :param logLvl: Print log level
+        :type logLvl: str """
 
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="ProdLoader", level=logLvl)
@@ -120,10 +123,15 @@ class ProdLoaderUi(QtGui.QMainWindow, prodLoaderUI.Ui_mwProdLoader):
 
     def closeEvent(self, *args, **kwargs):
         """ Command launched when QPushButton 'Close' is clicked, or dialog is closed """
-        self.log.debug("Closing ProdManager Loader ui ...")
+        self.log.debug("Closing prodManager loader ui ...")
 
 
 class NewProjectUi(QtGui.QDialog, newProjectUI.Ui_newProject):
+    """ QDialog class used by 'ProdLoader' QMainWindow. Lanch new project dialog
+        :param mainUi: ProdManager window
+        :type mainUi: QtGui.QMainWindow
+        :param logLvl: Print log level
+        :type logLvl: str """
 
     def __init__(self, mainUi, logLvl='info'):
         self.log = pFile.Logger(title="PL-NewProject", level=logLvl)
@@ -253,7 +261,7 @@ class ProdManagerUi(QtGui.QMainWindow, prodManagerUI.Ui_mwProdManager):
 
     def on_projectSettings(self):
         """ Command launched when QMenuItem 'Project Settings' is clicked """
-        self.ps = pmSettings.ProjectSettingsUi(self)
+        self.ps = pmSettings.ProjectSettingsUi(self, logLvl=self.log.level)
         self.ps.show()
 
 
@@ -273,5 +281,5 @@ def launch(prodId=None, logLvl='info'):
 
 
 if __name__ == '__main__':
-    # launch()
-    launch(prodId='tdk')
+    # launch(logLvl='debug')
+    launch(prodId='tdk', logLvl='debug')

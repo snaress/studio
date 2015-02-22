@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\prodManager\ui\settings.ui'
 #
-# Created: Thu Feb 19 02:07:14 2015
+# Created: Sun Feb 22 01:31:05 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -135,7 +135,7 @@ class Ui_mwSettings(object):
         self.lSeasonValue.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.lSeasonValue.setObjectName(_fromUtf8("lSeasonValue"))
         self.hlProject_2.addWidget(self.lSeasonValue)
-        spacerItem3 = QtGui.QSpacerItem(60, 20, QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Minimum)
+        spacerItem3 = QtGui.QSpacerItem(60, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hlProject_2.addItem(spacerItem3)
         self.lEpisode = QtGui.QLabel(self.qfProject_2)
         self.lEpisode.setMinimumSize(QtCore.QSize(85, 0))
@@ -149,9 +149,28 @@ class Ui_mwSettings(object):
         self.lEpisodeValue.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.lEpisodeValue.setObjectName(_fromUtf8("lEpisodeValue"))
         self.hlProject_2.addWidget(self.lEpisodeValue)
-        spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.hlProject_2.addItem(spacerItem4)
         self.gridLayout.addWidget(self.qfProject_2, 1, 0, 1, 1)
+        self.line_2 = QtGui.QFrame(self.centralwidget)
+        self.line_2.setFrameShape(QtGui.QFrame.HLine)
+        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_2.setObjectName(_fromUtf8("line_2"))
+        self.gridLayout.addWidget(self.line_2, 4, 0, 1, 1)
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout.setSpacing(2)
+        self.horizontalLayout.setContentsMargins(-1, -1, -1, 0)
+        self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        self.pbReset = QtGui.QPushButton(self.centralwidget)
+        self.pbReset.setObjectName(_fromUtf8("pbReset"))
+        self.horizontalLayout.addWidget(self.pbReset)
+        spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem4)
+        self.pbSave = QtGui.QPushButton(self.centralwidget)
+        self.pbSave.setObjectName(_fromUtf8("pbSave"))
+        self.horizontalLayout.addWidget(self.pbSave)
+        self.pbClose = QtGui.QPushButton(self.centralwidget)
+        self.pbClose.setObjectName(_fromUtf8("pbClose"))
+        self.horizontalLayout.addWidget(self.pbClose)
+        self.gridLayout.addLayout(self.horizontalLayout, 5, 0, 1, 1)
         mwSettings.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(mwSettings)
@@ -169,4 +188,7 @@ class Ui_mwSettings(object):
         self.lSeasonValue.setText(_translate("mwSettings", "TextLabel", None))
         self.lEpisode.setText(_translate("mwSettings", "Project Episode :", None))
         self.lEpisodeValue.setText(_translate("mwSettings", "TextLabel", None))
+        self.pbReset.setText(_translate("mwSettings", "Reset", None))
+        self.pbSave.setText(_translate("mwSettings", "Save", None))
+        self.pbClose.setText(_translate("mwSettings", "Close", None))
 
