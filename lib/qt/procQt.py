@@ -204,8 +204,8 @@ def getAllParent(QTreeWidgetItem, depth=-1):
     recurse(QTreeWidgetItem, depth)
     return items
 
-def moveSelItems(twTree, item, side):
-    """ Move Selected items
+def moveSelItem(twTree, item, side):
+    """ Move Selected item
         :param twTree: (object) : QTreeWidget
         :type twTree: QtGui.QTreeWidget
         :param side: (str) : 'up' or 'down'
