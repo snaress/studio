@@ -79,6 +79,8 @@ class Project(object):
         self.episode = None
         self.rootPath = None
         self.tasks = None
+        self.trees = None
+        self.steps = None
 
     @property
     def projectPath(self):
@@ -120,7 +122,7 @@ class Project(object):
             :return: Params text lines
             :rtype: list """
         txt = []
-        for k, v in self.getParams().iteritems():
+        for k, v in sorted(self.getParams().iteritems()):
             if isinstance(v, str):
                 txt.append("%s = %r" % (k, v))
             else:
@@ -152,11 +154,9 @@ class Project(object):
 
     def printParams(self):
         """ Print current project params """
-        self._log.info("#-- Project params --#")
-        params = self.getParams()
-        if params is not None:
-            for k, v in params.iteritems():
-                self._log.info("%s = %s" % (k, v))
+        self._log.info("########## PROJECT PARAMS ##########", newLinesBefor=1)
+        txt = self.paramsToTxt()
+        print '\n'.join(txt)
 
     def getAllProjects(self):
         """ Get all projects in data base

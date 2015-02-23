@@ -3,7 +3,7 @@ from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.prodManager.ui import settingsUI, defaultSettingsWgtUI, newRootUI, newTaskUI
+from appli.prodManager.ui import settingsUI, defaultSettingsWgtUI, defaultSettingsDialUI
 
 
 class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
@@ -68,6 +68,12 @@ class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
         self.addWidget('General', self.general)
         self.tasks = Tasks(self)
         self.addWidget('Tasks', self.tasks)
+        self.trees = Trees(self)
+        self.addWidget('Trees', self.trees)
+        self.steps = Steps(self)
+        self.addWidget('Steps', self.steps)
+        self.tree = Tree(self)
+        self.addWidget('Tree Contents', self.tree)
 
     def addWidget(self, label, QWidget):
         """ Set andparent given widget
@@ -99,6 +105,7 @@ class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
         self.log.info("#-- Save Project Settings --#")
         self.pm.project.setParam('rootPath', self.general.getParams())
         self.pm.project.setParam('tasks', self.tasks.getParams())
+        self.pm.project.setParam('trees', self.trees.getParams())
         self.pm.project.saveSettings()
         self.pbReset.setEnabled(False)
 
@@ -126,6 +133,7 @@ class General(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
         self.setupUi(self)
         self.setMinimumHeight(100)
         self.setMaximumHeight(100)
+        self.cbCurrentTree.setVisible(False)
         self.pbAddItem.setText("Add Root Path")
         self.pbAddItem.clicked.connect(self.on_addRoot)
         self.pbDelItem.setText("Del Root Path")
@@ -207,7 +215,7 @@ class General(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
         return newItem
 
 
-class NewRootUi(QtGui.QDialog, newRootUI.Ui_newRoot):
+class NewRootUi(QtGui.QDialog, defaultSettingsDialUI.Ui_settingsItem):
     """ QDialog class used by 'General' QWidget. Launch new path edit window
         :param QWidget: Parent widget
         :type QWidget: QtGui.QWidget """
@@ -222,6 +230,9 @@ class NewRootUi(QtGui.QDialog, newRootUI.Ui_newRoot):
     def _setupUi(self):
         """ Setup dialog """
         self.setupUi(self)
+        self.qfRootPath.setVisible(True)
+        self.qfTask.setVisible(False)
+        self.qfTreeName.setVisible(False)
         self.pbOpen.clicked.connect(self.on_open)
         self.pbAdd.clicked.connect(self.accept)
         self.pbCancel.clicked.connect(self.close)
@@ -247,6 +258,7 @@ class NewRootUi(QtGui.QDialog, newRootUI.Ui_newRoot):
                 newItem = self.pWidget.newPathItem(newPath)
                 self.pWidget.twTree.addTopLevelItem(newItem)
                 self.pWidget.settingsUi.pbReset.setEnabled(True)
+                self.log.debug("Root path %r successfully added." % newPath)
                 self.close()
             else:
                 self.log.error("New path doesn't exist !!!")
@@ -283,6 +295,7 @@ class Tasks(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
         """ Setup widget """
         self.setupUi(self)
         self.setMinimumHeight(350)
+        self.cbCurrentTree.setVisible(False)
         self.pbAddItem.setText("Add Task")
         self.pbAddItem.clicked.connect(self.on_addTask)
         self.pbDelItem.setText("Del Task")
@@ -479,7 +492,7 @@ class Tasks(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
         item.stat = QCheckBox.isChecked()
 
 
-class NewTaskUi(QtGui.QDialog, newTaskUI.Ui_newTask):
+class NewTaskUi(QtGui.QDialog, defaultSettingsDialUI.Ui_settingsItem):
     """ QDialog class used by 'Tasks' QWidget. Launch new task window
         :param QWidget: Parent widget
         :type QWidget: QtGui.QWidget """
@@ -494,6 +507,9 @@ class NewTaskUi(QtGui.QDialog, newTaskUI.Ui_newTask):
     def _setupUi(self):
         """ Setup dialog """
         self.setupUi(self)
+        self.qfRootPath.setVisible(False)
+        self.qfTask.setVisible(True)
+        self.qfTreeName.setVisible(False)
         self.pbAdd.clicked.connect(self.accept)
         self.pbCancel.clicked.connect(self.close)
 
@@ -509,4 +525,280 @@ class NewTaskUi(QtGui.QDialog, newTaskUI.Ui_newTask):
         result = self.pWidget.addTask(name, label)
         if result is not None:
             self.close()
-            self.log.debug("Task successfully added.")
+            self.pWidget.settingsUi.pbReset.setEnabled(True)
+            self.log.debug("Task %r successfully added." % label)
+
+
+class Trees(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
+
+    def __init__(self, settingsUi):
+        self.settingsUi = settingsUi
+        self.pm = self.settingsUi.pm
+        self.log = self.settingsUi.log
+        super(Trees, self).__init__()
+        self._setupUi()
+        self._refresh()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup widget """
+        self.setupUi(self)
+        self.cbCurrentTree.setVisible(False)
+        self.pbAddItem.setText("Add Tree")
+        self.pbAddItem.clicked.connect(self.on_addTree)
+        self.pbDelItem.setText("Del Tree")
+        self.pbDelItem.clicked.connect(self.on_delTree)
+        self.pbItemUp.clicked.connect(partial(self.on_moveTree, 'up'))
+        self.pbItemDn.clicked.connect(partial(self.on_moveTree, 'down'))
+        self.twTree.setColumnCount(2)
+        self.twTree.setHeaderLabels(['Tree Name', 'Tree Type'])
+        self.twTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
+        self.twTree.header().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
+
+    @property
+    def widgetInfo(self):
+        """ Widget info printed in settings ui
+            :return: Widget info to print
+            :rtype: str """
+        return "Project trees: Production work trees."
+
+    @property
+    def defaultTrees(self):
+        """ Default Trees when creating a new project
+            :return: Default trees params
+            :rtype: dict """
+        return {0: {'assets': 'asset'}, 1: {'shots': 'shot'}}
+
+    def getParams(self):
+        """ Get widget tree params
+            :return: Trees params
+            :rtype: list """
+        allItems = pQt.getAllItems(self.twTree)
+        trees = {}
+        for n, item in enumerate(allItems):
+            trees[n] = {}
+            trees[n][item.name] = item.type
+        return trees
+
+    def _refresh(self):
+        """ Refresh tree widget """
+        self.twTree.clear()
+        if self.pm.project.trees is None:
+            self.pm.project.trees = self.defaultTrees
+        for n in sorted(self.pm.project.trees.keys()):
+            treeDict = self.pm.project.trees[n]
+            treeName = treeDict.keys()[0]
+            self.addTree(treeName, treeDict[treeName])
+
+    def on_addTree(self):
+        """ Command launched when 'Add Task' QPushButton is clicked """
+        treeUi = NewTreeUi(self)
+        treeUi.exec_()
+
+    def on_delTree(self):
+        """ Command launch when 'Del Item' QPushButton is clicked """
+        pQt.delSelItems(self.twTree)
+        self.settingsUi.pbReset.setEnabled(True)
+
+    def on_moveTree(self, side):
+        """ Command launch when 'up' or 'down' QPushButton is clicked
+            :param side: 'up' or 'down'
+            :type side: str """
+        selItems = self.twTree.selectedItems()
+        if selItems:
+            movedItem = pQt.moveSelItem(self.twTree, selItems[0], side)
+            if movedItem is not None:
+                pQt.deselectAllItems(self.twTree)
+                movedItem.setSelected(True)
+                self.settingsUi.pbReset.setEnabled(True)
+
+    def addTree(self, treeName, treeType):
+        """ Add new tree to QTreeWidget
+            :param treeName: New tree name
+            :type treeName: str
+            :param treeType: 'asset', 'shot', 'shooting', 'other'
+            :type treeType: str
+            :return: Tree item
+            :rtype: QtGui.QTreeWidgetItem """
+        if not treeName in self.getParams():
+            newItem = self.newTreeItem(treeName, treeType)
+            self.twTree.addTopLevelItem(newItem)
+            return newItem
+
+    @staticmethod
+    def newTreeItem(treeName, treeType):
+        """ Cretae new tree TreeWidgetItem
+            :param treeName: Tree name
+            :type treeName: str
+            :param treeType: 'asset', 'shot', 'shooting', 'other'
+            :type treeType: str
+            :return: Tree item
+            :rtype: QTreeWidgetItem """
+        newItem = QtGui.QTreeWidgetItem()
+        newItem.setText(0, treeName)
+        newItem.setText(1, treeType)
+        newItem.name = treeName
+        newItem.type = treeType
+        return newItem
+
+
+class NewTreeUi(QtGui.QDialog, defaultSettingsDialUI.Ui_settingsItem):
+    """ QDialog class used by 'Tasks' QWidget. Launch new task window
+        :param QWidget: Parent widget
+        :type QWidget: QtGui.QWidget """
+
+    def __init__(self, QWidget):
+        self.pWidget = QWidget
+        self.log = self.pWidget.log
+        super(NewTreeUi, self).__init__()
+        self._setupUi()
+        self.rf_treeType()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup dialog """
+        self.setupUi(self)
+        self.qfRootPath.setVisible(False)
+        self.qfTask.setVisible(False)
+        self.qfTreeName.setVisible(True)
+        self.pbAdd.clicked.connect(self.accept)
+        self.pbCancel.clicked.connect(self.close)
+
+    def rf_treeType(self):
+        """ Refresh tree type """
+        self.cbTreeType.addItems(['asset', 'shot', 'shooting', 'other'])
+
+    def accept(self):
+        """ Command launched when QPushButton 'Add' is clicked. Update parent widget """
+        treeName = str(self.leTreeName.text())
+        treeType = str(self.cbTreeType.currentText())
+        if treeName in ['', ' ']:
+            log = "Tree 'name' can not be empty !!!"
+            self.log.error(log)
+            raise ValueError, log
+        result = self.pWidget.addTree(treeName, treeType)
+        if result is not None:
+            self.close()
+            self.pWidget.settingsUi.pbReset.setEnabled(True)
+            self.log.debug("Tree %r successfully added." % treeName)
+
+
+class Steps(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
+
+    def __init__(self, settingsUi):
+        self.settingsUi = settingsUi
+        self.pm = self.settingsUi.pm
+        self.log = self.settingsUi.log
+        super(Steps, self).__init__()
+        self._setupUi()
+
+    def _setupUi(self):
+        """ Setup widget """
+        self.setupUi(self)
+        self.cbCurrentTree.setVisible(True)
+        self.pbAddItem.setText("Add Step")
+        self.pbDelItem.setText("Del Step")
+        self.twTree.setColumnCount(1)
+        self.twTree.setHeaderLabels(['Steps'])
+        self.twTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
+        self.rf_treeSwitch()
+        self._refresh()
+
+    @property
+    def widgetInfo(self):
+        """ Widget info printed in settings ui
+            :return: Widget info to print
+            :rtype: str """
+        return ["Project Steps: Steps for given tree.",
+                "Use 'trees' comboBox to edit current tree."]
+
+    @staticmethod
+    def defaultSteps(treeType):
+        """ Default Steps when creating a new project
+            :return: Default steps
+            :rtype: list """
+        if treeType == 'asset':
+            return ['modeling', 'mapping', 'rigg']
+        elif treeType == 'shot':
+            return ['anim', 'lighting', 'compo']
+        elif treeType == 'shooting':
+            return []
+        elif treeType == 'other':
+            return []
+
+    @property
+    def currentTree(self):
+        """ Get current tree
+            :return: Selected tree name
+            :rtype: str """
+        return str(self.cbCurrentTree.currentText())
+
+    def _refresh(self):
+        """ Refresh step widget """
+        self.twTree.clear()
+        steps = getattr(self.cbCurrentTree, self.currentTree)
+        for step in steps:
+            newItem = self.newStepItem(step)
+            self.twTree.addTopLevelItem(newItem)
+
+    def rf_treeSwitch(self):
+        """ Refresh tree switch contents and data """
+        trees = self.settingsUi.trees.getParams()
+        self.cbCurrentTree.clear()
+        for n in sorted(trees.keys()):
+            treeName = trees[n].keys()[0]
+            treeType = trees[n][treeName]
+            self.cbCurrentTree.addItem(treeName)
+            if self.pm.project.steps is None:
+                self.pm.project.steps = {}
+            if not treeName in self.pm.project.steps.keys():
+                self.pm.project.steps[treeName] = self.defaultSteps(treeType)
+            setattr(self.cbCurrentTree, treeName, self.pm.project.steps[treeName])
+
+    @staticmethod
+    def newStepItem(name):
+        newItem = QtGui.QTreeWidgetItem()
+        newItem.setText(0, name)
+        newItem.name = name
+        return newItem
+
+
+class Tree(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
+
+    def __init__(self, settingsUi):
+        self.settingsUi = settingsUi
+        self.pm = self.settingsUi.pm
+        self.log = self.settingsUi.log
+        super(Tree, self).__init__()
+        self._setupUi()
+        self.rf_treeSwitch()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup widget """
+        self.setupUi(self)
+        self.cbCurrentTree.setVisible(True)
+        self.pbAddItem.setVisible(False)
+        self.pbDelItem.setVisible(False)
+
+    @property
+    def widgetInfo(self):
+        """ Widget info printed in settings ui
+            :return: Widget info to print
+            :rtype: str """
+        return "Project tree: Tree contents."
+
+    @property
+    def currentTree(self):
+        """ Get current tree
+            :return: Selected tree name
+            :rtype: str """
+        return str(self.cbCurrentTree.currentText())
+
+    def rf_treeSwitch(self):
+        """ Refresh tree switch contents and data """
+        trees = self.settingsUi.trees.getParams()
+        self.cbCurrentTree.clear()
+        for n in sorted(trees.keys()):
+            self.cbCurrentTree.addItem(trees[n].keys()[0])
+            setattr(self.cbCurrentTree, trees[n].keys()[0], [])

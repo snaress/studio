@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\prodManager\ui\defaultSettingsWgt.ui'
 #
-# Created: Wed Feb 11 01:07:13 2015
+# Created: Sun Feb 22 15:56:50 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -38,6 +38,9 @@ class Ui_wgSettings(object):
         self.vlTreeBtns.setSpacing(0)
         self.vlTreeBtns.setMargin(0)
         self.vlTreeBtns.setObjectName(_fromUtf8("vlTreeBtns"))
+        self.cbCurrentTree = QtGui.QComboBox(self.qfButtons)
+        self.cbCurrentTree.setObjectName(_fromUtf8("cbCurrentTree"))
+        self.vlTreeBtns.addWidget(self.cbCurrentTree)
         spacerItem = QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.vlTreeBtns.addItem(spacerItem)
         self.pbAddItem = QtGui.QPushButton(self.qfButtons)
@@ -86,6 +89,7 @@ class Ui_wgSettings(object):
 
     def retranslateUi(self, wgSettings):
         wgSettings.setWindowTitle(_translate("wgSettings", "ProdTree", None))
+        self.cbCurrentTree.setToolTip(_translate("wgSettings", "Current Tree", None))
         self.pbAddItem.setText(_translate("wgSettings", "Add Item", None))
         self.pbDelItem.setText(_translate("wgSettings", "Del Item", None))
         self.pbItemUp.setText(_translate("wgSettings", "Up", None))
