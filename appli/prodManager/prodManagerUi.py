@@ -2,7 +2,7 @@ import sys
 from lib.qt import procQt as pQt
 from PyQt4 import QtGui, QtCore, Qt
 from lib.system import procFile as pFile
-from appli.prodManager import prodManager, pmSettings
+from appli.prodManager import prodManager, pmSettings2
 from appli.prodManager.ui import prodLoaderUI, prodManagerUI, newProjectUI
 
 class ProdLoaderUi(QtGui.QMainWindow, prodLoaderUI.Ui_mwProdLoader):
@@ -261,7 +261,7 @@ class ProdManagerUi(QtGui.QMainWindow, prodManagerUI.Ui_mwProdManager):
 
     def on_projectSettings(self):
         """ Command launched when QMenuItem 'Project Settings' is clicked """
-        self.ps = pmSettings.ProjectSettingsUi(self, logLvl=self.log.level)
+        self.ps = pmSettings2.ProjectSettingsUi(self, logLvl=self.log.level)
         self.ps.show()
 
 
