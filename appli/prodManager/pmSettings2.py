@@ -533,6 +533,9 @@ class NewTaskUi(QtGui.QDialog, defaultSettingsDialUI.Ui_settingsItem):
 
 
 class Trees(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
+    """ Class used by 'ProjectSettings' QMainWindow.
+        :param settingsUi: Parent window
+        :type settingsUi: QtGui.QMainWindow """
 
     def __init__(self, settingsUi):
         self.settingsUi = settingsUi
@@ -776,7 +779,6 @@ class Steps(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
             pass
         else:
             self._refresh()
-
 
     @staticmethod
     def newStepItem(name):
