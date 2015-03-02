@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\prodManager\ui\defaultSettingsWgt.ui'
 #
-# Created: Sun Feb 22 15:56:50 2015
+# Created: Sun Mar 01 14:36:01 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,11 +26,17 @@ except AttributeError:
 class Ui_wgSettings(object):
     def setupUi(self, wgSettings):
         wgSettings.setObjectName(_fromUtf8("wgSettings"))
-        wgSettings.resize(385, 216)
+        wgSettings.resize(428, 191)
         self.gridLayout = QtGui.QGridLayout(wgSettings)
-        self.gridLayout.setMargin(0)
-        self.gridLayout.setSpacing(0)
+        self.gridLayout.setSpacing(1)
+        self.gridLayout.setContentsMargins(1, 0, 1, 0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
+        self.vlSettings = QtGui.QVBoxLayout()
+        self.vlSettings.setSpacing(2)
+        self.vlSettings.setObjectName(_fromUtf8("vlSettings"))
+        self.hlSettings = QtGui.QHBoxLayout()
+        self.hlSettings.setSpacing(2)
+        self.hlSettings.setObjectName(_fromUtf8("hlSettings"))
         self.qfButtons = QtGui.QFrame(wgSettings)
         self.qfButtons.setFrameShape(QtGui.QFrame.StyledPanel)
         self.qfButtons.setObjectName(_fromUtf8("qfButtons"))
@@ -71,7 +77,7 @@ class Ui_wgSettings(object):
         self.vlTreeBtns.addWidget(self.pbItemDn)
         spacerItem2 = QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.vlTreeBtns.addItem(spacerItem2)
-        self.gridLayout.addWidget(self.qfButtons, 0, 0, 1, 1)
+        self.hlSettings.addWidget(self.qfButtons)
         self.twTree = QtGui.QTreeWidget(wgSettings)
         self.twTree.setMinimumSize(QtCore.QSize(0, 0))
         self.twTree.setMaximumSize(QtCore.QSize(16777215, 16777215))
@@ -82,7 +88,9 @@ class Ui_wgSettings(object):
         self.twTree.headerItem().setTextAlignment(1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter|QtCore.Qt.AlignCenter)
         self.twTree.headerItem().setTextAlignment(2, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter|QtCore.Qt.AlignCenter)
         self.twTree.header().setStretchLastSection(False)
-        self.gridLayout.addWidget(self.twTree, 0, 1, 1, 1)
+        self.hlSettings.addWidget(self.twTree)
+        self.vlSettings.addLayout(self.hlSettings)
+        self.gridLayout.addLayout(self.vlSettings, 0, 0, 1, 1)
 
         self.retranslateUi(wgSettings)
         QtCore.QMetaObject.connectSlotsByName(wgSettings)

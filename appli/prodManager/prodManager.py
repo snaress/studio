@@ -4,6 +4,11 @@ from lib.system import procFile as pFile
 
 
 class ProdManager(object):
+    """ ProdManager main class
+        :param prodId: Project alias
+        :type prodId: str
+        :param logLvl: Print log level
+        :type logLvl: str """
 
     def __init__(self, prodId=None, logLvl='info'):
         self._log = pFile.Logger(title="ProdManager", level=logLvl)
@@ -11,6 +16,7 @@ class ProdManager(object):
         self._prodId = prodId
         self.binPath = pm.binPath
         self.project = Project(self)
+        self.trees = Trees(self)
         if self._prodId is not None:
             self.loadProject()
 
@@ -42,9 +48,11 @@ class ProdManager(object):
             raise IOError, log
         #-- Parse Project File --#
         self._log.debug("\t Parse project file ...")
-        prodDict = pFile.readPyFile(projectFile)
         self._log.debug("\t Update project params ...")
+        prodDict = pFile.readPyFile(projectFile)
         self.project.updateParams(prodDict)
+        self._log.debug("\t Update trees params ...")
+        self.trees._initParams()
 
     @staticmethod
     def isCleanPath(rootPath, item, checkMode='folder'):
@@ -67,6 +75,9 @@ class ProdManager(object):
 
 
 class Project(object):
+    """ ProdManager subClass: Project params
+        :param prodManager: PrdManager main class
+        :type prodManager: ProdManager """
 
     def __init__(self, prodManager):
         self._pm = prodManager
@@ -89,6 +100,22 @@ class Project(object):
             :rtype: str """
         if self.alias is not None:
             return pFile.conformPath(os.path.join(self._pm.binPath, 'prods', self.alias))
+
+    @property
+    def dataPath(self):
+        """ Get project data path
+            :return: Project data path
+            :rtype: str """
+        if self.projectPath is not None:
+            return pFile.conformPath(os.path.join(self.projectPath, 'data'))
+
+    @property
+    def treePath(self):
+        """ Get project tree path
+            :return: Project tree path
+            :rtype: str """
+        if self.projectPath is not None:
+            return pFile.conformPath(os.path.join(self.projectPath, 'tree'))
 
     @property
     def projectFile(self):
@@ -239,6 +266,10 @@ class Project(object):
             try:
                 os.mkdir(projectPath)
                 self._log.debug("Create project folder: %s" % alias)
+                for fld in ['data', 'tree']:
+                    flpPath = pFile.conformPath(os.path.join(projectPath, fld))
+                    os.mkdir(flpPath)
+                    self._log.debug("Create project folder: %s/%s" % (alias, fld))
                 return projectPath
             except:
                 log = "Can not create folder !!! (%s) !!!" % projectPath
@@ -298,3 +329,80 @@ class Project(object):
             log = "Can not write project file !!! (%s) !!!" % projectFile
             self._log.error(log)
             raise IOError, log
+
+
+class Trees(object):
+    """ ProdManager subClass: Trees params
+        :param prodManager: PrdManager main class
+        :type prodManager: ProdManager """
+
+    def __init__(self, prodManager):
+        self._pm = prodManager
+        self._log = self._pm._log
+        self._project = self._pm.project
+        self._treeNames = []
+
+    def _initParams(self):
+        """ Update class params with given treeDict """
+        self._log.debug("#-- Init trees params --#")
+        if self._project.trees is not None:
+            for n in self._project.trees.keys():
+                treeName = self._project.trees[n].keys()[0]
+                treeType = self._project.trees[n][treeName]
+                self._log.debug("\t Init %s tree" % treeName)
+                self._treeNames.append(treeName)
+                setattr(self, treeName, Tree(self, treeName, treeType))
+
+    def getParams(self):
+        """ Get class params
+            :return: Trees params
+            :rtype: dict """
+        treesDict = {}
+        for tree in self._treeNames:
+            treeObj = getattr(self, tree)
+            treesDict[tree] = treeObj.getParams()
+        return treesDict
+
+    def getTreeFile(self, treeName):
+        """ Get tree file path
+            :param treeName: Tree name
+            :type treeName: str
+            :return: Tree file path
+            :rtype: str """
+        if self._project.dataPath is not None:
+            return pFile.conformPath(os.path.join(self._project.dataPath, '%s.py' % treeName))
+
+
+class Tree(object):
+    """ Trees subClass: Tree params
+        :param parent: Trees class
+        :type parent: Trees
+        :param treeName: Tree name
+        :type treeName: str
+        :param treeType: Tree type ('asset', 'shot', 'shooting', 'other')
+        :type treeType: str """
+
+    def __init__(self, parent, treeName, treeType):
+        self._parent = parent
+        self._pm = self._parent._pm
+        self._log = self._pm._log
+        self._project = self._pm.project
+        self.name = treeName
+        self.type = treeType
+
+    @property
+    def treeFile(self):
+        """ Get tree file path
+            :return: Tree file path
+            :rtype: str """
+        return self._parent.getTreeFile(self.name)
+
+    def getParams(self):
+        """ Get class params
+            :return: Tree params
+            :rtype: dict """
+        treeDict = {}
+        for k, v in self.__dict__.iteritems():
+            if not k.startswith('_') and not k.startswith('__'):
+                treeDict[k] = v
+        return treeDict

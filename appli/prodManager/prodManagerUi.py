@@ -233,6 +233,11 @@ class NewProjectUi(QtGui.QDialog, newProjectUI.Ui_newProject):
 
 
 class ProdManagerUi(QtGui.QMainWindow, prodManagerUI.Ui_mwProdManager):
+    """ QMainWindow class launched when ProdManager mainUi is called
+        :param prodId: Project alias
+        :type prodId: str
+        :param logLvl: Print log level
+        :type logLvl: str """
 
     def __init__(self, prodId=None, logLvl='info'):
         self.log = pFile.Logger(title="ProdManagerUi", level=logLvl)
@@ -277,6 +282,8 @@ def launch(prodId=None, logLvl='info'):
     else:
         window = ProdManagerUi(prodId=prodId, logLvl=logLvl)
     window.show()
+    if prodId is not  None:
+        window.on_projectSettings()
     sys.exit(app.exec_())
 
 

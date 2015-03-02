@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\prodManager\ui\settings.ui'
 #
-# Created: Sun Feb 22 01:31:05 2015
+# Created: Sun Mar 01 14:56:16 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_mwSettings(object):
     def setupUi(self, mwSettings):
         mwSettings.setObjectName(_fromUtf8("mwSettings"))
-        mwSettings.resize(500, 500)
+        mwSettings.resize(599, 500)
         self.centralwidget = QtGui.QWidget(mwSettings)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
