@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\prodManager\ui\defaultSettingsWgt.ui'
 #
-# Created: Sun Mar 01 14:36:01 2015
+# Created: Fri Mar 06 20:29:25 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgSettings(object):
     def setupUi(self, wgSettings):
         wgSettings.setObjectName(_fromUtf8("wgSettings"))
-        wgSettings.resize(428, 191)
+        wgSettings.resize(411, 191)
         self.gridLayout = QtGui.QGridLayout(wgSettings)
         self.gridLayout.setSpacing(1)
         self.gridLayout.setContentsMargins(1, 0, 1, 0)

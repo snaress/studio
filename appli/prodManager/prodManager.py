@@ -48,10 +48,8 @@ class ProdManager(object):
             raise IOError, log
         #-- Parse Project File --#
         self._log.debug("\t Parse project file ...")
-        self._log.debug("\t Update project params ...")
         prodDict = pFile.readPyFile(projectFile)
         self.project.updateParams(prodDict)
-        self._log.debug("\t Update trees params ...")
         self.trees._initParams()
 
     @staticmethod
@@ -82,6 +80,7 @@ class Project(object):
     def __init__(self, prodManager):
         self._pm = prodManager
         self._log = self._pm._log
+        self._log.info("#-- Project Class --#")
         self._projectKeys = ['type', 'name', 'alias', 'season', 'episode']
         self.type = None
         self.name = None
@@ -92,6 +91,7 @@ class Project(object):
         self.tasks = None
         self.trees = None
         self.steps = None
+        self._log.debug("--> Done")
 
     @property
     def projectPath(self):
@@ -160,7 +160,7 @@ class Project(object):
         """ Update class params with given projectDict
             :param projectDict: Project params
             :type projectDict: dict """
-        self._log.debug("#-- Update project params --#")
+        self._log.info("#-- Update project params --#")
         for k in projectDict.keys():
             self._log.debug("\t Updating %s" % k)
             setattr(self, k, projectDict[k])
@@ -339,19 +339,22 @@ class Trees(object):
     def __init__(self, prodManager):
         self._pm = prodManager
         self._log = self._pm._log
+        self._log.info("#-- Trees Class --#")
         self._project = self._pm.project
         self._treeNames = []
+        self._log.debug("--> Done")
 
     def _initParams(self):
         """ Update class params with given treeDict """
-        self._log.debug("#-- Init trees params --#")
+        self._log.info("#-- Init trees params --#")
         if self._project.trees is not None:
             for n in self._project.trees.keys():
                 treeName = self._project.trees[n].keys()[0]
                 treeType = self._project.trees[n][treeName]
                 self._log.debug("\t Init %s tree" % treeName)
                 self._treeNames.append(treeName)
-                setattr(self, treeName, Tree(self, treeName, treeType))
+                if not os.path.exists(self.getTreeFile(treeName)):
+                    setattr(self, treeName, Tree(self, treeName, treeType))
 
     def getParams(self):
         """ Get class params
@@ -380,15 +383,18 @@ class Tree(object):
         :param treeName: Tree name
         :type treeName: str
         :param treeType: Tree type ('asset', 'shot', 'shooting', 'other')
-        :type treeType: str """
+        :type treeType: str
+        :param treeContents: Tree hierarchy
+        :type treeContents: dict """
 
-    def __init__(self, parent, treeName, treeType):
+    def __init__(self, parent, treeName, treeType, treeContents=None):
         self._parent = parent
         self._pm = self._parent._pm
         self._log = self._pm._log
         self._project = self._pm.project
         self.name = treeName
         self.type = treeType
+        self.tree = treeContents
 
     @property
     def treeFile(self):
