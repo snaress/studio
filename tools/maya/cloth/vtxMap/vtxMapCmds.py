@@ -1,5 +1,5 @@
-# from tools.maya.util.proc import procCloth as pCloth
 import tools.maya.cmds as smc
+from tools.maya.cmds import pCloth
 try:
     import maya.cmds as mc
 except:
@@ -40,7 +40,7 @@ def getClothNodesFromSel():
     """ Get cloth nodes from current selected object
         :return: Cloth node names
         :rtype: list """
-    return smc.getClothNodeFromSelected()
+    return pCloth.getClothNodeFromSelected()
 
 def selectClothNode(clothNode):
     """ Select given clothNode in scene
@@ -57,7 +57,7 @@ def getVtxMaps(clothNode):
         :type clothNode: str
         :return: Vertex map list
         :rtype: list """
-    return smc.getVtxMaps(clothNode)
+    return pCloth.getVtxMaps(clothNode)
 
 def getVtxMapType(clothNode, mapType):
     """ Get given clothNode vtxMap type
@@ -67,14 +67,14 @@ def getVtxMapType(clothNode, mapType):
         :type mapType: str
         :return: VtxMap type (0 = None, 1 = Vertex, 2 = Texture)
         :rtype: int """
-    return smc.getVtxMapType(clothNode, mapType)
+    return pCloth.getVtxMapType(clothNode, mapType)
 
 def setVtxMapType(clothNode, mapType, value):
     """ Set given clothNode vtxMap value
         :param clothNode: (str) : Cloth node name
         :param mapType: (str) : Cloth node vtxMap name (must ends with 'MapType')
         :param value: (int) : VtxMap type (0 = None, 1 = Vertex, 2 = Texture) """
-    smc.setVtxMapType(clothNode, mapType, value)
+    pCloth.setVtxMapType(clothNode, mapType, value)
 
 def getVtxMapData(clothNode, vtxMap):
     """ Get vertex map influence per vertex
@@ -84,7 +84,7 @@ def getVtxMapData(clothNode, vtxMap):
         :type vtxMap: str
         :return: Influence list per vertex
         :rtype: list """
-    return smc.getVtxMapData(clothNode, vtxMap)
+    return pCloth.getVtxMapData(clothNode, vtxMap)
 
 def setVtxMapData(clothNode, vtxMap, value):
     """ Set vertex map influence per vertex
@@ -94,7 +94,7 @@ def setVtxMapData(clothNode, vtxMap, value):
         :type vtxMap: str
         :param value: Influence list per vertex
         :type value: list """
-    smc.setVtxMapData(clothNode, vtxMap, value, refresh=True)
+    pCloth.setVtxMapData(clothNode, vtxMap, value, refresh=True)
 
 def getModelFromClothNode(clothNode):
     """ Get model from given clothNode
@@ -102,7 +102,7 @@ def getModelFromClothNode(clothNode):
         :type clothNode: str
         :return: Connected model
         :rtype: str """
-    return smc.getModelFromClothNode(clothNode)
+    return pCloth.getModelFromClothNode(clothNode)
 
 def getModelSelVtx(clothNode, indexOnly=False):
     """ Get selected vertex on model
@@ -112,7 +112,7 @@ def getModelSelVtx(clothNode, indexOnly=False):
         :type indexOnly: bool
         :return: selection list
         :rtype: list """
-    return smc.getModelSelectedVtx(clothNode, indexOnly=indexOnly)
+    return pCloth.getModelSelectedVtx(clothNode, indexOnly=indexOnly)
 
 def paintVtxMap(clothNode, mapName):
     """ Enable maya vertex paint tool
@@ -120,7 +120,7 @@ def paintVtxMap(clothNode, mapName):
         :type clothNode: str
         :param mapName: Vertex map name
         :type mapName: str """
-    smc.paintVtxMap(clothNode, mapName)
+    pCloth.paintVtxMap(clothNode, mapName)
 
 def clearVtxSelection():
     """ Clear vertex selection on model """
@@ -147,6 +147,6 @@ def selectVtxInfluence(clothNode, vtxMap, selMode, value=None, minInf=None, maxI
         :param maxInf: Range maximum influence
         :type maxInf: float """
     if selMode == 'range':
-        smc.selectVtxInfOnModel(clothNode, vtxMap, selMode, minInf=minInf, maxInf=maxInf)
+        pCloth.selectVtxInfOnModel(clothNode, vtxMap, selMode, minInf=minInf, maxInf=maxInf)
     elif selMode == 'value':
-        smc.selectVtxInfOnModel(clothNode, vtxMap, selMode, value=value)
+        pCloth.selectVtxInfOnModel(clothNode, vtxMap, selMode, value=value)

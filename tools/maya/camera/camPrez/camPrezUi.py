@@ -1,7 +1,7 @@
 import os
-import tools.maya.cmds as smc
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
+from tools.maya.cmds import pScene
 from lib.system import procFile as pFile
 from tools.maya.camera.camPrez.ui import camPrezUI
 from tools.maya.camera.camPrez import camPrezCmds as cpCmds
@@ -39,7 +39,7 @@ class CamPrez(QtGui.QMainWindow, camPrezUI.Ui_mwCamPrez):
 
     def rf_renderInfo(self):
         """ Refresh ui render info """
-        wsDict = smc.wsToDict()
+        wsDict = pScene.wsToDict()
         renderPath = pFile.conformPath(os.path.join(wsDict['projectPath'], wsDict['fileRules']['images']))
         self.leRenderPath.setText(renderPath)
         self.leImagePath.setText("turn")
@@ -162,6 +162,6 @@ def launch():
     if mc.window(toolName, q=True, ex=True):
         mc.deleteUI(toolName, wnd=True)
     global window
-    window = CamPrez(parent=smc.getMayaMainWindow())
+    window = CamPrez(parent=pScene.getMayaMainWindow())
     window.show()
     return window

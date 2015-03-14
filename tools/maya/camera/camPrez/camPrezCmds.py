@@ -1,8 +1,8 @@
 import os, math
-import tools.maya.cmds as smc
 from lib.env import studio
 from lib.system import procFile as pFile
 from lib.system import procMath as pMath
+from tools.maya.cmds import pScene, pMode, pRender
 try:
     import maya.cmds as mc
 except:
@@ -62,7 +62,7 @@ def createBbox():
     if mc.objExists(boxName):
         print "Clean existing boxCam ..."
         mc.delete(boxName)
-    smc.creeBoxOnSelected(name=boxName, returnShape=True)
+    pMode.creeBoxOnSelected(name=boxName, returnShape=True)
     return boxName
 
 def getBoxInfo(boxName):
@@ -170,7 +170,7 @@ def paramRender(**kwargs):
     """ Param Render
         :param kwargs: (dict) : Param render """
     if createPath(kwargs['renderPath'], kwargs['imaPath']):
-        options = smc.paramRenderOptions()
+        options = pRender.paramRenderOptions()
         options['camera'] = 'cam_turnPreviz1'
         options['output'] = "%s/%s" % (kwargs['imaPath'], kwargs['imaName'])
         options['format'] = kwargs['extension']
@@ -184,7 +184,7 @@ def paramRender(**kwargs):
         options['shadows'] = 'simple'
         options['shadowMaps'] = 'on'
         options['motionBlur'] = 'off'
-        smc.ParamRender(kwargs['renderer'], options, logLvl='debug')
+        pRender.ParamRender(kwargs['renderer'], options, logLvl='debug')
 
 def createPath(rootPath, imagePath):
     """ Check rootPath and create folder if needed
@@ -207,12 +207,12 @@ def createPath(rootPath, imagePath):
 def launchRender(renderer):
     """ Launch render in external process """
     #-- save Tmp File --#
-    wsInfo = smc.wsToDict()
+    wsInfo = pScene.wsToDict()
     tmpPath = pFile.conformPath(os.path.join(wsInfo['projectPath'], wsInfo['fileRules']['diskCache']))
     tmpFile = "previz_turn_%s__%s__%s.ma" % (wsInfo['projectName'], pFile.getDate(), pFile.getTime())
     tmpAbsPath = pFile.conformPath(os.path.join(tmpPath, tmpFile))
     print "Saving tmp file: ", tmpAbsPath
-    smc.saveSceneAs(tmpAbsPath, force=True, keepCurrentName=False)
+    pScene.saveSceneAs(tmpAbsPath, force=True, keepCurrentName=False)
     if renderer == 'mr':
         cmd = '%s -r %s -mr:v 5 %s' % (os.path.normpath(studio.mayaRender), renderer, os.path.normpath(tmpAbsPath))
     else:

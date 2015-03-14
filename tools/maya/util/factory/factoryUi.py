@@ -1,11 +1,11 @@
 import os
 import pymel.core as pm
-import tools.maya.cmds as smc
 from PyQt4 import QtGui
 from functools import partial
 from lib.qt import procQt as pQt
 from appli.factory import factoryUi
 from lib.system import procFile as pFile
+from tools.maya.cmds import pScene, pMapp
 from tools.maya.util.factory.ui import dialShaderUI
 from tools.maya.util.factory import factoryCmds as fCmds
 
@@ -102,7 +102,7 @@ class ShaderUi(QtGui.QMainWindow, dialShaderUI.Ui_Shader):
 
     def on_initShader(self):
         """ Command launched when bInit is clicked """
-        sg = smc.getShadingEngine('S_factory_ball')
+        sg = pMapp.getShadingEngine('S_factory_ball')
         matDict = fCmds.getMat('S_factory_ball')
         self.leShader.setText(sg[0])
         #-- Maya Shader --#
@@ -226,6 +226,6 @@ def launch():
     if pm.window(toolName, q=True, ex=True):
         pm.deleteUI(toolName, wnd=True)
     global window
-    window = FactoryUi(parent=smc.getMayaMainWindow(), logLvl='debug')
+    window = FactoryUi(parent=pScene.getMayaMainWindow(), logLvl='debug')
     window.show()
     return window
