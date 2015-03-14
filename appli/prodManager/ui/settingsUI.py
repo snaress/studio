@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\prodManager\ui\settings.ui'
 #
-# Created: Sun Mar 01 14:56:16 2015
+# Created: Sun Mar 08 11:55:53 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -159,9 +159,6 @@ class Ui_mwSettings(object):
         self.horizontalLayout.setSpacing(2)
         self.horizontalLayout.setContentsMargins(-1, -1, -1, 0)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
-        self.pbReset = QtGui.QPushButton(self.centralwidget)
-        self.pbReset.setObjectName(_fromUtf8("pbReset"))
-        self.horizontalLayout.addWidget(self.pbReset)
         spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem4)
         self.pbSave = QtGui.QPushButton(self.centralwidget)
@@ -188,7 +185,6 @@ class Ui_mwSettings(object):
         self.lSeasonValue.setText(_translate("mwSettings", "TextLabel", None))
         self.lEpisode.setText(_translate("mwSettings", "Project Episode :", None))
         self.lEpisodeValue.setText(_translate("mwSettings", "TextLabel", None))
-        self.pbReset.setText(_translate("mwSettings", "Reset", None))
         self.pbSave.setText(_translate("mwSettings", "Save", None))
         self.pbClose.setText(_translate("mwSettings", "Close", None))
 
