@@ -216,7 +216,23 @@ if not SanityCheck().checkAuto():
     raise IOError, "Sanity Check failed !!!"
 
 
-print "\n#========== IMPORT MODULES ==========#"
+# def importMayaModules():
+#     print "\n#========== IMPORT MODULES ==========#"
+#     import os
+#     path = os.path.dirname(__file__)
+#     filters = ['mc', 'ml', 'os', 'sys', 'math']
+#     for file in os.listdir(path):
+#         if not file.startswith('_') and not file.startswith('__') and file.endswith('.py') and not file.endswith('Mel.py'):
+#             module = file.split('.')[0]
+#             print "Importing module: %s" % module
+#             mod = __import__('tools.maya.cmds.%s' % module, fromlist=[''])
+#             for k in mod.__dict__.keys():
+#                 if not k in filters:
+#                     function = "%s = %s" % (k, getattr(mod, k))
+#                     eval(function)
+#
+# importMayaModules()
+
 #-- UI --#
 print "Importing procUi.py ..."
 from tools.maya.cmds.procUi import *
@@ -245,15 +261,15 @@ from tools.maya.cmds.procRender import *
 
 
 print  "\n#========== CREATE CLASS 'FROM MEL' ==========#"
-from tools.maya.cmds import riggMel, clothMel
-
-class FromMel(riggMel.FromMel, clothMel.FromMel):
-
-    def __init__(self):
-        pass
-
-print "Mel script eval: smc.FromMel()"
-print "\n"
+# from tools.maya.cmds import riggMel, clothMel
+#
+# class FromMel(riggMel.FromMel, clothMel.FromMel):
+#
+#     def __init__(self):
+#         pass
+#
+# print "Mel script eval: smc.FromMel()"
+# print "\n"
 
 
 '''
