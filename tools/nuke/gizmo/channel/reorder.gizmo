@@ -8,6 +8,7 @@ Gizmo {
  addUserKnob {4 pcChannel l Channel M {Red Green Blue}}
  addUserKnob {26 line1 l "Alpha Control"}
  addUserKnob {6 cbReplaceAlpha l "Replace Alpha" +STARTLINE}
+ cbReplaceAlpha true
  addUserKnob {4 pcReplaceBy l "Replace By" -STARTLINE M {None White Black ""}}
 }
  Input {
@@ -21,31 +22,31 @@ Gizmo {
   xpos -92
   ypos -63
  }
-set Ne5a8000 [stack 0]
+set N3ad4400 [stack 0]
  Dot {
   name Dot3
   xpos -149
   ypos -63
  }
-set Ne5d4000 [stack 0]
+set N3ad5400 [stack 0]
  Dot {
   name Dot2
   xpos -244
   ypos -63
  }
-set Ne601800 [stack 0]
+set N3ad5000 [stack 0]
  Dot {
   name Dot1
   xpos -338
   ypos -63
  }
-set Ne601000 [stack 0]
+set N3ad4c00 [stack 0]
  Dot {
   name Dot7
   xpos -428
   ypos -63
  }
-set Neee8800 [stack 0]
+set N3ad5c00 [stack 0]
  Shuffle {
   alpha black
   name Black
@@ -59,7 +60,7 @@ set Neee8800 [stack 0]
   ypos 143
   hide_input true
  }
-push $Neee8800
+push $N3ad5c00
  Dot {
   name Dot8
   xpos -527
@@ -78,19 +79,19 @@ push $Neee8800
   ypos 146
   hide_input true
  }
-push $Ne5a8000
+push $N3ad4400
  Dot {
   name Dot6
   xpos -30
   ypos -63
  }
-set Ne5d5c00 [stack 0]
+set N3b06c00 [stack 0]
  Dot {
   name Dot5
   xpos 64
   ypos -63
  }
-set Ne5d5800 [stack 0]
+set N3b06800 [stack 0]
  Dot {
   name Dot4
   xpos 159
@@ -104,7 +105,7 @@ set Ne5d5800 [stack 0]
   xpos 125
   ypos -1
  }
-push $Ne5d5800
+push $N3b06800
  Shuffle {
   red green
   blue green
@@ -113,7 +114,7 @@ push $Ne5d5800
   xpos 30
   ypos -2
  }
-push $Ne5d5c00
+push $N3b06c00
  Shuffle {
   green red
   blue red
@@ -129,7 +130,7 @@ push $Ne5d5c00
   xpos 30
   ypos 54
  }
-push $Ne5d4000
+push $N3ad5400
  Shuffle {
   red blue
   green blue
@@ -137,7 +138,7 @@ push $Ne5d4000
   xpos -183
   ypos -5
  }
-push $Ne601800
+push $N3ad5000
  Shuffle {
   red green
   blue green
@@ -145,7 +146,7 @@ push $Ne601800
   xpos -278
   ypos -6
  }
-push $Ne601000
+push $N3ad4c00
  Shuffle {
   green red
   blue red
@@ -167,7 +168,7 @@ push $Ne601000
   xpos -119
   ypos 111
  }
-set Ne600400 [stack 0]
+set N3b32000 [stack 0]
  Dot {
   name Dot10
   label None
@@ -182,7 +183,7 @@ set Ne600400 [stack 0]
   xpos -508
   ypos 206
  }
-push $Ne600400
+push $N3b32000
  ShuffleCopy {
   inputs 2
   name ShuffleCopy1
