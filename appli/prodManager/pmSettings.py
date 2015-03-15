@@ -105,6 +105,7 @@ class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
         self.pm.project.setParam('rootPath', self.general.getParams())
         self.pm.project.setParam('tasks', self.tasks.getParams())
         self.pm.project.setParam('trees', self.trees.getParams())
+        self.pm.project.setParam('steps', self.steps.getParams())
         self.pm.project.saveSettings()
 
     def closeEvent(self, *args, **kwargs):
@@ -168,8 +169,8 @@ class SettingsWidget(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
         """ Get current tree dict
             :param treeName: Tree name
             :type treeName: str
-            :return: Tree dict
-            :rtype: dict """
+            :return: Tree Params
+            :rtype: dict | list """
         if hasattr(self.cbCurrentTree, treeName):
             treeDict = getattr(self.cbCurrentTree, treeName)
             if treeDict is not None:
@@ -1011,13 +1012,14 @@ class Steps(SettingsWidget):
         super(Steps, self).__init__(settingsUi, 'steps', 'Step')
         self._setupWidget()
         self.initTreeSwitch()
+        self.rf_visibility()
 
     # noinspection PyUnresolvedReferences
     def _setupWidget(self):
         """ Setup widget """
         self.cbCurrentTree.setVisible(True)
-        # self.cbCurrentTree.currentIndexChanged.connect(self.refresh)
-        # self.pbAddItem.clicked.connect(self.on_addStep)
+        self.cbCurrentTree.currentIndexChanged.connect(self.on_treeSwitch)
+        self.pbAddItem.clicked.connect(self.on_addStep)
         self.twTree.setColumnCount(1)
         self.twTree.setHeaderLabels(['Step Name'])
         self.twTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
@@ -1040,6 +1042,19 @@ class Steps(SettingsWidget):
         elif treeType == 'shot':
             return ['anim', 'lighting', 'compo']
 
+    def getParams(self):
+        """ Get widget steps params
+            :return: Steps params
+            :rtype: dict """
+        trees = self.allTreeNames
+        stepsDict = {}
+        for tree in trees:
+            if hasattr(self.cbCurrentTree, tree):
+                stepsDict[tree] = self.getTreeDict(tree)
+            else:
+                self.log.warning("Tree %r not found on treeSwitch" % tree)
+        return stepsDict
+
     def initTreeSwitch(self):
         """ Init tree switch """
         params = self.trees.getParams()
@@ -1048,4 +1063,124 @@ class Steps(SettingsWidget):
             if self.pm.project.steps is None:
                 self.addTreeSwitch(treeName, self.defaultSteps(params[n]['type']))
             else:
-                self.addTreeSwitch(treeName, self.pm.project.steps)
+                self.addTreeSwitch(treeName, self.pm.project.steps[treeName])
+
+    def refresh(self):
+        """ Refresh steps widget """
+        self.twTree.clear()
+        if self.currentTreeName is not None:
+            steps = self.getTreeDict(self.currentTreeName)
+            for step in steps:
+                newItem = self.newStepItem(step)
+                self.twTree.addTopLevelItem(newItem)
+
+    def rf_visibility(self):
+        """ Refresh widget visibility """
+        if self.currentTreeName is None:
+            self.pbAddItem.setEnabled(False)
+            self.pbDelItem.setEnabled(False)
+            self.pbItemUp.setEnabled(False)
+            self.pbItemDn.setEnabled(False)
+        else:
+            self.pbAddItem.setEnabled(True)
+            self.pbDelItem.setEnabled(True)
+            self.pbItemUp.setEnabled(True)
+            self.pbItemDn.setEnabled(True)
+
+    def on_treeSwitch(self):
+        """ Command launched when 'TreeSwitch' QComboBox index changed """
+        self.refresh()
+        self.rf_visibility()
+
+    def on_addStep(self):
+        """ Command launched when 'Add Task' QPushButton is clicked """
+        if self.currentTreeName is not None:
+            StepUi = NewStepUi(self)
+            StepUi.exec_()
+
+    def on_delItem(self):
+        """ Command launch when 'Del Item' QPushButton is clicked """
+        selItems = self.twTree.selectedItems()
+        if selItems:
+            stepName = selItems[0].name
+            super(Steps, self).on_delItem()
+            params = self.getParams()
+            steps = params[self.currentTreeName]
+            if stepName in steps:
+                self.log.debug("Delete Step %r from %r" % (stepName, self.currentTreeName))
+                steps.remove(stepName)
+            else:
+                self.log.warning("Step %r not found in tree %r params" % (stepName, self.currentTreeName))
+
+    def on_moveItem(self, side):
+        """ Command launch when 'up' or 'down' QPushButton is clicked
+            :param side: 'up' or 'down'
+            :type side: str """
+        steps = []
+        super(Steps, self).on_moveItem(side)
+        allItems = pQt.getAllItems(self.twTree)
+        for item in allItems:
+            steps.append(item.name)
+        setattr(self.cbCurrentTree, self.currentTreeName, steps)
+
+    def addStep(self, name):
+        """ Add new Step to QTreeWidget
+            :param name: Step name
+            :type name: str
+            :return: Step item
+            :rtype: QtGui.QTreeWidgetItem """
+        params = self.getParams()
+        if self.currentTreeName is not None:
+            steps = params[self.currentTreeName]
+            newItem = self.newStepItem(name)
+            self.twTree.addTopLevelItem(newItem)
+            steps.append(name)
+            setattr(self.cbCurrentTree, self.currentTreeName, steps)
+            return newItem
+
+    @staticmethod
+    def newStepItem(name):
+        """ Cretae new tree TreeWidgetItem
+            :param name: Step name
+            :type name: str
+            :return: Step item
+            :rtype: QTreeWidgetItem """
+        newItem = QtGui.QTreeWidgetItem()
+        newItem.setText(0, name)
+        newItem.name = name
+        return newItem
+
+
+class NewStepUi(QtGui.QDialog, defaultSettingsDialUI.Ui_settingsItem):
+    """ QDialog class used by 'Steps' QWidget
+        :param QWidget: Parent widget
+        :type QWidget: QtGui.QWidget """
+
+    def __init__(self, QWidget):
+        self.pWidget = QWidget
+        self.log = self.pWidget.log
+        super(NewStepUi, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup dialog """
+        self.setupUi(self)
+        self.qfRootPath.setVisible(False)
+        self.qfTask.setVisible(False)
+        self.qfTreeName.setVisible(False)
+        self.qfStep.setVisible(True)
+        self.pbAdd.clicked.connect(self.accept)
+        self.pbCancel.clicked.connect(self.close)
+
+    def accept(self):
+        """ Command launched when QPushButton 'Add' is clicked. Update parent widget """
+        stepName = str(self.leStep.text())
+        if stepName in ['', ' ']:
+            log = "Step name can not be empty !!!"
+            self.log.error(log)
+            raise ValueError, log
+        result = self.pWidget.addStep(stepName)
+        if result is not None:
+            self.close()
+            self.log.debug("Step %r successfully added." % stepName)
