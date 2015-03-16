@@ -3,7 +3,8 @@ version 9.0 v1
 Gizmo {
  help "Keep selected channel.\n(Kind of shuffle)"
  tile_color 0xb23b68ff
- addUserKnob {20 tabControl l Control}
+ label "\[value pcChannel]"
+ addUserKnob {20 tabReorder l Reorder}
  addUserKnob {26 line0 l "Channel Control"}
  addUserKnob {4 pcChannel l Channel M {Red Green Blue}}
  addUserKnob {26 line1 l "Alpha Control"}
@@ -22,31 +23,31 @@ Gizmo {
   xpos -92
   ypos -63
  }
-set N3ad4400 [stack 0]
+set N432a400 [stack 0]
  Dot {
   name Dot3
   xpos -149
   ypos -63
  }
-set N3ad5400 [stack 0]
+set N432b400 [stack 0]
  Dot {
   name Dot2
   xpos -244
   ypos -63
  }
-set N3ad5000 [stack 0]
+set N432b000 [stack 0]
  Dot {
   name Dot1
   xpos -338
   ypos -63
  }
-set N3ad4c00 [stack 0]
+set N432ac00 [stack 0]
  Dot {
   name Dot7
   xpos -428
   ypos -63
  }
-set N3ad5c00 [stack 0]
+set N432bc00 [stack 0]
  Shuffle {
   alpha black
   name Black
@@ -60,7 +61,7 @@ set N3ad5c00 [stack 0]
   ypos 143
   hide_input true
  }
-push $N3ad5c00
+push $N432bc00
  Dot {
   name Dot8
   xpos -527
@@ -79,19 +80,19 @@ push $N3ad5c00
   ypos 146
   hide_input true
  }
-push $N3ad4400
+push $N432a400
  Dot {
   name Dot6
   xpos -30
   ypos -63
  }
-set N3b06c00 [stack 0]
+set N4388000 [stack 0]
  Dot {
   name Dot5
   xpos 64
   ypos -63
  }
-set N3b06800 [stack 0]
+set N4389c00 [stack 0]
  Dot {
   name Dot4
   xpos 159
@@ -105,7 +106,7 @@ set N3b06800 [stack 0]
   xpos 125
   ypos -1
  }
-push $N3b06800
+push $N4389c00
  Shuffle {
   red green
   blue green
@@ -114,7 +115,7 @@ push $N3b06800
   xpos 30
   ypos -2
  }
-push $N3b06c00
+push $N4388000
  Shuffle {
   green red
   blue red
@@ -130,7 +131,7 @@ push $N3b06c00
   xpos 30
   ypos 54
  }
-push $N3ad5400
+push $N432b400
  Shuffle {
   red blue
   green blue
@@ -138,7 +139,7 @@ push $N3ad5400
   xpos -183
   ypos -5
  }
-push $N3ad5000
+push $N432b000
  Shuffle {
   red green
   blue green
@@ -146,7 +147,7 @@ push $N3ad5000
   xpos -278
   ypos -6
  }
-push $N3ad4c00
+push $N432ac00
  Shuffle {
   green red
   blue red
@@ -168,7 +169,7 @@ push $N3ad4c00
   xpos -119
   ypos 111
  }
-set N3b32000 [stack 0]
+set N43adc00 [stack 0]
  Dot {
   name Dot10
   label None
@@ -183,7 +184,7 @@ set N3b32000 [stack 0]
   xpos -508
   ypos 206
  }
-push $N3b32000
+push $N43adc00
  ShuffleCopy {
   inputs 2
   name ShuffleCopy1

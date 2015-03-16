@@ -2,9 +2,9 @@
 version 9.0 v1
 Gizmo {
  inputs 2
- help "Restore high lights\n(Kind of softClip)"
+ help "Show alpha channel"
  tile_color 0x9e985eff
- addUserKnob {20 tabRestoreHl l Control}
+ addUserKnob {20 tabRestoreHl l RestoreHL}
  addUserKnob {26 line0 l "Mask Control"}
  addUserKnob {6 cbUseMask l "Use Mask" +STARTLINE}
  addUserKnob {6 cbMask l "Show Mask" t "Show Mask Channel" -STARTLINE}
@@ -30,8 +30,8 @@ Gizmo {
   ypos -443
   number 1
  }
-set N66203c00 [stack 0]
-push $N66203c00
+set N446b000 [stack 0]
+push $N446b000
  Shuffle {
   red alpha
   green alpha
@@ -54,7 +54,7 @@ push $N66203c00
   xpos 633
   ypos -252
  }
-set N727bec00 [stack 0]
+set N446b800 [stack 0]
  Shuffle {
   red alpha
   green alpha
@@ -63,7 +63,7 @@ set N727bec00 [stack 0]
   xpos 599
   ypos -197
  }
-set N65030400 [stack 0]
+set N44db000 [stack 0]
  PostageStamp {
   name AlphaMaskResult
   xpos 51
@@ -83,13 +83,13 @@ set N65030400 [stack 0]
   xpos 492
   ypos -486
  }
-set N716a4c00 [stack 0]
+set N44da400 [stack 0]
  Dot {
   name Dot5
   xpos 346
   ypos -486
  }
-set N716a5000 [stack 0]
+set N44da000 [stack 0]
  Keyer {
   operation "luminance key"
   range {0.5667848192 0.6191377175 1 1}
@@ -112,7 +112,7 @@ set N716a5000 [stack 0]
   xpos 161
   ypos -365
  }
-set N727bf400 [stack 0]
+set N44db400 [stack 0]
  Merge2 {
   inputs 2
   operation in
@@ -126,36 +126,36 @@ set N727bf400 [stack 0]
   xpos 195
   ypos -123
  }
-set N727bf000 [stack 0]
+set N4507400 [stack 0]
  Dot {
   name Dot1
   xpos 195
   ypos -66
  }
-push $N727bf000
-push $N65030400
-push $N727bec00
-push $N727bf400
+push $N4507400
+push $N44db000
+push $N446b800
+push $N44db400
  Dot {
   name Dot2
   xpos 271
   ypos -361
  }
-set N727be800 [stack 0]
+set N4506c00 [stack 0]
  Dot {
   name Dot3
   xpos 271
   ypos -309
  }
-set N727be400 [stack 0]
+set N4506800 [stack 0]
  Dot {
   name Dot4
   xpos 271
   ypos -252
  }
-push $N727be400
-push $N727be800
-push $N716a5000
+push $N4506800
+push $N4506c00
+push $N44da000
  Grade {
   inputs 1+1
   multiply 0.65
@@ -180,7 +180,7 @@ push $N716a5000
   ypos -256
   disable {{"abs(parent.cbGrade - 1)"}}
  }
-push $N716a4c00
+push $N44da400
  Keymix {
   inputs 3
   name Keymix1
