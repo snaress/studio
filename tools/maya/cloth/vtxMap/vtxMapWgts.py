@@ -21,6 +21,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         self.setupUi(self)
         self.pbUpdate.clicked.connect(self.on_update)
         self.twSceneNodes.itemClicked.connect(self.on_sceneNodes)
+        self.twSceneNodes.itemDoubleClicked.connect(self.on_selectSceneNode)
         self.cbCloth.clicked.connect(self.on_showClothType)
         self.cbRigid.clicked.connect(self.on_showClothType)
 
@@ -61,6 +62,14 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         selItems = self.twSceneNodes.selectedItems()
         if selItems:
             self.mainUi.on_init(shapeName=selItems[0].nodeShape)
+
+    def on_selectSceneNode(self):
+        """ Command launched when QTreeWidgetItem 'Scene Nodes' is double clicked,
+            Update maya Ui with selected clothNode """
+        selItems = self.twSceneNodes.selectedItems()
+        if selItems:
+            self.on_sceneNodes()
+            vmCmds.selectModel(self.mainUi.clothNode)
 
     def on_showClothType(self):
         """ Command launched when QCheckButton 'nCloth' or 'nRigid' is clicked,

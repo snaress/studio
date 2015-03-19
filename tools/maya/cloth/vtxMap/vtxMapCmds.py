@@ -1,4 +1,3 @@
-import tools.maya.cmds as smc
 from tools.maya.cmds import pCloth
 try:
     import maya.cmds as mc
@@ -125,6 +124,14 @@ def paintVtxMap(clothNode, mapName):
 def clearVtxSelection():
     """ Clear vertex selection on model """
     mc.select(cl=True)
+
+def selectModel(clothNode):
+    """ Select model from given clothNode
+        :param clothNode: Cloth node name
+        :type clothNode: str """
+    model = getModelFromClothNode(clothNode)
+    if mc.objExists(model):
+        mc.select(model, r=True)
 
 def selectVtxOnModel(vtxToSelect):
     """ Select given vertex list
