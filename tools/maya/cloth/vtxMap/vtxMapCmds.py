@@ -70,9 +70,12 @@ def getVtxMapType(clothNode, mapType):
 
 def setVtxMapType(clothNode, mapType, value):
     """ Set given clothNode vtxMap value
-        :param clothNode: (str) : Cloth node name
-        :param mapType: (str) : Cloth node vtxMap name (must ends with 'MapType')
-        :param value: (int) : VtxMap type (0 = None, 1 = Vertex, 2 = Texture) """
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :param mapType: Cloth node vtxMap name (must ends with 'MapType')
+        :type mapType: str
+        :param value: VtxMap type (0 = None, 1 = Vertex, 2 = Texture)
+        :type value: int """
     pCloth.setVtxMapType(clothNode, mapType, value)
 
 def getVtxMapData(clothNode, vtxMap):

@@ -1,9 +1,11 @@
+import os
 from PyQt4 import QtGui, QtCore, Qt
 from functools import partial
 from lib.qt import procQt as pQt
+from lib.system import procFile as pFile
 from tools.maya.cloth.vtxMap import vtxMapCmds as vmCmds
-from tools.maya.cloth.vtxMap.ui import wgSceneNodesUI, wgVtxTypeUI, wgVtxMapUI, wgVtxEditUI, wgVtxInfoUI
-
+from tools.maya.cloth.vtxMap.ui import wgSceneNodesUI, wgVtxTypeUI, wgVtxMapUI, wgVtxEditUI
+from tools.maya.cloth.vtxMap.ui import wgVtxInfoUI, wgVtxFileUI
 
 class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
     """ Widget SceneNodes, child of mainUi
@@ -131,6 +133,21 @@ class VtxMapUi(QtGui.QWidget, wgVtxTypeUI.Ui_wgVtxType):
             :return: Initialized cloth node name
             :rtype: str """
         return self.mainUi.clothNode
+
+    def getParams(self):
+        """ Get all vertex map data
+            :return: Vertex maps data
+            :rtype: dict """
+        mapsDict = {}
+        allItems = pQt.getAllItems(self.twMapType)
+        for item in allItems:
+            node = item._widget
+            mapsDict[node.mapName] = {'mapType': node.vtxMapIndex}
+            if node.vtxMapType == 'Vertex':
+                mapsDict[node.mapName]['mapData'] = vmCmds.getVtxMapData(self.clothNode, node.vtxMap)
+            else:
+                mapsDict[node.mapName]['mapData'] = None
+        return mapsDict
 
     def rf_mapType(self):
         """ Refresh QTreeWidget 'Vertex Map Type' """
@@ -565,3 +582,198 @@ class VtxInfoUi(QtGui.QWidget, wgVtxInfoUI.Ui_wgVtxInfo):
         newItem.vtxIndex = n
         newItem.vtxInf = val
         return newItem
+
+
+class VtxFileUi(QtGui.QWidget, wgVtxFileUI.Ui_wgVtxFile):
+    """ Widget VtxFile, child of mainUi
+        :param mainUi: VertexMap mainUi
+        :type mainUi: QtGui.QMainWindow """
+
+    def __init__(self, mainUi):
+        self.mainUi = mainUi
+        self.maps = self.mainUi.wgVtxType
+        super(VtxFileUi, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup widget ui """
+        self.setupUi(self)
+        self.pbSetImpPath.clicked.connect(partial(self.on_setRootPath, 'load'))
+        self.pbSetExpPath.clicked.connect(partial(self.on_setRootPath, 'save'))
+        self.pbLoad.clicked.connect(self.on_load)
+        self.pbSave.clicked.connect(self.on_save)
+
+    @property
+    def clothNode(self):
+        """ Get cloth node name from ui
+            :return: Initialized cloth node name
+            :rtype: str """
+        return self.mainUi.clothNode
+
+    def getRootPath(self, fileMode):
+        """ Get root path from ui
+            :param fileMode: Vertex file mode ('load' or 'save')
+            :type fileMode: str
+            :return: Root path
+            :rtype: str """
+        if fileMode == 'load':
+            return str(self.leImpRootPath.text())
+        elif fileMode == 'save':
+            return str(self.leExpRootPath.text())
+
+    def getMode(self, fileMode):
+        """ Get load or save mode from ui
+            :param fileMode: Vertex file mode ('load' or 'save')
+            :type fileMode: str
+            :return: Load or save mode ('all' or 'sel')
+            :rtype: str """
+        if fileMode == 'load':
+            state = self.cbImpAll.isChecked()
+        else:
+            state = self.cbExpAll.isChecked()
+        if state:
+            return 'all'
+        else:
+            return 'sel'
+
+    def getPathInfo(self, path, fileMode):
+        """ Get path info from given path
+            :param path: Absolute path
+            :type path: str
+            :param fileMode: Vertex file mode ('load' or 'save')
+            :type fileMode: str
+            :return: Path info
+            :rtype: dict """
+        #-- Get Path Info --#
+        fileAbsPath = path
+        filePath = os.path.dirname(fileAbsPath)
+        fileName = os.path.basename(fileAbsPath)
+        fileExt = os.path.splitext(fileName)[1]
+        #-- Check Extension --#
+        if not fileExt == '.py':
+            fileExt = '.py'
+        fileExt = fileExt.replace('.', '')
+        fileName = "%s.%s" % (os.path.splitext(fileName)[0], fileExt)
+        fileAbsPath = pFile.conformPath(os.path.join(filePath, fileName))
+        #-- Check Map File --#
+        if not os.path.exists(fileAbsPath):
+            mode = 'all'
+        else:
+            mode = self.getMode(fileMode)
+        #-- Result --#
+        return {'filePath': filePath, 'fileName': fileName, 'fileExt': fileExt,
+                'absPath': fileAbsPath, 'mode': mode}
+
+    def on_setRootPath(self, fileMode):
+        """ Command launch when pbSetExpPath is clicked, launch fileDialog
+            :param fileMode: Vertex file mode ('load' or 'save')
+            :type fileMode: str """
+        root = self.getRootPath(fileMode)
+        self.fdRootPath = pQt.fileDialog(fdRoot=root, fdCmd=partial(self.ud_rootPath, fileMode))
+        self.fdRootPath.setFileMode(QtGui.QFileDialog.DirectoryOnly)
+        self.fdRootPath.exec_()
+
+    def on_load(self):
+        """ Command launch when pbLoad is clicked, launch fileDialog """
+        if self.checkMap():
+            root = self.getRootPath('load')
+            self.fdLoadMap = pQt.fileDialog(fdMode='load', fdRoot=root, fdCmd=self.loadMap, fdFilters=['*.py'])
+            self.fdLoadMap.setFileMode(QtGui.QFileDialog.AnyFile)
+            self.fdLoadMap.exec_()
+
+    def on_save(self):
+        """ Command launch when pbSave is clicked, launch fileDialog """
+        if self.checkMap():
+            root = self.getRootPath('save')
+            self.fdSaveMap = pQt.fileDialog(fdMode='save', fdRoot=root,
+                                            fdCmd=self.saveMap, fdFilters=['*.py'])
+            self.fdSaveMap.setFileMode(QtGui.QFileDialog.AnyFile)
+            self.fdSaveMap.exec_()
+
+    def ud_rootPath(self, fileMode):
+        """ Update root path
+            :param fileMode: Vertex file mode ('load' or 'save')
+            :type fileMode: str """
+        selPath = self.fdRootPath.selectedFiles()
+        if selPath:
+            if fileMode == 'load':
+                self.leImpRootPath.setText(str(selPath[0]))
+            elif fileMode == 'save':
+                self.leExpRootPath.setText(str(selPath[0]))
+
+    def checkMap(self):
+        """ Check map before load or save
+            :return: Check result
+            :rtype: bool """
+        check = True
+        if self.clothNode is None:
+            print "!!! VTX MAP: No cloth node selected !!!"
+            check = False
+        else:
+            if self.getMode('save') == 'sel':
+                selItems = self.maps.twMapType.selectedItems()
+                if not selItems:
+                    print "!!! VTX MAP: No vertex map selected !!!"
+                    check = False
+        return check
+
+    def loadMap(self):
+        """ Load vertex map file """
+        selPath = self.fdLoadMap.selectedFiles()
+        if selPath:
+            pathInfo = self.getPathInfo(str(selPath[0]), 'load')
+            params = pFile.readPyFile(pathInfo['absPath'])
+            #-- Load All Vertex Maps --#
+            if pathInfo['mode'] == 'all':
+                for mapName in params.keys():
+                    mapType = params[mapName]['mapType']
+                    vmCmds.setVtxMapType(self.clothNode, "%sMapType" % mapName, mapType)
+                    if mapType == 1:
+                        vmCmds.setVtxMapData(self.clothNode, "%sPerVertex" % mapName, params[mapName]['mapData'])
+            #-- Load Selected Vertex Map --#
+            else:
+                selItems = self.maps.twMapType.selectedItems()
+                if selItems:
+                    node = selItems[0]._widget
+                    vmCmds.setVtxMapType(self.clothNode, node.mapType, params[node.mapName]['mapType'])
+                    if params[node.mapName]['mapType'] == 1:
+                        vmCmds.setVtxMapData(self.clothNode, node.vtxMap, params[node.mapName]['mapData'])
+            self.maps.rf_mapType()
+
+    def saveMap(self):
+        """ Save vertex map file """
+        selPath = self.fdSaveMap.selectedFiles()
+        if selPath:
+            pathInfo = self.getPathInfo(str(selPath[0]), 'save')
+            #-- Save All Vertex Maps --#
+            if pathInfo['mode'] == 'all':
+                mapsDict = self.maps.getParams()
+                txt = []
+                for k in sorted(mapsDict.keys()):
+                    txt.append("%s = %s" % (str(k), mapsDict[k]))
+            #-- Save Selected Vertex Map --#
+            else:
+                #-- Get Vertex File Params --#
+                params = pFile.readPyFile(pathInfo['absPath'])
+                selItems = self.maps.twMapType.selectedItems()
+                if selItems:
+                    mapsDict = self.maps.getParams()
+                    node = selItems[0]._widget
+                    params[node.mapName] = mapsDict[node.mapName]
+                #-- Params To String --#
+                txt = []
+                for k in sorted(params.keys()):
+                    txt.append("%s = %s" % (str(k), params[k]))
+            #-- Write File --#
+            try:
+                print "#-- Save Vertex Maps --#"
+                pFile.writeFile(pathInfo['absPath'], '\n'.join(txt))
+                print "ClothMesh: ", vmCmds.getModelFromClothNode(self.clothNode)
+                print "ClothNode: ", self.clothNode
+                print "FilePath: ", pathInfo['filePath']
+                print "FileName: ", pathInfo['fileName']
+                print "FullPath: ", pathInfo['absPath']
+                print "Mode: ", pathInfo['mode']
+            except:
+                print "!!! VTX MAP: Can not write file %s !!!" % pathInfo['absPath']

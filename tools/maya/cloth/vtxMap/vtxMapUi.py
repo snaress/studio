@@ -36,10 +36,13 @@ class VtxMapUi(QtGui.QMainWindow, vtxMapUI.Ui_mwVtxMap):
         self.vlVtxEdition.insertWidget(0, self.wgVtxEdit)
         self.wgVtxInfo = vmWgts.VtxInfoUi(self)
         self.vlVtxValues.insertWidget(0, self.wgVtxInfo)
+        self.wgVtxFile = vmWgts.VtxFileUi(self)
+        self.vlVtxFiles.insertWidget(0, self.wgVtxFile)
 
     def _initUi(self):
         """ Initialized main ui """
         self.wgSceneNodes.rf_sceneNodes()
+        self.rf_mapPath()
 
     @property
     def clothNode(self):
@@ -59,6 +62,12 @@ class VtxMapUi(QtGui.QMainWindow, vtxMapUI.Ui_mwVtxMap):
         else:
             self.vfSceneNodes.setVisible(False)
             self.wgSceneNodes.twSceneNodes.clear()
+
+    def rf_mapPath(self):
+        """ Refresh vertex map root directory """
+        # wsParams = pScene.wsToDict()
+        self.wgVtxFile.leExpRootPath.setText("D:/prods/tdk/assets")
+        self.wgVtxFile.leImpRootPath.setText("D:/prods/tdk/assets")
 
     def on_init(self, shapeName=None):
         """ Command launched when QPushButton 'Init' is clicked,

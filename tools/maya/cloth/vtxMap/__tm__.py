@@ -12,23 +12,18 @@ reload(pCloth)
 #-- VtxMap Tool --#
 from tools.maya.cloth import vtxMap
 reload(vtxMap)
-from tools.maya.cloth.vtxMap.ui import wgSceneNodesUI
+from tools.maya.cloth.vtxMap.ui import wgSceneNodesUI, wgVtxEditUI, wgVtxInfoUI
 reload(wgSceneNodesUI)
-from tools.maya.cloth.vtxMap.ui import wgVtxEditUI
 reload(wgVtxEditUI)
-from tools.maya.cloth.vtxMap.ui import wgVtxInfoUI
 reload(wgVtxInfoUI)
-from tools.maya.cloth.vtxMap.ui import wgVtxMapUI
+from tools.maya.cloth.vtxMap.ui import wgVtxMapUI, wgVtxTypeUI, vtxMapUI, wgVtxFileUI
 reload(wgVtxMapUI)
-from tools.maya.cloth.vtxMap.ui import wgVtxTypeUI
 reload(wgVtxTypeUI)
-from tools.maya.cloth.vtxMap.ui import vtxMapUI
 reload(vtxMapUI)
-from tools.maya.cloth.vtxMap import vtxMapUi
+reload(wgVtxFileUI)
+from tools.maya.cloth.vtxMap import vtxMapUi, vtxMapWgts, vtxMapCmds
 reload(vtxMapUi)
-from tools.maya.cloth.vtxMap import vtxMapWgts
 reload(vtxMapWgts)
-from tools.maya.cloth.vtxMap import vtxMapCmds
 reload(vtxMapCmds)
 
 

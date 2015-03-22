@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\vtxMap\ui\vtxMap.ui'
 #
-# Created: Sun Feb 01 16:02:37 2015
+# Created: Sun Mar 22 02:58:18 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_mwVtxMap(object):
     def setupUi(self, mwVtxMap):
         mwVtxMap.setObjectName(_fromUtf8("mwVtxMap"))
-        mwVtxMap.resize(625, 494)
+        mwVtxMap.resize(625, 354)
         self.centralwidget = QtGui.QWidget(mwVtxMap)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout_3 = QtGui.QGridLayout(self.centralwidget)
@@ -105,6 +105,20 @@ class Ui_mwVtxMap(object):
         self.vlVtxValues.setObjectName(_fromUtf8("vlVtxValues"))
         self.gridLayout_2.addLayout(self.vlVtxValues, 0, 0, 1, 1)
         self.tabVertex.addTab(self.tabVtxValues, _fromUtf8(""))
+        self.tabVtxFiles = QtGui.QWidget()
+        self.tabVtxFiles.setObjectName(_fromUtf8("tabVtxFiles"))
+        self.gridLayout_4 = QtGui.QGridLayout(self.tabVtxFiles)
+        self.gridLayout_4.setMargin(0)
+        self.gridLayout_4.setSpacing(0)
+        self.gridLayout_4.setObjectName(_fromUtf8("gridLayout_4"))
+        self.vlVtxFiles = QtGui.QVBoxLayout()
+        self.vlVtxFiles.setSpacing(2)
+        self.vlVtxFiles.setContentsMargins(-1, 0, -1, 0)
+        self.vlVtxFiles.setObjectName(_fromUtf8("vlVtxFiles"))
+        spacerItem2 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.vlVtxFiles.addItem(spacerItem2)
+        self.gridLayout_4.addLayout(self.vlVtxFiles, 0, 0, 1, 1)
+        self.tabVertex.addTab(self.tabVtxFiles, _fromUtf8(""))
         self.gridLayout_3.addWidget(self.splitter, 3, 0, 1, 1)
         mwVtxMap.setCentralWidget(self.centralwidget)
 
@@ -119,4 +133,5 @@ class Ui_mwVtxMap(object):
         self.cbSceneNodes.setText(_translate("mwVtxMap", "Scene Cloth Nodes", None))
         self.tabVertex.setTabText(self.tabVertex.indexOf(self.tabVtxTools), _translate("mwVtxMap", "Vtx Tools", None))
         self.tabVertex.setTabText(self.tabVertex.indexOf(self.tabVtxValues), _translate("mwVtxMap", "Vtx Values", None))
+        self.tabVertex.setTabText(self.tabVertex.indexOf(self.tabVtxFiles), _translate("mwVtxMap", "Vtx Files", None))
 
