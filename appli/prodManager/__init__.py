@@ -12,6 +12,7 @@ toolPack = __package__
 #-- Global Var --#
 user = os.environ.get('username')
 binPath = os.path.join(studio.rndBinPath, toolName)
+iconPath = os.path.join(toolPath, '_lib', 'icons')
 
 
 #-- Show Info --#

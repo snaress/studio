@@ -16,8 +16,29 @@ class ProdManager(object):
         self._prodId = prodId
         self.binPath = pm.binPath
         self.project = Project(self)
+        self.trees = []
         if self._prodId is not None:
             self.loadProject()
+
+    @property
+    def treeNames(self):
+        """ Get project tree names
+            :return: Tree names
+            :rtype: list """
+        trees = []
+        for tree in self.trees:
+            trees.append(tree.name)
+        return trees
+
+    def getTree(self, treeName):
+        """ Get tree object from treeName
+            :param treeName: Project tree name
+            :type treeName: str
+            :return: Project tree object
+            :rtype: Tree """
+        for tree in self.trees:
+            if tree.name == treeName:
+                return tree
 
     def loadProject(self, prodId=None):
         """ Load given project
@@ -49,6 +70,15 @@ class ProdManager(object):
         self._log.debug("\t Parse project file ...")
         prodDict = pFile.readPyFile(projectFile)
         self.project.updateParams(prodDict)
+        #-- Init Project Trees --#
+        self._initTrees()
+
+    def _initTrees(self):
+        """ Init project trees """
+        self._log.info("#-- Update project Trees --#")
+        self.trees = []
+        for n in self.project.trees.keys():
+            self.trees.append(Tree(self, self.project.trees[n]['name']))
 
     @staticmethod
     def isCleanPath(rootPath, item, checkMode='folder'):
@@ -311,3 +341,88 @@ class Project(object):
             log = "Can not write project file !!! (%s) !!!" % projectFile
             self._log.error(log)
             raise IOError, log
+
+
+class Tree(object):
+    """ ProdManager subClass: Trees params
+        :param prodManager: PrdManager main class
+        :type prodManager: ProdManager
+        :param treeName: Tree name
+        :type treeName: str """
+
+    def __init__(self, prodManager, treeName):
+        self._pm = prodManager
+        self._log = self._pm._log
+        self._log.debug("\t Updating Tree Class %s --#" % treeName)
+        self._project = self._pm.project
+        self.name = treeName
+        self.label = self.name
+        self.type = None
+        self.nodes = []
+        self.updateParams()
+
+    def updateParams(self):
+        """ Update class params """
+        treesDict = self._project.trees
+        for n in sorted(treesDict.keys()):
+            if treesDict[n]['name'] == self.name:
+                self.type = treesDict[n]['type']
+                for m in sorted(treesDict[n]['tree'].keys()):
+                    parentName = treesDict[n]['tree'][m]['_parent']
+                    if parentName is None:
+                        self.nodes.append(TreeNode(self, treesDict[n]['tree'][m]))
+                    else:
+                        nodeParent = self.getTreeNode(parentName)
+                        self.nodes.append(TreeNode(self, treesDict[n]['tree'][m], parent=nodeParent))
+
+    def getParams(self):
+        """ Get class params
+            :return: Tree params
+            :rtype: dict """
+        treeParams = {}
+        for n, node in enumerate(self.nodes):
+            treeParams[n] = node.getParams()
+        return treeParams
+
+    def getTreeNode(self, nodeName):
+        """ Get tree node from given nodeName
+            :param nodeName: Node name
+            :type nodeName: str
+            :return: Tree node
+            :type: TreeNode """
+        for node in self.nodes:
+            if node.name == nodeName:
+                return node
+
+
+class TreeNode(object):
+    """ Tree subClass: TreeNode params
+        :param tree: Parent tree object
+        :type tree: Tree
+        :param nodeDict: Node params
+        :type nodeDict: dict
+        :param parent: Node parent object
+        :type parent: TreeNode """
+
+    def __init__(self, tree, nodeDict, parent=None):
+        self._tree = tree
+        self._parent = parent
+        self.name = nodeDict['name']
+        self.label = nodeDict['label']
+        self.type = nodeDict['type']
+
+    def getParams(self):
+        """ Get class params
+            :return: Node params
+            :rtype: dict """
+        nodeParams = {}
+        #-- Add Node Params --#
+        for k, v in self.__dict__.iteritems():
+            if not k.startswith('_'):
+                nodeParams[k] = v
+        #-- Add Node Parent --#
+        if self._parent is not None:
+            nodeParams['_parent'] = self._parent.name
+        else:
+            nodeParams['_parent'] = None
+        return nodeParams

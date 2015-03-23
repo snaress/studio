@@ -280,6 +280,16 @@
       <item>
        <widget class="QLineEdit" name="leStep"/>
       </item>
+      <item>
+       <widget class="QLabel" name="lStepLabel">
+        <property name="text">
+         <string>Step Label: </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="leStepLabel"/>
+      </item>
      </layout>
     </widget>
    </item>

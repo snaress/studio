@@ -107,6 +107,8 @@ class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
         self.pm.project.setParam('trees', self.trees.getParams())
         self.pm.project.setParam('steps', self.steps.getParams())
         self.pm.project.saveSettings()
+        self.pm._initTrees()
+        self.mainUi.wgMainTree.refresh()
 
     def closeEvent(self, *args, **kwargs):
         """ Command launched when QPushButton 'Close' is clicked, or dialog is closed """
@@ -194,7 +196,6 @@ class SettingsWidget(QtGui.QWidget, defaultSettingsWgtUI.Ui_wgSettings):
                 self.cbCurrentTree.setCurrentIndex(0)
                 self.cbCurrentTree.removeItem(n)
                 delattr(self.cbCurrentTree, treeName)
-                self.log.info("Delete treeSwitch %r successfully" % treeName)
 
     def on_delItem(self):
         """ Command launch when 'Del Item' QPushButton is clicked """
@@ -509,7 +510,7 @@ class Tasks(SettingsWidget):
             item.color = (200, 200, 200)
         else:
             item.color = color
-            newColor.setStyleSheet("background:rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
+        newColor.setStyleSheet("background:rgb(%s, %s, %s)" % (item.color[0], item.color[1], item.color[2]))
         return newColor
 
     def on_taskColor(self, item):
@@ -793,6 +794,8 @@ class Trees(SettingsWidget):
                 defaultTree = self.defaultShotTree
             newTreeDict = {'name': treeName, 'type': treeType, 'tree': defaultTree}
             self.addTreeSwitch(treeName, newTreeDict)
+            #-- Add new tree to other treeSwitch --#
+            self.settingsUi.steps.addTreeSwitch(treeName, self.settingsUi.steps.defaultSteps(treeType))
             return newItem
 
     def addNode(self, nodeLabel, nodeName, nodeType, parent=None):
@@ -816,12 +819,16 @@ class Trees(SettingsWidget):
 
     def on_delItem(self):
         """ Command launch when 'Del Item' QPushButton is clicked """
-        super(Trees, self).on_delItem()
         if self.cbTreeRoots.isChecked():
             selItems = self.twTree.selectedItems()
             if selItems:
-                self.delTreeSwitch(selItems[0].name)
+                treeName = selItems[0].name
+                super(Trees, self).on_delItem()
+                self.delTreeSwitch(treeName)
+                #-- Delete tree in other treeSwitch --#
+                self.settingsUi.steps.delTreeSwitch(treeName)
         elif self.cbTreeContents.isChecked():
+            super(Trees, self).on_delItem()
             self.storeTreeNodes()
 
     def on_moveItem(self, side):
@@ -832,12 +839,18 @@ class Trees(SettingsWidget):
         if self.cbTreeRoots.isChecked():
             treeNames = self.allTreeNames
             treesDict = {}
+            stepsDict = {}
             for treeName in treeNames:
                 treesDict[treeName] = self.getTreeDict(treeName)
+                stepsDict[treeName] = self.settingsUi.steps.getTreeDict(treeName)
                 self.delTreeSwitch(treeName)
+                #-- Clear other treeSwitch --#
+                self.settingsUi.steps.delTreeSwitch(treeName)
             allItems = pQt.getAllItems(self.twTree)
             for item in allItems:
                 self.addTreeSwitch(item.name, treesDict[item.name])
+                #-- Add new tree to other treeSwitch --#
+                self.settingsUi.steps.addTreeSwitch(item.name, stepsDict[item.name])
         elif self.cbTreeContents.isChecked():
             self.storeTreeNodes()
 
@@ -1020,9 +1033,10 @@ class Steps(SettingsWidget):
         self.cbCurrentTree.setVisible(True)
         self.cbCurrentTree.currentIndexChanged.connect(self.on_treeSwitch)
         self.pbAddItem.clicked.connect(self.on_addStep)
-        self.twTree.setColumnCount(1)
-        self.twTree.setHeaderLabels(['Step Name'])
-        self.twTree.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
+        self.twTree.setColumnCount(3)
+        self.twTree.setHeaderLabels(['Step Name', 'Step Label', 'Color'])
+        for n in range(self.twTree.columnCount()):
+            self.twTree.header().setResizeMode(n, QtGui.QHeaderView.ResizeToContents)
 
     @property
     def widgetInfo(self):
@@ -1038,9 +1052,15 @@ class Steps(SettingsWidget):
             :return: Default steps
             :rtype: list """
         if treeType == 'asset':
-            return ['modeling', 'mapping', 'rigg']
+            # return ['mode', 'mapp', 'rigg']
+            return {0: {'name': "mode", 'label': "Modeling", 'color': (155, 232, 232)},
+                    1: {'name': "mapp", 'label': "Mapping", 'color': (255, 170, 0)},
+                    2: {'name': "rigg", 'label': "Rigging", 'color': (255, 255, 0)}}
         elif treeType == 'shot':
-            return ['anim', 'lighting', 'compo']
+            # return ['anim', 'light', 'comp']
+            return {0: {'name': "anim", 'label': "Animation", 'color': (155, 232, 232)},
+                    1: {'name': "light", 'label': "Lighting", 'color': (255, 170, 0)},
+                    2: {'name': "comp", 'label': "Compositing", 'color': (255, 255, 0)}}
 
     def getParams(self):
         """ Get widget steps params
@@ -1069,10 +1089,11 @@ class Steps(SettingsWidget):
         """ Refresh steps widget """
         self.twTree.clear()
         if self.currentTreeName is not None:
-            steps = self.getTreeDict(self.currentTreeName)
-            for step in steps:
-                newItem = self.newStepItem(step)
+            stepsDict = self.getTreeDict(self.currentTreeName)
+            for n in sorted(stepsDict.keys()):
+                newItem = self.newStepItem(stepsDict[n]['name'], stepsDict[n]['label'], stepsDict[n]['color'])
                 self.twTree.addTopLevelItem(newItem)
+                self.twTree.setItemWidget(newItem, 2, newItem._wgColor)
 
     def rf_visibility(self):
         """ Refresh widget visibility """
@@ -1123,7 +1144,7 @@ class Steps(SettingsWidget):
             steps.append(item.name)
         setattr(self.cbCurrentTree, self.currentTreeName, steps)
 
-    def addStep(self, name):
+    def addStep(self, name, label):
         """ Add new Step to QTreeWidget
             :param name: Step name
             :type name: str
@@ -1132,23 +1153,69 @@ class Steps(SettingsWidget):
         params = self.getParams()
         if self.currentTreeName is not None:
             steps = params[self.currentTreeName]
-            newItem = self.newStepItem(name)
+            color = (200, 200, 200)
+            newItem = self.newStepItem(name, label, color)
             self.twTree.addTopLevelItem(newItem)
-            steps.append(name)
+            self.twTree.setItemWidget(newItem, 2, newItem._wgColor)
+            stepsDict = self.getTreeDict(self.currentTreeName)
+            stepsDict[len(stepsDict.keys())] = {'name': name, 'label': label, 'color': color}
             setattr(self.cbCurrentTree, self.currentTreeName, steps)
             return newItem
 
-    @staticmethod
-    def newStepItem(name):
+    def newStepItem(self, name, label, color):
         """ Cretae new tree TreeWidgetItem
             :param name: Step name
             :type name: str
+            :param label: Step label
+            :type label: str
+            :param color: Step color
+            :type color: tuple
             :return: Step item
             :rtype: QTreeWidgetItem """
         newItem = QtGui.QTreeWidgetItem()
         newItem.setText(0, name)
+        newItem.setText(1, label)
         newItem.name = name
+        newItem.label = label
+        newItem._wgColor = self.newStepColor(newItem, color)
         return newItem
+
+    def newStepColor(self, item, color):
+        """ New step color QPushButton
+            :param item: Parent QTreeWidgetItem
+            :type item: QtGui.QTreeWidgetItem
+            :param color: Rgb color
+            :type color: tuple
+            :return: New step color QPushButton
+            :rtype: QtGui.QPushButton """
+        newColor = QtGui.QPushButton()
+        newColor.setText('')
+        newColor.setMaximumWidth(40)
+        newColor.connect(newColor, QtCore.SIGNAL("clicked()"), partial(self.on_stepColor, item))
+        if color is None:
+            item.color = (200, 200, 200)
+        else:
+            item.color = color
+        newColor.setStyleSheet("background:rgb(%s, %s, %s)" % (item.color[0], item.color[1], item.color[2]))
+        return newColor
+
+    def on_stepColor(self, item):
+        """ Command launch when 'colorChoice' QPushButton is clicked
+            :param item: Step item
+            :type item: QtGui.QTreeWidgetItem """
+        # noinspection PyArgumentList
+        color = QtGui.QColorDialog.getColor()
+        if color.isValid():
+            rgba = color.getRgb()
+            item._wgColor.setStyleSheet("background:rgb(%s, %s, %s)" % (rgba[0], rgba[1], rgba[2]))
+            item.color = (rgba[0], rgba[1], rgba[2])
+            #-- Update Tree Switch --#
+            stepsDict = self.getTreeDict(self.currentTreeName)
+            for n in sorted(stepsDict.keys()):
+                if stepsDict[n]['name'] == item.name:
+                    stepsDict[n]['color'] = item.color
+            setattr(self, self.currentTreeName, stepsDict)
+            self.log.debug("\t %s color = %s" % (item.name, (rgba[0], rgba[1], rgba[2])))
 
 
 class NewStepUi(QtGui.QDialog, defaultSettingsDialUI.Ui_settingsItem):
@@ -1176,11 +1243,12 @@ class NewStepUi(QtGui.QDialog, defaultSettingsDialUI.Ui_settingsItem):
     def accept(self):
         """ Command launched when QPushButton 'Add' is clicked. Update parent widget """
         stepName = str(self.leStep.text())
-        if stepName in ['', ' ']:
-            log = "Step name can not be empty !!!"
+        stepLabel = str(self.leStepLabel.text())
+        if stepName in ['', ' '] or stepLabel in ['', ' ']:
+            log = "Step name or label can not be empty !!!"
             self.log.error(log)
             raise ValueError, log
-        result = self.pWidget.addStep(stepName)
+        result = self.pWidget.addStep(stepName, stepLabel)
         if result is not None:
             self.close()
-            self.log.debug("Step %r successfully added." % stepName)
+            self.log.debug("Step %r - %r successfully added." % (stepName, stepLabel))

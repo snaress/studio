@@ -2,8 +2,10 @@ import sys
 from lib.qt import procQt as pQt
 from PyQt4 import QtGui, QtCore, Qt
 from lib.system import procFile as pFile
-from appli.prodManager import prodManager, pmSettings
+from appli import prodManager as pmPack
+from appli.prodManager import prodManager, pmSettings, pmTree
 from appli.prodManager.ui import prodLoaderUI, prodManagerUI, newProjectUI
+
 
 class ProdLoaderUi(QtGui.QMainWindow, prodLoaderUI.Ui_mwProdLoader):
     """ QMainWindow class launched when ProdManager QMainWindow is called
@@ -241,8 +243,9 @@ class ProdManagerUi(QtGui.QMainWindow, prodManagerUI.Ui_mwProdManager):
 
     def __init__(self, prodId=None, logLvl='info'):
         self.log = pFile.Logger(title="ProdManagerUi", level=logLvl)
-        self.log.info("########## ProdManager UI ##########", newLinesBefor=1)
         self.pm = prodManager.ProdManager(prodId=prodId, logLvl=logLvl)
+        self.log.info("########## ProdManager UI ##########", newLinesBefor=1)
+        self.iconPath = pFile.conformPath(pmPack.iconPath)
         super(ProdManagerUi, self).__init__()
         self._setupUi()
 
@@ -252,6 +255,8 @@ class ProdManagerUi(QtGui.QMainWindow, prodManagerUI.Ui_mwProdManager):
         self.setupUi(self)
         self._setWindowTitle()
         self.miProjectSettings.triggered.connect(self.on_projectSettings)
+        self.wgMainTree = pmTree.MainTree(self, self.log.level)
+        self.vlLeftUi.addWidget(self.wgMainTree)
 
     def _setWindowTitle(self):
         """ Set window title """
@@ -282,8 +287,8 @@ def launch(prodId=None, logLvl='info'):
     else:
         window = ProdManagerUi(prodId=prodId, logLvl=logLvl)
     window.show()
-    if prodId is not  None:
-        window.on_projectSettings()
+    # if prodId is not None:
+    #     window.on_projectSettings()
     sys.exit(app.exec_())
 
 

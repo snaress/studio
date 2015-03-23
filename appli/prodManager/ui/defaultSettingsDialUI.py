@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\prodManager\ui\defaultSettingsDial.ui'
 #
-# Created: Sat Feb 28 23:02:01 2015
+# Created: Mon Mar 23 01:29:01 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -122,6 +122,12 @@ class Ui_settingsItem(object):
         self.leStep = QtGui.QLineEdit(self.qfStep)
         self.leStep.setObjectName(_fromUtf8("leStep"))
         self.hlStep.addWidget(self.leStep)
+        self.lStepLabel = QtGui.QLabel(self.qfStep)
+        self.lStepLabel.setObjectName(_fromUtf8("lStepLabel"))
+        self.hlStep.addWidget(self.lStepLabel)
+        self.leStepLabel = QtGui.QLineEdit(self.qfStep)
+        self.leStepLabel.setObjectName(_fromUtf8("leStepLabel"))
+        self.hlStep.addWidget(self.leStepLabel)
         self.gridLayout.addWidget(self.qfStep, 3, 0, 1, 1)
 
         self.retranslateUi(settingsItem)
@@ -137,4 +143,5 @@ class Ui_settingsItem(object):
         self.lName.setText(_translate("settingsItem", "Task Name: ", None))
         self.lLabel.setText(_translate("settingsItem", "Task Label: ", None))
         self.lStep.setText(_translate("settingsItem", "Step Name: ", None))
+        self.lStepLabel.setText(_translate("settingsItem", "Step Label: ", None))
 
