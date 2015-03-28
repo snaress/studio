@@ -54,8 +54,10 @@ def findTypeInHistory(obj, objType, future=False, past=False):
         :type future: bool
         :param past: Past depth
         :type past: bool
-        :return: Closest node connected
-        :rtype: str """
+        :return: Connected objType nodes
+        :rtype: list """
+    # Test with list return instead of closest connected node
+    # Replace return pastObjs with return pastObjs[0] etc
     if past and future:
         # In the case that the object type exists in both past and future,
         # find the one that is fewer connections away.
@@ -69,25 +71,25 @@ def findTypeInHistory(obj, objType, future=False, past=False):
                 if len(pastList) < mini:
                     mini = len(pastList)
                 for i in range(mini):
-                    if pastList[i] == pastObjs[0]:
-                        return pastObjs[0]
-                    if futureList[i] == futureObjs[0]:
-                        return futureObjs[0]
+                    if pastList[i] in pastObjs:
+                        return pastObjs
+                    if futureList[i] in futureObjs:
+                        return futureObjs
             else:
-                return pastObjs[0]
+                return pastObjs
         elif futureObjs:
-            return futureObjs[0]
+            return futureObjs
     else:
         if past:
             hist = mc.listHistory(obj, f=False, bf=True, af=True)
             objs = mc.ls(hist, type=objType)
             if objs:
-                return objs[0]
+                return objs
         if future:
             hist = mc.listHistory(obj, f=True, bf=True, af=True)
             objs = mc.ls(hist, type=objType)
             if objs:
-                return objs[0]
+                return objs
 
 def transfertWrapConns(wrapPlugs, newNode):
     """ Given a list of wrap plugs, transfer the connections from
