@@ -75,7 +75,7 @@ class ProdManager(object):
 
     def _initTrees(self):
         """ Init project trees """
-        self._log.info("#-- Update project Trees --#")
+        self._log.info("#-- Update trees params --#")
         self.trees = []
         for n in self.project.trees.keys():
             self.trees.append(Tree(self, self.project.trees[n]['name']))
@@ -353,7 +353,7 @@ class Tree(object):
     def __init__(self, prodManager, treeName):
         self._pm = prodManager
         self._log = self._pm._log
-        self._log.debug("\t Updating Tree Class %s --#" % treeName)
+        self._log.debug("\t Updating %r Tree Class --#" % treeName)
         self._project = self._pm.project
         self.name = treeName
         self.label = self.name

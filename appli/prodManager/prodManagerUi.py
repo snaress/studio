@@ -3,7 +3,7 @@ from lib.qt import procQt as pQt
 from PyQt4 import QtGui, QtCore, Qt
 from lib.system import procFile as pFile
 from appli import prodManager as pmPack
-from appli.prodManager import prodManager, pmSettings, pmTree
+from appli.prodManager import prodManager, pmSettings, pmTree, pmInfo
 from appli.prodManager.ui import prodLoaderUI, prodManagerUI, newProjectUI
 
 
@@ -257,6 +257,8 @@ class ProdManagerUi(QtGui.QMainWindow, prodManagerUI.Ui_mwProdManager):
         self.miProjectSettings.triggered.connect(self.on_projectSettings)
         self.wgMainTree = pmTree.MainTree(self, self.log.level)
         self.vlLeftUi.addWidget(self.wgMainTree)
+        self.wgInfo = pmInfo.TabInfo(self, self.log.level)
+        self.vlTabInfo.addWidget(self.wgInfo)
 
     def _setWindowTitle(self):
         """ Set window title """

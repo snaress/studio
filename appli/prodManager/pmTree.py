@@ -14,7 +14,7 @@ class MainTree(QtGui.QWidget, mainTreeUI.Ui_mainTree):
         :type logLvl: str """
 
     def __init__(self, mainUi, logLvl='info'):
-        self.log = pFile.Logger(title="MainTree", level=logLvl)
+        self.log = pFile.Logger(title="MainTreeUi", level=logLvl)
         self.log.info("#-- Main Tree Ui --#")
         self.mainUi = mainUi
         self.pm = self.mainUi.pm
@@ -103,6 +103,7 @@ class MainTreeNode(QtGui.QWidget, mainTreeNodeUI.Ui_wgTreeNode):
         self.pbIcon.setIcon(btnIcon)
         newFont = QtGui.QFont()
         newFont.setBold(True)
+        newFont.setPointSize(10)
         if self.type in ['asset', 'shot', 'container']:
             self.lName.setText(self.label.upper())
         else:

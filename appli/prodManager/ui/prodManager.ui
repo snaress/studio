@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>959</width>
     <height>600</height>
    </rect>
   </property>
@@ -53,14 +53,32 @@
       </item>
       <item>
        <widget class="QTabWidget" name="tabProdManager">
-        <widget class="QWidget" name="tab">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tiInfo">
          <attribute name="title">
-          <string>Tab 1</string>
+          <string>Info</string>
          </attribute>
+         <layout class="QGridLayout" name="glTabInfo">
+          <property name="margin">
+           <number>1</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <layout class="QVBoxLayout" name="vlTabInfo">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+           </layout>
+          </item>
+         </layout>
         </widget>
-        <widget class="QWidget" name="tab_2">
+        <widget class="QWidget" name="tiLineTest">
          <attribute name="title">
-          <string>Tab 2</string>
+          <string>LineTest</string>
          </attribute>
         </widget>
        </widget>
@@ -74,7 +92,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>959</width>
      <height>21</height>
     </rect>
    </property>

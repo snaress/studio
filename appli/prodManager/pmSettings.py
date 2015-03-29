@@ -1075,6 +1075,16 @@ class Steps(SettingsWidget):
                 self.log.warning("Tree %r not found on treeSwitch" % tree)
         return stepsDict
 
+    def getParamsFromUi(self):
+        """ Get step params from treeWidget
+            :return: Steps params
+            :rtype: dict """
+        params = {}
+        allItems = pQt.getAllItems(self.twTree)
+        for n, item in enumerate(allItems):
+            params[n] = {'name': item.name, 'label': item.label, 'color': item.color}
+        return params
+
     def initTreeSwitch(self):
         """ Init tree switch """
         params = self.trees.getParams()
@@ -1123,31 +1133,32 @@ class Steps(SettingsWidget):
         """ Command launch when 'Del Item' QPushButton is clicked """
         selItems = self.twTree.selectedItems()
         if selItems:
-            stepName = selItems[0].name
+            self.log.debug("Delete step %r" % selItems[0].label)
             super(Steps, self).on_delItem()
-            params = self.getParams()
-            steps = params[self.currentTreeName]
-            if stepName in steps:
-                self.log.debug("Delete Step %r from %r" % (stepName, self.currentTreeName))
-                steps.remove(stepName)
-            else:
-                self.log.warning("Step %r not found in tree %r params" % (stepName, self.currentTreeName))
+            newParams = self.getParamsFromUi()
+            setattr(self.cbCurrentTree, self.currentTreeName, newParams)
 
     def on_moveItem(self, side):
         """ Command launch when 'up' or 'down' QPushButton is clicked
             :param side: 'up' or 'down'
             :type side: str """
-        steps = []
-        super(Steps, self).on_moveItem(side)
-        allItems = pQt.getAllItems(self.twTree)
-        for item in allItems:
-            steps.append(item.name)
-        setattr(self.cbCurrentTree, self.currentTreeName, steps)
+        selItems = self.twTree.selectedItems()
+        if selItems:
+            movedItem = pQt.moveSelItem(self.twTree, selItems[0], side)
+            if movedItem is not None:
+                pQt.deselectAllItems(self.twTree)
+                movedItem._wgColor = self.newStepColor(movedItem, movedItem.color)
+                self.twTree.setItemWidget(movedItem, 2, movedItem._wgColor)
+                newParams = self.getParamsFromUi()
+                setattr(self.cbCurrentTree, self.currentTreeName, newParams)
+                movedItem.setSelected(True)
 
     def addStep(self, name, label):
         """ Add new Step to QTreeWidget
             :param name: Step name
             :type name: str
+            :param label: Step label
+            :type label: str
             :return: Step item
             :rtype: QtGui.QTreeWidgetItem """
         params = self.getParams()
@@ -1177,6 +1188,7 @@ class Steps(SettingsWidget):
         newItem.setText(1, label)
         newItem.name = name
         newItem.label = label
+        newItem.color = color
         newItem._wgColor = self.newStepColor(newItem, color)
         return newItem
 

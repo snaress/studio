@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\prodManager\ui\prodManager.ui'
 #
-# Created: Wed Mar 18 22:14:16 2015
+# Created: Tue Mar 24 01:58:40 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_mwProdManager(object):
     def setupUi(self, mwProdManager):
         mwProdManager.setObjectName(_fromUtf8("mwProdManager"))
-        mwProdManager.resize(800, 600)
+        mwProdManager.resize(959, 600)
         self.centralwidget = QtGui.QWidget(mwProdManager)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
@@ -50,17 +50,25 @@ class Ui_mwProdManager(object):
         self.hlProdManager.addWidget(self.line)
         self.tabProdManager = QtGui.QTabWidget(self.centralwidget)
         self.tabProdManager.setObjectName(_fromUtf8("tabProdManager"))
-        self.tab = QtGui.QWidget()
-        self.tab.setObjectName(_fromUtf8("tab"))
-        self.tabProdManager.addTab(self.tab, _fromUtf8(""))
-        self.tab_2 = QtGui.QWidget()
-        self.tab_2.setObjectName(_fromUtf8("tab_2"))
-        self.tabProdManager.addTab(self.tab_2, _fromUtf8(""))
+        self.tiInfo = QtGui.QWidget()
+        self.tiInfo.setObjectName(_fromUtf8("tiInfo"))
+        self.glTabInfo = QtGui.QGridLayout(self.tiInfo)
+        self.glTabInfo.setMargin(1)
+        self.glTabInfo.setSpacing(0)
+        self.glTabInfo.setObjectName(_fromUtf8("glTabInfo"))
+        self.vlTabInfo = QtGui.QVBoxLayout()
+        self.vlTabInfo.setSpacing(0)
+        self.vlTabInfo.setObjectName(_fromUtf8("vlTabInfo"))
+        self.glTabInfo.addLayout(self.vlTabInfo, 0, 0, 1, 1)
+        self.tabProdManager.addTab(self.tiInfo, _fromUtf8(""))
+        self.tiLineTest = QtGui.QWidget()
+        self.tiLineTest.setObjectName(_fromUtf8("tiLineTest"))
+        self.tabProdManager.addTab(self.tiLineTest, _fromUtf8(""))
         self.hlProdManager.addWidget(self.tabProdManager)
         self.gridLayout.addLayout(self.hlProdManager, 0, 0, 1, 1)
         mwProdManager.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(mwProdManager)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 959, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuProject = QtGui.QMenu(self.menubar)
         self.menuProject.setObjectName(_fromUtf8("menuProject"))
@@ -81,12 +89,13 @@ class Ui_mwProdManager(object):
         self.menubar.addAction(self.menuProject.menuAction())
 
         self.retranslateUi(mwProdManager)
+        self.tabProdManager.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(mwProdManager)
 
     def retranslateUi(self, mwProdManager):
         mwProdManager.setWindowTitle(_translate("mwProdManager", "ProdManager", None))
-        self.tabProdManager.setTabText(self.tabProdManager.indexOf(self.tab), _translate("mwProdManager", "Tab 1", None))
-        self.tabProdManager.setTabText(self.tabProdManager.indexOf(self.tab_2), _translate("mwProdManager", "Tab 2", None))
+        self.tabProdManager.setTabText(self.tabProdManager.indexOf(self.tiInfo), _translate("mwProdManager", "Info", None))
+        self.tabProdManager.setTabText(self.tabProdManager.indexOf(self.tiLineTest), _translate("mwProdManager", "LineTest", None))
         self.menuProject.setTitle(_translate("mwProdManager", "Project", None))
         self.miNewProject.setText(_translate("mwProdManager", "New Project", None))
         self.miLoadProject.setText(_translate("mwProdManager", "Load Project", None))
