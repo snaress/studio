@@ -102,3 +102,16 @@ def wsDictToStr(wsDict=None):
         txt.append("%s = %s" % (k, v))
     return '\n'.join(txt)
 
+def getNamespace(nodeName, returnList=False):
+    """ Get given node namespace
+        :param nodeName: Node full name
+        :type nodeName: str
+        :param returnList: Return result as list instead of str
+        :return: Node namespace, Node name
+        :rtype: (str | list, str) """
+    if ':' in nodeName:
+        if returnList:
+            return nodeName.split(':')[:-1], nodeName.split(':')[-1]
+        else:
+            return ':'.join(nodeName.split(':')[:-1]) , nodeName.split(':')[-1]
+    return None, nodeName
