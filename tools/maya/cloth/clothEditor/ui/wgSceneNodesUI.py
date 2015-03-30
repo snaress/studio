@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgSceneNodes.ui'
 #
-# Created: Sat Mar 28 22:43:09 2015
+# Created: Mon Mar 30 04:27:06 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,13 +26,12 @@ except AttributeError:
 class Ui_wgSceneNodes(object):
     def setupUi(self, wgSceneNodes):
         wgSceneNodes.setObjectName(_fromUtf8("wgSceneNodes"))
-        wgSceneNodes.resize(314, 626)
+        wgSceneNodes.resize(314, 558)
         self.gridLayout = QtGui.QGridLayout(wgSceneNodes)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.splitter = QtGui.QSplitter(wgSceneNodes)
-        self.splitter.setFrameShape(QtGui.QFrame.StyledPanel)
         self.splitter.setOrientation(QtCore.Qt.Vertical)
         self.splitter.setObjectName(_fromUtf8("splitter"))
         self.layoutWidget = QtGui.QWidget(self.splitter)
@@ -56,7 +55,7 @@ class Ui_wgSceneNodes(object):
         self.lSceneNodes.setObjectName(_fromUtf8("lSceneNodes"))
         self.horizontalLayout.addWidget(self.lSceneNodes)
         self.pbRefresh = QtGui.QPushButton(self.layoutWidget)
-        self.pbRefresh.setMaximumSize(QtCore.QSize(60, 16777215))
+        self.pbRefresh.setMaximumSize(QtCore.QSize(50, 20))
         self.pbRefresh.setObjectName(_fromUtf8("pbRefresh"))
         self.horizontalLayout.addWidget(self.pbRefresh)
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -106,13 +105,36 @@ class Ui_wgSceneNodes(object):
         self.cbFilters.setObjectName(_fromUtf8("cbFilters"))
         self.hlShowByType.addWidget(self.cbFilters)
         self.verticalLayout.addLayout(self.hlShowByType)
-        self.twFilters = QtGui.QTreeWidget(self.splitter)
+        self.vfFilters = QtGui.QFrame(self.splitter)
+        self.vfFilters.setObjectName(_fromUtf8("vfFilters"))
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.vfFilters)
+        self.verticalLayout_2.setSpacing(0)
+        self.verticalLayout_2.setMargin(0)
+        self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
+        self.lNameSpace = QtGui.QLabel(self.vfFilters)
+        self.lNameSpace.setMinimumSize(QtCore.QSize(0, 23))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setUnderline(True)
+        font.setWeight(75)
+        self.lNameSpace.setFont(font)
+        self.lNameSpace.setAlignment(QtCore.Qt.AlignCenter)
+        self.lNameSpace.setObjectName(_fromUtf8("lNameSpace"))
+        self.verticalLayout_2.addWidget(self.lNameSpace)
+        self.line_2 = QtGui.QFrame(self.vfFilters)
+        self.line_2.setFrameShape(QtGui.QFrame.HLine)
+        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_2.setObjectName(_fromUtf8("line_2"))
+        self.verticalLayout_2.addWidget(self.line_2)
+        self.twFilters = QtGui.QTreeWidget(self.vfFilters)
         self.twFilters.setIndentation(0)
         self.twFilters.setColumnCount(2)
         self.twFilters.setObjectName(_fromUtf8("twFilters"))
         self.twFilters.headerItem().setText(0, _fromUtf8("1"))
         self.twFilters.headerItem().setText(1, _fromUtf8("2"))
         self.twFilters.header().setVisible(False)
+        self.verticalLayout_2.addWidget(self.twFilters)
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
 
         self.retranslateUi(wgSceneNodes)
@@ -126,4 +148,5 @@ class Ui_wgSceneNodes(object):
         self.cbCloth.setText(_translate("wgSceneNodes", "nCloth", None))
         self.cbRigid.setText(_translate("wgSceneNodes", "nRigid", None))
         self.cbFilters.setText(_translate("wgSceneNodes", "Filters", None))
+        self.lNameSpace.setText(_translate("wgSceneNodes", "Namespace", None))
 

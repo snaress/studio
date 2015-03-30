@@ -1,5 +1,6 @@
-from PyQt4 import QtGui
+import os
 from functools import partial
+from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pRigg
 from tools.maya.cloth.clothEditor import clothEditorCmds as ceCmds
@@ -23,6 +24,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         self.setupUi(self)
         self.pbRefresh.clicked.connect(self.on_refresh)
         self.twSceneNodes.itemClicked.connect(self.on_sceneNodeSingleClick)
+        self.twSceneNodes.itemDoubleClicked.connect(self.on_sceneNodeDoubleClick)
         color = self.mainUi.getLabelColor('green')
         self.cbCloth.setStyleSheet("color: rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
         self.cbCloth.clicked.connect(self.on_showClothType)
@@ -73,9 +75,9 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
     def rf_filterVisibility(self):
         """ Refresh 'Filters' QTreeWidget visibility """
         if self.cbFilters.isChecked():
-            self.twFilters.setMaximumHeight(150)
+            self.vfFilters.setMaximumHeight(200)
         else:
-            self.twFilters.setMaximumHeight(0)
+            self.vfFilters.setMaximumHeight(0)
 
     def rf_sceneNodes(self):
         """ Refresh QTreeWidget 'Scene Nodes' """
@@ -108,6 +110,17 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
                 newItem = self.new_filterItem(item.clothNs)
                 self.twFilters.addTopLevelItem(newItem)
                 self.twFilters.setItemWidget(newItem, 0, newItem._cb)
+
+    def rf_widgetToolTips(self):
+        """ Refresh all widget toolTip """
+        if self.mainUi.toolTipState:
+            self.pbRefresh.setToolTip("Refresh ui from current scene")
+            self.cbCloth.setToolTip("Show / Hide nCloth items")
+            self.cbRigid.setToolTip("Show / Hide nRigid items")
+            self.cbFilters.setToolTip("Show / Hide namespace filters")
+        else:
+            for widget in [self.pbRefresh, self.cbCloth, self.cbRigid, self.cbFilters]:
+                widget.setToolTip("")
 
     def rf_sceneItemToolTips(self):
         """ Refresh all sceneNodes item toolTip """
@@ -158,6 +171,13 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
             pass
         elif self.mainUi.currentTab == 'VtxMap':
             self.mainUi.wgVtxMaps.rf_vtxMapTree()
+
+    def on_sceneNodeDoubleClick(self):
+        """ Command launched when 'SceneNode' QTreeWidgetItem is double clicked """
+        selItems = self.twSceneNodes.selectedItems()
+        if selItems:
+            self.on_sceneNodeSingleClick()
+            ceCmds.selectModel(selItems[0].clothNode)
 
     def on_showClothType(self):
         """ Command launched when QCheckBox 'nCloth' or 'nRigid' is clicked,
@@ -249,20 +269,97 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         super(VtxMapUi, self).__init__()
         self._setupUi()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """ Setup widget ui """
         self.setupUi(self)
+        #-- VtxMap tree --#
+        self.twMaps.itemClicked.connect(self.on_vtxMapNodeSingleClick)
+        self.twMaps.itemDoubleClicked.connect(self.on_vtxMapNodeDoubleClick)
+        #-- VtxMap global edition --#
         color = self.mainUi.getLabelColor('lightGrey')
         self.pbNone.setStyleSheet("color: rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
+        self.pbNone.clicked.connect(partial(self.on_editAll, 'None'))
         color = self.mainUi.getLabelColor('green')
         self.pbVertex.setStyleSheet("color: rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
+        self.pbVertex.clicked.connect(partial(self.on_editAll, 'Vertex'))
         color = self.mainUi.getLabelColor('blue')
         self.pbTexture.setStyleSheet("color: rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
+        self.pbTexture.clicked.connect(partial(self.on_editAll, 'Texture'))
+        #-- VtxMap selection --#
+        self.rbVtxRange.clicked.connect(self.rf_vtxSelMode)
+        self.rbVtxValue.clicked.connect(self.rf_vtxSelMode)
+        self.pbVtxClear.clicked.connect(self.on_vtxClear)
+        self.pbVtxSelect.clicked.connect(self.on_vtxSelection)
+        #-- VtxMap flood --#
+        self.pbFlood.clicked.connect(self.on_flood)
+        #-- VtxMap storage --#
+        for n in range(5):
+            newButton = VtxStorageButton('Set_%s' % (n+1), 'vtxSet', self.mainUi, self)
+            self.hlVtxStorage.addWidget(newButton)
+        for n in range(5):
+            newButton = VtxStorageButton('Data_%s' % (n+1), 'vtxData', self.mainUi, self)
+            self.hlDataStorage.addWidget(newButton)
+        #-- Refresh --#
         self.rf_vtxMapTree()
+
+    @property
+    def paintMode(self):
+        """ Get vertex paint mode
+            :return: Vertex paint mode ('artisan' or 'vtxColor')
+            :rtype: str """
+        if self.cbArtisan.isChecked():
+            return 'artisan'
+        elif self.cbVtxColor.isChecked():
+            return 'vtxColor'
+
+    @property
+    def selectedVtxMapItem(self):
+        """ Get selected vertexMap item
+            :return: Selected vertexMap item
+            :rtype: QtGui.QTreeWidgetItem """
+        selItems = self.twMaps.selectedItems()
+        if selItems:
+            return selItems[0]
+
+    @property
+    def floodMode(self):
+        """ Get flood mode
+            :return: 'replace', 'add', 'mult' or smooth
+            :rtype: str """
+        if self.rbEditReplace.isChecked():
+            return 'replace'
+        elif self.rbEditAdd.isChecked():
+            return 'add'
+        elif self.rbEditMult.isChecked():
+            return 'mult'
+        elif self.rbEditSmooth.isChecked():
+            return 'smooth'
+
+    @property
+    def floodValue(self):
+        """ Get flood vertex value
+            :return: Edition value
+            :rtype: float """
+        return float(self.leEditVal.text())
+
+    @property
+    def vtxClamp(self):
+        """ Get clamp min and max state and value
+            :return: Minimum clamp value (None if disable), Maximum clamp value (None if disable)
+            :rtype: (float, float) """
+        clampMin = None
+        clampMax = None
+        if self.cbClampMin.isChecked():
+            clampMin = float(self.leClampMin.text())
+        if self.cbClampMax.isChecked():
+            clampMax = float(self.leClampMax.text())
+        return clampMin, clampMax
 
     def rf_vtxMapTree(self):
         """ Refresh 'Vertex Map' QTreeWidget """
         self.twMaps.clear()
+        self.pbFlood.setEnabled(True)
         clothItem = self.sceneUi.selectedClothItem
         if clothItem is not None:
             if not clothItem.clothType == 'nucleus':
@@ -272,30 +369,164 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
                     self.twMaps.addTopLevelItem(newItem)
                     self.twMaps.setItemWidget(newItem, 0, newItem._widget)
 
+    def rf_vtxSelMode(self):
+        """ Refresh 'Vertex Selection Mode' """
+        if self.rbVtxRange.isChecked():
+            self.lRangeMin.setText("Min=")
+            self.lRangeMax.setVisible(True)
+            self.leRangeMax.setVisible(True)
+        else:
+            self.lRangeMin.setText("Value=")
+            self.lRangeMax.setVisible(False)
+            self.leRangeMax.setVisible(False)
+
+    def rf_widgetToolTips(self):
+        """ Refresh all widget toolTip """
+        if self.mainUi.toolTipState:
+            self.cbArtisan.setToolTip("Use 'Maya Artisan' for vertexMap display")
+            self.cbVtxColor.setToolTip("Use 'Maya VertexColor' for vertexMap display")
+            self.pbNone.setToolTip("Switch all unlocked vtxMap type to 'None'")
+            self.pbVertex.setToolTip("Switch all unlocked vtxMap type to 'Vertex'")
+            self.pbTexture.setToolTip("Switch all unlocked vtxMap type to 'Texture'")
+            self.rbVtxRange.setToolTip("Use min and max value for vertex selction")
+            self.rbVtxValue.setToolTip("Use single value for vertex selction")
+            self.pbVtxSelect.setToolTip("Select matching vertex influence")
+            self.pbVtxClear.setToolTip("Clear scene selection")
+            self.rbEditReplace.setToolTip("Replace selected vtxMap influence with 'Vertex Value'")
+            self.rbEditAdd.setToolTip("Add 'Vertex Value' to selected vtxMap influence")
+            self.rbEditMult.setToolTip("Multiply 'Vertex Value' to selected vtxMap influence")
+            self.rbEditSmooth.setToolTip("Smooth selected vtxMap influence")
+            self.cbClampMin.setToolTip("Enable / Disable flood min clamp")
+            self.cbClampMax.setToolTip("Enable / Disable flood max clamp")
+            self.leClampMin.setToolTip("flood min clamp value")
+            self.leClampMax.setToolTip("flood max clamp value")
+            self.pbFlood.setToolTip("Flood selected vtxMap influence")
+            self.sbFloodIter.setToolTip("Flood iteration (max=25),\nNot available in 'Replace' mode")
+        else:
+            for widget in [self.cbArtisan, self.cbVtxColor, self.pbNone, self.pbVertex, self.pbTexture,
+                           self.rbVtxRange, self.rbVtxValue, self.pbVtxSelect, self.pbVtxClear, self.rbEditReplace,
+                           self.rbEditAdd, self.rbEditMult, self.rbEditSmooth, self.cbClampMin, self.cbClampMax,
+                           self.leClampMin, self.leClampMax, self.pbFlood, self.sbFloodIter]:
+                widget.setToolTip("")
+
+    def on_vtxMapNodeSingleClick(self):
+        """ Command launched when 'VtxMap Node' QTreeWidgetItem is single clicked """
+        item = self.selectedVtxMapItem
+        if item is not None:
+            if item._widget.vtxMapLock:
+                self.pbFlood.setEnabled(False)
+            else:
+                self.pbFlood.setEnabled(True)
+        else:
+            self.pbFlood.setEnabled(True)
+        # self.mainUi.wgVtxInfo.rf_vtxInfluence()
+
+    def on_vtxMapNodeDoubleClick(self):
+        """ Command launched when 'VtxMap Node' QTreeWidgetItem is double clicked """
+        item = self.selectedVtxMapItem
+        if item is not None:
+            if not item._widget.vtxMapLock:
+                if self.paintMode == 'artisan':
+                    ceCmds.paintVtxMap(item._widget.clothNode, item._widget.mapName)
+                elif self.paintMode == 'vtxColor':
+                    print 'to do'
+                    #ToDo: Vertex color display
+            else:
+                print "!!! Warning: Can not switch to vertex paint view on locked vertex map !!!"
+
+    def on_editAll(self, mapType):
+        """ Command launched when QPushButton 'None', 'Vertex' or 'Texture' is clicked,
+            Set all items to given vertexMap type, update clothNode
+            :param mapType: Vertex map type ('None', 'Vertex', 'Texture')
+            :type mapType: str """
+        vtxMaps = pQt.getAllItems(self.twMaps)
+        for item in vtxMaps:
+            if not item._widget.vtxMapLock:
+                if mapType == 'None':
+                    item._widget.cbState.setCurrentIndex(0)
+                elif mapType == 'Vertex':
+                    item._widget.cbState.setCurrentIndex(1)
+                elif mapType == 'Texture':
+                    item._widget.cbState.setCurrentIndex(2)
+
+    def on_vtxSelection(self):
+        """ Command launched when QPushButton 'Select' is clicked,
+            Select vertex which vtxMap value match with range edition """
+        item = self.selectedVtxMapItem
+        if item is not None:
+            if self.rbVtxRange.isChecked():
+                ceCmds.selectVtxInfluence(item._widget.clothNode, item._widget.mapVtx, 'range',
+                                          minInf=float(self.leRangeMin.text()), maxInf=float(self.leRangeMax.text()))
+            elif self.rbVtxValue.isChecked():
+                ceCmds.selectVtxInfluence(item._widget.clothNode, item._widget.mapVtx, 'value',
+                                          value=float(self.leRangeMin.text()))
+
     @staticmethod
-    def new_vtxMapItem(clothNode, mapName):
+    def on_vtxClear():
+        """ Command launched when QPushButton 'Clear' (range) is clicked,
+            Clear scene selection """
+        ceCmds.clearVtxSelection()
+
+    def on_flood(self):
+        """ Command launched when QPushButton 'Flood' is clicked,
+            Edit selected vertex map influence with new edited influence """
+        #-- Get Vertex Data Info --#
+        item = self.selectedVtxMapItem
+        if item is not None:
+            clothNode = item._widget.clothNode
+            vtxMap = item._widget.mapVtx
+            vtxSel = ceCmds.getModelSelVtx(clothNode, indexOnly=True)
+            vtxData = ceCmds.getVtxMapData(clothNode, vtxMap)
+            for ind in vtxSel:
+                newVal = None
+                #-- Get New Vertex Value --#
+                if self.floodMode == 'replace':
+                    newVal = self.floodValue
+                elif self.floodMode == 'add':
+                    newVal = float(vtxData[ind] + self.floodValue)
+                elif self.floodMode == 'mult':
+                    newVal = float(vtxData[ind] * self.floodValue)
+                if newVal is not None:
+                    #-- Check Vertex Clamp --#
+                    clampMin, clampMax = self.vtxClamp
+                    if clampMin is not None:
+                        if newVal < clampMin:
+                            newVal = clampMin
+                    if clampMax is not None:
+                        if newVal > clampMax:
+                            newVal = clampMax
+                    #-- Edit Vertex Data --#
+                    vtxData[ind] = newVal
+            #-- Set Vertex Map --#
+            ceCmds.setVtxMapData(clothNode, vtxMap, vtxData)
+
+    def new_vtxMapItem(self, clothNode, mapName):
         """ Create new mapType 'QTreeWidgetItem'
             :param clothNode: Cloth node name
             :type clothNode: str
             :param mapName: Vertex map name
             :type mapName: str """
         newItem = QtGui.QTreeWidgetItem()
-        newItem._widget = VtxMapNode(clothNode, mapName)
+        newItem._widget = VtxMapNode(self, clothNode, mapName)
         return newItem
 
 
 class VtxMapNode(QtGui.QWidget, wgVtxMapNodeUI.Ui_wgVtxMapNode):
-    """ Widget VertexMap item, child of VtxMapUi
+    """ Widget VertexMap QTreeWidgetItem node, child of VtxMapUi
         :param clothNode: Cloth node name
         :type clothNode: str
         :param mapName: Vertex map name
         :type mapName: str """
 
-    def __init__(self, clothNode, mapName):
+    def __init__(self, pWidget, clothNode, mapName):
+        self.pWidget = pWidget
+        self.mainUi = self.pWidget.mainUi
         self.clothNode = clothNode
         self.mapName = mapName
-        self.typeName = "%sMapType" % self.mapName
-        self.vtxName = "%sPerVertex" % self.mapName
+        self.mapType = "%sMapType" % self.mapName
+        self.mapVtx = "%sPerVertex" % self.mapName
+        self.lockIconOn = os.path.join(self.mainUi.iconPath, 'lockOn.png')
+        self.lockIconOff = os.path.join(self.mainUi.iconPath, 'lockOff.png')
         super(VtxMapNode, self).__init__()
         self._setupUi()
 
@@ -304,3 +535,189 @@ class VtxMapNode(QtGui.QWidget, wgVtxMapNodeUI.Ui_wgVtxMapNode):
         """ Setup widget ui """
         self.setupUi(self)
         self.lVtxMap.setText(self.mapName)
+        self.cbState.setCurrentIndex(ceCmds.getVtxMapType(self.clothNode, self.mapType))
+        self.cbState.currentIndexChanged.connect(self.on_mapType)
+        self.rf_vtxMapLabel()
+        self.rf_vtxMapLock(rfBtnState=True)
+        self.pbLock.clicked.connect(self.on_mapLock)
+
+    @property
+    def vtxMapIndex(self):
+        """ Get vtxMap current type
+            :return: VtxMap type (0 = None, 1 = Vertex, 2 = Texture)
+            :rtype: int """
+        return self.cbState.currentIndex()
+
+    @property
+    def vtxMapType(self):
+        """ Get vtxMap current type
+            :return: VtxMap type (None, Vertex or Texture)
+            :rtype: str """
+        return str(self.cbState.currentText())
+
+    @property
+    def vtxMapLock(self):
+        """ Get vtxMap lock state
+            :return: VtxMap lock state
+            :rtype: bool """
+        return self.pbLock.isChecked()
+
+    def rf_vtxMapLabel(self):
+        """ Refresh mapType label color """
+        if self.vtxMapIndex == 0:
+            color = self.mainUi.getLabelColor('lightGrey')
+        elif self.vtxMapIndex == 1:
+            color = self.mainUi.getLabelColor('green')
+        elif self.vtxMapIndex == 2:
+            color = self.mainUi.getLabelColor('blue')
+        else:
+            color = self.mainUi.getLabelColor('default')
+        self.lVtxMap.setStyleSheet("color: rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
+
+    def rf_vtxMapLock(self, rfBtnState=False):
+        """ Refresh mapType lock icon """
+        lockType = ceCmds.attrIsLocked("%s.%s" % (self.clothNode, self.mapType))
+        lockVtx = ceCmds.attrIsLocked("%s.%s" % (self.clothNode, self.mapVtx))
+        if lockType or lockVtx:
+            self.lockIcon = QtGui.QIcon(self.lockIconOn)
+            if rfBtnState:
+                self.pbLock.setChecked(True)
+        else:
+            self.lockIcon = QtGui.QIcon(self.lockIconOff)
+            if rfBtnState:
+                self.pbLock.setChecked(False)
+        self.pbLock.setIcon(self.lockIcon)
+        self.cbState.setEnabled(not self.vtxMapLock)
+
+    def on_mapType(self):
+        """ Command launched when QComboBox 'mapType' current index changed
+            Set clothNode mapType, and refresh ui """
+        ceCmds.setVtxMapType(self.clothNode, self.mapType, self.cbState.currentIndex())
+        self.rf_vtxMapLabel()
+
+    def on_mapLock(self):
+        """ Command launched when 'Lock' QPushButton is clicked
+            Set clothNode attribute losk state """
+        ceCmds.setAttrLock("%s.%s" % (self.clothNode, self.mapType), self.vtxMapLock)
+        ceCmds.setAttrLock("%s.%s" % (self.clothNode, self.mapVtx), self.vtxMapLock)
+        self.rf_vtxMapLock()
+        self.pWidget.pbFlood.setEnabled(not self.vtxMapLock)
+
+
+class VtxStorageButton(QtGui.QPushButton):
+    """ Widget vertex storage QPushButton, child of vtxMapUi
+        :param btnLabel: Button label
+        :type btnLabel: str
+        :param btnType: Button storage type ('vtxSet' or 'vtxData')
+        :type btnType: str
+        :param mainUi: VertexMap mainUi
+        :type mainUi: QtGui.QMainWindow
+        :param pWidget: Parent widget
+        :type pWidget: QtGui.QWidget """
+
+    def __init__(self, btnLabel, btnType, mainUi, pWidget):
+        self.btnLabel = btnLabel
+        self.btnType = btnType
+        self.mainUi = mainUi
+        self.pWidget = pWidget
+        self.storage = []
+        super(VtxStorageButton,self).__init__()
+        self._setupUi()
+
+    def _setupUi(self):
+        """ Setup widget ui """
+        self.setText(self.btnLabel)
+        self.setToolTip("Empty")
+
+    def popupMenuItems(self):
+        """ get menuDict considering btnType
+            :return: Menu data
+            :rtype: dict """
+        menuDict = {0: ['Edit ToolTip', self.on_editToolTip]}
+        if self.btnType == 'vtxSet':
+            menuDict[1] = ['Store Selected Vertex', self.on_storeVtxSet]
+            menuDict[2] = ['Clear Vertex Storage', self.on_clearStorage]
+        elif self.btnType == 'vtxData':
+            menuDict[1] = ['Store Selected Data', self.on_storeVtxData]
+            menuDict[2] = ['Clear Data Storage', self.on_clearStorage]
+        return menuDict
+
+    def mousePressEvent(self, event):
+        """ Detect left or right click on QPushButton
+            :param event: event
+            :type event: QtGui.QEvent """
+        if event.button() == QtCore.Qt.LeftButton:
+            self.on_leftClick()
+        elif event.button() == QtCore.Qt.RightButton:
+            self.on_rightClick()
+
+    def on_leftClick(self):
+        """ Command launched when QPushButton is left clicked, Restore stored selection """
+        if self.storage:
+            if self.btnType == 'vtxSet':
+                self.on_vtxSet()
+            elif self.btnType == 'vtxData':
+                self.on_vtxData()
+
+    def on_vtxSet(self):
+        """ Command launched QPushButton is clicked, restore vertex set selection """
+        ceCmds.selectVtxOnModel(self.storage)
+
+    def on_vtxData(self):
+        """ Command launched QPushButton is clicked, restore vertex data storage """
+        item = self.pWidget.selectedVtxMapItem
+        if item is not None:
+            curData = ceCmds.getVtxMapData(item._widget.clothNode, item._widget.mapVtx)
+            if not len(curData) == len(self.storage):
+                print "!!! WARNING: Topo not the same !"
+            else:
+                ceCmds.setVtxMapData(item._widget.clothNode, item._widget.mapVtx, self.storage)
+
+    def on_rightClick(self):
+        """ Command launched when QPushButton is right clicked, launch popupMenu """
+        self.pmMenu = pQt.popupMenu(self.popupMenuItems())
+        #-- Refresh Menu Items Visibility --#
+        if not self.storage:
+            self.pmMenu.items[0].setEnabled(False)
+            self.pmMenu.items[2].setEnabled(False)
+        else:
+            self.pmMenu.items[1].setEnabled(False)
+        #-- Pop Menu --#
+        self.pmMenu.exec_()
+
+    def on_editToolTip(self):
+        """ Command launched when QAction 'Edit ToolTip' is clicked, Launch promp dialog """
+        self.dialToolTip = pQt.PromptDialog("Edit ToolTip", self._dialToolTipAccept)
+        self.dialToolTip.exec_()
+
+    def _dialToolTipAccept(self):
+        """ Command launched when QDialog 'dialToolTip' is accepted, edit button toolTip """
+        self.setToolTip(self.dialToolTip.result()['result_1'])
+        self.dialToolTip.close()
+
+    def on_storeVtxSet(self):
+        """ Command launched when QAction 'Store Vertex Selection' is clicked,
+            Store selected vertex in 'storage' """
+        vtxList = self.mainUi.cleanVtxIndexList()
+        if vtxList:
+            self.storage = vtxList
+            print "// Vertex storage: %s : Success !" % self.btnLabel
+        else:
+            print "!!! WARNING: No vertex found to store !!!"
+
+    def on_storeVtxData(self):
+        """ Command launched when QAction 'Store Vertex Data' is clicked,
+            Store selected data in 'storage' """
+        item = self.pWidget.selectedVtxMapItem
+        if item is not None:
+            data = ceCmds.getVtxMapData(item._widget.clothNode, item._widget.mapVtx)
+            if data:
+                self.storage = data
+                print "// Data storage: %s : Success !" % self.btnLabel
+            else:
+                print "!!! WARNING: No data found to store !!!"
+
+    def on_clearStorage(self):
+        """ Command launched when QAction 'Clear ... Storage' is clicked """
+        self.storage = []
+        self.setToolTip("Empty")

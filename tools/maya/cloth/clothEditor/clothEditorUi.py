@@ -39,7 +39,6 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
             :type color: str
             :return: Rgb color
             :rtype: tuple """
-        rgb = (225, 225, 225)
         if color == 'green':
             rgb = (0, 255, 0)
         elif color == 'blue':
@@ -48,6 +47,8 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
             rgb = (200, 150, 0)
         elif color == 'lightGrey':
             rgb = (175, 175, 175)
+        else:
+            rgb = (225, 225, 225)
         return rgb
 
     @property
@@ -66,7 +67,40 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
 
     def on_miToolTips(self):
         """ Command launched when 'ToolTips' menuItem is clicked """
+        self.wgSceneNodes.rf_widgetToolTips()
         self.wgSceneNodes.rf_sceneItemToolTips()
+        self.wgVtxMaps.rf_widgetToolTips()
+
+    @staticmethod
+    def cleanVtxIndexList(selected=None, indexOnly=False):
+        """ Get a clean index list from selected
+            :param selected: Force using given selection list, if None, parse scene
+            :type selected: list
+            :param indexOnly: If True, return index only, else fullName
+            :type indexOnly: bool
+            :return: Clean index list
+            :rtype: list """
+        if selected is None:
+            selected = mc.ls(sl=True)
+        selVtx = []
+        for node in selected:
+            if node.endswith(']'):
+                selName = node.split('.')[0]
+                ind = node.split('.')[-1].replace('vtx[', '').replace(']','')
+                if not ':' in ind:
+                    if indexOnly:
+                        selVtx.append(int(ind))
+                    else:
+                        selVtx.append("%s.vtx[%s]" % (selName, ind))
+                else:
+                    deb = int(ind.split(':')[0])
+                    fin = int(ind.split(':')[1])
+                    for n in range(deb, (fin + 1), 1):
+                        if indexOnly:
+                            selVtx.append(n)
+                        else:
+                            selVtx.append("%s.vtx[%s]" % (selName, n))
+        return selVtx
 
 
 def launch():

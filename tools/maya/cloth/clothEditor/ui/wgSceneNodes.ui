@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>314</width>
-    <height>626</height>
+    <height>558</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,9 +22,6 @@
    </property>
    <item row="0" column="0">
     <widget class="QSplitter" name="splitter">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
@@ -69,8 +66,8 @@
           <widget class="QPushButton" name="pbRefresh">
            <property name="maximumSize">
             <size>
-             <width>60</width>
-             <height>16777215</height>
+             <width>50</width>
+             <height>20</height>
             </size>
            </property>
            <property name="text">
@@ -219,26 +216,69 @@
        </item>
       </layout>
      </widget>
-     <widget class="QTreeWidget" name="twFilters">
-      <property name="indentation">
-       <number>0</number>
-      </property>
-      <property name="columnCount">
-       <number>2</number>
-      </property>
-      <attribute name="headerVisible">
-       <bool>false</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string notr="true">1</string>
+     <widget class="QFrame" name="vfFilters">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>0</number>
        </property>
-      </column>
-      <column>
-       <property name="text">
-        <string notr="true">2</string>
+       <property name="margin">
+        <number>0</number>
        </property>
-      </column>
+       <item>
+        <widget class="QLabel" name="lNameSpace">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>23</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+           <underline>true</underline>
+          </font>
+         </property>
+         <property name="text">
+          <string>Namespace</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="twFilters">
+         <property name="indentation">
+          <number>0</number>
+         </property>
+         <property name="columnCount">
+          <number>2</number>
+         </property>
+         <attribute name="headerVisible">
+          <bool>false</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string notr="true">1</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string notr="true">2</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

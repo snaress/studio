@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgVtxMap.ui'
 #
-# Created: Sun Mar 29 00:52:12 2015
+# Created: Mon Mar 30 03:44:47 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -65,7 +65,7 @@ class Ui_wgVtxMap(object):
         self.line_8.setObjectName(_fromUtf8("line_8"))
         self.vlVtxMaps.addWidget(self.line_8)
         self.twMaps = QtGui.QTreeWidget(self.layoutWidget)
-        self.twMaps.setMinimumSize(QtCore.QSize(0, 0))
+        self.twMaps.setMinimumSize(QtCore.QSize(220, 0))
         self.twMaps.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.twMaps.setIndentation(0)
         self.twMaps.setItemsExpandable(False)
@@ -184,6 +184,11 @@ class Ui_wgVtxMap(object):
         self.rbEditMult.setObjectName(_fromUtf8("rbEditMult"))
         self.bgVtxEdition.addButton(self.rbEditMult)
         self.hlEditMode.addWidget(self.rbEditMult)
+        self.rbEditSmooth = QtGui.QRadioButton(self.tabVtxTools)
+        self.rbEditSmooth.setEnabled(False)
+        self.rbEditSmooth.setObjectName(_fromUtf8("rbEditSmooth"))
+        self.bgVtxEdition.addButton(self.rbEditSmooth)
+        self.hlEditMode.addWidget(self.rbEditSmooth)
         self.gridLayout.addLayout(self.hlEditMode, 5, 0, 1, 1)
         self.hlSelBtn = QtGui.QHBoxLayout()
         self.hlSelBtn.setSpacing(2)
@@ -383,6 +388,7 @@ class Ui_wgVtxMap(object):
         self.rbEditReplace.setText(_translate("wgVtxMap", "Replace", None))
         self.rbEditAdd.setText(_translate("wgVtxMap", "Add", None))
         self.rbEditMult.setText(_translate("wgVtxMap", "Multiply", None))
+        self.rbEditSmooth.setText(_translate("wgVtxMap", "Smooth", None))
         self.pbVtxClear.setText(_translate("wgVtxMap", "Clear", None))
         self.pbVtxSelect.setText(_translate("wgVtxMap", "Select", None))
         self.lEditVal.setText(_translate("wgVtxMap", "Vertex Value:", None))
