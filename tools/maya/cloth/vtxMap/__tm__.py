@@ -16,11 +16,11 @@ from tools.maya.cloth.vtxMap.ui import wgSceneNodesUI, wgVtxEditUI, wgVtxInfoUI
 reload(wgSceneNodesUI)
 reload(wgVtxEditUI)
 reload(wgVtxInfoUI)
-from tools.maya.cloth.vtxMap.ui import wgVtxMapUI, wgVtxTypeUI, vtxMapUI, wgVtxFileUI
+from tools.maya.cloth.vtxMap.ui import wgVtxMapUI, wgVtxTypeUI, wgVtxFileUI, vtxMapUI
 reload(wgVtxMapUI)
 reload(wgVtxTypeUI)
-reload(vtxMapUI)
 reload(wgVtxFileUI)
+reload(vtxMapUI)
 from tools.maya.cloth.vtxMap import vtxMapUi, vtxMapWgts, vtxMapCmds
 reload(vtxMapUi)
 reload(vtxMapWgts)
