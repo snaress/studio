@@ -1,10 +1,9 @@
-import os
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pRigg
 from tools.maya.cloth.clothEditor import clothEditorCmds as ceCmds
-from tools.maya.cloth.clothEditor.ui import wgSceneNodesUI, wgVtxMapUI, wgVtxMapNodeUI
+from tools.maya.cloth.clothEditor.ui import wgSceneNodesUI, wgAttrUI, wgAttrNodeUI, wgVtxMapUI, wgVtxMapNodeUI
 
 
 class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
@@ -167,8 +166,8 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
 
     def on_sceneNodeSingleClick(self):
         """ Command launched when 'SceneNode' QTreeWidgetItem is single clicked """
-        if self.mainUi.currentTab == 'Preset':
-            pass
+        if self.mainUi.currentTab == 'Attrs':
+            self.mainUi.wgAttributes.rf_attrTree()
         elif self.mainUi.currentTab == 'VtxMap':
             self.mainUi.wgVtxMaps.rf_vtxMapTree()
 
@@ -257,6 +256,212 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         return newItem
 
 
+class AttrUi(QtGui.QWidget, wgAttrUI.Ui_wgPreset):
+    """ Widget VertxMap, child of mainUi
+        :param mainUi: VertexMap mainUi
+        :type mainUi: QtGui.QMainWindow """
+
+    def __init__(self, mainUi):
+        print "\t ---> PresetUi"
+        self.mainUi = mainUi
+        self.sceneUi = self.mainUi.wgSceneNodes
+        super(AttrUi, self).__init__()
+        self._setupUi()
+        self.rf_attrTree()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup widget ui """
+        self.setupUi(self)
+
+    def rf_attrTree(self):
+        """ Refresh attribute tree """
+        self.twPreset.clear()
+        clothItem = self.sceneUi.selectedClothItem
+        if clothItem is not None:
+            clothNode = clothItem.clothNode
+            clothDict = ceCmds.defaultAttrs(clothItem.clothType)
+            #-- Add Top Level Item --#
+            for n in sorted(clothDict.keys()):
+                grpName = clothDict[n].keys()[0]
+                newGrpItem = self.new_presetItem('group', grpName, None, None)
+                self.twPreset.addTopLevelItem(newGrpItem)
+                self.twPreset.setItemWidget(newGrpItem, 0, newGrpItem._widget)
+                newGrpItem.setExpanded(True)
+                #-- Add Children --#
+                for attr in clothDict[n][grpName]:
+                    attrType = ceCmds.getAttrType(clothNode, attr)
+                    newAttrItem = self.new_presetItem('attr', clothNode, attr, attrType)
+                    newGrpItem.addChild(newAttrItem)
+                    self.twPreset.setItemWidget(newAttrItem, 0, newAttrItem._widget)
+
+    def new_presetItem(self, itemType, clothNode, clothAttr, attrType):
+        """ Create attributes tree new QTreeWidgetItem
+            :param itemType: New tree item type ('group', 'attr')
+            :type itemType: str
+            :param clothNode: Cloth node name
+            :type clothNode: str
+            :param clothAttr: Attribute long name
+            :type clothAttr: str | None
+            :param attrType: Attribute type
+            :type attrType: str | None
+            :return: New attr tree item
+            :rtype: QtGui.QTreeWidgetItem """
+        newItem = QtGui.QTreeWidgetItem()
+        newItem.itemType = itemType
+        newItem.clothNode = clothNode
+        newItem.clothAttr = clothAttr
+        newItem.attrType = attrType
+        newItem._widget = AttrNode(self, newItem)
+        return newItem
+
+
+class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
+    """ Widget Preset QTreeWidgetItem node, child of PresetUi
+        :param pWidget: Parent Widget
+        :type pWidget: QtGui.QWidget """
+
+    def __init__(self, pWidget, pItem):
+        self.pWidget = pWidget
+        self.pItem = pItem
+        self.mainUi = self.pWidget.mainUi
+        super(AttrNode, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup widget ui """
+        self.setupUi(self)
+        if self.pItem.itemType == 'group':
+            self.lGroup.setText(self.pItem.clothNode)
+            self.qfValue.setVisible(False)
+        else:
+            self.lPreset.setText(self.pItem.clothAttr)
+            self.lGroup.setVisible(False)
+            self._initWidget()
+        self.rf_attrLock(rfBtnState=True)
+        self.pbLock.clicked.connect(self.on_attrLock)
+
+    def _initWidget(self):
+        """ Init attrWidget """
+        if self.pItem.attrType in ['long', 'float', 'floatAngle']:
+            self._attrWdgt = self.new_lineEdit(self.pItem.attrType)
+            self.hlValue.insertWidget(0, self._attrWdgt)
+            self.hfValue.setMaximumWidth(70)
+        elif self.pItem.attrType == 'bool':
+            self._attrWdgt = self.new_checkBox()
+            self.hlValue.insertWidget(0, self._attrWdgt)
+            self.hfValue.setMinimumWidth(14)
+            self.hfValue.setMaximumWidth(14)
+        elif self.pItem.attrType == 'enum':
+            self._attrWdgt = self.new_comboBox()
+            self.hlValue.insertWidget(0, self._attrWdgt)
+            self.hfValue.setMaximumWidth(100)
+        elif self.pItem.attrType == 'float3':
+            self._attrWdgtX = self.new_lineEdit('tripleX')
+            self._attrWdgtY = self.new_lineEdit('tripleY')
+            self._attrWdgtZ = self.new_lineEdit('tripleZ')
+            self.hlValue.insertWidget(0, self._attrWdgtX)
+            self.hlValue.insertWidget(1, self._attrWdgtY)
+            self.hlValue.insertWidget(2, self._attrWdgtZ)
+            self.hfValue.setMaximumWidth(210)
+
+    def attrValue(self):
+        pass
+
+    @property
+    def attrLock(self):
+        """ Get Attr lock state
+            :return: Attr lock state
+            :rtype: bool """
+        return self.pbLock.isChecked()
+
+    # noinspection PyUnresolvedReferences
+    def rf_attrLock(self, rfBtnState=False):
+        """ Refresh attribute lock icon
+            :param rfBtnState: Enable lock btn state refresh
+            :type rfBtnState: bool """
+        if self.pItem.itemType == 'attr':
+            lockAttr = ceCmds.attrIsLocked("%s.%s" % (self.pItem.clothNode, self.pItem.clothAttr))
+            if lockAttr:
+                lockIcon = self.mainUi.lockIconOn
+                if rfBtnState:
+                    self.pbLock.setChecked(True)
+            else:
+                lockIcon = self.mainUi.lockIconOff
+                if rfBtnState:
+                    self.pbLock.setChecked(False)
+            self.pbLock.setIcon(lockIcon)
+            self.hfValue.setEnabled(not lockAttr)
+
+    def on_attr(self):
+        print self.pItem.attrType
+
+    def on_attrLock(self):
+        """ Command launched when 'Lock' QPushButton is clicked
+            Set clothNode attribute losk state """
+        ceCmds.setAttrLock("%s.%s" % (self.pItem.clothNode, self.pItem.clothAttr), self.attrLock)
+        self.rf_attrLock()
+
+    # noinspection PyUnresolvedReferences
+    def new_lineEdit(self, attrType):
+        """ Create new QLineEdit attr
+            :param attrType: Attribute type ('long', 'float', 'floatAngle', 'tripleX', 'tripleY', 'tripleZ')
+            :type attrType: str
+            :return: Line edit attr
+            :rtype: QtGui.QLineEdit """
+        newWidget = QtGui.QLineEdit()
+        if attrType == 'long':
+            newWidget.setText(str(ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr)))
+        if attrType in ['float', 'floatAngle', 'tripleX', 'tripleY', 'tripleZ']:
+            val = self.floatVal(attrType)
+            newWidget.setText(val)
+        newWidget.editingFinished.connect(self.on_attr)
+        return newWidget
+
+    def floatVal(self, attrType, decimal=4):
+        """ Conform float value with given decimal
+            :param attrType: attrType: Attribute type ('long', 'float', 'floatAngle', 'tripleX', 'tripleY', 'tripleZ')
+            :type attrType: str
+            :param decimal: Decimal num
+            :type decimal: int
+            :return: Conformed value
+            :rtype: str """
+        val = ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr)
+        if attrType == 'tripleX':
+            newVal = "%s.%s" % (str(val[0][0]).split('.')[0], str(val[0][0]).split('.')[-1][0:decimal])
+        elif attrType == 'tripleY':
+            newVal = "%s.%s" % (str(val[0][1]).split('.')[0], str(val[0][1]).split('.')[-1][0:decimal])
+        elif attrType == 'tripleZ':
+            newVal = "%s.%s" % (str(val[0][2]).split('.')[0], str(val[0][2]).split('.')[-1][0:decimal])
+        else:
+            newVal = "%s.%s" % (str(val).split('.')[0], str(val).split('.')[-1][0:decimal])
+        return newVal
+
+    # noinspection PyUnresolvedReferences
+    def new_checkBox(self):
+        """ Create new QCheckBox attr
+            :return: Check box attr
+            :rtype: QtGui.QCheckBox """
+        newWidget = QtGui.QCheckBox()
+        newWidget.setText("")
+        newWidget.setChecked(ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr))
+        newWidget.setStyleSheet("background-color: rgb(125, 125, 125)")
+        newWidget.stateChanged.connect(self.on_attr)
+        return newWidget
+
+    # noinspection PyUnresolvedReferences
+    def new_comboBox(self):
+        """ Create new QComboBox attr
+            :return: Combo box attr
+            :rtype: QtGui.QComboBox """
+        newWidget = QtGui.QComboBox()
+        newWidget.addItems(ceCmds.enumAttrs()[self.pItem.clothAttr])
+        newWidget.setCurrentIndex(ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr) - 1)
+        newWidget.currentIndexChanged.connect(self.on_attr)
+        return newWidget
+
+
 class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
     """ Widget VertxMap, child of mainUi
         :param mainUi: VertexMap mainUi
@@ -268,6 +473,7 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         self.sceneUi = self.mainUi.wgSceneNodes
         super(VtxMapUi, self).__init__()
         self._setupUi()
+        self.rf_vtxMapTree()
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
@@ -300,8 +506,12 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         for n in range(5):
             newButton = VtxStorageButton('Data_%s' % (n+1), 'vtxData', self.mainUi, self)
             self.hlDataStorage.addWidget(newButton)
-        #-- Refresh --#
-        self.rf_vtxMapTree()
+        #-- VtxMap info --#
+        self.pbUpdateInf.clicked.connect(self.on_updateVtxInfo)
+        self.twVtxValues.setHeaderHidden(False)
+        self.twVtxValues.resizeColumnToContents(0)
+        self.twVtxValues.resizeColumnToContents(1)
+        self.twVtxValues.itemSelectionChanged.connect(self.on_vtxMapInfo)
 
     @property
     def paintMode(self):
@@ -380,6 +590,26 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
             self.lRangeMax.setVisible(False)
             self.leRangeMax.setVisible(False)
 
+    def rf_vtxInfluence(self):
+        """ Refresh QTreeWidget 'vertex map influence' """
+        self.twVtxValues.clear()
+        if self.tabVertex.currentIndex() == 1:
+            item = self.selectedVtxMapItem
+            if item is not None:
+                clothNode = item._widget.clothNode
+                model = ceCmds.getModelFromClothNode(clothNode)
+                if model is not None:
+                    if item._widget.vtxMapType == 'Vertex':
+                        data = ceCmds.getVtxMapData(clothNode, item._widget.mapVtx)
+                        if data is not None:
+                            items = []
+                            for n, val in enumerate(data):
+                                newItem = self.new_vtxInfluenceItem(model, n, val)
+                                items.append(newItem)
+                            self.twVtxValues.addTopLevelItems(items)
+                    else:
+                        print "!!! Warning: Vertex map disabled !!!"
+
     def rf_widgetToolTips(self):
         """ Refresh all widget toolTip """
         if self.mainUi.toolTipState:
@@ -402,11 +632,15 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
             self.leClampMax.setToolTip("flood max clamp value")
             self.pbFlood.setToolTip("Flood selected vtxMap influence")
             self.sbFloodIter.setToolTip("Flood iteration (max=25),\nNot available in 'Replace' mode")
+            self.lVtxStorage.setToolTip("Store selected vertex")
+            self.lDataStorage.setToolTip("Store selected vertex data")
+            self.pbUpdateInf.setToolTip("Update selection from current scene")
         else:
             for widget in [self.cbArtisan, self.cbVtxColor, self.pbNone, self.pbVertex, self.pbTexture,
                            self.rbVtxRange, self.rbVtxValue, self.pbVtxSelect, self.pbVtxClear, self.rbEditReplace,
                            self.rbEditAdd, self.rbEditMult, self.rbEditSmooth, self.cbClampMin, self.cbClampMax,
-                           self.leClampMin, self.leClampMax, self.pbFlood, self.sbFloodIter]:
+                           self.leClampMin, self.leClampMax, self.pbFlood, self.sbFloodIter, self.lVtxStorage,
+                           self.lDataStorage, self.pbUpdateInf]:
                 widget.setToolTip("")
 
     def on_vtxMapNodeSingleClick(self):
@@ -419,7 +653,7 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
                 self.pbFlood.setEnabled(True)
         else:
             self.pbFlood.setEnabled(True)
-        # self.mainUi.wgVtxInfo.rf_vtxInfluence()
+        self.rf_vtxInfluence()
 
     def on_vtxMapNodeDoubleClick(self):
         """ Command launched when 'VtxMap Node' QTreeWidgetItem is double clicked """
@@ -478,16 +712,18 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
             vtxSel = ceCmds.getModelSelVtx(clothNode, indexOnly=True)
             vtxData = ceCmds.getVtxMapData(clothNode, vtxMap)
             for ind in vtxSel:
-                newVal = None
+                newVal = vtxData[ind]
                 #-- Get New Vertex Value --#
                 if self.floodMode == 'replace':
                     newVal = self.floodValue
                 elif self.floodMode == 'add':
-                    newVal = float(vtxData[ind] + self.floodValue)
+                    for n in range(int(self.sbFloodIter.value())):
+                        newVal = float(newVal + self.floodValue)
                 elif self.floodMode == 'mult':
-                    newVal = float(vtxData[ind] * self.floodValue)
+                    for n in range(int(self.sbFloodIter.value())):
+                        newVal = float(newVal * self.floodValue)
+                #-- Check Vertex Clamp --#
                 if newVal is not None:
-                    #-- Check Vertex Clamp --#
                     clampMin, clampMax = self.vtxClamp
                     if clampMin is not None:
                         if newVal < clampMin:
@@ -500,6 +736,34 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
             #-- Set Vertex Map --#
             ceCmds.setVtxMapData(clothNode, vtxMap, vtxData)
 
+    def on_vtxMapInfo(self):
+        """ Command launched when 'Tree Values' QTreeWidget selection changed
+            Update vertex selection in scene """
+        selItems = self.twVtxValues.selectedItems()
+        selVtx = []
+        if selItems:
+            for item in selItems:
+                selVtx.append("%s.vtx[%s]" % (item.model, item.vtxIndex))
+        if not selVtx:
+            ceCmds.clearVtxSelection()
+        else:
+            ceCmds.selectVtxOnModel(selVtx)
+
+    def on_updateVtxInfo(self):
+        """ Command launched when QPushButton 'Update From Scene' is clicked
+            Update vertexMap info QTreeWidgetItem selection from scene """
+        vtxItem = self.selectedVtxMapItem
+        if vtxItem is not None:
+            clothNode = vtxItem._widget.clothNode
+            selVtx = ceCmds.getModelSelVtx(clothNode, indexOnly=True)
+            if selVtx:
+                allItems = pQt.getAllItems(self.twVtxValues)
+                for n, item in enumerate(allItems):
+                    if n in selVtx:
+                        self.twVtxValues.setItemSelected(item, True)
+                    else:
+                        self.twVtxValues.setItemSelected(item, False)
+
     def new_vtxMapItem(self, clothNode, mapName):
         """ Create new mapType 'QTreeWidgetItem'
             :param clothNode: Cloth node name
@@ -510,9 +774,30 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         newItem._widget = VtxMapNode(self, clothNode, mapName)
         return newItem
 
+    @staticmethod
+    def new_vtxInfluenceItem(model, n, val):
+        """ Create new vtx influence 'QTreeWidgetItem'
+            :param n: Vertex index
+            :type n: int
+            :param val: Influence
+            :type val: float
+            :return: Vertex Influence item
+            :rtype: QtGui.QTreeWidgetItem """
+        newItem = QtGui.QTreeWidgetItem()
+        #-- Set label --#
+        newItem.setText(0, str(n))
+        newItem.setText(1, str(val))
+        #-- Store Data --#
+        newItem.model = model
+        newItem.vtxIndex = n
+        newItem.vtxInf = val
+        return newItem
+
 
 class VtxMapNode(QtGui.QWidget, wgVtxMapNodeUI.Ui_wgVtxMapNode):
     """ Widget VertexMap QTreeWidgetItem node, child of VtxMapUi
+        :param pWidget: Parent Widget
+        :type pWidget: QtGui.QWidget
         :param clothNode: Cloth node name
         :type clothNode: str
         :param mapName: Vertex map name
@@ -525,8 +810,6 @@ class VtxMapNode(QtGui.QWidget, wgVtxMapNodeUI.Ui_wgVtxMapNode):
         self.mapName = mapName
         self.mapType = "%sMapType" % self.mapName
         self.mapVtx = "%sPerVertex" % self.mapName
-        self.lockIconOn = os.path.join(self.mainUi.iconPath, 'lockOn.png')
-        self.lockIconOff = os.path.join(self.mainUi.iconPath, 'lockOff.png')
         super(VtxMapNode, self).__init__()
         self._setupUi()
 
@@ -579,14 +862,14 @@ class VtxMapNode(QtGui.QWidget, wgVtxMapNodeUI.Ui_wgVtxMapNode):
         lockType = ceCmds.attrIsLocked("%s.%s" % (self.clothNode, self.mapType))
         lockVtx = ceCmds.attrIsLocked("%s.%s" % (self.clothNode, self.mapVtx))
         if lockType or lockVtx:
-            self.lockIcon = QtGui.QIcon(self.lockIconOn)
+            lockIcon = self.mainUi.lockIconOn
             if rfBtnState:
                 self.pbLock.setChecked(True)
         else:
-            self.lockIcon = QtGui.QIcon(self.lockIconOff)
+            lockIcon = self.mainUi.lockIconOff
             if rfBtnState:
                 self.pbLock.setChecked(False)
-        self.pbLock.setIcon(self.lockIcon)
+        self.pbLock.setIcon(lockIcon)
         self.cbState.setEnabled(not self.vtxMapLock)
 
     def on_mapType(self):

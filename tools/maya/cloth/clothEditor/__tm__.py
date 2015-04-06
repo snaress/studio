@@ -12,10 +12,13 @@ reload(pRigg)
 #-- clothEditor Tool --#
 from tools.maya.cloth import clothEditor
 reload(clothEditor)
-from tools.maya.cloth.clothEditor.ui import wgSceneNodesUI, wgVtxMapUI, wgVtxMapNodeUI, clothEditorUI
+from tools.maya.cloth.clothEditor.ui import wgSceneNodesUI, wgAttrUI, wgAttrNodeUI, wgVtxMapUI, wgVtxMapNodeUI
 reload(wgSceneNodesUI)
+reload(wgAttrUI)
+reload(wgAttrNodeUI)
 reload(wgVtxMapUI)
 reload(wgVtxMapNodeUI)
+from tools.maya.cloth.clothEditor.ui import clothEditorUI
 reload(clothEditorUI)
 from tools.maya.cloth.clothEditor import clothEditorUi, clothEditorWgts, clothEditorCmds
 reload(clothEditorUi)

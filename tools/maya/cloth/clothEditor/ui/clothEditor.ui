@@ -41,12 +41,27 @@
       </widget>
       <widget class="QTabWidget" name="tabClothEditor">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
-       <widget class="QWidget" name="tiPreset">
+       <widget class="QWidget" name="tiAttr">
         <attribute name="title">
-         <string>Preset</string>
+         <string>Attrs</string>
         </attribute>
+        <layout class="QGridLayout" name="glPreset">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <layout class="QVBoxLayout" name="vlAttr">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+          </layout>
+         </item>
+        </layout>
        </widget>
        <widget class="QWidget" name="tiVtxMap">
         <attribute name="title">

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\clothEditor.ui'
 #
-# Created: Mon Mar 30 00:58:04 2015
+# Created: Sat Apr 04 15:35:34 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,9 +45,17 @@ class Ui_mwClothEditor(object):
         self.vlSceneNodes.setObjectName(_fromUtf8("vlSceneNodes"))
         self.tabClothEditor = QtGui.QTabWidget(self.splitter_2)
         self.tabClothEditor.setObjectName(_fromUtf8("tabClothEditor"))
-        self.tiPreset = QtGui.QWidget()
-        self.tiPreset.setObjectName(_fromUtf8("tiPreset"))
-        self.tabClothEditor.addTab(self.tiPreset, _fromUtf8(""))
+        self.tiAttr = QtGui.QWidget()
+        self.tiAttr.setObjectName(_fromUtf8("tiAttr"))
+        self.glPreset = QtGui.QGridLayout(self.tiAttr)
+        self.glPreset.setMargin(0)
+        self.glPreset.setSpacing(0)
+        self.glPreset.setObjectName(_fromUtf8("glPreset"))
+        self.vlAttr = QtGui.QVBoxLayout()
+        self.vlAttr.setSpacing(0)
+        self.vlAttr.setObjectName(_fromUtf8("vlAttr"))
+        self.glPreset.addLayout(self.vlAttr, 0, 0, 1, 1)
+        self.tabClothEditor.addTab(self.tiAttr, _fromUtf8(""))
         self.tiVtxMap = QtGui.QWidget()
         self.tiVtxMap.setObjectName(_fromUtf8("tiVtxMap"))
         self.glVtxMap = QtGui.QGridLayout(self.tiVtxMap)
@@ -87,12 +95,12 @@ class Ui_mwClothEditor(object):
         self.menuBar.addAction(self.mHelp.menuAction())
 
         self.retranslateUi(mwClothEditor)
-        self.tabClothEditor.setCurrentIndex(1)
+        self.tabClothEditor.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(mwClothEditor)
 
     def retranslateUi(self, mwClothEditor):
         mwClothEditor.setWindowTitle(_translate("mwClothEditor", "Cloth Editor", None))
-        self.tabClothEditor.setTabText(self.tabClothEditor.indexOf(self.tiPreset), _translate("mwClothEditor", "Preset", None))
+        self.tabClothEditor.setTabText(self.tabClothEditor.indexOf(self.tiAttr), _translate("mwClothEditor", "Attrs", None))
         self.tabClothEditor.setTabText(self.tabClothEditor.indexOf(self.tiVtxMap), _translate("mwClothEditor", "VtxMap", None))
         self.mHelp.setTitle(_translate("mwClothEditor", "Help", None))
         self.miNCloth.setText(_translate("mwClothEditor", "nCloth", None))

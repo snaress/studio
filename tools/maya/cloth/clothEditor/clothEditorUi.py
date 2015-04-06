@@ -1,3 +1,4 @@
+import os
 from PyQt4 import QtGui
 from tools.maya.cmds import pScene
 from tools.maya.cloth import clothEditor
@@ -14,6 +15,8 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
     def __init__(self, parent=None):
         print "\n########## %s ##########" % clothEditor.toolName
         self.iconPath = clothEditor.iconPath
+        self.lockIconOn = QtGui.QIcon(os.path.join(self.iconPath, 'lockOn.png'))
+        self.lockIconOff = QtGui.QIcon(os.path.join(self.iconPath, 'lockOff.png'))
         super(ClothEditorUi, self).__init__(parent)
         self._setupUi()
 
@@ -62,6 +65,8 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         """ Import main ui widgets """
         self.wgSceneNodes = ceWgts.SceneNodeUi(self)
         self.vlSceneNodes.insertWidget(0, self.wgSceneNodes)
+        self.wgAttributes = ceWgts.AttrUi(self)
+        self.vlAttr.insertWidget(0, self.wgAttributes)
         self.wgVtxMaps = ceWgts.VtxMapUi(self)
         self.vlVtxMap.insertWidget(0, self.wgVtxMaps)
 

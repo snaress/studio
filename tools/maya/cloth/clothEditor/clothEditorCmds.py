@@ -5,6 +5,98 @@ except:
     pass
 
 
+def getAttr(nodeName, nodeAttr):
+    """ Get given nodeAttr value
+        :param nodeName: Node full name
+        :type nodeName: str
+        :param nodeAttr: Node attribute
+        :type nodeAttr: str
+        :return: Node attribute value
+        :rtype: float | list """
+    if mc.objExists("%s.%s" % (nodeName, nodeAttr)):
+        return mc.getAttr("%s.%s" % (nodeName, nodeAttr))
+
+def getAttrType(nodeName, nodeAttr):
+    """ Get given nodeAttr value
+        :param nodeName: Node full name
+        :type nodeName: str
+        :param nodeAttr: Node attribute
+        :type nodeAttr: str
+        :return: Node attribute type
+        :rtype: str """
+    if mc.objExists("%s.%s" % (nodeName, nodeAttr)):
+        return mc.getAttr("%s.%s" % (nodeName, nodeAttr), type=True)
+
+def setAttr(nodeName, nodeAttr, value):
+    """ set given nodeAttr value
+        :param nodeName: Node full name
+        :type nodeName: str
+        :param nodeAttr: Node attribute
+        :type nodeAttr: str
+        :param value: Node attriute value
+        :type value: float | list """
+    if mc.objExists("%s.%s" % (nodeName, nodeAttr)):
+        mc.setAttr("%s.%s" % (nodeName, nodeAttr), value)
+
+def nucleusAttrs():
+    """ Get default nucleus node attributes
+        :return: Nucleus node attributes
+        :rtype: dict """
+    return {0: {'Gravity': ["gravity", "gravityDirection", "airDensity", "windSpeed", "windDirection",  "windNoise"]},
+            1: {'Solver': ["subSteps", "maxCollisionIterations", "collisionLayerRange", "timingOutput", "useTransform"]},
+            2: {'Scale': ["timeScale", "spaceScale"]}}
+
+def nClothAttrs():
+    """ Get default nCloth node attributes
+        :return: Cloth node attributes
+        :rtype: dict """
+    return {0: {'Collisions': ["collide", "selfCollide", "collisionFlag", "selfCollisionFlag", "collideStrength",
+                               "collisionLayer", "thickness", "selfCollideWidthScale", "bounce",
+                               "friction", "stickiness"]},
+            1: {'Dynamic': ["stretchResistance", "compressionResistance", "bendResistance", "bendAngleDropoff",
+                            "shearResistance", "restitutionAngle", "restitutionTension", "rigidity", "deformResistance",
+                            "usePolygonShells", "inputMeshAttract", "inputAttractMethod", "inputAttractDamp",
+                            "inputMotionDrag", "restLengthScale", "bendAngleScale", "pointMass", "lift", "drag",
+                            "tangentialDrag", "damp", "stretchDamp", "scalingRelation", "ignoreSolverGravity",
+                            "ignoreSolverWind", "localForce", "localWind"]},
+            2: {'Quality': ["maxIterations", "maxSelfCollisionIterations", "collideLastThreshold", "addCrossLinks",
+                            "evaluationOrder", "bendSolver", "sortLinks", "trappedCheck", "selfTrappedCheck",
+                            "pushOut", "pushOutRadius", "crossoverPush", "selfCrossoverPush"]}}
+
+def nRigidAttrs():
+    """ Get default nRigid node attributes
+        :return: Rigid node attributes
+        :rtype: dict """
+    return {0: {'Collisions': ["collide", "collisionFlag", "collideStrength", "collisionLayer", "thickness",
+                               "bounce", "friction", "stickiness"]},
+            1: {'Quality': ["trappedCheck", "pushOut", "pushOutRadius", "crossoverPush"]}}
+
+def enumAttrs():
+    """ Get enum item list
+        :return: Cloth node enum attr choice
+        :rtype: dict """
+    return {'timingOutput': ['None', 'Frame', 'Subframe'],
+            'collisionFlag': ['Vertex', 'Edge', 'Face'],
+            'solverDisplay': ['Off', 'Collision Thickness'],
+            'selfCollisionFlag': ['Vertex', 'VertexEdge', 'VertexFace', 'Full Surface'],
+            'inputAttractMethod': ['Non locking', 'Lock values of 1.0 or greater'],
+            'scalingRelation': ['Link', 'Object Space', 'World Space'],
+            'evaluationOrder': ['Sequential', 'Parallel'],
+            'bendSolver': ['Simple', 'High Quality', 'Flip Tracking']}
+
+def defaultAttrs(nodeType):
+    """ Get given nodeType default attributes
+        :param nodeType: Cloth node type ('nRigid', 'nCloth', 'nucleus')
+        :type nodeType: str
+        :return: Default attribute and type
+        :rtype: dict """
+    if nodeType == 'nucleus':
+        return nucleusAttrs()
+    elif nodeType == 'nCloth':
+        return nClothAttrs()
+    elif nodeType == 'nRigid':
+        return nRigidAttrs()
+
 def getNamespace(nodeName, returnList=False):
     """ Get given node namespace
         :param nodeName: Node full name
