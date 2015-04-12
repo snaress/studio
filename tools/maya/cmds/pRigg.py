@@ -49,7 +49,7 @@ def findTypeInHistory(obj, objType, future=False, past=False):
         :param obj: Object name
         :type obj: str
         :param objType: Object type list
-        :type objType: list
+        :type objType: str | list
         :param future: Future depth
         :type future: bool
         :param past: Past depth
