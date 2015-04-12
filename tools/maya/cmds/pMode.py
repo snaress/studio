@@ -112,3 +112,31 @@ def creeBox(bboxDict=None, name=None, returnShape=False):
     if returnShape:
         return boxName[0], boxName[1]
     return boxName[0]
+
+def polySelectTraverse(traversal=1):
+    """ Grow polyComponent selection
+        :param traversal: 0 = Off.
+                          1 = More : will add current selection border to current selection.
+                          2 = Less : will remove current selection border from current selection.
+                          3 = Border : will keep only current selection border.
+                          4 = Contiguous Edges : Add edges aligned with the current edges selected
+        :type traversal: int """
+    #-- Vertex --#
+    result = mc.polyListComponentConversion(fv=True, tv=True)
+    if result:
+        mc.polySelectConstraint(pp=traversal, t=0x0001)
+    else:
+        #-- Edge --#
+        result = mc.polyListComponentConversion(fe=True, te=True)
+        if result:
+            mc.polySelectConstraint(pp=traversal, t=0x8000)
+        else:
+            #-- Face --#
+            result = mc.polyListComponentConversion(ff=True, tf=True)
+            if result:
+                mc.polySelectConstraint(pp=traversal, t=0x0008)
+            else:
+                #-- Uv --#
+                result = mc.polyListComponentConversion(fuv=True, tuv=True)
+                if result:
+                    mc.polySelectConstraint(pp=traversal, t=0x0010)
