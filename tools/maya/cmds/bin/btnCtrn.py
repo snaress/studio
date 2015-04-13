@@ -97,10 +97,10 @@ class ButtonConstrain(object):
         print "Create constrain ---> OK:", self.const
         #-- Edit Constrain --#
         uvMap = mc.polyListComponentConversion(self.masterVtx, fvf=True, tuv=True)[0]
-        uvVval = mc.polyEditUV(uvMap, q=True, u=True, v=True)
-        mc.setAttr("%s.%sU0" % (self.const, self.master), uvVval[0])
-        mc.setAttr("%s.%sV0" % (self.const, self.master), uvVval[1])
-        print "Edit constrain ---> OK: U=%s  V=%s" % (uvVval[0], uvVval[1])
+        uvVal = mc.polyEditUV(uvMap, q=True, u=True, v=True)
+        mc.setAttr("%s.%sU0" % (self.const, self.master), uvVal[0])
+        mc.setAttr("%s.%sV0" % (self.const, self.master), uvVal[1])
+        print "Edit constrain ---> OK: U=%s  V=%s" % (uvVal[0], uvVal[1])
         print "---> Done !"
 
     def keepOrient(self):
