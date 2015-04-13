@@ -175,7 +175,6 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         """ Command launched when 'SceneNode' QTreeWidgetItem is double clicked """
         selItems = self.twSceneNodes.selectedItems()
         if selItems:
-            self.on_sceneNodeSingleClick()
             ceCmds.selectModel(selItems[0].clothNode)
 
     def on_showClothType(self):
@@ -366,8 +365,24 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
             self.hlValue.insertWidget(2, self._attrWdgtZ)
             self.hfValue.setMaximumWidth(210)
 
+    @property
     def attrValue(self):
-        pass
+        """ Get itemNode value
+            :return: Item node value
+            :rtype: int | float | tuple """
+        if self.pItem.attrType == 'bool':
+            val = self._attrWdgt.isChecked()
+        elif self.pItem.attrType == 'enum':
+            val = int(self._attrWdgt.currentIndex() + 1)
+        elif self.pItem.attrType in ['float', 'floatAngle']:
+            val = float(self._attrWdgt.text())
+        elif self.pItem.attrType == 'long':
+            val = int(self._attrWdgt.text())
+        elif self.pItem.attrType == 'float3':
+            val = (float(self._attrWdgtX.text()), float(self._attrWdgtY.text()), float(self._attrWdgtZ.text()))
+        else:
+            val = None
+        return val
 
     @property
     def attrLock(self):
@@ -395,7 +410,11 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
             self.hfValue.setEnabled(not lockAttr)
 
     def on_attr(self):
-        print self.pItem.attrType
+        """ Command launched when 'ItemNode' QWidget is clicked, Set clothNode attribute """
+        if self.attrValue is not None:
+            ceCmds.setAttr(self.pItem.clothNode, self.pItem.clothAttr, self.attrValue)
+        else:
+            print "!!! WARNING: Can not find item node value !!!"
 
     def on_attrLock(self):
         """ Command launched when 'Lock' QPushButton is clicked
@@ -457,7 +476,11 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
             :rtype: QtGui.QComboBox """
         newWidget = QtGui.QComboBox()
         newWidget.addItems(ceCmds.enumAttrs()[self.pItem.clothAttr])
-        newWidget.setCurrentIndex(ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr) - 1)
+        enumFilter = ['inputAttractMethod', 'scalingRelation', 'evaluationOrder', 'bendSolver', 'timingOutput']
+        if self.pItem.clothAttr in enumFilter:
+            newWidget.setCurrentIndex(ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr))
+        else:
+            newWidget.setCurrentIndex(ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr) - 1)
         newWidget.currentIndexChanged.connect(self.on_attr)
         return newWidget
 

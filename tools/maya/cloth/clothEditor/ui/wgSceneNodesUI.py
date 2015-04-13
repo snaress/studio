@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgSceneNodes.ui'
 #
-# Created: Mon Mar 30 04:27:06 2015
+# Created: Thu Apr 09 22:18:08 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -71,6 +71,7 @@ class Ui_wgSceneNodes(object):
         self.verticalLayout.addWidget(self.line_4)
         self.twSceneNodes = QtGui.QTreeWidget(self.layoutWidget)
         self.twSceneNodes.setIndentation(20)
+        self.twSceneNodes.setExpandsOnDoubleClick(False)
         self.twSceneNodes.setColumnCount(1)
         self.twSceneNodes.setObjectName(_fromUtf8("twSceneNodes"))
         self.twSceneNodes.headerItem().setText(0, _fromUtf8("1"))
@@ -129,6 +130,8 @@ class Ui_wgSceneNodes(object):
         self.verticalLayout_2.addWidget(self.line_2)
         self.twFilters = QtGui.QTreeWidget(self.vfFilters)
         self.twFilters.setIndentation(0)
+        self.twFilters.setItemsExpandable(False)
+        self.twFilters.setExpandsOnDoubleClick(False)
         self.twFilters.setColumnCount(2)
         self.twFilters.setObjectName(_fromUtf8("twFilters"))
         self.twFilters.headerItem().setText(0, _fromUtf8("1"))

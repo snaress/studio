@@ -96,6 +96,9 @@
          <property name="indentation">
           <number>20</number>
          </property>
+         <property name="expandsOnDoubleClick">
+          <bool>false</bool>
+         </property>
          <property name="columnCount">
           <number>1</number>
          </property>
@@ -259,6 +262,12 @@
         <widget class="QTreeWidget" name="twFilters">
          <property name="indentation">
           <number>0</number>
+         </property>
+         <property name="itemsExpandable">
+          <bool>false</bool>
+         </property>
+         <property name="expandsOnDoubleClick">
+          <bool>false</bool>
          </property>
          <property name="columnCount">
           <number>2</number>
