@@ -109,34 +109,20 @@ def getModelFromClothNode(clothNode):
         if model:
             return model[0]
 
-def getModelSelectedVtx(clothNode, indexOnly=False):
+def getModelSelectedVtx(indexOnly=False):
     """ Get selected vertex on model
-        :param clothNode: Cloth node name
-        :type clothNode: str
         :param indexOnly: If True, return index only, else fullName
         :type indexOnly: bool
         :return: selection list
         :rtype: list """
-    sel = mc.ls(sl=True) or []
-    model = getModelFromClothNode(clothNode)
-    selVtx = []
-    for node in sel:
-        if node.startswith(model) and node.endswith(']'):
-            selName = node.split('.')[0]
+    sel = mc.ls(sl=True, fl=True) or []
+    if indexOnly:
+        selVtx = []
+        for node in sel:
             ind = node.split('.')[-1].replace('vtx[', '').replace(']','')
-            if not ':' in ind:
-                if indexOnly:
-                    selVtx.append(int(ind))
-                else:
-                    selVtx.append("%s.vtx[%s]" % (selName, ind))
-            else:
-                deb = int(ind.split(':')[0])
-                fin = int(ind.split(':')[1])
-                for n in range(deb, (fin + 1), 1):
-                    if indexOnly:
-                        selVtx.append(n)
-                    else:
-                        selVtx.append("%s.vtx[%s]" % (selName, n))
+            selVtx.append(int(ind))
+    else:
+        selVtx = sel
     return selVtx
 
 def selectVtxInfOnModel(clothNode, vtxMap, selMode, value=None, minInf=None, maxInf=None):
