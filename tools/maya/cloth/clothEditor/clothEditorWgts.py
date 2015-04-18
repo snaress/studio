@@ -3,7 +3,8 @@ from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pRigg
 from tools.maya.cloth.clothEditor import clothEditorCmds as ceCmds
-from tools.maya.cloth.clothEditor.ui import wgSceneNodesUI, wgAttrUI, wgAttrNodeUI, wgVtxMapUI, wgVtxMapNodeUI
+from tools.maya.cloth.clothEditor.ui import wgSceneNodesUI, wgSceneNodeUI, wgAttrUI, wgAttrNodeUI, wgVtxMapUI,\
+                                            wgVtxMapNodeUI
 
 
 class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
@@ -24,11 +25,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         self.pbRefresh.clicked.connect(self.on_refresh)
         self.twSceneNodes.itemClicked.connect(self.on_sceneNodeSingleClick)
         self.twSceneNodes.itemDoubleClicked.connect(self.on_sceneNodeDoubleClick)
-        color = self.mainUi.getLabelColor('green')
-        self.cbCloth.setStyleSheet("color: rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
         self.cbCloth.clicked.connect(self.on_showClothType)
-        color = self.mainUi.getLabelColor('blue')
-        self.cbRigid.setStyleSheet("color: rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
         self.cbRigid.clicked.connect(self.on_showClothType)
         self.cbFilters.clicked.connect(self.rf_filterVisibility)
         self.rf_filterVisibility()
@@ -155,6 +152,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
             self.twSceneNodes.addTopLevelItem(newItem)
         else:
             parent.addChild(newItem)
+        self.twSceneNodes.setItemWidget(newItem, 0, newItem._widget)
         return newItem
 
     def on_refresh(self):
@@ -217,22 +215,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
             newItem.clothMesh = ceCmds.getModelFromClothNode(clothNode)
             newItem.clothShape = ceCmds.getNodeShape(newItem.clothMesh)
         newItem.attrOrder = self.itemAttrOrder
-        #-- Setup Item --#
-        newFont = QtGui.QFont()
-        newFont.setBold(True)
-        color = (self.mainUi.getLabelColor('default'))
-        if newItem.clothType == 'nucleus':
-            newFont.setPointSize(10)
-            newItem.setText(0, newItem.clothNode)
-            color = self.mainUi.getLabelColor('yellow')
-        elif newItem.clothType == 'nCloth':
-            newItem.setText(0, newItem.clothMesh)
-            color = self.mainUi.getLabelColor('green')
-        elif newItem.clothType == 'nRigid':
-            newItem.setText(0, newItem.clothMesh)
-            color = self.mainUi.getLabelColor('blue')
-        newItem.setTextColor(0, QtGui.QColor(color[0], color[1], color[2]))
-        newItem.setFont(0, newFont)
+        newItem._widget = SceneNode(self, newItem)
         self.rf_sceneItemToolTip(newItem)
         return newItem
 
@@ -255,6 +238,86 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         return newItem
 
 
+class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
+
+    def __init__(self, pWidget, pItem):
+        self.pWidget = pWidget
+        self.pItem = pItem
+        self.mainUi = self.pWidget.mainUi
+        super(SceneNode, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup widget ui """
+        self.setupUi(self)
+        self.rf_label()
+        self.rf_nodeTypeIcon()
+        self.rf_nodeEnableIcon(rfBtnState=True)
+        self.pbEnable.clicked.connect(self.on_stateIcon)
+
+    @property
+    def enableState(self):
+        """ Get Attr enable state
+            :return: Attr enable state
+            :rtype: bool """
+        return self.pbEnable.isChecked()
+
+    def rf_label(self):
+        """ Refresh label text and color """
+        newFont = QtGui.QFont()
+        newFont.setBold(True)
+        color = (self.mainUi.getLabelColor('default'))
+        if self.pItem.clothType == 'nucleus':
+            newFont.setPointSize(10)
+            self.lSceneNode.setText(self.pItem.clothNode)
+            color = self.mainUi.getLabelColor('yellow')
+        elif self.pItem.clothType == 'nCloth':
+            self.lSceneNode.setText(self.pItem.clothMesh)
+            color = self.mainUi.getLabelColor('green')
+        elif self.pItem.clothType == 'nRigid':
+            self.lSceneNode.setText(self.pItem.clothMesh)
+            color = self.mainUi.getLabelColor('blue')
+        self.lSceneNode.setFont(newFont)
+        self.lSceneNode.setStyleSheet("color: rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
+
+    def rf_nodeTypeIcon(self):
+        """ Refresh cloth node type icon """
+        if self.pItem.clothType == 'nucleus':
+            self.pbIcon.setIcon(self.mainUi.nucleusIcon)
+        elif self.pItem.clothType == 'nCloth':
+            self.pbIcon.setIcon(self.mainUi.nClothIcon)
+        elif self.pItem.clothType == 'nRigid':
+            self.pbIcon.setIcon(self.mainUi.nRigidIcon)
+
+    def rf_nodeEnableIcon(self, rfBtnState=False):
+        """ Refresh state icon
+            :param rfBtnState: Enable btn state refresh
+            :type rfBtnState: bool """
+        if self.pItem.clothType in ['nCloth', 'nRigid']:
+            state = ceCmds.getAttr(self.pItem.clothNode, 'isDynamic')
+        else:
+            state = ceCmds.getAttr(self.pItem.clothNode, 'enable')
+        if state:
+            stateIcon = self.mainUi.enableIcon
+            if rfBtnState:
+                self.pbEnable.setChecked(True)
+        else:
+            stateIcon = self.mainUi.disableIcon
+            if rfBtnState:
+                self.pbEnable.setChecked(False)
+        self.pbEnable.setIcon(stateIcon)
+
+    def on_stateIcon(self):
+        """ Command launched when 'pbEnable' QPushButton is clicked,
+            Edit enable state (isDynamic state for nCloth and nRigid. """
+        if self.pItem.clothType in ['nCloth', 'nRigid']:
+            ceCmds.setAttr(self.pItem.clothNode, 'isDynamic', self.enableState)
+        else:
+            ceCmds.setAttr(self.pItem.clothNode, 'enable', self.enableState)
+        self.rf_nodeEnableIcon()
+
+
 class AttrUi(QtGui.QWidget, wgAttrUI.Ui_wgPreset):
     """ Widget VertxMap, child of mainUi
         :param mainUi: VertexMap mainUi
@@ -272,6 +335,21 @@ class AttrUi(QtGui.QWidget, wgAttrUI.Ui_wgPreset):
     def _setupUi(self):
         """ Setup widget ui """
         self.setupUi(self)
+        #-- Preset storage --#
+        for n in range(5):
+            newButton = AttrStorageButton('Attr_%s' % (n+1), self.mainUi, self)
+            self.hlAttrStorage.addWidget(newButton)
+
+    @property
+    def nodePreset(self):
+        preset = {}
+        for item in pQt.getAllItems(self.twPreset):
+            detectedType = False
+            if item.itemType == 'attr':
+                if not detectedType:
+                    preset['_clothType'] = ceCmds.getClothType(item.clothNode)
+                preset[item.clothAttr] = {'type': item.attrType, 'val': item._widget.attrValue}
+        return preset
 
     def rf_attrTree(self):
         """ Refresh attribute tree """
@@ -318,7 +396,9 @@ class AttrUi(QtGui.QWidget, wgAttrUI.Ui_wgPreset):
 class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
     """ Widget Preset QTreeWidgetItem node, child of PresetUi
         :param pWidget: Parent Widget
-        :type pWidget: QtGui.QWidget """
+        :type pWidget: QtGui.QWidget
+        :param pItem: Parent item
+        :type pItem: QtGui.QTreeWidgetItem """
 
     def __init__(self, pWidget, pItem):
         self.pWidget = pWidget
@@ -366,6 +446,13 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
             self.hfValue.setMaximumWidth(210)
 
     @property
+    def enumFilter(self):
+        """ Get enum filter, based 1 index
+            :return: Enum filter
+            :rtype: list """
+        return ['inputAttractMethod', 'scalingRelation', 'evaluationOrder', 'bendSolver', 'timingOutput']
+
+    @property
     def attrValue(self):
         """ Get itemNode value
             :return: Item node value
@@ -373,7 +460,10 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
         if self.pItem.attrType == 'bool':
             val = self._attrWdgt.isChecked()
         elif self.pItem.attrType == 'enum':
-            val = int(self._attrWdgt.currentIndex() + 1)
+            if self.pItem.clothAttr in self.enumFilter:
+                val = int(self._attrWdgt.currentIndex())
+            else:
+                val = int(self._attrWdgt.currentIndex() + 1)
         elif self.pItem.attrType in ['float', 'floatAngle']:
             val = float(self._attrWdgt.text())
         elif self.pItem.attrType == 'long':
@@ -390,6 +480,25 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
             :return: Attr lock state
             :rtype: bool """
         return self.pbLock.isChecked()
+
+    def setValue(self, val):
+        """ Set attribute widget value
+            :param val: Attr value
+            :type val: float | int | str | tuple """
+        if self.pItem.attrType == 'bool':
+            self._attrWdgt.setChecked(val)
+        elif self.pItem.attrType == 'enum':
+            if self.pItem.clothAttr in self.enumFilter:
+                self._attrWdgt.setCurrentIndex(val)
+            else:
+                self._attrWdgt.setCurrentIndex(val - 1)
+        elif self.pItem.attrType in ['float', 'floatAngle', 'long']:
+            self._attrWdgt.setText(str(val))
+        elif self.pItem.attrType == 'float3':
+            self._attrWdgtX.setText(str(val[0]))
+            self._attrWdgtY.setText(str(val[1]))
+            self._attrWdgtZ.setText(str(val[2]))
+        self.on_attr()
 
     # noinspection PyUnresolvedReferences
     def rf_attrLock(self, rfBtnState=False):
@@ -476,13 +585,104 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
             :rtype: QtGui.QComboBox """
         newWidget = QtGui.QComboBox()
         newWidget.addItems(ceCmds.enumAttrs()[self.pItem.clothAttr])
-        enumFilter = ['inputAttractMethod', 'scalingRelation', 'evaluationOrder', 'bendSolver', 'timingOutput']
-        if self.pItem.clothAttr in enumFilter:
+        if self.pItem.clothAttr in self.enumFilter:
             newWidget.setCurrentIndex(ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr))
         else:
             newWidget.setCurrentIndex(ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr) - 1)
         newWidget.currentIndexChanged.connect(self.on_attr)
         return newWidget
+
+
+class AttrStorageButton(QtGui.QPushButton):
+    """ Widget vertex storage QPushButton, child of vtxMapUi
+        :param btnLabel: Button label
+        :type btnLabel: str
+        :param mainUi: VertexMap mainUi
+        :type mainUi: QtGui.QMainWindow
+        :param pWidget: Parent widget
+        :type pWidget: QtGui.QWidget """
+
+    def __init__(self, btnLabel, mainUi, pWidget):
+        self.btnLabel = btnLabel
+        self.mainUi = mainUi
+        self.pWidget = pWidget
+        self.storage = {}
+        super(AttrStorageButton,self).__init__()
+        self._setupUi()
+
+    def _setupUi(self):
+        """ Setup widget ui """
+        self.setText(self.btnLabel)
+        self.setToolTip("Empty")
+
+    def popupMenuItems(self):
+        """ get menuDict
+            :return: Menu data
+            :rtype: dict """
+        menuDict = {0: ['Edit ToolTip', self.on_editToolTip],
+                    1: ['Store Selected Preset', self.on_storePreset],
+                    2: ['Clear Preset Storage', self.on_clearStorage]}
+        return menuDict
+
+    def mousePressEvent(self, event):
+        """ Detect left or right click on QPushButton
+            :param event: event
+            :type event: QtGui.QEvent """
+        if event.button() == QtCore.Qt.LeftButton:
+            self.on_leftClick()
+        elif event.button() == QtCore.Qt.RightButton:
+            self.on_rightClick()
+
+    def on_leftClick(self):
+        """ Command launched when QPushButton is left clicked, Restore stored preset """
+        if self.storage:
+            #-- Cloth Type --#
+            clothType = None
+            for item in pQt.getAllItems(self.pWidget.twPreset):
+                if item.itemType == 'attr':
+                    clothType = ceCmds.getClothType(item.clothNode)
+                    break
+            if not clothType == self.storage['_clothType']:
+                raise TypeError, "!!! Cloth type doesn't match, should be %s !!!" % self.storage['_clothType']
+            #-- Set Values --#
+            for item in pQt.getAllItems(self.pWidget.twPreset):
+                if item.itemType == 'attr':
+                    if not item._widget.attrLock:
+                        item._widget.setValue(self.storage[item.clothAttr]['val'])
+
+    def on_rightClick(self):
+        """ Command launched when QPushButton is right clicked, launch popupMenu """
+        self.pmMenu = pQt.popupMenu(self.popupMenuItems())
+        #-- Refresh Menu Items Visibility --#
+        if not self.storage.keys():
+            self.pmMenu.items[0].setEnabled(False)
+            self.pmMenu.items[2].setEnabled(False)
+        else:
+            self.pmMenu.items[1].setEnabled(False)
+        #-- Pop Menu --#
+        self.pmMenu.exec_()
+
+    def on_editToolTip(self):
+        """ Command launched when QAction 'Edit ToolTip' is clicked, Launch promp dialog """
+        self.dialToolTip = pQt.PromptDialog("Edit ToolTip", self._dialToolTipAccept)
+        self.dialToolTip.exec_()
+
+    def _dialToolTipAccept(self):
+        """ Command launched when QDialog 'dialToolTip' is accepted, edit button toolTip """
+        self.setToolTip(self.dialToolTip.result()['result_1'])
+        self.dialToolTip.close()
+
+    def on_storePreset(self):
+        """ Command launched when QAction 'Store Selected Preset' is clicked,
+            Store selected preset in 'storage' """
+        self.storage = self.pWidget.nodePreset
+        self.setToolTip("Used")
+        print "// Preset storage: %s : Success !" % self.btnLabel
+
+    def on_clearStorage(self):
+        """ Command launched when QAction 'Clear ... Storage' is clicked """
+        self.storage = {}
+        self.setToolTip("Empty")
 
 
 class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
@@ -654,7 +854,7 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
             self.leClampMin.setToolTip("flood min clamp value")
             self.leClampMax.setToolTip("flood max clamp value")
             self.pbFlood.setToolTip("Flood selected vtxMap influence")
-            self.sbFloodIter.setToolTip("Flood iteration (max=25),\nNot available in 'Replace' mode")
+            self.sbFloodIter.setToolTip("Flood iteration (max=25),\nOnly available in 'Smooth' mode")
             self.lVtxStorage.setToolTip("Store selected vertex")
             self.lDataStorage.setToolTip("Store selected vertex data")
             self.pbUpdateInf.setToolTip("Update selection from current scene")
@@ -732,7 +932,7 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         if item is not None:
             clothNode = item._widget.clothNode
             vtxMap = item._widget.mapVtx
-            vtxSel = ceCmds.getModelSelVtx(clothNode, indexOnly=True)
+            vtxSel = ceCmds.getModelSelVtx(indexOnly=True)
             vtxData = ceCmds.getVtxMapData(clothNode, vtxMap)
             for ind in vtxSel:
                 newVal = vtxData[ind]
@@ -777,8 +977,7 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
             Update vertexMap info QTreeWidgetItem selection from scene """
         vtxItem = self.selectedVtxMapItem
         if vtxItem is not None:
-            clothNode = vtxItem._widget.clothNode
-            selVtx = ceCmds.getModelSelVtx(clothNode, indexOnly=True)
+            selVtx = ceCmds.getModelSelVtx(indexOnly=True)
             if selVtx:
                 allItems = pQt.getAllItems(self.twVtxValues)
                 for n, item in enumerate(allItems):
@@ -1004,9 +1203,10 @@ class VtxStorageButton(QtGui.QPushButton):
     def on_storeVtxSet(self):
         """ Command launched when QAction 'Store Vertex Selection' is clicked,
             Store selected vertex in 'storage' """
-        vtxList = self.mainUi.cleanVtxIndexList()
+        vtxList = ceCmds.getModelSelVtx()
         if vtxList:
             self.storage = vtxList
+            self.setToolTip("Used")
             print "// Vertex storage: %s : Success !" % self.btnLabel
         else:
             print "!!! WARNING: No vertex found to store !!!"

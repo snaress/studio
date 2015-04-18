@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgVtxMap.ui'
 #
-# Created: Wed Apr 01 01:48:20 2015
+# Created: Tue Apr 14 00:18:35 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -406,6 +406,9 @@ class Ui_wgVtxMap(object):
         self.line_7.setObjectName(_fromUtf8("line_7"))
         self.gridLayout_2.addWidget(self.line_7, 1, 0, 1, 1)
         self.tabVertex.addTab(self.tabVtxValues, _fromUtf8(""))
+        self.tabVtxFiles = QtGui.QWidget()
+        self.tabVtxFiles.setObjectName(_fromUtf8("tabVtxFiles"))
+        self.tabVertex.addTab(self.tabVtxFiles, _fromUtf8(""))
         self.gridLayout_3.addWidget(self.splitter, 0, 0, 1, 1)
 
         self.retranslateUi(wgVtxMap)
@@ -455,4 +458,5 @@ class Ui_wgVtxMap(object):
         self.twVtxValues.headerItem().setText(1, _translate("wgVtxMap", "Influence", None))
         self.pbUpdateInf.setText(_translate("wgVtxMap", "Update Selection From Scene", None))
         self.tabVertex.setTabText(self.tabVertex.indexOf(self.tabVtxValues), _translate("wgVtxMap", "Vtx Values", None))
+        self.tabVertex.setTabText(self.tabVertex.indexOf(self.tabVtxFiles), _translate("wgVtxMap", "Vtx Files", None))
 

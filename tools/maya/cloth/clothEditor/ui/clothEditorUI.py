@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\clothEditor.ui'
 #
-# Created: Sat Apr 04 15:35:34 2015
+# Created: Sat Apr 18 20:51:54 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_mwClothEditor(object):
     def setupUi(self, mwClothEditor):
         mwClothEditor.setObjectName(_fromUtf8("mwClothEditor"))
-        mwClothEditor.resize(711, 470)
+        mwClothEditor.resize(850, 470)
         self.centralwidget = QtGui.QWidget(mwClothEditor)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout_3 = QtGui.QGridLayout(self.centralwidget)
@@ -70,7 +70,7 @@ class Ui_mwClothEditor(object):
         self.gridLayout_3.addWidget(self.splitter_2, 0, 0, 1, 1)
         mwClothEditor.setCentralWidget(self.centralwidget)
         self.menuBar = QtGui.QMenuBar(mwClothEditor)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 711, 21))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 850, 21))
         self.menuBar.setObjectName(_fromUtf8("menuBar"))
         self.mHelp = QtGui.QMenu(self.menuBar)
         self.mHelp.setObjectName(_fromUtf8("mHelp"))

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgAttr.ui'
 #
-# Created: Fri Apr 03 01:39:32 2015
+# Created: Sat Apr 18 21:14:20 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgPreset(object):
     def setupUi(self, wgPreset):
         wgPreset.setObjectName(_fromUtf8("wgPreset"))
-        wgPreset.resize(191, 300)
+        wgPreset.resize(559, 300)
         self.gridLayout = QtGui.QGridLayout(wgPreset)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
@@ -55,13 +55,65 @@ class Ui_wgPreset(object):
         self.vlTools.setSpacing(0)
         self.vlTools.setContentsMargins(0, -1, 0, -1)
         self.vlTools.setObjectName(_fromUtf8("vlTools"))
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.vlTools.addItem(spacerItem)
+        self.tabAttr = QtGui.QTabWidget(self.verticalLayoutWidget_2)
+        self.tabAttr.setObjectName(_fromUtf8("tabAttr"))
+        self.tabAttrTools = QtGui.QWidget()
+        self.tabAttrTools.setObjectName(_fromUtf8("tabAttrTools"))
+        self.gridLayout_2 = QtGui.QGridLayout(self.tabAttrTools)
+        self.gridLayout_2.setContentsMargins(1, 0, 1, 0)
+        self.gridLayout_2.setHorizontalSpacing(0)
+        self.gridLayout_2.setVerticalSpacing(1)
+        self.gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
+        self.line = QtGui.QFrame(self.tabAttrTools)
+        self.line.setFrameShape(QtGui.QFrame.HLine)
+        self.line.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line.setObjectName(_fromUtf8("line"))
+        self.gridLayout_2.addWidget(self.line, 1, 0, 1, 1)
+        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.gridLayout_2.addItem(spacerItem, 4, 0, 1, 1)
+        self.lVtxStor = QtGui.QLabel(self.tabAttrTools)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setUnderline(True)
+        font.setWeight(75)
+        self.lVtxStor.setFont(font)
+        self.lVtxStor.setAlignment(QtCore.Qt.AlignCenter)
+        self.lVtxStor.setObjectName(_fromUtf8("lVtxStor"))
+        self.gridLayout_2.addWidget(self.lVtxStor, 0, 0, 1, 1)
+        self.hlAttrStorage = QtGui.QHBoxLayout()
+        self.hlAttrStorage.setSpacing(2)
+        self.hlAttrStorage.setContentsMargins(-1, 0, -1, 0)
+        self.hlAttrStorage.setObjectName(_fromUtf8("hlAttrStorage"))
+        self.lAttrStorage = QtGui.QLabel(self.tabAttrTools)
+        self.lAttrStorage.setMinimumSize(QtCore.QSize(70, 0))
+        self.lAttrStorage.setMaximumSize(QtCore.QSize(70, 16777215))
+        font = QtGui.QFont()
+        font.setUnderline(True)
+        self.lAttrStorage.setFont(font)
+        self.lAttrStorage.setObjectName(_fromUtf8("lAttrStorage"))
+        self.hlAttrStorage.addWidget(self.lAttrStorage)
+        self.gridLayout_2.addLayout(self.hlAttrStorage, 2, 0, 1, 1)
+        self.line_2 = QtGui.QFrame(self.tabAttrTools)
+        self.line_2.setFrameShape(QtGui.QFrame.HLine)
+        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_2.setObjectName(_fromUtf8("line_2"))
+        self.gridLayout_2.addWidget(self.line_2, 3, 0, 1, 1)
+        self.tabAttr.addTab(self.tabAttrTools, _fromUtf8(""))
+        self.tabAttrFiles = QtGui.QWidget()
+        self.tabAttrFiles.setObjectName(_fromUtf8("tabAttrFiles"))
+        self.tabAttr.addTab(self.tabAttrFiles, _fromUtf8(""))
+        self.vlTools.addWidget(self.tabAttr)
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
 
         self.retranslateUi(wgPreset)
+        self.tabAttr.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(wgPreset)
 
     def retranslateUi(self, wgPreset):
         wgPreset.setWindowTitle(_translate("wgPreset", "Preset", None))
+        self.lVtxStor.setText(_translate("wgPreset", "Preset Storage", None))
+        self.lAttrStorage.setText(_translate("wgPreset", "Attr Storage:", None))
+        self.tabAttr.setTabText(self.tabAttr.indexOf(self.tabAttrTools), _translate("wgPreset", "Attr Tools", None))
+        self.tabAttr.setTabText(self.tabAttr.indexOf(self.tabAttrFiles), _translate("wgPreset", "Attr Files", None))
 

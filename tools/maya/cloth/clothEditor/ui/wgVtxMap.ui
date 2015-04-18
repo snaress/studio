@@ -992,6 +992,11 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tabVtxFiles">
+       <attribute name="title">
+        <string>Vtx Files</string>
+       </attribute>
+      </widget>
      </widget>
     </widget>
    </item>

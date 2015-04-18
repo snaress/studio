@@ -207,15 +207,13 @@ def selectVtxOnModel(vtxToSelect):
         :type vtxToSelect: list """
     mc.select(vtxToSelect, r=True)
 
-def getModelSelVtx(clothNode, indexOnly=False):
+def getModelSelVtx(indexOnly=False):
     """ Get selected vertex on model
-        :param clothNode: Cloth node name
-        :type clothNode: str
         :param indexOnly: If True, return index only, else fullName
         :type indexOnly: bool
         :return: selection list
         :rtype: list """
-    return pCloth.getModelSelectedVtx(clothNode, indexOnly=indexOnly)
+    return pCloth.getModelSelectedVtx(indexOnly=indexOnly)
 
 def clearVtxSelection():
     """ Clear vertex selection on model """
