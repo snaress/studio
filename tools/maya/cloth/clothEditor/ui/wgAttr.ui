@@ -186,6 +186,21 @@
           <attribute name="title">
            <string>Attr Files</string>
           </attribute>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <layout class="QVBoxLayout" name="vlAttrFiles">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+            </layout>
+           </item>
+          </layout>
          </widget>
         </widget>
        </item>

@@ -1,10 +1,11 @@
+import os
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pRigg
 from tools.maya.cloth.clothEditor import clothEditorCmds as ceCmds
 from tools.maya.cloth.clothEditor.ui import wgSceneNodesUI, wgSceneNodeUI, wgAttrUI, wgAttrNodeUI, wgVtxMapUI,\
-                                            wgVtxMapNodeUI
+                                            wgVtxMapNodeUI, wgFilesUI
 
 
 class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
@@ -239,6 +240,11 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
 
 
 class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
+    """ Widget SceneNode QTreeWidgetItem node, child of SceneNodeUi
+        :param pWidget: Parent Widget
+        :type pWidget: QtGui.QWidget
+        :param pItem: Parent item
+        :type pItem: QtGui.QTreeWidgetItem """
 
     def __init__(self, pWidget, pItem):
         self.pWidget = pWidget
@@ -342,6 +348,9 @@ class AttrUi(QtGui.QWidget, wgAttrUI.Ui_wgPreset):
 
     @property
     def nodePreset(self):
+        """ Get node preset
+            :return: Preset
+            :rtype: dict """
         preset = {}
         for item in pQt.getAllItems(self.twPreset):
             detectedType = False
@@ -371,6 +380,14 @@ class AttrUi(QtGui.QWidget, wgAttrUI.Ui_wgPreset):
                     newAttrItem = self.new_presetItem('attr', clothNode, attr, attrType)
                     newGrpItem.addChild(newAttrItem)
                     self.twPreset.setItemWidget(newAttrItem, 0, newAttrItem._widget)
+
+    def rf_widgetToolTips(self):
+        """ Refresh all widget toolTip """
+        if self.mainUi.toolTipState:
+            self.lAttrStorage.setToolTip("Store selected preset")
+        else:
+            for widget in [self.lAttrStorage]:
+                widget.setToolTip("")
 
     def new_presetItem(self, itemType, clothNode, clothAttr, attrType):
         """ Create attributes tree new QTreeWidgetItem
@@ -697,6 +714,7 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         super(VtxMapUi, self).__init__()
         self._setupUi()
         self.rf_vtxMapTree()
+        self.rf_floodIterVisibility()
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
@@ -721,6 +739,10 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         self.pbVtxClear.clicked.connect(self.on_vtxClear)
         self.pbVtxSelect.clicked.connect(self.on_vtxSelection)
         #-- VtxMap flood --#
+        self.rbEditReplace.clicked.connect(self.rf_floodIterVisibility)
+        self.rbEditAdd.clicked.connect(self.rf_floodIterVisibility)
+        self.rbEditMult.clicked.connect(self.rf_floodIterVisibility)
+        self.rbEditSmooth.clicked.connect(self.rf_floodIterVisibility)
         self.pbFlood.clicked.connect(self.on_flood)
         #-- VtxMap storage --#
         for n in range(5):
@@ -777,6 +799,13 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         return float(self.leEditVal.text())
 
     @property
+    def floodIter(self):
+        """ Get flood iter value
+            :return: Flood itertions
+            :rtype: int """
+        return int(self.sbFloodIter.value())
+
+    @property
     def vtxClamp(self):
         """ Get clamp min and max state and value
             :return: Minimum clamp value (None if disable), Maximum clamp value (None if disable)
@@ -812,6 +841,13 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
             self.lRangeMin.setText("Value=")
             self.lRangeMax.setVisible(False)
             self.leRangeMax.setVisible(False)
+
+    def rf_floodIterVisibility(self):
+        """ Refresh flood iter visibility """
+        if self.floodMode == 'smooth':
+            self.sbFloodIter.setEnabled(True)
+        else:
+            self.sbFloodIter.setEnabled(False)
 
     def rf_vtxInfluence(self):
         """ Refresh QTreeWidget 'vertex map influence' """
@@ -928,36 +964,70 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         """ Command launched when QPushButton 'Flood' is clicked,
             Edit selected vertex map influence with new edited influence """
         #-- Get Vertex Data Info --#
+        print "#-- Flood Value --#"
+        print "Flood Mode: %s" % self.floodMode
+        print "Flood Iter: %s" % self.floodIter
         item = self.selectedVtxMapItem
         if item is not None:
             clothNode = item._widget.clothNode
             vtxMap = item._widget.mapVtx
-            vtxSel = ceCmds.getModelSelVtx(indexOnly=True)
+            vtxSel = ceCmds.getModelSelVtx(clothNode, indexOnly=True)
             vtxData = ceCmds.getVtxMapData(clothNode, vtxMap)
-            for ind in vtxSel:
-                newVal = vtxData[ind]
-                #-- Get New Vertex Value --#
-                if self.floodMode == 'replace':
-                    newVal = self.floodValue
-                elif self.floodMode == 'add':
-                    for n in range(int(self.sbFloodIter.value())):
+            if self.floodMode == 'smooth':
+                for n in range(self.floodIter):
+                    print "Iter %s" % (n + 1)
+                    vtxData = self.smoothValues(clothNode, vtxSel, vtxData)
+            else:
+                for ind in vtxSel:
+                    newVal = vtxData[ind]
+                    #-- Get New Vertex Value --#
+                    if self.floodMode == 'replace':
+                        newVal = self.floodValue
+                    elif self.floodMode == 'add':
                         newVal = float(newVal + self.floodValue)
-                elif self.floodMode == 'mult':
-                    for n in range(int(self.sbFloodIter.value())):
+                    elif self.floodMode == 'mult':
                         newVal = float(newVal * self.floodValue)
-                #-- Check Vertex Clamp --#
-                if newVal is not None:
-                    clampMin, clampMax = self.vtxClamp
-                    if clampMin is not None:
-                        if newVal < clampMin:
-                            newVal = clampMin
-                    if clampMax is not None:
-                        if newVal > clampMax:
-                            newVal = clampMax
-                    #-- Edit Vertex Data --#
-                    vtxData[ind] = newVal
+                    #-- Check Vertex Clamp --#
+                    if newVal is not None:
+                        vtxData[ind] = self.clampValue(newVal)
             #-- Set Vertex Map --#
             ceCmds.setVtxMapData(clothNode, vtxMap, vtxData)
+
+    def smoothValues(self, clothNode, vtxSel, vtxData):
+        """ Smooth selected vertex influence value
+            :param clothNode: Cloth node name
+            :type clothNode: str
+            :param vtxSel: Selected vertex
+            :type vtxSel: list
+            :param vtxData: VtxMap influences
+            :type vtxData: list
+            :return: New vertex data
+            :rtype: list """
+        newVtxData = vtxData
+        for vtx in vtxSel:
+            val = 0
+            connectedVtx = ceCmds.getConnectedVtx(clothNode, vtx)
+            for sel in connectedVtx:
+                val = val + vtxData[sel]
+            val = float(val / len(connectedVtx))
+            newVtxData[vtx] = self.clampValue(val)
+        return newVtxData
+
+    def clampValue(self, value):
+        """ Clamp given value if enable
+            :param value: Value to clamp
+            :type value: float
+            :return: New value
+            :rtype: float """
+        if value is not None:
+            clampMin, clampMax = self.vtxClamp
+            if clampMin is not None:
+                if value < clampMin:
+                    value = clampMin
+            if clampMax is not None:
+                if value > clampMax:
+                    value = clampMax
+        return value
 
     def on_vtxMapInfo(self):
         """ Command launched when 'Tree Values' QTreeWidget selection changed
@@ -977,7 +1047,7 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
             Update vertexMap info QTreeWidgetItem selection from scene """
         vtxItem = self.selectedVtxMapItem
         if vtxItem is not None:
-            selVtx = ceCmds.getModelSelVtx(indexOnly=True)
+            selVtx = ceCmds.getModelSelVtx(vtxItem._widget.clothNode, indexOnly=True)
             if selVtx:
                 allItems = pQt.getAllItems(self.twVtxValues)
                 for n, item in enumerate(allItems):
@@ -1166,7 +1236,21 @@ class VtxStorageButton(QtGui.QPushButton):
 
     def on_vtxSet(self):
         """ Command launched QPushButton is clicked, restore vertex set selection """
-        ceCmds.selectVtxOnModel(self.storage)
+        sceneSel = ceCmds.getSceneSelection()
+        if len(sceneSel) == 1:
+            if not '.vtx' in sceneSel:
+                setSel = self.storage[0].split('.')[0]
+                if not setSel == sceneSel[0]:
+                    newStorage = []
+                    for sel in self.storage:
+                        newStorage.append(sel.replace(setSel, sceneSel[0]))
+                    ceCmds.selectVtxOnModel(newStorage)
+                else:
+                    ceCmds.selectVtxOnModel(self.storage)
+            else:
+                ceCmds.selectVtxOnModel(self.storage)
+        else:
+            ceCmds.selectVtxOnModel(self.storage)
 
     def on_vtxData(self):
         """ Command launched QPushButton is clicked, restore vertex data storage """
@@ -1203,7 +1287,7 @@ class VtxStorageButton(QtGui.QPushButton):
     def on_storeVtxSet(self):
         """ Command launched when QAction 'Store Vertex Selection' is clicked,
             Store selected vertex in 'storage' """
-        vtxList = ceCmds.getModelSelVtx()
+        vtxList = ceCmds.getModelSelVtx(self.mainUi.wgSceneNodes.selectedClothNode)
         if vtxList:
             self.storage = vtxList
             self.setToolTip("Used")
@@ -1227,3 +1311,30 @@ class VtxStorageButton(QtGui.QPushButton):
         """ Command launched when QAction 'Clear ... Storage' is clicked """
         self.storage = []
         self.setToolTip("Empty")
+
+
+class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
+
+    def __init__(self, mainUi, fileMode, pWidget):
+        if fileMode == 'attrs':
+            print "\t ---> Preset Files"
+        else:
+            print "\t ---> VtxMap Files"
+        self.mainUi = mainUi
+        self.fileMode = fileMode
+        self.pWidget = pWidget
+        super(FilesUi, self).__init__()
+        self._setupUi()
+
+    def _setupUi(self):
+        """ Setup widget ui """
+        self.setupUi(self)
+        if self.mainUi.filesRootPath is None:
+            self.mainUi.filesRootPath = self.defaultRootPath
+
+    @property
+    def defaultRootPath(self):
+        """ Get default files root path
+            :return: Files root path
+            :rtype: str """
+        return os.path.normpath("D:/rndBin/clothEditor")

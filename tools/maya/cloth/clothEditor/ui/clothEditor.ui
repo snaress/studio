@@ -103,6 +103,13 @@
     </property>
     <addaction name="miToolTips"/>
    </widget>
+   <widget class="QMenu" name="mFiles">
+    <property name="title">
+     <string>Files</string>
+    </property>
+    <addaction name="miSetRootPath"/>
+   </widget>
+   <addaction name="mFiles"/>
    <addaction name="mHelp"/>
   </widget>
   <action name="miNCloth">
@@ -146,6 +153,11 @@
    </property>
    <property name="text">
     <string>ToolTips</string>
+   </property>
+  </action>
+  <action name="miSetRootPath">
+   <property name="text">
+    <string>Set Root Path</string>
    </property>
   </action>
  </widget>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgAttr.ui'
 #
-# Created: Sat Apr 18 21:14:20 2015
+# Created: Mon Apr 20 00:16:54 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -102,6 +102,14 @@ class Ui_wgPreset(object):
         self.tabAttr.addTab(self.tabAttrTools, _fromUtf8(""))
         self.tabAttrFiles = QtGui.QWidget()
         self.tabAttrFiles.setObjectName(_fromUtf8("tabAttrFiles"))
+        self.gridLayout_3 = QtGui.QGridLayout(self.tabAttrFiles)
+        self.gridLayout_3.setMargin(0)
+        self.gridLayout_3.setSpacing(0)
+        self.gridLayout_3.setObjectName(_fromUtf8("gridLayout_3"))
+        self.vlAttrFiles = QtGui.QVBoxLayout()
+        self.vlAttrFiles.setSpacing(0)
+        self.vlAttrFiles.setObjectName(_fromUtf8("vlAttrFiles"))
+        self.gridLayout_3.addLayout(self.vlAttrFiles, 0, 0, 1, 1)
         self.tabAttr.addTab(self.tabAttrFiles, _fromUtf8(""))
         self.vlTools.addWidget(self.tabAttr)
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)

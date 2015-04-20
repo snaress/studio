@@ -15,6 +15,7 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
     def __init__(self, parent=None):
         print "\n########## %s ##########" % clothEditor.toolName
         self.iconPath = clothEditor.iconPath
+        self.filesRootPath = None
         self.lockIconOn = QtGui.QIcon(os.path.join(self.iconPath, 'lockOn.png'))
         self.lockIconOff = QtGui.QIcon(os.path.join(self.iconPath, 'lockOff.png'))
         self.nucleusIcon = QtGui.QIcon(os.path.join(self.iconPath, 'nucleus.png'))
@@ -72,14 +73,24 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         self.vlSceneNodes.insertWidget(0, self.wgSceneNodes)
         self.wgAttributes = ceWgts.AttrUi(self)
         self.vlAttr.insertWidget(0, self.wgAttributes)
+        self.wgAttrFiles = ceWgts.FilesUi(self, 'attrs', self.wgAttributes)
+        self.wgAttributes.vlAttrFiles.insertWidget(0, self.wgAttrFiles)
         self.wgVtxMaps = ceWgts.VtxMapUi(self)
         self.vlVtxMap.insertWidget(0, self.wgVtxMaps)
+        self.wgVtxFiles = ceWgts.FilesUi(self, 'vtxMap', self.wgVtxMaps)
+        self.wgVtxMaps.vlVtxFiles.insertWidget(0, self.wgVtxFiles)
 
     def on_miToolTips(self):
         """ Command launched when 'ToolTips' menuItem is clicked """
         self.wgSceneNodes.rf_widgetToolTips()
         self.wgSceneNodes.rf_sceneItemToolTips()
+        self.wgAttributes.rf_widgetToolTips()
         self.wgVtxMaps.rf_widgetToolTips()
+
+    def closeEvent(self, *args, **kwargs):
+        """ Command launched when ui is closing """
+        print "#-- Closing Cloth Editor --#"
+        mc.deleteUI(str(self.objectName()), wnd=True)
 
 
 def launch():

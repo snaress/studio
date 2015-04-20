@@ -1,4 +1,4 @@
-from tools.maya.cmds import pScene, pCloth
+from tools.maya.cmds import pScene, pMode, pCloth
 try:
     import maya.cmds as mc
 except:
@@ -111,6 +111,12 @@ def getNamespace(nodeName, returnList=False):
     ns, name = pScene.getNamespace(nodeName, returnList=returnList)
     return ns, name
 
+def getSceneSelection():
+    """ Get scene selection
+        :return: Scene selection list
+        :rtype: list """
+    return mc.ls(sl=True)
+
 def attrIsLocked(nodeFullName):
     """ Check if given node attribute is locked
         :param nodeFullName: 'nodeName.nodeAttr'
@@ -207,17 +213,35 @@ def selectVtxOnModel(vtxToSelect):
         :type vtxToSelect: list """
     mc.select(vtxToSelect, r=True)
 
-def getModelSelVtx(indexOnly=False):
+def getModelSelVtx(clothNode, indexOnly=False):
     """ Get selected vertex on model
+        :param clothNode: Cloth node name
+        :type clothNode: str
         :param indexOnly: If True, return index only, else fullName
         :type indexOnly: bool
         :return: selection list
         :rtype: list """
-    return pCloth.getModelSelectedVtx(indexOnly=indexOnly)
+    return pCloth.getModelSelectedVtx(clothNode, indexOnly=indexOnly)
 
 def clearVtxSelection():
     """ Clear vertex selection on model """
     mc.select(cl=True)
+
+def getConnectedVtx(clothNode, index):
+    """ Get connected vertex to the given index
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :param index: Vertex index
+        :type index: int
+        :return: Connected vertex
+        :rtype: list """
+    currentSel = mc.ls(sl=True)
+    model = getModelFromClothNode(clothNode)
+    mc.select("%s.vtx[%s]" % (model, index), r=True)
+    pMode.polySelectTraverse()
+    newSel = getModelSelVtx(clothNode, indexOnly=True)
+    mc.select(currentSel, r=True)
+    return newSel
 
 def getVtxMaps(clothNode):
     """ Get vertex map list from given clothNode

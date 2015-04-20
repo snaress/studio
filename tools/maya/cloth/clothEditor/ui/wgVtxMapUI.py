@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgVtxMap.ui'
 #
-# Created: Tue Apr 14 00:18:35 2015
+# Created: Mon Apr 20 00:32:37 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -264,7 +264,7 @@ class Ui_wgVtxMap(object):
         self.bgVtxEdition.addButton(self.rbEditMult)
         self.hlEditMode.addWidget(self.rbEditMult)
         self.rbEditSmooth = QtGui.QRadioButton(self.tabVtxTools)
-        self.rbEditSmooth.setEnabled(False)
+        self.rbEditSmooth.setEnabled(True)
         self.rbEditSmooth.setObjectName(_fromUtf8("rbEditSmooth"))
         self.bgVtxEdition.addButton(self.rbEditSmooth)
         self.hlEditMode.addWidget(self.rbEditSmooth)
@@ -408,6 +408,13 @@ class Ui_wgVtxMap(object):
         self.tabVertex.addTab(self.tabVtxValues, _fromUtf8(""))
         self.tabVtxFiles = QtGui.QWidget()
         self.tabVtxFiles.setObjectName(_fromUtf8("tabVtxFiles"))
+        self.gridLayout_4 = QtGui.QGridLayout(self.tabVtxFiles)
+        self.gridLayout_4.setMargin(0)
+        self.gridLayout_4.setSpacing(0)
+        self.gridLayout_4.setObjectName(_fromUtf8("gridLayout_4"))
+        self.vlVtxFiles = QtGui.QVBoxLayout()
+        self.vlVtxFiles.setObjectName(_fromUtf8("vlVtxFiles"))
+        self.gridLayout_4.addLayout(self.vlVtxFiles, 0, 0, 1, 1)
         self.tabVertex.addTab(self.tabVtxFiles, _fromUtf8(""))
         self.gridLayout_3.addWidget(self.splitter, 0, 0, 1, 1)
 

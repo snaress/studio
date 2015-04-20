@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\clothEditor.ui'
 #
-# Created: Sat Apr 18 20:51:54 2015
+# Created: Mon Apr 20 02:08:43 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -74,6 +74,8 @@ class Ui_mwClothEditor(object):
         self.menuBar.setObjectName(_fromUtf8("menuBar"))
         self.mHelp = QtGui.QMenu(self.menuBar)
         self.mHelp.setObjectName(_fromUtf8("mHelp"))
+        self.mFiles = QtGui.QMenu(self.menuBar)
+        self.mFiles.setObjectName(_fromUtf8("mFiles"))
         mwClothEditor.setMenuBar(self.menuBar)
         self.miNCloth = QtGui.QAction(mwClothEditor)
         self.miNCloth.setCheckable(True)
@@ -91,7 +93,11 @@ class Ui_mwClothEditor(object):
         self.miToolTips.setCheckable(True)
         self.miToolTips.setChecked(False)
         self.miToolTips.setObjectName(_fromUtf8("miToolTips"))
+        self.miSetRootPath = QtGui.QAction(mwClothEditor)
+        self.miSetRootPath.setObjectName(_fromUtf8("miSetRootPath"))
         self.mHelp.addAction(self.miToolTips)
+        self.mFiles.addAction(self.miSetRootPath)
+        self.menuBar.addAction(self.mFiles.menuAction())
         self.menuBar.addAction(self.mHelp.menuAction())
 
         self.retranslateUi(mwClothEditor)
@@ -103,9 +109,11 @@ class Ui_mwClothEditor(object):
         self.tabClothEditor.setTabText(self.tabClothEditor.indexOf(self.tiAttr), _translate("mwClothEditor", "Attrs", None))
         self.tabClothEditor.setTabText(self.tabClothEditor.indexOf(self.tiVtxMap), _translate("mwClothEditor", "VtxMap", None))
         self.mHelp.setTitle(_translate("mwClothEditor", "Help", None))
+        self.mFiles.setTitle(_translate("mwClothEditor", "Files", None))
         self.miNCloth.setText(_translate("mwClothEditor", "nCloth", None))
         self.miNRigid.setText(_translate("mwClothEditor", "nRigid", None))
         self.miRfSceneNodes.setText(_translate("mwClothEditor", "Scene Nodes", None))
         self.actionRefresh.setText(_translate("mwClothEditor", "Refresh", None))
         self.miToolTips.setText(_translate("mwClothEditor", "ToolTips", None))
+        self.miSetRootPath.setText(_translate("mwClothEditor", "Set Root Path", None))
 
