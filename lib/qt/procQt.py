@@ -409,6 +409,7 @@ class PromptDialog(QtGui.QDialog, promptDialogUI.Ui_Dialog):
         self.setupUi(self)
         self.initDialog()
 
+    # noinspection PyUnresolvedReferences
     def initDialog(self):
         """ Init dialog window """
         self.lMessage.setText(self.message)
