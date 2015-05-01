@@ -3,14 +3,15 @@ from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pRigg
+from lib.system import procFile as pFile
 from tools.maya.cloth.clothEditor import clothEditorCmds as ceCmds
 from tools.maya.cloth.clothEditor.ui import wgSceneNodesUI, wgSceneNodeUI, wgAttrUI, wgAttrNodeUI, wgVtxMapUI,\
-                                            wgVtxMapNodeUI, wgFilesUI
+                                            wgVtxMapNodeUI, wgFilesUI, dialSaveFileUI
 
 
 class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
     """ Widget SceneNodes, child of mainUi
-        :param mainUi: VertexMap mainUi
+        :param mainUi: ClothEditor mainUi
         :type mainUi: QtGui.QMainWindow """
 
     def __init__(self, mainUi):
@@ -326,7 +327,7 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
 
 class AttrUi(QtGui.QWidget, wgAttrUI.Ui_wgPreset):
     """ Widget VertxMap, child of mainUi
-        :param mainUi: VertexMap mainUi
+        :param mainUi: ClothEditor MainUi
         :type mainUi: QtGui.QMainWindow """
 
     def __init__(self, mainUi):
@@ -352,11 +353,12 @@ class AttrUi(QtGui.QWidget, wgAttrUI.Ui_wgPreset):
             :return: Preset
             :rtype: dict """
         preset = {}
+        detectedType = False
         for item in pQt.getAllItems(self.twPreset):
-            detectedType = False
             if item.itemType == 'attr':
                 if not detectedType:
-                    preset['_clothType'] = ceCmds.getClothType(item.clothNode)
+                    preset['_clothType'] = str(ceCmds.getClothType(item.clothNode))
+                    detectedType = True
                 preset[item.clothAttr] = {'type': item.attrType, 'val': item._widget.attrValue}
         return preset
 
@@ -614,7 +616,7 @@ class AttrStorageButton(QtGui.QPushButton):
     """ Widget vertex storage QPushButton, child of vtxMapUi
         :param btnLabel: Button label
         :type btnLabel: str
-        :param mainUi: VertexMap mainUi
+        :param mainUi: ClothEditor MainUi
         :type mainUi: QtGui.QMainWindow
         :param pWidget: Parent widget
         :type pWidget: QtGui.QWidget """
@@ -704,7 +706,7 @@ class AttrStorageButton(QtGui.QPushButton):
 
 class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
     """ Widget VertxMap, child of mainUi
-        :param mainUi: VertexMap mainUi
+        :param mainUi: ClothEditor mainUi
         :type mainUi: QtGui.QMainWindow """
 
     def __init__(self, mainUi):
@@ -776,6 +778,24 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         selItems = self.twMaps.selectedItems()
         if selItems:
             return selItems[0]
+
+    def nodeVtxData(self):
+        """ Get all vertex map data
+            :return: Vertex maps data
+            :rtype: dict """
+        mapsDict = {}
+        detectedType = False
+        for item in pQt.getAllItems(self.twMaps):
+            node = item._widget
+            if not detectedType:
+                mapsDict['_clothType'] = str(ceCmds.getClothType(node.clothNode))
+                detectedType = True
+            mapsDict[node.mapName] = {'mapType': node.vtxMapIndex}
+            if node.vtxMapType == 'Vertex':
+                mapsDict[node.mapName]['mapData'] = ceCmds.getVtxMapData(node.clothNode, node.mapVtx)
+            else:
+                mapsDict[node.mapName]['mapData'] = None
+        return mapsDict
 
     @property
     def floodMode(self):
@@ -1185,7 +1205,7 @@ class VtxStorageButton(QtGui.QPushButton):
         :type btnLabel: str
         :param btnType: Button storage type ('vtxSet' or 'vtxData')
         :type btnType: str
-        :param mainUi: VertexMap mainUi
+        :param mainUi: ClothEditor MainUi
         :type mainUi: QtGui.QMainWindow
         :param pWidget: Parent widget
         :type pWidget: QtGui.QWidget """
@@ -1314,6 +1334,13 @@ class VtxStorageButton(QtGui.QPushButton):
 
 
 class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
+    """ Widget Files, child of AttrUi and VtxMapUi
+        :param mainUi: ClothEditor MainUi
+        :type mainUi: QtGui.QMainWindow
+        :param fileMode: 'attrs' or 'vtxMap'
+        :type fileMode: str
+        :param pWidget: Parent widget
+        :type pWidget: QtGui.QWidget """
 
     def __init__(self, mainUi, fileMode, pWidget):
         if fileMode == 'attrs':
@@ -1326,11 +1353,20 @@ class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
         super(FilesUi, self).__init__()
         self._setupUi()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """ Setup widget ui """
         self.setupUi(self)
         if self.mainUi.filesRootPath is None:
             self.mainUi.filesRootPath = self.defaultRootPath
+        self.rf_rootPath()
+        self.pbNewProject.clicked.connect(self.on_newProject)
+        self.pbNewFolder.clicked.connect(self.on_newFolder)
+        self.pbRefresh.clicked.connect(self.rf_directories)
+        self.twDir.itemClicked.connect(self.rf_files)
+        if self.fileMode == 'attrs':
+            self.qfVtxMode.setVisible(False)
+        self.pbSave.clicked.connect(self.on_save)
 
     @property
     def defaultRootPath(self):
@@ -1338,3 +1374,218 @@ class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
             :return: Files root path
             :rtype: str """
         return os.path.normpath("D:/rndBin/clothEditor")
+
+    def getItemFromRelPath(self, relPath):
+        """ Get directory item from given relative path
+            :param relPath: Item relPath
+            :type relPath: str
+            :return: Directory item
+            :rtype: QtGui.QTreeWidgetItem """
+        allItems = pQt.getAllItems(self.twDir)
+        for item in allItems:
+            if item.relPath == relPath:
+                return item
+
+    def rf_rootPath(self):
+        """ Refresh Files Root Path """
+        self.lRootPathVal.setText(pFile.conformPath(self.mainUi.filesRootPath))
+
+    # noinspection PyTypeChecker
+    def rf_directories(self):
+        """ Refresh directories tree """
+        self.twDir.clear()
+        if not os.path.exists(self.mainUi.filesRootPath):
+            raise IOError, "!!! Files Root Path doesn't exists: %s !!!" % self.mainUi.filesRootPath
+        pathDict = pFile.pathToDict(self.mainUi.filesRootPath)
+        for path in pathDict['_order']:
+            if not path == self.mainUi.filesRootPath:
+                newItem = self.new_dirItem(path)
+                if newItem.parent is None:
+                    self.twDir.addTopLevelItem(newItem)
+                else:
+                    parent = self.getItemFromRelPath(newItem.parent)
+                    parent.addChild(newItem)
+
+    def rf_files(self):
+        """ Refresh files tree """
+        self.twFiles.clear()
+        selItems = self.twDir.selectedItems()
+        if selItems:
+            for f in os.listdir(selItems[0].absPath):
+                if f.endswith('%s.py' % self.fileMode):
+                    fileItem = self.new_fileItem(selItems[0].absPath, f)
+                    self.twFiles.addTopLevelItem(fileItem)
+
+    def on_newProject(self):
+        """ Command launched when 'New Project' QPushButton is clicked """
+        if not os.path.exists(self.mainUi.filesRootPath):
+            raise IOError, "!!! Files Root Path doesn't exists: %s !!!" % self.mainUi.filesRootPath
+        self.pdProject = pQt.PromptDialog("New Project Name", self.newProject)
+        self.pdProject.exec_()
+
+    def newProject(self):
+        """ Create new project directory
+            :return: Project path
+            :rtype: str """
+        projectName = self.pdProject.result()['result_1']
+        if projectName is None or projectName in ['', ' ']:
+            raise KeyError, "!!! Project name can not be empty !!!"
+        projectPath = os.path.join(self.mainUi.filesRootPath, projectName)
+        if os.path.exists(projectPath):
+            raise IOError, "!!! Project name already exists: %s !!!" % projectName
+        try:
+            os.mkdir(projectPath)
+            print "Create new clothEditor project: %s" % projectName
+        except:
+            raise IOError, "!!! Can not create directory %s !!!" % projectPath
+        self.pdProject.close()
+        self.rf_directories()
+        return projectPath
+
+    def on_newFolder(self):
+        """ Command launched when 'New Folder' QPushButton is clicked """
+        if not os.path.exists(self.mainUi.filesRootPath):
+            raise IOError, "!!! Files Root Path doesn't exists: %s !!!" % self.mainUi.filesRootPath
+        selItems = self.twDir.selectedItems()
+        if not selItems:
+            raise ValueError, "!!! Folder must be selected to create new folder !!!"
+        self.pdFolder = pQt.PromptDialog("New Folder Name", partial(self.newFolder, selItems[0]))
+        self.pdFolder.exec_()
+
+    def newFolder(self, item):
+        """ Create new project directory
+            :param item: Selected directory item
+            :type item: QtGui.QTreeWidgetItem
+            :return: Project path
+            :rtype: str """
+        folderName = self.pdFolder.result()['result_1']
+        if folderName is None or folderName in ['', ' ']:
+            raise KeyError, "!!! Project name can not be empty !!!"
+        folderPath = os.path.join(self.mainUi.filesRootPath, os.path.normpath(item.relPath), folderName)
+        if os.path.exists(folderPath):
+            raise IOError, "!!! Project name already exists: %s !!!" % folderName
+        try:
+            os.mkdir(folderPath)
+            print "Create new clothEditor folder: %s" % folderName
+        except:
+            raise IOError, "!!! Can not create directory %s !!!" % folderPath
+        self.pdFolder.close()
+        self.rf_directories()
+        return folderPath
+
+    def on_save(self):
+        """ Command launched when 'Save' QPushButton is clicked """
+        if not os.path.exists(self.mainUi.filesRootPath):
+            raise IOError, "!!! Files Root Path doesn't exists: %s !!!" % self.mainUi.filesRootPath
+        selItems = self.twDir.selectedItems()
+        if not selItems:
+            raise ValueError, "!!! Folder must be selected to save new file !!!"
+        selNode = self.mainUi.wgSceneNodes.selectedClothNode
+        if selNode is None:
+            raise ValueError, "!!! Scene Node item must be selected to save new file !!!"
+        self.dialSave = SaveFileDialog(self, selItems[0])
+        self.dialSave.exec_()
+
+    def saveFile(self, fileAbsPath):
+        """ Save params to given file
+            :param fileAbsPath: File absolute path
+            :type fileAbsPath: str """
+        fileName = fileAbsPath.split('/')[-1]
+        filePath = '/'.join(fileAbsPath.split('/')[:-1])
+        clothNode = self.mainUi.wgSceneNodes.selectedClothNode
+        #-- Get Params --#
+        if self.fileMode == 'attrs':
+            print "#-- Save Preset --#"
+            params = self.mainUi.wgAttributes.nodePreset
+        else:
+            print "#-- save Vertex Map --#"
+            params = self.mainUi.wgVtxMaps.nodeVtxData()
+        #-- Genere Text --#
+        txt = []
+        for k, v in params.iteritems():
+            if isinstance(v, str):
+                txt.append("%s = %r" % (k, v))
+            else:
+                txt.append("%s = %s" % (k, v))
+        txtParam = '\n'.join(txt)
+        #-- Save File --#
+        print "File Name: ", fileName
+        print "File Path: ", filePath
+        print "Cloth Node: ", clothNode
+        try:
+            pFile.writeFile(fileAbsPath, str(txtParam))
+            print "%s file saved: %s" % (self.fileMode, fileAbsPath)
+        except:
+            raise IOError, "!!! Can not save file %s !!!" % fileAbsPath
+
+    def new_dirItem(self, path):
+        """ Create new directory item
+            :param path: New item absolut path
+            :type path: str
+            :return: New dir item
+            :rtype: QtGui.QTreeWidgetItem """
+        newItem = QtGui.QTreeWidgetItem()
+        newItem.absPath = pFile.conformPath(path)
+        newItem.folder = path.split(os.sep)[-1]
+        newItem.relPath = pFile.conformPath(path.replace(self.mainUi.filesRootPath, ''))
+        if newItem.relPath.startswith('/'):
+            newItem.relPath = newItem.relPath[1:]
+        newItem.parent = '/'.join(newItem.relPath.split('/')[:-1])
+        if newItem.parent == "":
+            newItem.parent = None
+        newItem.setText(0, newItem.folder)
+        return newItem
+
+    @staticmethod
+    def new_fileItem(filePath, fileName):
+        """ Create new directory item
+            :param filePath: New item absolut path
+            :type filePath: str
+            :param fileName: New item file name
+            :type fileName: str
+            :return: New file item
+            :rtype: QtGui.QTreeWidgetItem """
+        newItem = QtGui.QTreeWidgetItem()
+        newItem.filePath = filePath
+        newItem.fileName = fileName
+        newItem.label = fileName.split('.')[0]
+        newItem.params = pFile.readPyFile(os.path.normpath('%s/%s' % (newItem.filePath, newItem.fileName)))
+        newItem.setText(0, newItem.label)
+        return newItem
+
+
+class SaveFileDialog(QtGui.QDialog, dialSaveFileUI.Ui_dialSaveFile):
+
+    def __init__(self, pWidget, item):
+        self.pWidget = pWidget
+        self.item = item
+        self.mainUi = self.pWidget.mainUi
+        super(SaveFileDialog, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup dialog ui """
+        self.setupUi(self)
+        if self.pWidget.fileMode == 'attrs':
+            self.lTitle.setText("Save Preset")
+        elif self.pWidget.fileMode == 'vtxMap':
+            self.lTitle.setText("Save Vertex Map")
+        self.lRootPathVal.setText(pFile.conformPath(self.mainUi.filesRootPath))
+        self.lFilePathVal.setText(self.item.relPath)
+        self.leFileNameEdit.editingFinished.connect(self.rf_result)
+        self.pbSave.clicked.connect(self.on_save)
+        self.pbCancel.clicked.connect(self.close)
+
+    def rf_result(self):
+        """ Refresh result path """
+        fileName = "%s.%s.py" % (str(self.leFileNameEdit.text()), self.pWidget.fileMode)
+        self.lFileNameVal.setText(fileName)
+        absPath = '%s/%s/%s' % (str(self.lRootPathVal.text()), str(self.lFilePathVal.text()), fileName)
+        self.lAbsPathVal.setText(absPath)
+
+    def on_save(self):
+        """ Command launched when 'Save' QPushButton is clicked """
+        self.rf_result()
+        self.pWidget.saveFile(str(self.lAbsPathVal.text()))
+        self.close()

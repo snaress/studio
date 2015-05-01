@@ -1,5 +1,6 @@
 import os
 from PyQt4 import QtGui
+from lib.qt import procQt as pQt
 from tools.maya.cmds import pScene
 from tools.maya.cloth import clothEditor
 from tools.maya.cloth.clothEditor.ui import clothEditorUI
@@ -32,7 +33,11 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         print "#-- Setup Main Ui --#"
         self.setupUi(self)
         self._initWidgets()
+        self.miSetRootPath.triggered.connect(self.on_miSetRootPath)
+        self.miXplorer.triggered.connect(self.on_miXplorer)
+        self.miXterm.triggered.connect(self.on_miXterm)
         self.miToolTips.triggered.connect(self.on_miToolTips)
+        self.tabClothEditor.currentChanged.connect(self.on_tabEditor)
 
     @property
     def toolTipState(self):
@@ -80,6 +85,33 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         self.wgVtxFiles = ceWgts.FilesUi(self, 'vtxMap', self.wgVtxMaps)
         self.wgVtxMaps.vlVtxFiles.insertWidget(0, self.wgVtxFiles)
 
+    def on_miSetRootPath(self):
+        """ Command launched when 'SetRootPath' menuItem is clicked """
+        if self.filesRootPath is None:
+            self.filesRootPath = self.wgAttrFiles.defaultRootPath
+        self.fdRootPath = pQt.fileDialog(fdRoot=self.filesRootPath, fdFileMode='DirectoryOnly', fdCmd=self.on_set)
+        self.fdRootPath.exec_()
+
+    def on_set(self):
+        """ Command launched when 'Choose' QPushButton is clicked """
+        selPath = self.fdRootPath.selectedFiles()
+        if selPath:
+            self.filesRootPath = os.path.normpath(str(selPath[0]))
+            self.wgAttrFiles.rf_rootPath()
+            self.wgVtxFiles.rf_rootPath()
+
+    def on_miXplorer(self):
+        """ Command launched when 'Xplorer' menuItem is clicked """
+        if self.filesRootPath is None:
+            raise IOError, "!!! FilesRootPath is not set !!!"
+        os.system('explorer %s' % self.filesRootPath)
+
+    def on_miXterm(self):
+        """ Command launched when 'Xterm' menuItem is clicked """
+        if self.filesRootPath is None:
+            raise IOError, "!!! FilesRootPath is not set !!!"
+        os.system('start "Toto" /d "%s"' % self.filesRootPath)
+
     def on_miToolTips(self):
         """ Command launched when 'ToolTips' menuItem is clicked """
         self.wgSceneNodes.rf_widgetToolTips()
@@ -87,10 +119,14 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         self.wgAttributes.rf_widgetToolTips()
         self.wgVtxMaps.rf_widgetToolTips()
 
+    def on_tabEditor(self):
+        """ Refresh currenttab when 'clothEditor' QTabWidget is clicked """
+        self.wgSceneNodes.on_sceneNodeSingleClick()
+
     def closeEvent(self, *args, **kwargs):
         """ Command launched when ui is closing """
         print "#-- Closing Cloth Editor --#"
-        mc.deleteUI(str(self.objectName()), wnd=True)
+        # mc.deleteUI(str(self.objectName()), wnd=True)
 
 
 def launch():

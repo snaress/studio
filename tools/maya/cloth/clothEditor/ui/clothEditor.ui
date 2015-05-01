@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
-    <height>470</height>
+    <width>387</width>
+    <height>281</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,7 +93,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>850</width>
+     <width>387</width>
      <height>21</height>
     </rect>
    </property>
@@ -107,7 +107,15 @@
     <property name="title">
      <string>Files</string>
     </property>
+    <widget class="QMenu" name="mOpenRootPath">
+     <property name="title">
+      <string>Open Root Path</string>
+     </property>
+     <addaction name="miXplorer"/>
+     <addaction name="miXterm"/>
+    </widget>
     <addaction name="miSetRootPath"/>
+    <addaction name="mOpenRootPath"/>
    </widget>
    <addaction name="mFiles"/>
    <addaction name="mHelp"/>
@@ -158,6 +166,16 @@
   <action name="miSetRootPath">
    <property name="text">
     <string>Set Root Path</string>
+   </property>
+  </action>
+  <action name="miXplorer">
+   <property name="text">
+    <string>Xplorer</string>
+   </property>
+  </action>
+  <action name="miXterm">
+   <property name="text">
+    <string>Xterm</string>
    </property>
   </action>
  </widget>

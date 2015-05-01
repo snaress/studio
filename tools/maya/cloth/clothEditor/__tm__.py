@@ -1,6 +1,8 @@
 #-- Global Proc --#
 from lib.qt import procQt as pQt
 reload(pQt)
+from lib.system import procFile as pFile
+reload(pFile)
 
 
 #-- Maya Proc --#
@@ -19,10 +21,11 @@ reload(wgSceneNodesUI)
 reload(wgSceneNodeUI)
 reload(wgAttrUI)
 reload(wgAttrNodeUI)
-from tools.maya.cloth.clothEditor.ui import wgVtxMapUI, wgVtxMapNodeUI, wgFilesUI
+from tools.maya.cloth.clothEditor.ui import wgVtxMapUI, wgVtxMapNodeUI, wgFilesUI, dialSaveFileUI
 reload(wgVtxMapUI)
 reload(wgVtxMapNodeUI)
 reload(wgFilesUI)
+reload(dialSaveFileUI)
 from tools.maya.cloth.clothEditor.ui import clothEditorUI
 reload(clothEditorUI)
 from tools.maya.cloth.clothEditor import clothEditorUi, clothEditorWgts, clothEditorCmds
