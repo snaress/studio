@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
+    <width>527</width>
     <height>300</height>
    </rect>
   </property>
@@ -28,6 +28,9 @@
      <widget class="QWidget" name="verticalLayoutWidget">
       <layout class="QVBoxLayout" name="vlPreset">
        <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item>

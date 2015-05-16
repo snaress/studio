@@ -41,8 +41,14 @@
          <property name="spacing">
           <number>2</number>
          </property>
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
          <property name="topMargin">
           <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
          </property>
          <item>
           <widget class="QLabel" name="lVtxPaint">
@@ -75,6 +81,54 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QFrame" name="hfColorRamp">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QHBoxLayout" name="hlColorRamp">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="lRamp">
+            <property name="text">
+             <string>Color Ramp: </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbGreyRamp">
+            <property name="text">
+             <string>Grey</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbColorRamp">
+            <property name="text">
+             <string>Color</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
         <widget class="Line" name="line_8">
@@ -129,7 +183,7 @@
        <item>
         <layout class="QHBoxLayout" name="hlEditAll">
          <property name="spacing">
-          <number>2</number>
+          <number>1</number>
          </property>
          <property name="bottomMargin">
           <number>0</number>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgVtxMap.ui'
 #
-# Created: Mon Apr 20 00:32:37 2015
+# Created: Sat May 16 16:47:07 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -42,7 +42,7 @@ class Ui_wgVtxMap(object):
         self.vlVtxMaps.setObjectName(_fromUtf8("vlVtxMaps"))
         self.hlVtxPaint = QtGui.QHBoxLayout()
         self.hlVtxPaint.setSpacing(2)
-        self.hlVtxPaint.setContentsMargins(-1, 0, -1, -1)
+        self.hlVtxPaint.setContentsMargins(2, 0, 2, -1)
         self.hlVtxPaint.setObjectName(_fromUtf8("hlVtxPaint"))
         self.lVtxPaint = QtGui.QLabel(self.layoutWidget)
         self.lVtxPaint.setObjectName(_fromUtf8("lVtxPaint"))
@@ -59,6 +59,24 @@ class Ui_wgVtxMap(object):
         self.bgVtxPaint.addButton(self.cbVtxColor)
         self.hlVtxPaint.addWidget(self.cbVtxColor)
         self.vlVtxMaps.addLayout(self.hlVtxPaint)
+        self.hfColorRamp = QtGui.QFrame(self.layoutWidget)
+        self.hfColorRamp.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.hfColorRamp.setObjectName(_fromUtf8("hfColorRamp"))
+        self.hlColorRamp = QtGui.QHBoxLayout(self.hfColorRamp)
+        self.hlColorRamp.setSpacing(2)
+        self.hlColorRamp.setContentsMargins(2, 0, 2, 0)
+        self.hlColorRamp.setObjectName(_fromUtf8("hlColorRamp"))
+        self.lRamp = QtGui.QLabel(self.hfColorRamp)
+        self.lRamp.setObjectName(_fromUtf8("lRamp"))
+        self.hlColorRamp.addWidget(self.lRamp)
+        self.cbGreyRamp = QtGui.QCheckBox(self.hfColorRamp)
+        self.cbGreyRamp.setObjectName(_fromUtf8("cbGreyRamp"))
+        self.hlColorRamp.addWidget(self.cbGreyRamp)
+        self.cbColorRamp = QtGui.QCheckBox(self.hfColorRamp)
+        self.cbColorRamp.setChecked(True)
+        self.cbColorRamp.setObjectName(_fromUtf8("cbColorRamp"))
+        self.hlColorRamp.addWidget(self.cbColorRamp)
+        self.vlVtxMaps.addWidget(self.hfColorRamp)
         self.line_8 = QtGui.QFrame(self.layoutWidget)
         self.line_8.setFrameShape(QtGui.QFrame.HLine)
         self.line_8.setFrameShadow(QtGui.QFrame.Sunken)
@@ -80,7 +98,7 @@ class Ui_wgVtxMap(object):
         self.line_2.setObjectName(_fromUtf8("line_2"))
         self.vlVtxMaps.addWidget(self.line_2)
         self.hlEditAll = QtGui.QHBoxLayout()
-        self.hlEditAll.setSpacing(2)
+        self.hlEditAll.setSpacing(1)
         self.hlEditAll.setContentsMargins(-1, -1, -1, 0)
         self.hlEditAll.setObjectName(_fromUtf8("hlEditAll"))
         self.lEditType = QtGui.QLabel(self.layoutWidget)
@@ -427,6 +445,9 @@ class Ui_wgVtxMap(object):
         self.lVtxPaint.setText(_translate("wgVtxMap", "Vtx Paint: ", None))
         self.cbArtisan.setText(_translate("wgVtxMap", "Artisan", None))
         self.cbVtxColor.setText(_translate("wgVtxMap", "VtxColor", None))
+        self.lRamp.setText(_translate("wgVtxMap", "Color Ramp: ", None))
+        self.cbGreyRamp.setText(_translate("wgVtxMap", "Grey", None))
+        self.cbColorRamp.setText(_translate("wgVtxMap", "Color", None))
         self.twMaps.headerItem().setText(0, _translate("wgVtxMap", "Vertex Map Type", None))
         self.lEditType.setText(_translate("wgVtxMap", "Set All To:", None))
         self.pbNone.setText(_translate("wgVtxMap", "None", None))

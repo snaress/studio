@@ -24,17 +24,11 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
     def _setupUi(self):
         """ Setup widget ui """
         self.setupUi(self)
-        self.pbRefresh.clicked.connect(self.on_refresh)
         self.twSceneNodes.itemClicked.connect(self.on_sceneNodeSingleClick)
         self.twSceneNodes.itemDoubleClicked.connect(self.on_sceneNodeDoubleClick)
         self.cbCloth.clicked.connect(self.on_showClothType)
         self.cbRigid.clicked.connect(self.on_showClothType)
-        self.cbFilters.clicked.connect(self.rf_filterVisibility)
-        self.rf_filterVisibility()
         self.rf_sceneNodes()
-        self.rf_sceneFilters()
-        self.twFilters.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
-        self.twFilters.header().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)
 
     @property
     def itemAttrOrder(self):
@@ -42,16 +36,6 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
             :return: Item attributes
             :rtype: list """
         return ['clothNode', 'clothNs', 'clothName', 'clothType', 'clothParent', 'clothMesh', 'clothShape']
-
-    @property
-    def filterParams(self):
-        """ Get scene filter params
-            :return: Filter params
-            :rtype: dict """
-        params = {}
-        for item in pQt.getTopItems(self.twFilters):
-            params[item.ns] = item._cb.isChecked()
-        return params
 
     @property
     def selectedClothItem(self):
@@ -69,13 +53,6 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
             :rtype: str """
         if self.selectedClothItem is not None:
             return self.selectedClothItem.clothNode
-
-    def rf_filterVisibility(self):
-        """ Refresh 'Filters' QTreeWidget visibility """
-        if self.cbFilters.isChecked():
-            self.vfFilters.setMaximumHeight(200)
-        else:
-            self.vfFilters.setMaximumHeight(0)
 
     def rf_sceneNodes(self):
         """ Refresh QTreeWidget 'Scene Nodes' """
@@ -98,26 +75,13 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
             for node in rigidNodes:
                 self.add_sceneNode(node, parent=nucleusItem)
 
-    def rf_sceneFilters(self):
-        """ Refresh QTreeWidget 'Scene Nodes' """
-        self.twFilters.clear()
-        nsList = []
-        for item in pQt.getAllItems(self.twSceneNodes):
-            if not item.clothNs in nsList:
-                nsList.append(item.clothNs)
-                newItem = self.new_filterItem(item.clothNs)
-                self.twFilters.addTopLevelItem(newItem)
-                self.twFilters.setItemWidget(newItem, 0, newItem._cb)
-
     def rf_widgetToolTips(self):
         """ Refresh all widget toolTip """
         if self.mainUi.toolTipState:
-            self.pbRefresh.setToolTip("Refresh ui from current scene")
             self.cbCloth.setToolTip("Show / Hide nCloth items")
             self.cbRigid.setToolTip("Show / Hide nRigid items")
-            self.cbFilters.setToolTip("Show / Hide namespace filters")
         else:
-            for widget in [self.pbRefresh, self.cbCloth, self.cbRigid, self.cbFilters]:
+            for widget in [self.pbRefresh, self.cbCloth, self.cbRigid]:
                 widget.setToolTip("")
 
     def rf_sceneItemToolTips(self):
@@ -157,13 +121,6 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         self.twSceneNodes.setItemWidget(newItem, 0, newItem._widget)
         return newItem
 
-    def on_refresh(self):
-        """ Command launched when 'Refresh' QPushButton is clicked """
-        self.cbCloth.setChecked(True)
-        self.cbRigid.setChecked(True)
-        self.rf_sceneNodes()
-        self.rf_sceneFilters()
-
     def on_sceneNodeSingleClick(self):
         """ Command launched when 'SceneNode' QTreeWidgetItem is single clicked """
         if self.mainUi.currentTab == 'Attrs':
@@ -185,15 +142,6 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
                 self.twSceneNodes.setItemHidden(item, not self.cbCloth.isChecked())
             elif item.clothType == 'nRigid':
                 self.twSceneNodes.setItemHidden(item, not self.cbRigid.isChecked())
-
-    def on_filter(self, ns):
-        """ Command launched when 'Filter' QCheckBox is clicked
-            :param ns: NameSpace
-            :type ns: str """
-        filterDict = self.filterParams
-        for topItem in pQt.getTopItems(self.twSceneNodes):
-            if topItem.clothNs == ns:
-                self.twSceneNodes.setItemHidden(topItem, not filterDict[topItem.clothNs])
 
     def new_sceneNodeItem(self, clothNode):
         """ Create new 'clothNode' QTreeWidgetItem
@@ -219,24 +167,6 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         newItem.attrOrder = self.itemAttrOrder
         newItem._widget = SceneNode(self, newItem)
         self.rf_sceneItemToolTip(newItem)
-        return newItem
-
-    # noinspection PyUnresolvedReferences
-    def new_filterItem(self, ns):
-        """ Create new 'filter' QTreeWidgetItem
-            :param ns: NameSpace
-            :type ns: str
-            :return: Scene filter QTreeWidgetItem
-            :rtype: QtGui.QTreeWidgetItem """
-        newItem = QtGui.QTreeWidgetItem()
-        newItem.setText(1, ns)
-        newItem.ns = ns
-        #-- Add CheckBox --#
-        newCb = QtGui.QCheckBox()
-        newCb.setText("")
-        newCb.setChecked(True)
-        newCb.clicked.connect(partial(self.on_filter, ns))
-        newItem._cb = newCb
         return newItem
 
 
@@ -633,6 +563,7 @@ class AttrStorageButton(QtGui.QPushButton):
         """ Setup widget ui """
         self.setText(self.btnLabel)
         self.setToolTip("Empty")
+        self.setMaximumHeight(20)
 
     def popupMenuItems(self):
         """ get menuDict
@@ -1157,6 +1088,17 @@ class VtxMapNode(QtGui.QWidget, wgVtxMapNodeUI.Ui_wgVtxMapNode):
             :rtype: bool """
         return self.pbLock.isChecked()
 
+    def setMapData(self, mapIndex, mapData):
+        """ Set vertex map data
+            :param mapIndex: VtxMap type (0 = None, 1 = Vertex, 2 = Texture)
+            :type mapIndex: int
+            :param mapData: Influence list per vertex
+            :type mapData: list """
+        self.cbState.setCurrentIndex(mapIndex)
+        self.on_mapType()
+        if mapIndex == 1:
+            ceCmds.setVtxMapData(self.clothNode, self.mapVtx, mapData)
+
     def rf_vtxMapLabel(self):
         """ Refresh mapType label color """
         if self.vtxMapIndex == 0:
@@ -1223,6 +1165,7 @@ class VtxStorageButton(QtGui.QPushButton):
         """ Setup widget ui """
         self.setText(self.btnLabel)
         self.setToolTip("Empty")
+        self.setMaximumHeight(20)
 
     def popupMenuItems(self):
         """ get menuDict considering btnType
@@ -1364,9 +1307,8 @@ class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
         self.pbNewFolder.clicked.connect(self.on_newFolder)
         self.pbRefresh.clicked.connect(self.rf_directories)
         self.twDir.itemClicked.connect(self.rf_files)
-        if self.fileMode == 'attrs':
-            self.qfVtxMode.setVisible(False)
         self.pbSave.clicked.connect(self.on_save)
+        self.pbLoad.clicked.connect(self.on_load)
 
     @property
     def defaultRootPath(self):
@@ -1415,6 +1357,21 @@ class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
                 if f.endswith('%s.py' % self.fileMode):
                     fileItem = self.new_fileItem(selItems[0].absPath, f)
                     self.twFiles.addTopLevelItem(fileItem)
+
+    def rf_widgetToolTips(self):
+        """ Refresh all widget toolTip """
+        if self.mainUi.toolTipState:
+            self.pbNewProject.setToolTip("Create new project in root directory")
+            self.pbNewFolder.setToolTip("Create new folder in selected project")
+            self.pbRefresh.setToolTip("Refresh directory tree")
+            self.twDir.setToolTip("Directory tree")
+            self.twFiles.setToolTip("Files tree")
+            self.pbSave.setToolTip("Save params to selected folder")
+            self.pbLoad.setToolTip("Load selected params file")
+        else:
+            for widget in [self.pbNewProject, self.pbNewFolder, self.pbRefresh, self.twDir, self.twFiles,
+                           self.pbSave, self.pbLoad]:
+                widget.setToolTip("")
 
     def on_newProject(self):
         """ Command launched when 'New Project' QPushButton is clicked """
@@ -1483,6 +1440,8 @@ class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
         selNode = self.mainUi.wgSceneNodes.selectedClothNode
         if selNode is None:
             raise ValueError, "!!! Scene Node item must be selected to save new file !!!"
+        if self.fileMode == 'vtxMap' and ceCmds.getClothType(selNode) not in ['nCloth', 'nRigid']:
+            raise ValueError, "!!! Can only save vertexMap of nCloth and nRigid node !!!"
         self.dialSave = SaveFileDialog(self, selItems[0])
         self.dialSave.exec_()
 
@@ -1517,6 +1476,40 @@ class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
             print "%s file saved: %s" % (self.fileMode, fileAbsPath)
         except:
             raise IOError, "!!! Can not save file %s !!!" % fileAbsPath
+        self.rf_files()
+
+    def on_load(self):
+        """ Command launched when 'Load' QPushButton is clicked """
+        if not os.path.exists(self.mainUi.filesRootPath):
+            raise IOError, "!!! Files Root Path doesn't exists: %s !!!" % self.mainUi.filesRootPath
+        selNode = self.mainUi.wgSceneNodes.selectedClothNode
+        if selNode is None:
+            raise ValueError, "!!! Scene Node item must be selected to load file !!!"
+        selFiles = self.twFiles.selectedItems()
+        if not selFiles:
+            raise ValueError, "!!! File item must be selected to load file !!!"
+        self.loadFile(selFiles[0])
+
+    def loadFile(self, selFile):
+        """ Load params from given file
+            :param selFile: File Select file item
+            :type selFile: QtGui.QTreeWidgetItem """
+        selNodes = self.mainUi.wgSceneNodes.twSceneNodes.selectedItems()
+        if selNodes:
+            if not selNodes[0].clothType == selFile.params['_clothType']:
+                raise TypeError, "!!! Cloth type doesn't match, should be %s !!!" % selFile.params['_clothType']
+            if self.fileMode == 'attrs':
+                print "Loading Preset %s" % selFile.label
+                for item in pQt.getAllItems(self.pWidget.twPreset):
+                    if item.itemType == 'attr':
+                        if not item._widget.attrLock:
+                            item._widget.setValue(selFile.params[item.clothAttr]['val'])
+            elif self.fileMode == 'vtxMap':
+                print "Loading VtxMap %s" % selFile.label
+                for item in pQt.getAllItems(self.pWidget.twMaps):
+                    if not item._widget.vtxMapLock:
+                        item._widget.setMapData(selFile.params[item._widget.mapName]['mapType'],
+                                                selFile.params[item._widget.mapName]['mapData'])
 
     def new_dirItem(self, path):
         """ Create new directory item
@@ -1536,8 +1529,7 @@ class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
         newItem.setText(0, newItem.folder)
         return newItem
 
-    @staticmethod
-    def new_fileItem(filePath, fileName):
+    def new_fileItem(self, filePath, fileName):
         """ Create new directory item
             :param filePath: New item absolut path
             :type filePath: str
@@ -1550,6 +1542,15 @@ class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
         newItem.fileName = fileName
         newItem.label = fileName.split('.')[0]
         newItem.params = pFile.readPyFile(os.path.normpath('%s/%s' % (newItem.filePath, newItem.fileName)))
+        if newItem.params['_clothType'] == 'nCloth':
+            color = self.mainUi.getLabelColor('green')
+        elif newItem.params['_clothType'] == 'nRigid':
+            color = self.mainUi.getLabelColor('blue')
+        elif newItem.params['_clothType'] == 'nucleus':
+            color = self.mainUi.getLabelColor('yellow')
+        else:
+            color = self.mainUi.getLabelColor('default')
+        newItem.setTextColor(0, QtGui.QColor(color[0], color[1], color[2]))
         newItem.setText(0, newItem.label)
         return newItem
 

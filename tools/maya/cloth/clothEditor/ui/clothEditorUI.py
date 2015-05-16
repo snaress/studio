@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\clothEditor.ui'
 #
-# Created: Mon Apr 27 03:12:48 2015
+# Created: Sat May 16 16:24:52 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_mwClothEditor(object):
     def setupUi(self, mwClothEditor):
         mwClothEditor.setObjectName(_fromUtf8("mwClothEditor"))
-        mwClothEditor.resize(387, 281)
+        mwClothEditor.resize(850, 281)
         self.centralwidget = QtGui.QWidget(mwClothEditor)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout_3 = QtGui.QGridLayout(self.centralwidget)
@@ -70,10 +70,14 @@ class Ui_mwClothEditor(object):
         self.gridLayout_3.addWidget(self.splitter_2, 0, 0, 1, 1)
         mwClothEditor.setCentralWidget(self.centralwidget)
         self.menuBar = QtGui.QMenuBar(mwClothEditor)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 387, 21))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 850, 21))
         self.menuBar.setObjectName(_fromUtf8("menuBar"))
-        self.mHelp = QtGui.QMenu(self.menuBar)
-        self.mHelp.setObjectName(_fromUtf8("mHelp"))
+        self.mOptions = QtGui.QMenu(self.menuBar)
+        self.mOptions.setObjectName(_fromUtf8("mOptions"))
+        self.mLockParam = QtGui.QMenu(self.mOptions)
+        self.mLockParam.setObjectName(_fromUtf8("mLockParam"))
+        self.mFilters = QtGui.QMenu(self.mOptions)
+        self.mFilters.setObjectName(_fromUtf8("mFilters"))
         self.mFiles = QtGui.QMenu(self.menuBar)
         self.mFiles.setObjectName(_fromUtf8("mFiles"))
         self.mOpenRootPath = QtGui.QMenu(self.mFiles)
@@ -101,13 +105,26 @@ class Ui_mwClothEditor(object):
         self.miXplorer.setObjectName(_fromUtf8("miXplorer"))
         self.miXterm = QtGui.QAction(mwClothEditor)
         self.miXterm.setObjectName(_fromUtf8("miXterm"))
-        self.mHelp.addAction(self.miToolTips)
+        self.miLockAll = QtGui.QAction(mwClothEditor)
+        self.miLockAll.setObjectName(_fromUtf8("miLockAll"))
+        self.miUnlockAll = QtGui.QAction(mwClothEditor)
+        self.miUnlockAll.setObjectName(_fromUtf8("miUnlockAll"))
+        self.actionNone = QtGui.QAction(mwClothEditor)
+        self.actionNone.setObjectName(_fromUtf8("actionNone"))
+        self.miRefreshUi = QtGui.QAction(mwClothEditor)
+        self.miRefreshUi.setObjectName(_fromUtf8("miRefreshUi"))
+        self.mLockParam.addAction(self.miLockAll)
+        self.mLockParam.addAction(self.miUnlockAll)
+        self.mOptions.addAction(self.miToolTips)
+        self.mOptions.addAction(self.miRefreshUi)
+        self.mOptions.addAction(self.mFilters.menuAction())
+        self.mOptions.addAction(self.mLockParam.menuAction())
         self.mOpenRootPath.addAction(self.miXplorer)
         self.mOpenRootPath.addAction(self.miXterm)
         self.mFiles.addAction(self.miSetRootPath)
         self.mFiles.addAction(self.mOpenRootPath.menuAction())
         self.menuBar.addAction(self.mFiles.menuAction())
-        self.menuBar.addAction(self.mHelp.menuAction())
+        self.menuBar.addAction(self.mOptions.menuAction())
 
         self.retranslateUi(mwClothEditor)
         self.tabClothEditor.setCurrentIndex(0)
@@ -117,7 +134,9 @@ class Ui_mwClothEditor(object):
         mwClothEditor.setWindowTitle(_translate("mwClothEditor", "Cloth Editor", None))
         self.tabClothEditor.setTabText(self.tabClothEditor.indexOf(self.tiAttr), _translate("mwClothEditor", "Attrs", None))
         self.tabClothEditor.setTabText(self.tabClothEditor.indexOf(self.tiVtxMap), _translate("mwClothEditor", "VtxMap", None))
-        self.mHelp.setTitle(_translate("mwClothEditor", "Help", None))
+        self.mOptions.setTitle(_translate("mwClothEditor", "Options", None))
+        self.mLockParam.setTitle(_translate("mwClothEditor", "Lock Param", None))
+        self.mFilters.setTitle(_translate("mwClothEditor", "Filters", None))
         self.mFiles.setTitle(_translate("mwClothEditor", "Files", None))
         self.mOpenRootPath.setTitle(_translate("mwClothEditor", "Open Root Path", None))
         self.miNCloth.setText(_translate("mwClothEditor", "nCloth", None))
@@ -128,4 +147,8 @@ class Ui_mwClothEditor(object):
         self.miSetRootPath.setText(_translate("mwClothEditor", "Set Root Path", None))
         self.miXplorer.setText(_translate("mwClothEditor", "Xplorer", None))
         self.miXterm.setText(_translate("mwClothEditor", "Xterm", None))
+        self.miLockAll.setText(_translate("mwClothEditor", "Lock All", None))
+        self.miUnlockAll.setText(_translate("mwClothEditor", "Unlock All", None))
+        self.actionNone.setText(_translate("mwClothEditor", "None", None))
+        self.miRefreshUi.setText(_translate("mwClothEditor", "Refresh Ui", None))
 

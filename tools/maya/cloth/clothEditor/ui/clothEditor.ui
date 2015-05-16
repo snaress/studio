@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>387</width>
+    <width>850</width>
     <height>281</height>
    </rect>
   </property>
@@ -93,15 +93,30 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>387</width>
+     <width>850</width>
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="mHelp">
+   <widget class="QMenu" name="mOptions">
     <property name="title">
-     <string>Help</string>
+     <string>Options</string>
     </property>
+    <widget class="QMenu" name="mLockParam">
+     <property name="title">
+      <string>Lock Param</string>
+     </property>
+     <addaction name="miLockAll"/>
+     <addaction name="miUnlockAll"/>
+    </widget>
+    <widget class="QMenu" name="mFilters">
+     <property name="title">
+      <string>Filters</string>
+     </property>
+    </widget>
     <addaction name="miToolTips"/>
+    <addaction name="miRefreshUi"/>
+    <addaction name="mFilters"/>
+    <addaction name="mLockParam"/>
    </widget>
    <widget class="QMenu" name="mFiles">
     <property name="title">
@@ -118,7 +133,7 @@
     <addaction name="mOpenRootPath"/>
    </widget>
    <addaction name="mFiles"/>
-   <addaction name="mHelp"/>
+   <addaction name="mOptions"/>
   </widget>
   <action name="miNCloth">
    <property name="checkable">
@@ -176,6 +191,26 @@
   <action name="miXterm">
    <property name="text">
     <string>Xterm</string>
+   </property>
+  </action>
+  <action name="miLockAll">
+   <property name="text">
+    <string>Lock All</string>
+   </property>
+  </action>
+  <action name="miUnlockAll">
+   <property name="text">
+    <string>Unlock All</string>
+   </property>
+  </action>
+  <action name="actionNone">
+   <property name="text">
+    <string>None</string>
+   </property>
+  </action>
+  <action name="miRefreshUi">
+   <property name="text">
+    <string>Refresh Ui</string>
    </property>
   </action>
  </widget>

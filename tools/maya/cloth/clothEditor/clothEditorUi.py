@@ -1,10 +1,12 @@
 import os
 from PyQt4 import QtGui
+from functools import partial
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pScene
 from tools.maya.cloth import clothEditor
 from tools.maya.cloth.clothEditor.ui import clothEditorUI
 from tools.maya.cloth.clothEditor import clothEditorWgts as ceWgts
+from tools.maya.cloth.clothEditor import clothEditorCmds as ceCmds
 try:
     import maya.cmds as mc
 except:
@@ -37,6 +39,10 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         self.miXplorer.triggered.connect(self.on_miXplorer)
         self.miXterm.triggered.connect(self.on_miXterm)
         self.miToolTips.triggered.connect(self.on_miToolTips)
+        self.miRefreshUi.triggered.connect(self.on_miRefreshUi)
+        self.rf_menuFilters()
+        self.miLockAll.triggered.connect(partial(self.on_lockAll, state=True))
+        self.miUnlockAll.triggered.connect(partial(self.on_lockAll, state=False))
         self.tabClothEditor.currentChanged.connect(self.on_tabEditor)
 
     @property
@@ -59,6 +65,8 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
             rgb = (0, 150, 255)
         elif color == 'yellow':
             rgb = (200, 150, 0)
+        elif color == 'red':
+            rgb = (255, 75, 0)
         elif color == 'lightGrey':
             rgb = (175, 175, 175)
         else:
@@ -84,6 +92,21 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         self.vlVtxMap.insertWidget(0, self.wgVtxMaps)
         self.wgVtxFiles = ceWgts.FilesUi(self, 'vtxMap', self.wgVtxMaps)
         self.wgVtxMaps.vlVtxFiles.insertWidget(0, self.wgVtxFiles)
+
+    # noinspection PyUnresolvedReferences
+    def rf_menuFilters(self):
+        """ Refresh menu 'Filters' """
+        self.mFilters.clear()
+        nsList = []
+        for item in pQt.getAllItems(self.wgSceneNodes.twSceneNodes):
+            if not item.clothNs in nsList:
+                nsList.append(item.clothNs)
+                menuItem = QtGui.QAction(QtGui.QIcon(), item.clothNs, self)
+                menuItem.setCheckable(True)
+                menuItem.setChecked(True)
+                menuItem.ns = item.clothNs
+                menuItem.triggered.connect(partial(self.on_filter, menuItem))
+                self.mFilters.addAction(menuItem)
 
     def on_miSetRootPath(self):
         """ Command launched when 'SetRootPath' menuItem is clicked """
@@ -118,6 +141,40 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         self.wgSceneNodes.rf_sceneItemToolTips()
         self.wgAttributes.rf_widgetToolTips()
         self.wgVtxMaps.rf_widgetToolTips()
+        self.wgAttrFiles.rf_widgetToolTips()
+        self.wgVtxFiles.rf_widgetToolTips()
+
+    def on_miRefreshUi(self):
+        """ Command launched when 'Refresh Ui' menuItem is clicked """
+        self.wgSceneNodes.cbCloth.setChecked(True)
+        self.wgSceneNodes.cbRigid.setChecked(True)
+        self.wgSceneNodes.rf_sceneNodes()
+        self.wgAttributes.rf_attrTree()
+        self.wgVtxMaps.rf_vtxMapTree()
+
+    def on_filter(self, filterItem):
+        """ Command launched when 'Filters' menuItem is clicked
+            :param filterItem: Filters menuItem
+            :type filterItem: QtGui.QAction """
+        for topItem in pQt.getTopItems(self.wgSceneNodes.twSceneNodes):
+            if topItem.clothNs == filterItem.ns:
+                self.wgSceneNodes.twSceneNodes.setItemHidden(topItem, not filterItem.isChecked())
+
+    def on_lockAll(self, state):
+        """ Command launched when 'Unlock' or 'Lock' menuItem is clicked
+            :param state: Lock state
+            :type state: bool """
+        if self.currentTab == 'Attrs':
+            for item in pQt.getAllItems(self.wgAttributes.twPreset):
+                if item.itemType == 'attr':
+                    ceCmds.setAttrLock("%s.%s" % (item.clothNode, item.clothAttr), state)
+                    item._widget.rf_attrLock(rfBtnState=True)
+        elif self.currentTab == 'VtxMap':
+            for item in pQt.getAllItems(self.wgVtxMaps.twMaps):
+                ceCmds.setAttrLock("%s.%s" % (item._widget.clothNode, item._widget.mapType), state)
+                ceCmds.setAttrLock("%s.%s" % (item._widget.clothNode, item._widget.mapVtx), state)
+                item._widget.rf_vtxMapLock(rfBtnState=True)
+            self.pbFlood.setEnabled(not state)
 
     def on_tabEditor(self):
         """ Refresh currenttab when 'clothEditor' QTabWidget is clicked """
