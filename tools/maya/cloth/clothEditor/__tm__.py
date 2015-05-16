@@ -3,6 +3,8 @@ from lib.qt import procQt as pQt
 reload(pQt)
 from lib.system import procFile as pFile
 reload(pFile)
+from lib.system import procMath as pMath
+reload(pMath)
 
 
 #-- Maya Proc --#

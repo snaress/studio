@@ -646,6 +646,7 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         self.sceneUi = self.mainUi.wgSceneNodes
         super(VtxMapUi, self).__init__()
         self._setupUi()
+        self.rf_rampOptionsVisibility()
         self.rf_vtxMapTree()
         self.rf_floodIterVisibility()
 
@@ -654,6 +655,9 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         """ Setup widget ui """
         self.setupUi(self)
         #-- VtxMap tree --#
+        self.cbArtisan.clicked.connect(self.rf_rampOptionsVisibility)
+        self.cbVtxColor.clicked.connect(self.rf_rampOptionsVisibility)
+        self.pbExit.clicked.connect(self.on_vtxColorExit)
         self.twMaps.itemClicked.connect(self.on_vtxMapNodeSingleClick)
         self.twMaps.itemDoubleClicked.connect(self.on_vtxMapNodeDoubleClick)
         #-- VtxMap global edition --#
@@ -700,6 +704,16 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
             return 'artisan'
         elif self.cbVtxColor.isChecked():
             return 'vtxColor'
+
+    @property
+    def rampStyle(self):
+        """ Get ramp style
+            :return: 'grey' or 'color'
+            :rtype: str """
+        if self.cbGreyRamp.isChecked():
+            return 'grey'
+        elif self.cbColorRamp.isChecked():
+            return 'color'
 
     @property
     def selectedVtxMapItem(self):
@@ -768,6 +782,13 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         if self.cbClampMax.isChecked():
             clampMax = float(self.leClampMax.text())
         return clampMin, clampMax
+
+    def rf_rampOptionsVisibility(self):
+        """ Refresh vertex color ramp options visibility """
+        if self.paintMode == 'vtxColor':
+            self.hfColorRamp.setVisible(True)
+        else:
+            self.hfColorRamp.setVisible(False)
 
     def rf_vtxMapTree(self):
         """ Refresh 'Vertex Map' QTreeWidget """
@@ -853,6 +874,12 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
                            self.lDataStorage, self.pbUpdateInf]:
                 widget.setToolTip("")
 
+    def on_vtxColorExit(self):
+        """ Command launched when 'Exit' QPushButton is clicked """
+        clothNode = self.sceneUi.selectedClothNode
+        if clothNode is not None:
+            ceCmds.exitVtxColor(clothNode)
+
     def on_vtxMapNodeSingleClick(self):
         """ Command launched when 'VtxMap Node' QTreeWidgetItem is single clicked """
         item = self.selectedVtxMapItem
@@ -870,11 +897,8 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         item = self.selectedVtxMapItem
         if item is not None:
             if not item._widget.vtxMapLock:
-                if self.paintMode == 'artisan':
-                    ceCmds.paintVtxMap(item._widget.clothNode, item._widget.mapName)
-                elif self.paintMode == 'vtxColor':
-                    print 'to do'
-                    #ToDo: Vertex color display
+                ceCmds.paintVtxMap(self.paintMode, item._widget.clothNode, item._widget.mapName,
+                                   rampStyle=self.rampStyle)
             else:
                 print "!!! Warning: Can not switch to vertex paint view on locked vertex map !!!"
 
@@ -943,6 +967,8 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
                         vtxData[ind] = self.clampValue(newVal)
             #-- Set Vertex Map --#
             ceCmds.setVtxMapData(clothNode, vtxMap, vtxData)
+            if self.paintMode == 'vtxColor':
+                self.on_vtxMapNodeDoubleClick()
 
     def smoothValues(self, clothNode, vtxSel, vtxData):
         """ Smooth selected vertex influence value

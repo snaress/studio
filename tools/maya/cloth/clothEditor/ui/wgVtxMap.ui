@@ -52,6 +52,18 @@
          </property>
          <item>
           <widget class="QLabel" name="lVtxPaint">
+           <property name="minimumSize">
+            <size>
+             <width>65</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>65</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>Vtx Paint: </string>
            </property>
@@ -105,15 +117,20 @@
           </property>
           <item>
            <widget class="QLabel" name="lRamp">
-            <property name="text">
-             <string>Color Ramp: </string>
+            <property name="minimumSize">
+             <size>
+              <width>65</width>
+              <height>0</height>
+             </size>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="cbGreyRamp">
+            <property name="maximumSize">
+             <size>
+              <width>65</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>Grey</string>
+             <string>Ramp Color:</string>
             </property>
            </widget>
           </item>
@@ -124,6 +141,32 @@
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">bgVtxRamp</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbGreyRamp">
+            <property name="text">
+             <string>Grey</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">bgVtxRamp</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbExit">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Exit</string>
             </property>
            </widget>
           </item>
@@ -1073,5 +1116,6 @@
   <buttongroup name="bgVtxPaint"/>
   <buttongroup name="bgVtxSelMode"/>
   <buttongroup name="bgVtxEdition"/>
+  <buttongroup name="bgVtxRamp"/>
  </buttongroups>
 </ui>

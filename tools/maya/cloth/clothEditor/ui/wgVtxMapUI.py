@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgVtxMap.ui'
 #
-# Created: Sat May 16 16:47:07 2015
+# Created: Sat May 16 19:00:53 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,6 +45,8 @@ class Ui_wgVtxMap(object):
         self.hlVtxPaint.setContentsMargins(2, 0, 2, -1)
         self.hlVtxPaint.setObjectName(_fromUtf8("hlVtxPaint"))
         self.lVtxPaint = QtGui.QLabel(self.layoutWidget)
+        self.lVtxPaint.setMinimumSize(QtCore.QSize(65, 0))
+        self.lVtxPaint.setMaximumSize(QtCore.QSize(65, 16777215))
         self.lVtxPaint.setObjectName(_fromUtf8("lVtxPaint"))
         self.hlVtxPaint.addWidget(self.lVtxPaint)
         self.cbArtisan = QtGui.QCheckBox(self.layoutWidget)
@@ -67,15 +69,25 @@ class Ui_wgVtxMap(object):
         self.hlColorRamp.setContentsMargins(2, 0, 2, 0)
         self.hlColorRamp.setObjectName(_fromUtf8("hlColorRamp"))
         self.lRamp = QtGui.QLabel(self.hfColorRamp)
+        self.lRamp.setMinimumSize(QtCore.QSize(65, 0))
+        self.lRamp.setMaximumSize(QtCore.QSize(65, 16777215))
         self.lRamp.setObjectName(_fromUtf8("lRamp"))
         self.hlColorRamp.addWidget(self.lRamp)
-        self.cbGreyRamp = QtGui.QCheckBox(self.hfColorRamp)
-        self.cbGreyRamp.setObjectName(_fromUtf8("cbGreyRamp"))
-        self.hlColorRamp.addWidget(self.cbGreyRamp)
         self.cbColorRamp = QtGui.QCheckBox(self.hfColorRamp)
         self.cbColorRamp.setChecked(True)
         self.cbColorRamp.setObjectName(_fromUtf8("cbColorRamp"))
+        self.bgVtxRamp = QtGui.QButtonGroup(wgVtxMap)
+        self.bgVtxRamp.setObjectName(_fromUtf8("bgVtxRamp"))
+        self.bgVtxRamp.addButton(self.cbColorRamp)
         self.hlColorRamp.addWidget(self.cbColorRamp)
+        self.cbGreyRamp = QtGui.QCheckBox(self.hfColorRamp)
+        self.cbGreyRamp.setObjectName(_fromUtf8("cbGreyRamp"))
+        self.bgVtxRamp.addButton(self.cbGreyRamp)
+        self.hlColorRamp.addWidget(self.cbGreyRamp)
+        self.pbExit = QtGui.QPushButton(self.hfColorRamp)
+        self.pbExit.setMaximumSize(QtCore.QSize(16777215, 17))
+        self.pbExit.setObjectName(_fromUtf8("pbExit"))
+        self.hlColorRamp.addWidget(self.pbExit)
         self.vlVtxMaps.addWidget(self.hfColorRamp)
         self.line_8 = QtGui.QFrame(self.layoutWidget)
         self.line_8.setFrameShape(QtGui.QFrame.HLine)
@@ -445,9 +457,10 @@ class Ui_wgVtxMap(object):
         self.lVtxPaint.setText(_translate("wgVtxMap", "Vtx Paint: ", None))
         self.cbArtisan.setText(_translate("wgVtxMap", "Artisan", None))
         self.cbVtxColor.setText(_translate("wgVtxMap", "VtxColor", None))
-        self.lRamp.setText(_translate("wgVtxMap", "Color Ramp: ", None))
-        self.cbGreyRamp.setText(_translate("wgVtxMap", "Grey", None))
+        self.lRamp.setText(_translate("wgVtxMap", "Ramp Color:", None))
         self.cbColorRamp.setText(_translate("wgVtxMap", "Color", None))
+        self.cbGreyRamp.setText(_translate("wgVtxMap", "Grey", None))
+        self.pbExit.setText(_translate("wgVtxMap", "Exit", None))
         self.twMaps.headerItem().setText(0, _translate("wgVtxMap", "Vertex Map Type", None))
         self.lEditType.setText(_translate("wgVtxMap", "Set All To:", None))
         self.pbNone.setText(_translate("wgVtxMap", "None", None))
