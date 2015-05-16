@@ -164,7 +164,7 @@ def selectVtxInfOnModel(clothNode, vtxMap, selMode, value=None, minInf=None, max
             mc.select(r=True)
 
 def paintVtxMap(clothNode, mapName):
-    """ Enable maya vertex paint tool
+    """ Enable artisan paint tool
         :param clothNode: Cloth node name
         :type clothNode: str
         :param mapName: Vertex map name
@@ -182,7 +182,7 @@ def paintVtxMap(clothNode, mapName):
             else:
                 mc.select(shape[0], r=True)
                 mc.hilite(model)
-                ml.eval('setNClothMapType("%s","",1);' % mapName)
+                setVtxMapType(clothNode, '%sMapType' % mapName, 1)
                 ml.eval('artAttrNClothToolScript 3 %s;' % mapName)
 
 def hideParticleAttrs(node):

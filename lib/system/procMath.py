@@ -46,6 +46,24 @@ def coordOp(p1, p2, operation):
     result = (newCoord[0], newCoord[1], newCoord[2])
     return result
 
+def linear(minVal, maxVal, newMin, newMax, value):
+    """ Linear step from range (minVal, maxVal) to new range (newMin, newMax)
+        :param minVal: Range min value
+        :type minVal: float
+        :param maxVal: Range max value
+        :type maxVal: float
+        :param newMin: New range min value
+        :type newMin: float
+        :param newMax: New range max value
+        :type newMax: float
+        :param value: Range value to convert
+        :type value: float
+        :return: Linear value
+        :rtype: float """
+    coef = ((float(value) - float(minVal)) * 100) / (float(maxVal) - float(minVal))
+    newVal = float(newMin) + ((coef * (float(newMax) - float(newMin))) / 100)
+    return newVal
+
 
 class RandomSequence(object):
     """ Create random sequence from given params
