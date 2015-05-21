@@ -395,13 +395,6 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
             self.hfValue.setMaximumWidth(210)
 
     @property
-    def enumFilter(self):
-        """ Get enum filter, 0 based index
-            :return: Enum filter
-            :rtype: list """
-        return ceCmds.enumFilter()
-
-    @property
     def attrValue(self):
         """ Get itemNode value
             :return: Item node value
@@ -409,7 +402,7 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
         if self.pItem.attrType == 'bool':
             val = self._attrWdgt.isChecked()
         elif self.pItem.attrType == 'enum':
-            if self.pItem.clothAttr in self.enumFilter:
+            if self.pItem.clothAttr in ceCmds.enumFilter():
                 val = int(self._attrWdgt.currentIndex())
             else:
                 val = int(self._attrWdgt.currentIndex() + 1)
@@ -437,7 +430,7 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
         if self.pItem.attrType == 'bool':
             self._attrWdgt.setChecked(val)
         elif self.pItem.attrType == 'enum':
-            if self.pItem.clothAttr in self.enumFilter:
+            if self.pItem.clothAttr in ceCmds.enumFilter():
                 self._attrWdgt.setCurrentIndex(val)
             else:
                 self._attrWdgt.setCurrentIndex(val - 1)
@@ -534,7 +527,7 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
             :rtype: QtGui.QComboBox """
         newWidget = QtGui.QComboBox()
         newWidget.addItems(ceCmds.enumAttrs()[self.pItem.clothAttr])
-        if self.pItem.clothAttr in self.enumFilter:
+        if self.pItem.clothAttr in ceCmds.enumFilter():
             newWidget.setCurrentIndex(ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr))
         else:
             newWidget.setCurrentIndex(ceCmds.getAttr(self.pItem.clothNode, self.pItem.clothAttr) - 1)
