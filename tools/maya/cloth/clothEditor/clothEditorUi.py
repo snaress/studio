@@ -151,6 +151,7 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         self.wgSceneNodes.rf_sceneNodes()
         self.wgAttributes.rf_attrTree()
         self.wgVtxMaps.rf_vtxMapTree()
+        self.rf_menuFilters()
 
     def on_filter(self, filterItem):
         """ Command launched when 'Filters' menuItem is clicked

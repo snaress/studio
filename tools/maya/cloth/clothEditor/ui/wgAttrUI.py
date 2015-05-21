@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgAttr.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ud\wgAttr.ui'
 #
-# Created: Sat May 16 06:04:04 2015
+# Created: Thu May 21 22:31:59 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,6 +44,7 @@ class Ui_wgPreset(object):
         self.twPreset.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.twPreset.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         self.twPreset.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.twPreset.setIndentation(12)
         self.twPreset.setColumnCount(1)
         self.twPreset.setObjectName(_fromUtf8("twPreset"))
         self.twPreset.headerItem().setText(0, _fromUtf8("1"))

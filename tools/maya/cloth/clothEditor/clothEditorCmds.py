@@ -64,7 +64,9 @@ def nClothAttrs():
                             "inputMotionDrag", "restLengthScale", "bendAngleScale", "pointMass", "lift", "drag",
                             "tangentialDrag", "damp", "stretchDamp", "scalingRelation", "ignoreSolverGravity",
                             "ignoreSolverWind", "localForce", "localWind"]},
-            2: {'Quality': ["maxIterations", "maxSelfCollisionIterations", "collideLastThreshold", "addCrossLinks",
+            2: {'Pressure': ["pressureMethod", "pressure", "pressureDamping", "startPressure", "pumpRate",
+                             "airTightness", "incompressibility", "sealHoles"]},
+            3: {'Quality': ["maxIterations", "maxSelfCollisionIterations", "collideLastThreshold", "addCrossLinks",
                             "evaluationOrder", "bendSolver", "sortLinks", "trappedCheck", "selfTrappedCheck",
                             "pushOut", "pushOutRadius", "crossoverPush", "selfCrossoverPush"]}}
 
@@ -86,8 +88,16 @@ def enumAttrs():
             'selfCollisionFlag': ['Vertex', 'VertexEdge', 'VertexFace', 'Full Surface'],
             'inputAttractMethod': ['Non locking', 'Lock values of 1.0 or greater'],
             'scalingRelation': ['Link', 'Object Space', 'World Space'],
+            'pressureMethod': ['Manual Pressure', 'Volume Tracking'],
             'evaluationOrder': ['Sequential', 'Parallel'],
             'bendSolver': ['Simple', 'High Quality', 'Flip Tracking']}
+
+def enumFilter():
+    """ Get enum filter, 0 based index
+        :return: Enum filter
+        :rtype: list """
+    return ['inputAttractMethod', 'scalingRelation', 'evaluationOrder', 'bendSolver', 'timingOutput',
+            'pressureMethod']
 
 def defaultAttrs(nodeType):
     """ Get given nodeType default attributes

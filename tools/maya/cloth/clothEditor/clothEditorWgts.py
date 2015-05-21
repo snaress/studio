@@ -396,10 +396,10 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
 
     @property
     def enumFilter(self):
-        """ Get enum filter, based 1 index
+        """ Get enum filter, 0 based index
             :return: Enum filter
             :rtype: list """
-        return ['inputAttractMethod', 'scalingRelation', 'evaluationOrder', 'bendSolver', 'timingOutput']
+        return ceCmds.enumFilter()
 
     @property
     def attrValue(self):

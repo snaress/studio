@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\wgSceneNode.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ud\wgSceneNode.ui'
 #
-# Created: Sat Apr 18 15:33:00 2015
+# Created: Thu May 21 21:53:55 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,7 +43,7 @@ class Ui_wgSceneNode(object):
         self.pbIcon = QtGui.QPushButton(wgSceneNode)
         self.pbIcon.setMaximumSize(QtCore.QSize(20, 20))
         self.pbIcon.setText(_fromUtf8(""))
-        self.pbIcon.setIconSize(QtCore.QSize(20, 20))
+        self.pbIcon.setIconSize(QtCore.QSize(16, 16))
         self.pbIcon.setFlat(True)
         self.pbIcon.setObjectName(_fromUtf8("pbIcon"))
         self.hlSceneNode.addWidget(self.pbIcon)
@@ -66,7 +66,7 @@ class Ui_wgSceneNode(object):
         self.pbEnable = QtGui.QPushButton(wgSceneNode)
         self.pbEnable.setMaximumSize(QtCore.QSize(20, 20))
         self.pbEnable.setText(_fromUtf8(""))
-        self.pbEnable.setIconSize(QtCore.QSize(20, 20))
+        self.pbEnable.setIconSize(QtCore.QSize(18, 18))
         self.pbEnable.setCheckable(True)
         self.pbEnable.setFlat(True)
         self.pbEnable.setObjectName(_fromUtf8("pbEnable"))

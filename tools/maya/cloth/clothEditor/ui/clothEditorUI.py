@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ui\clothEditor.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ud\clothEditor.ui'
 #
-# Created: Sat May 16 16:24:52 2015
+# Created: Thu May 21 21:48:51 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,24 +26,25 @@ except AttributeError:
 class Ui_mwClothEditor(object):
     def setupUi(self, mwClothEditor):
         mwClothEditor.setObjectName(_fromUtf8("mwClothEditor"))
-        mwClothEditor.resize(850, 281)
+        mwClothEditor.resize(511, 451)
         self.centralwidget = QtGui.QWidget(mwClothEditor)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
-        self.gridLayout_3 = QtGui.QGridLayout(self.centralwidget)
-        self.gridLayout_3.setMargin(0)
-        self.gridLayout_3.setSpacing(0)
-        self.gridLayout_3.setObjectName(_fromUtf8("gridLayout_3"))
-        self.splitter_2 = QtGui.QSplitter(self.centralwidget)
-        self.splitter_2.setOrientation(QtCore.Qt.Horizontal)
-        self.splitter_2.setObjectName(_fromUtf8("splitter_2"))
-        self.qfSceneNodes = QtGui.QFrame(self.splitter_2)
+        self.gridLayout = QtGui.QGridLayout(self.centralwidget)
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setSpacing(0)
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
+        self.verticalLayout = QtGui.QVBoxLayout()
+        self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.qfSceneNodes = QtGui.QFrame(self.centralwidget)
         self.qfSceneNodes.setFrameShape(QtGui.QFrame.StyledPanel)
         self.qfSceneNodes.setObjectName(_fromUtf8("qfSceneNodes"))
         self.vlSceneNodes = QtGui.QVBoxLayout(self.qfSceneNodes)
         self.vlSceneNodes.setSpacing(0)
         self.vlSceneNodes.setMargin(0)
         self.vlSceneNodes.setObjectName(_fromUtf8("vlSceneNodes"))
-        self.tabClothEditor = QtGui.QTabWidget(self.splitter_2)
+        self.verticalLayout.addWidget(self.qfSceneNodes)
+        self.tabClothEditor = QtGui.QTabWidget(self.centralwidget)
+        self.tabClothEditor.setMaximumSize(QtCore.QSize(16777215, 300))
         self.tabClothEditor.setObjectName(_fromUtf8("tabClothEditor"))
         self.tiAttr = QtGui.QWidget()
         self.tiAttr.setObjectName(_fromUtf8("tiAttr"))
@@ -67,16 +68,18 @@ class Ui_mwClothEditor(object):
         self.vlVtxMap.setObjectName(_fromUtf8("vlVtxMap"))
         self.glVtxMap.addLayout(self.vlVtxMap, 0, 0, 1, 1)
         self.tabClothEditor.addTab(self.tiVtxMap, _fromUtf8(""))
-        self.gridLayout_3.addWidget(self.splitter_2, 0, 0, 1, 1)
+        self.verticalLayout.addWidget(self.tabClothEditor)
+        self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
         mwClothEditor.setCentralWidget(self.centralwidget)
         self.menuBar = QtGui.QMenuBar(mwClothEditor)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 850, 21))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 511, 21))
         self.menuBar.setObjectName(_fromUtf8("menuBar"))
         self.mOptions = QtGui.QMenu(self.menuBar)
         self.mOptions.setObjectName(_fromUtf8("mOptions"))
         self.mLockParam = QtGui.QMenu(self.mOptions)
         self.mLockParam.setObjectName(_fromUtf8("mLockParam"))
         self.mFilters = QtGui.QMenu(self.mOptions)
+        self.mFilters.setTearOffEnabled(True)
         self.mFilters.setObjectName(_fromUtf8("mFilters"))
         self.mFiles = QtGui.QMenu(self.menuBar)
         self.mFiles.setObjectName(_fromUtf8("mFiles"))
