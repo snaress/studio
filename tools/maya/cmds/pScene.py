@@ -115,3 +115,30 @@ def getNamespace(nodeName, returnList=False):
         else:
             return ':'.join(nodeName.split(':')[:-1]) , nodeName.split(':')[-1]
     return None, nodeName
+
+def attrIsLocked(nodeFullName):
+    """ Check if given node attribute is locked
+        :param nodeFullName: 'nodeName.nodeAttr'
+        :type nodeFullName: str
+        :return: Attribute lock state
+        :rtype: bool """
+    if mc.objExists(nodeFullName):
+        return mc.getAttr(nodeFullName, l=True)
+    print "!!! WARNING: Node not found: %s !!!" % nodeFullName
+
+def setAttrLock(nodeFullName, state):
+    """ Set given nodeAttr lock on or off
+        :param nodeFullName: 'nodeName.nodeAttr'
+        :type nodeFullName: str
+        :param state: Attribute lock state
+        :type state: bool
+        :return: True if success, else False
+        :rtype: bool """
+    if mc.objExists(nodeFullName):
+        try:
+            mc.setAttr(nodeFullName, l=state)
+            return True
+        except:
+            return False
+    print "!!! WARNING: Node not found: %s !!!" % nodeFullName
+    return False
