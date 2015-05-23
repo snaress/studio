@@ -1,5 +1,6 @@
 import math
-from  tools.maya.cmds import pRigg, pMode
+from lib.system import procMath as pMath
+from tools.maya.cmds import pRigg, pMode
 try:
     import maya.cmds as mc
     import maya.mel as ml
@@ -180,10 +181,54 @@ def paintVtxMap(clothNode, mapName):
             if not shape:
                 print "!!! WARNING: No shape found !!!"
             else:
-                mc.select(shape[0], r=True)
-                mc.hilite(model)
                 setVtxMapType(clothNode, '%sMapType' % mapName, 1)
                 ml.eval('artAttrNClothToolScript 3 %s;' % mapName)
+
+def infToRgb(value):
+    """ Convert influence value to rgb color
+        :param value: Influence value
+        :type value: float
+        :return: Influence color
+        :rtype: tuple """
+    if value <= 0:
+        color = (0, 0, 0)
+    elif value == 0.5:
+        color = (0, 1, 0)
+    elif value >= 1:
+        color = (1, 1, 1)
+    elif 0 < value < 0.5:
+        linVal = pMath.linear(0, 0.5, 0, 1, value)
+        color = (0, linVal, 1 - linVal)
+    elif 0.5 < value < 1:
+        linVal = pMath.linear(0.5, 1, 0, 1, value)
+        color = (linVal, 1 - linVal, 0)
+    else:
+        color = (0, 0, 0)
+    return color
+
+def paintVtxColor(clothNode, mapName, rampStyle='color'):
+    """ Enable vtxColor paint tool
+        :param clothNode: Cloth node name
+        :type clothNode: str
+        :param mapName: Vertex map name
+        :type mapName: str
+        :param rampStyle: 'grey' or 'color'
+        :type rampStyle: str """
+    if not mc.objExists(clothNode) and mc.nodeType(clothNode) in ['nCloth', 'nRigid']:
+        print "!!! WARNING: ClothNode not found, or is not a cloth node: %s" % clothNode
+    else:
+        if not getVtxMapType(clothNode, '%sMapType' % mapName) == 1:
+            print "!!! WARNING: Vertex map disabled !!!"
+        else:
+            clothMesh = getModelFromClothNode(clothNode)
+            clothData = getVtxMapData(clothNode, "%sPerVertex" % mapName)
+            mc.polyOptions(clothMesh, cs=True)
+            for n in range(len(clothData)):
+                if rampStyle == 'grey':
+                    mc.polyColorPerVertex("%s.vtx[%s]" % (clothMesh, n), rgb=(clothData[n], clothData[n], clothData[n]))
+                elif rampStyle == 'color':
+                    color = infToRgb(clothData[n])
+                    mc.polyColorPerVertex("%s.vtx[%s]" % (clothMesh, n), rgb=(color[0], color[1], color[2]))
 
 def hideParticleAttrs(node):
     """ Hides the particle attributes for the given nCloth/nRigid node,
