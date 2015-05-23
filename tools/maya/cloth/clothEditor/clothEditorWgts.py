@@ -181,6 +181,7 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
         self.pWidget = pWidget
         self.pItem = pItem
         self.mainUi = self.pWidget.mainUi
+        self.lockDict = {'attr': {}, 'vtxMap': {}}
         super(SceneNode, self).__init__()
         self._setupUi()
 
@@ -448,7 +449,10 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
             :param rfBtnState: Enable lock btn state refresh
             :type rfBtnState: bool """
         if self.pItem.itemType == 'attr':
-            lockAttr = ceCmds.attrIsLocked("%s.%s" % (self.pItem.clothNode, self.pItem.clothAttr))
+            sceneNode = self.pWidget.sceneUi.selectedClothItem._widget
+            if not self.pItem.clothAttr in sceneNode.lockDict['attr'].keys():
+                sceneNode.lockDict['attr'][self.pItem.clothAttr] = False
+            lockAttr = sceneNode.lockDict['attr'][self.pItem.clothAttr]
             if lockAttr:
                 lockIcon = self.mainUi.lockIconOn
                 if rfBtnState:
@@ -470,7 +474,8 @@ class AttrNode(QtGui.QWidget, wgAttrNodeUI.Ui_wgPresetNode):
     def on_attrLock(self):
         """ Command launched when 'Lock' QPushButton is clicked
             Set clothNode attribute losk state """
-        ceCmds.setAttrLock("%s.%s" % (self.pItem.clothNode, self.pItem.clothAttr), self.attrLock)
+        sceneNode = self.pWidget.sceneUi.selectedClothItem._widget
+        sceneNode.lockDict['attr'][self.pItem.clothAttr] = self.attrLock
         self.rf_attrLock()
 
     # noinspection PyUnresolvedReferences
@@ -1132,9 +1137,11 @@ class VtxMapNode(QtGui.QWidget, wgVtxMapNodeUI.Ui_wgVtxMapNode):
 
     def rf_vtxMapLock(self, rfBtnState=False):
         """ Refresh mapType lock icon """
-        lockType = ceCmds.attrIsLocked("%s.%s" % (self.clothNode, self.mapType))
-        lockVtx = ceCmds.attrIsLocked("%s.%s" % (self.clothNode, self.mapVtx))
-        if lockType or lockVtx:
+        sceneNode = self.pWidget.sceneUi.selectedClothItem._widget
+        if not self.mapName in sceneNode.lockDict['vtxMap'].keys():
+            sceneNode.lockDict['vtxMap'][self.mapName] = False
+        lockAttr = sceneNode.lockDict['vtxMap'][self.mapName]
+        if lockAttr:
             lockIcon = self.mainUi.lockIconOn
             if rfBtnState:
                 self.pbLock.setChecked(True)
@@ -1154,8 +1161,8 @@ class VtxMapNode(QtGui.QWidget, wgVtxMapNodeUI.Ui_wgVtxMapNode):
     def on_mapLock(self):
         """ Command launched when 'Lock' QPushButton is clicked
             Set clothNode attribute losk state """
-        ceCmds.setAttrLock("%s.%s" % (self.clothNode, self.mapType), self.vtxMapLock)
-        ceCmds.setAttrLock("%s.%s" % (self.clothNode, self.mapVtx), self.vtxMapLock)
+        sceneNode = self.pWidget.sceneUi.selectedClothItem._widget
+        sceneNode.lockDict['vtxMap'][self.mapName] = self.vtxMapLock
         self.rf_vtxMapLock()
         self.pWidget.pbFlood.setEnabled(not self.vtxMapLock)
 

@@ -165,17 +165,17 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         """ Command launched when 'Unlock' or 'Lock' menuItem is clicked
             :param state: Lock state
             :type state: bool """
+        sceneNode = self.wgSceneNodes.selectedClothItem._widget
         if self.currentTab == 'Attrs':
             for item in pQt.getAllItems(self.wgAttributes.twPreset):
                 if item.itemType == 'attr':
-                    ceCmds.setAttrLock("%s.%s" % (item.clothNode, item.clothAttr), state)
+                    sceneNode.lockDict['attr'][item.clothAttr] = state
                     item._widget.rf_attrLock(rfBtnState=True)
         elif self.currentTab == 'VtxMap':
             for item in pQt.getAllItems(self.wgVtxMaps.twMaps):
-                ceCmds.setAttrLock("%s.%s" % (item._widget.clothNode, item._widget.mapType), state)
-                ceCmds.setAttrLock("%s.%s" % (item._widget.clothNode, item._widget.mapVtx), state)
+                sceneNode.lockDict['vtxMap'][item._widget.mapName] = state
                 item._widget.rf_vtxMapLock(rfBtnState=True)
-            self.pbFlood.setEnabled(not state)
+            self.wgVtxMaps.pbFlood.setEnabled(not state)
 
     def on_tabEditor(self):
         """ Refresh currenttab when 'clothEditor' QTabWidget is clicked """
