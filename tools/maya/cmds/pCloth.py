@@ -230,6 +230,13 @@ def paintVtxColor(clothNode, mapName, rampStyle='color'):
                     color = infToRgb(clothData[n])
                     mc.polyColorPerVertex("%s.vtx[%s]" % (clothMesh, n), rgb=(color[0], color[1], color[2]))
 
+def exitVtxColor(clothNode):
+    """ Exit polyVertex color
+        :param clothNode: Cloth node name
+        :type clothNode: str """
+    clothMesh = getModelFromClothNode(clothNode)
+    mc.polyOptions(clothMesh, cs=False)
+
 def hideParticleAttrs(node):
     """ Hides the particle attributes for the given nCloth/nRigid node,
         so they won't show up in the channel box
