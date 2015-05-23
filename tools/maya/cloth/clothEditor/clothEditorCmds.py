@@ -275,67 +275,13 @@ def setVtxMapData(clothNode, vtxMap, value):
         :type value: list """
     pCloth.setVtxMapData(clothNode, vtxMap, value, refresh=True)
 
-def paintVtxMap(paintTool, clothNode, mapName, rampStyle=None):
-    """ Enable maya vertex paint tool
-        :param paintTool: 'artisan' or 'vtxColor'
-        :type paintTool: str
+def paintVtxMap(clothNode, mapName):
+    """ Enable maya Artisan paint tool
         :param clothNode: Cloth node name
         :type clothNode: str
         :param mapName: Vertex map name
-        :type mapName: str
-        :param rampStyle: 'grey' or 'color'
-        :type rampStyle: str """
-    if paintTool == 'artisan':
-        pCloth.paintVtxMap(clothNode, mapName)
-    elif paintTool == 'vtxColor':
-        paintVtxColor(clothNode, mapName, rampStyle=rampStyle)
-
-def infToRgb(value):
-    """ Convert influence value to rgb color
-        :param value: Influence value
-        :type value: float
-        :return: Influence color
-        :rtype: tuple """
-    if value <= 0:
-        color = (0, 0, 0)
-    elif value == 0.5:
-        color = (0, 1, 0)
-    elif value >= 1:
-        color = (1, 1, 1)
-    elif 0 < value < 0.5:
-        linVal = pMath.linear(0, 0.5, 0, 1, value)
-        color = (0, linVal, 1 - linVal)
-    elif 0.5 < value < 1:
-        linVal = pMath.linear(0.5, 1, 0, 1, value)
-        color = (linVal, 1 - linVal, 0)
-    else:
-        color = (0, 0, 0)
-    return color
-
-def paintVtxColor(clothNode, mapName, rampStyle='color'):
-    """ Enable vtxColor paint tool
-        :param clothNode: Cloth node name
-        :type clothNode: str
-        :param mapName: Vertex map name
-        :type mapName: str
-        :param rampStyle: 'grey' or 'color'
-        :type rampStyle: str """
-    clothMesh = getModelFromClothNode(clothNode)
-    clothData = getVtxMapData(clothNode, "%sPerVertex" % mapName)
-    mc.polyOptions(clothMesh, cs=True)
-    for n in range(len(clothData)):
-        if rampStyle == 'grey':
-            mc.polyColorPerVertex("%s.vtx[%s]" % (clothMesh, n), rgb=(clothData[n], clothData[n], clothData[n]))
-        elif rampStyle == 'color':
-            color = infToRgb(clothData[n])
-            mc.polyColorPerVertex("%s.vtx[%s]" % (clothMesh, n), rgb=(color[0], color[1], color[2]))
-
-def exitVtxColor(clothNode):
-    """ Exit polyVertex color
-        :param clothNode: Cloth node name
-        :type clothNode: str """
-    clothMesh = getModelFromClothNode(clothNode)
-    mc.polyOptions(clothMesh, cs=False)
+        :type mapName: str """
+    pCloth.paintVtxMap(clothNode, mapName)
 
 def selectVtxInfluence(clothNode, vtxMap, selMode, value=None, minInf=None, maxInf=None):
     """ Select vertex on model given by value or range
