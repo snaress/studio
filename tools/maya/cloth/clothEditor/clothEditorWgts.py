@@ -81,7 +81,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
             self.cbCloth.setToolTip("Show / Hide nCloth items")
             self.cbRigid.setToolTip("Show / Hide nRigid items")
         else:
-            for widget in [self.pbRefresh, self.cbCloth, self.cbRigid]:
+            for widget in [self.cbCloth, self.cbRigid]:
                 widget.setToolTip("")
 
     def rf_sceneItemToolTips(self):
@@ -171,7 +171,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
 
 
 class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
-    """ Widget SceneNode QTreeWidgetItem node, child of SceneNodeUi
+    """ Widget SceneNode QTreeWidgetItem, child of SceneNodeUi
         :param pWidget: Parent Widget
         :type pWidget: QtGui.QWidget
         :param pItem: Parent item
@@ -667,7 +667,6 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         #-- VtxMap selection --#
         self.rbVtxRange.clicked.connect(self.rf_vtxSelMode)
         self.rbVtxValue.clicked.connect(self.rf_vtxSelMode)
-        self.pbVtxClear.clicked.connect(self.on_vtxClear)
         self.pbVtxSelect.clicked.connect(self.on_vtxSelection)
         #-- VtxMap flood --#
         self.rbEditReplace.clicked.connect(self.rf_floodIterVisibility)
@@ -675,6 +674,12 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
         self.rbEditMult.clicked.connect(self.rf_floodIterVisibility)
         self.rbEditSmooth.clicked.connect(self.rf_floodIterVisibility)
         self.pbFlood.clicked.connect(self.on_flood)
+        #-- Artisan flood smooth --#
+        self.pbArtSmooth1.clicked.connect(partial(self.on_artisanFloodSmooth, iters=5))
+        self.pbArtSmooth2.clicked.connect(partial(self.on_artisanFloodSmooth, iters=10))
+        self.pbArtSmooth3.clicked.connect(partial(self.on_artisanFloodSmooth, iters=15))
+        self.pbArtSmooth4.clicked.connect(partial(self.on_artisanFloodSmooth, iters=20))
+        self.pbArtSmooth5.clicked.connect(partial(self.on_artisanFloodSmooth, iters=25))
         #-- VtxMap storage --#
         for n in range(5):
             newButton = VtxStorageButton('Set_%s' % (n+1), 'vtxSet', self.mainUi, self)
@@ -887,12 +892,6 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
                 ceCmds.selectVtxInfluence(item._widget.clothNode, item._widget.mapVtx, 'value',
                                           value=float(self.leRangeMin.text()))
 
-    @staticmethod
-    def on_vtxClear():
-        """ Command launched when QPushButton 'Clear' (range) is clicked,
-            Clear scene selection """
-        ceCmds.clearVtxSelection()
-
     def on_flood(self):
         """ Command launched when QPushButton 'Flood' is clicked,
             Edit selected vertex map influence with new edited influence """
@@ -961,6 +960,17 @@ class VtxMapUi(QtGui.QWidget, wgVtxMapUI.Ui_wgVtxMap):
                 if value > clampMax:
                     value = clampMax
         return value
+
+    def on_artisanFloodSmooth(self, iters=1):
+        """ Command launched when QPushButton 'Artisan Flood Smooth' is clicked,
+            :param iters: Smooth iters
+            :type iters: int """
+        item = self.selectedVtxMapItem
+        if item is not None:
+            if not item._widget.vtxMapLock:
+                for n in range(iters):
+                    print "Flood Iter: ", n+1
+                    ceCmds.artisanSmoothOperation()
 
     def on_vtxMapInfo(self):
         """ Command launched when 'Tree Values' QTreeWidget selection changed
@@ -1540,6 +1550,11 @@ class FilesUi(QtGui.QWidget, wgFilesUI.Ui_wgFiles):
 
 
 class SaveFileDialog(QtGui.QDialog, dialSaveFileUI.Ui_dialSaveFile):
+    """ Prompt and confirmation QDialog, child of FilesUi
+        :param pWidget: Parent widget
+        :type pWidget: QtGui.QWidget
+        :param item: Parent item
+        :type item: QtGui.QTreeWidgetItem """
 
     def __init__(self, pWidget, item):
         self.pWidget = pWidget

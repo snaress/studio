@@ -1,7 +1,7 @@
-from lib.system import procMath as pMath
 from tools.maya.cmds import pScene, pMode, pCloth
 try:
     import maya.cmds as mc
+    import maya.mel as ml
 except:
     pass
 
@@ -282,6 +282,12 @@ def paintVtxMap(clothNode, mapName):
         :param mapName: Vertex map name
         :type mapName: str """
     pCloth.paintVtxMap(clothNode, mapName)
+
+def artisanSmoothOperation():
+    """ Set current artisan context to smooth opeation """
+    currentContext = mc.currentCtx()
+    mc.artAttrCtx(currentContext, e=True, sao='smooth')
+    ml.eval('artFloodSurfaces;')
 
 def selectVtxInfluence(clothNode, vtxMap, selMode, value=None, minInf=None, maxInf=None):
     """ Select vertex on model given by value or range

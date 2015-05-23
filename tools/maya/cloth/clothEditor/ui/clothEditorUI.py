@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothEditor\ud\clothEditor.ui'
 #
-# Created: Thu May 21 21:48:51 2015
+# Created: Sat May 23 20:28:28 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,7 +44,7 @@ class Ui_mwClothEditor(object):
         self.vlSceneNodes.setObjectName(_fromUtf8("vlSceneNodes"))
         self.verticalLayout.addWidget(self.qfSceneNodes)
         self.tabClothEditor = QtGui.QTabWidget(self.centralwidget)
-        self.tabClothEditor.setMaximumSize(QtCore.QSize(16777215, 300))
+        self.tabClothEditor.setMaximumSize(QtCore.QSize(16777215, 350))
         self.tabClothEditor.setObjectName(_fromUtf8("tabClothEditor"))
         self.tiAttr = QtGui.QWidget()
         self.tiAttr.setObjectName(_fromUtf8("tiAttr"))
