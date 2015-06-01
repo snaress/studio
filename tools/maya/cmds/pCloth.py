@@ -349,7 +349,7 @@ def addPassiveToNSystem(passive, nucleus):
     mc.setAttr("%s.active" % passive, 0)
     return ind
 
-def createNCloth(useNucleus=None, selectExisting=False, createNew=False, worldSpace=False):
+def createNCloth(useNucleus=None, selectExisting=False, createNew=False, worldSpace=False, outMeshName="outputCloth1"):
     """ This turns all the selected objects into nCloth. The current nucleus node is used
         or a new one is created if none yet exist
         :param useNucleus: Force given nucleus to be used
@@ -360,9 +360,10 @@ def createNCloth(useNucleus=None, selectExisting=False, createNew=False, worldSp
         :type createNew: bool
         :param worldSpace: if true, cache and current positions maintained in worldspace
         :type worldSpace: bool
+        :param outMeshName: NCloth output mesh name
+        :type outMeshName: str
         :return: Created nCloth nodes
         :rtype: list """
-    outMeshName = "outputCloth1"
     #-- Get the selected meshes --#
     selected = mc.ls(sl=True)
     if not selected:
