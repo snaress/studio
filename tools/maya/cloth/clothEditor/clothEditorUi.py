@@ -6,7 +6,6 @@ from tools.maya.cmds import pScene
 from tools.maya.cloth import clothEditor
 from tools.maya.cloth.clothEditor.ui import clothEditorUI
 from tools.maya.cloth.clothEditor import clothEditorWgts as ceWgts
-from tools.maya.cloth.clothEditor import clothEditorCmds as ceCmds
 try:
     import maya.cmds as mc
 except:
@@ -99,14 +98,15 @@ class ClothEditorUi(QtGui.QMainWindow, clothEditorUI.Ui_mwClothEditor):
         self.mFilters.clear()
         nsList = []
         for item in pQt.getAllItems(self.wgSceneNodes.twSceneNodes):
-            if not item.clothNs in nsList:
-                nsList.append(item.clothNs)
-                menuItem = QtGui.QAction(QtGui.QIcon(), item.clothNs, self)
-                menuItem.setCheckable(True)
-                menuItem.setChecked(True)
-                menuItem.ns = item.clothNs
-                menuItem.triggered.connect(partial(self.on_filter, menuItem))
-                self.mFilters.addAction(menuItem)
+            if item.clothNs is not None:
+                if not item.clothNs in nsList:
+                    nsList.append(item.clothNs)
+                    menuItem = QtGui.QAction(QtGui.QIcon(), item.clothNs, self)
+                    menuItem.setCheckable(True)
+                    menuItem.setChecked(True)
+                    menuItem.ns = item.clothNs
+                    menuItem.triggered.connect(partial(self.on_filter, menuItem))
+                    self.mFilters.addAction(menuItem)
 
     def on_miSetRootPath(self):
         """ Command launched when 'SetRootPath' menuItem is clicked """
