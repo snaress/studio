@@ -30,6 +30,8 @@ class ClothBoxUi(QtGui.QMainWindow, clothBoxUI.Ui_mwClothBox):
         self.vlMode.insertWidget(0, self.wgModeBox)
         self.wgRiggBox = cbWgts.RiggBoxUi(self)
         self.vlRigg.insertWidget(0, self.wgRiggBox)
+        self.wgSimuBox = cbWgts.SimuBoxUi(self)
+        self.vlSimu.insertWidget(0, self.wgSimuBox)
 
 
 def launch():

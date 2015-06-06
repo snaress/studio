@@ -1,8 +1,10 @@
 import os
 from PyQt4 import QtGui
 from functools import partial
+from tools.maya.cloth.clothCache import clothCacheUi
+from tools.maya.cloth.clothEditor import clothEditorUi
 from tools.maya.cloth.clothBox import clothBoxCmds as cbCmds
-from tools.maya.cloth.clothBox.ui import wgModeBoxUI, wgRiggBoxUI
+from tools.maya.cloth.clothBox.ui import wgModeBoxUI, wgRiggBoxUI, wgSimuBoxUI
 
 
 class ModeBoxUi(QtGui.QWidget, wgModeBoxUI.Ui_wgModeBox):
@@ -93,6 +95,13 @@ class RiggBoxUi(QtGui.QWidget, wgRiggBoxUI.Ui_wgRiggBox):
         self.pbStoreConst.clicked.connect(self.on_storeConstraint)
 
     @property
+    def solverMethod(self):
+        """ Get solver method
+            :return: Solver method ('One Nucleus For All', 'One Nucleus By Mesh')
+            :rtype: str """
+        return str(self.cbSolverMethod.currentText())
+
+    @property
     def clothSolver(self):
         """ Get current cloth solver
             :return: Cloth solver
@@ -118,19 +127,21 @@ class RiggBoxUi(QtGui.QWidget, wgRiggBoxUI.Ui_wgRiggBox):
         elif self.rbPassive.isChecked():
             return "passive"
 
-    @staticmethod
-    def rf_clothSolver(QComboBox):
+    def rf_clothSolver(self, QComboBox):
         """ Refresh Cloth and passive solver list """
         QComboBox.clear()
         nucleusList = cbCmds.getAllNucleus()
         nucleusList.insert(0, "New Nucleus")
         QComboBox.addItems(nucleusList)
+        if self.solverMethod == "One Nucleus For All":
+            if nucleusList:
+                QComboBox.setCurrentIndex(1)
 
     def on_pick(self, QLineEdit, suffixe):
         """ Command launched when 'Pick' QPushButton is clicked
             :param QLineEdit: LineEdit to fill
             :type QLineEdit: QtGui.QLineEdit
-            :param suffixe: Node suffixe ('mesh', 'pass', 'const'
+            :param suffixe: Node suffixe ('mesh', 'pass', 'const')
             :type suffixe: str """
         sceneSel = cbCmds.getSceneSelection()
         if sceneSel:
@@ -146,7 +157,10 @@ class RiggBoxUi(QtGui.QWidget, wgRiggBoxUI.Ui_wgRiggBox):
                             name = '_'.join(sceneSel[0].split('_')[1:])
                         else:
                             name = sceneSel[0]
-                        result = "%s_%s_%s" % (prefixe, name, suffixe)
+                        if self.solverMethod == "One Nucleus By Mesh":
+                            result = "%s_%s_%s" % (prefixe, name, suffixe)
+                        else:
+                            result = "%s_%s" % (name, suffixe)
                 elif suffixe == 'const':
                     clothNode = cbCmds.findtype(sceneSel[0], ['nCloth'])[0]
                     dynName = '_'.join(clothNode.split('_')[:-1])
@@ -160,18 +174,20 @@ class RiggBoxUi(QtGui.QWidget, wgRiggBoxUI.Ui_wgRiggBox):
         driver = str(self.leClothDriver.text())
         mesh = str(self.leClothMesh.text())
         result = str(self.leClothResult.text())
+        forceWrap = self.cbForceWrap.isChecked()
         if driver in ["", " "] or mesh in ["", " "] or result in ["", " "]:
             raise ValueError, "!!! ClothDriver, ClothMesh or ClothResult can not be empty !!!"
-        cbCmds.createCloth(driver, mesh, result, self.clothSolver)
+        cbCmds.createCloth(driver, mesh, result, self.clothSolver, self.solverMethod, forceWrap=forceWrap)
 
     def on_createRigid(self):
         """ Command launched when 'Create Rigid' QPushButton is clicked """
         driver = str(self.leRigidDriver.text())
         mesh = str(self.leRigidMesh.text())
         result = str(self.leRigidResult.text())
+        smooth = self.cbSmoothMesh.isChecked()
         if driver in ["", " "] or mesh in ["", " "] or result in ["", " "]:
             raise ValueError, "!!! RigidDriver, RigidMesh or RigidResult can not be empty !!!"
-        cbCmds.createRigid(driver, mesh, result, self.passiveMode, self.rigidSolver)
+        cbCmds.createRigid(driver, mesh, result, self.passiveMode, self.rigidSolver, self.solverMethod, smooth=smooth)
 
     def on_storeConstraint(self):
         """ Command launched when 'Store Constraint' QPushButton is clicked """
@@ -179,4 +195,43 @@ class RiggBoxUi(QtGui.QWidget, wgRiggBoxUI.Ui_wgRiggBox):
         result = str(self.leConstResult.text())
         if dynConst in ["", " "] or result in ["", " "]:
             raise ValueError, "!!! DynConstraint, DynResult can not be empty !!!"
-        cbCmds.storeConstraint(dynConst, result)
+        cbCmds.storeConstraint(dynConst, result, self.solverMethod)
+
+
+class SimuBoxUi(QtGui.QWidget, wgSimuBoxUI.Ui_wgSimuBox):
+    """ Widget SimuBox, child of mainUi
+        :param mainUi: ClothBox mainUi
+        :type mainUi: QtGui.QMainWindow """
+
+    def __init__(self, mainUi):
+        print "\t ---> ModeBoxUi"
+        self.mainUi = mainUi
+        self.clothEditorIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'clothEditor.png'))
+        self.clothCacheIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'clothCache.png'))
+        self.bakeSelectedIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'bakeSelected.png'))
+        self.connectHiIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'connectHi.png'))
+        self.exportHiIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'exportHi.png'))
+        super(SimuBoxUi, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup widget ui """
+        self.setupUi(self)
+        self.pbClothEditor.setIcon(self.clothEditorIcon)
+        self.pbClothEditor.clicked.connect(self.on_clothEditor)
+        self.pbClothCache.setIcon(self.clothCacheIcon)
+        self.pbClothCache.clicked.connect(self.on_clothCache)
+        self.pbBakeSel.setIcon(self.bakeSelectedIcon)
+        self.pbConnectHi.setIcon(self.connectHiIcon)
+        self.pbExportHi.setIcon(self.exportHiIcon)
+
+    @staticmethod
+    def on_clothEditor():
+        """ Command launched when 'Cloth Editor Ui' is clicked """
+        clothEditorUi.launch()
+
+    @staticmethod
+    def on_clothCache():
+        """ Command launched when 'Cloth Cache Ui' is clicked """
+        clothCacheUi.launch()

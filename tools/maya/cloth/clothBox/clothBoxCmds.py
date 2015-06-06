@@ -1,4 +1,4 @@
-from tools.maya.cmds import pRigg, pCloth
+from tools.maya.cmds import pMode, pRigg, pCloth
 try:
     import maya.cmds as mc
 except:
@@ -39,29 +39,7 @@ def duplicateSelected(selObjects=None, name=None, worldParent=True):
         :type worldParent: bool
         :return: Duplicate objects
         :rtype: list """
-    #-- Check Object List --#
-    if selObjects is None:
-        objectList = mc.ls(sl=True)
-    else:
-        if isinstance(selObjects, str):
-            objectList = [selObjects]
-        else:
-            objectList = selObjects
-    #-- Duplicate Objects --#
-    cpList = []
-    for obj in objectList:
-        if name is None:
-            cpName = "%s__cp#" % obj.split(':')[-1].split('__')[0]
-        else:
-            cpName = name
-        cpObject = mc.duplicate(obj, n=cpName)
-        newName = cpObject[0]
-        #-- Parent To World --#
-        if worldParent:
-            if mc.listRelatives(cpObject[0], p=True) is not None:
-                newName = mc.parent(cpObject[0], w=True)
-        cpList.append(newName)
-    return cpList
+    return pMode.duplicateSelected(selObjects=selObjects, name=name, worldParent=worldParent)
 
 def connectOutMesh(srcMesh=None, outMesh=None, force=True):
     """ Connect srcMesh.outMesh to outMesh.inMesh
@@ -71,18 +49,7 @@ def connectOutMesh(srcMesh=None, outMesh=None, force=True):
         :type outMesh: str
         :param force: Force connection
         :type force: True """
-    #-- Check Object List --#
-    if srcMesh is None and outMesh is None:
-        selObjects = mc.ls(sl=True)
-        if not selObjects:
-            print "!!! Error: Select srcMesh, then outMesh !!!"
-        else:
-            srcMesh = selObjects[0]
-            outMesh = selObjects[1]
-    #-- Connect Attr --#
-    ind = pRigg.getNextFreeMultiIndex("%s.worldMesh" % srcMesh)
-    mc.connectAttr("%s.worldMesh[%s]" % (srcMesh, ind), "%s.inMesh" % outMesh, f=force)
-    print "// Connect %s.worldMesh ---> %s.inMesh" % (srcMesh, outMesh)
+    pMode.connectOutMesh(srcMesh=srcMesh, outMesh=outMesh, force=force)
 
 def updateOutMesh(srcMesh=None, outMesh=None, force=True):
     """ Update given outMesh, then remove connection
@@ -92,20 +59,7 @@ def updateOutMesh(srcMesh=None, outMesh=None, force=True):
         :type outMesh: str
         :param force: Force connection
         :type force: True """
-    #-- Check Object List --#
-    if srcMesh is None and outMesh is None:
-        selObjects = mc.ls(sl=True)
-        print selObjects
-        if not selObjects:
-            print "!!! Error: Select srcMesh, then outMesh !!!"
-        else:
-            srcMesh = selObjects[0]
-            outMesh = selObjects[1]
-    #-- Update Mesh --#
-    connectOutMesh(srcMesh, outMesh, force=force)
-    mc.refresh()
-    mc.disconnectAttr("%s.outMesh" % srcMesh, "%s.inMesh" % outMesh)
-    print "// Update %s.outMesh ---> %s.inMesh" % (srcMesh, outMesh)
+    pMode.updateOutMesh(srcMesh=srcMesh, outMesh=outMesh, force=force)
 
 def createOutMesh(selObjects=None, name=None, worldParent=True):
     """ Create outMesh from selected objects
@@ -118,27 +72,7 @@ def createOutMesh(selObjects=None, name=None, worldParent=True):
         :type worldParent: bool
         :return: OutMesh objects
         :rtype: list """
-    #-- Check Object List --#
-    if selObjects is None:
-        selObjects = mc.ls(sl=True)
-    else:
-        if isinstance(selObjects, str):
-            selObjects = [selObjects]
-    #-- Create OutMesh --#
-    outList = []
-    for obj in selObjects:
-        if name is None:
-            outName = "%s__out#" % obj.split(':')[-1].split('__')[0]
-        else:
-            outName = name
-        outMesh = duplicateSelected(selObjects=str(obj), name=str(outName), worldParent=worldParent)[0]
-        if isinstance(outMesh, list):
-            connectOutMesh(srcMesh=str(obj), outMesh=str(outMesh[0]))
-            outList.append(outMesh[0])
-        else:
-            connectOutMesh(srcMesh=str(obj), outMesh=str(outMesh))
-            outList.append(outMesh)
-    return outList
+    return pMode.createOutMesh(selObjects=selObjects, name=name, worldParent=worldParent)
 
 def getAllNucleus():
     """ Get all nucleus in scene
@@ -150,14 +84,15 @@ def createSimuGroups():
     """ Create Simulation groups """
     grpList = ["|ALL|SIMU",
                "|ALL|SIMU|CLOTH",
-               "|ALL|SIMU|CLOTH|RIGG_CLOTH",
-               "|ALL|SIMU|CLOTH|RIGG_CLOTH|initMesh",
-               "|ALL|SIMU|CLOTH|RIGG_CLOTH|inputMesh",
-               "|ALL|SIMU|CLOTH|RIGG_CLOTH|wrapBase",
-               "|ALL|SIMU|CLOTH|EXPORT_CLOTH",
-               "|ALL|SIMU|CLOTH|EXPORT_CLOTH|loToHi",
-               "|ALL|SIMU|CLOTH|EXPORT_CLOTH|hiMesh",
-               "|ALL|SIMU|HAIR"]
+               "|ALL|SIMU|HAIR",
+               "|ALL|SIMU|RIGG",
+               "|ALL|SIMU|RIGG|initMesh",
+               "|ALL|SIMU|RIGG|inputMesh",
+               "|ALL|SIMU|RIGG|custom",
+               "|ALL|SIMU|RIGG|wrapBase",
+               "|ALL|SIMU|EXPORT",
+               "|ALL|SIMU|EXPORT|loToHi",
+               "|ALL|SIMU|EXPORT|hiMesh"]
     for grp in grpList:
         if not mc.objExists(grp):
             print "\t ---> Create group %r" % grp
@@ -197,10 +132,10 @@ def createClothInitMesh(mesh):
         :return: InitMesh name
         :rtype: str """
     initMesh = duplicateSelected(selObjects=mesh, name="%s_initMsh" % mesh)[0]
-    mc.parent(initMesh, "|ALL|SIMU|CLOTH|RIGG_CLOTH|initMesh")
+    mc.parent(initMesh, "|ALL|SIMU|RIGG|initMesh")
     return initMesh
 
-def createClothInputMesh(driver, mesh):
+def createClothInputMesh(driver, mesh, forceWrap=False):
     """ Create cloth inputMesh
         :param driver: Cloth driver mesh name
         :type driver: str
@@ -208,16 +143,43 @@ def createClothInputMesh(driver, mesh):
         :type mesh: str
         :return: InputMesh name
         :rtype: str """
-    if mc.polyEvaluate(driver, v=True) == mc.polyEvaluate(mesh, v=True):
+    if mc.polyEvaluate(driver, v=True) == mc.polyEvaluate(mesh, v=True) and not forceWrap:
         print "\t ---> Use outMesh driver"
         inputMesh = driver
     else:
         print "\t ---> Use wrap driver"
         inputMesh = duplicateSelected(selObjects=mesh, name="%s_inputMsh" % mesh)[0]
-        mc.parent(inputMesh, "|ALL|SIMU|CLOTH|RIGG_CLOTH|inputMesh")
+        mc.parent(inputMesh, "|ALL|SIMU|RIGG|inputMesh")
         baseName, wrapNode = pRigg.createWrap(driver, inputMesh)
-        mc.parent(baseName, "|ALL|SIMU|CLOTH|RIGG_CLOTH|wrapBase")
+        mc.parent(baseName, "|ALL|SIMU|RIGG|wrapBase")
     return inputMesh
+
+def createClothLoToHi(clothMesh, mesh):
+    """ Create loToHi mesh
+        :param clothMesh: Cloth mesh name
+        :type clothMesh: str
+        :param mesh: Source mesh name
+        :type mesh: str
+        :return: LoToHi mesh name
+        :rtype: str """
+    loToHiMesh = duplicateSelected(selObjects=mesh, name="%s_lthMesh" % mesh)[0]
+    for obj in [clothMesh, loToHiMesh]:
+        mc.addAttr(obj, ln='loToHi', dt='string')
+        mc.setAttr("%s.loToHi" % obj, e=True, k=False, cb=True)
+    mc.connectAttr("%s.loToHi" % clothMesh, "%s.loToHi" % loToHiMesh, f=True)
+    mc.parent(loToHiMesh, "|ALL|SIMU|EXPORT|loToHi")
+    return loToHiMesh
+
+def createClothHiMesh(driver, loToHiMesh):
+    print driver
+    hiName = driver.split(':')[-1]
+    print hiName
+    hiMesh = duplicateSelected(selObjects=str(driver), name=hiName)[0][0]
+    print hiMesh, loToHiMesh
+    baseName, wrapNode = pRigg.createWrap(loToHiMesh, hiMesh)
+    mc.parent(hiMesh, "|ALL|SIMU|EXPORT|hiMesh")
+    mc.parent(baseName, "|ALL|SIMU|RIGG|wrapBase")
+    return hiMesh
 
 def _checkClothArgs(driver, mesh, result, solver):
     """ Check cloth args
@@ -238,7 +200,7 @@ def _checkClothArgs(driver, mesh, result, solver):
         if not mc.objExists(solver):
             raise ValueError, "!!! Cloth solver not found: %s !!!" % solver
 
-def createCloth(driver, mesh, clothMesh, solver):
+def createCloth(driver, mesh, clothMesh, solver, solverMethod, forceWrap=False):
     """ Create cloth system
         :param driver: Cloth driver mesh name
         :type driver: str
@@ -247,7 +209,11 @@ def createCloth(driver, mesh, clothMesh, solver):
         :param clothMesh: Cloth mesh name
         :type clothMesh: str
         :param solver: Nucleus name, or 'New Nucleus' to create a new one
-        :type solver: str """
+        :type solver: str
+        :param solverMethod: Solver method ('One Nucleus For All', 'One Nucleus By Mesh')
+        :type solverMethod: str
+        :param forceWrap: Use wrap instead of outMesh
+        :type forceWrap: bool """
     print "\n########## CREATE CLOTH ##########"
     #-- Verif Args --#
     print "Checking Values ..."
@@ -262,13 +228,19 @@ def createCloth(driver, mesh, clothMesh, solver):
     if solver == "New Nucleus":
         #-- Create Cloth Group --#
         print "Checking Cloth Groups ..."
-        clothGrp = createClothGroups("GRP_%s" % defaultName)
+        if solverMethod == "One Nucleus By Mesh":
+            clothGrp = createClothGroups("GRP_%s" % defaultName)
+        else:
+            clothGrp = "|ALL|SIMU|CLOTH"
         #-- Create ClothNodes --#
         print "\t ---> New Nucleus"
         mc.select(clothMesh, r=True)
         clothNodes = pCloth.createNCloth(createNew=True, outMeshName="%s_outputCloth" % mesh)
         nucleus = pRigg.findTypeInHistory(clothNodes[0], ['nucleus'], future=True, past=True)
-        nucleus = mc.rename(nucleus, "%s_nucleus" % defaultName)
+        if solverMethod == "One Nucleus By Mesh":
+            nucleus = mc.rename(nucleus, "%s_nucleus" % defaultName)
+        else:
+            nucleus =  mc.rename(nucleus, "%s_nucleus" % defaultName.split('_')[0])
         mc.parent(nucleus, clothGrp)
     else:
         #-- Create ClothNodes --#
@@ -292,10 +264,18 @@ def createCloth(driver, mesh, clothMesh, solver):
     print "\t ---> %s" % initMesh
     #-- Create InputMesh --#
     print "Creating Input Mesh ..."
-    inputMesh = createClothInputMesh(driver, mesh)
+    inputMesh = createClothInputMesh(driver, mesh, forceWrap=forceWrap)
     meshShape = mc.listRelatives(clothMesh, s=True, ni=False)[0]
     connectOutMesh(srcMesh=inputMesh, outMesh=meshShape)
     print "\t ---> %s" % inputMesh
+    #-- Create Lo To Hi Mesh --#
+    print "Creating LoToHi Mesh ..."
+    loToHiMesh = createClothLoToHi(clothMesh, mesh)
+    print "\t ---> %s" % loToHiMesh
+    #-- Create Hi Mesh --#
+    print "Creating Hi Mesh ..."
+    hiMesh = createClothHiMesh(driver.replace('_los', '_hi'), loToHiMesh)
+    print "\t ---> %s" % hiMesh
 
 def paramRigidMode(rigidNode, rigidMode):
     """ Param rigidNode mode
@@ -318,7 +298,7 @@ def paramRigidMode(rigidNode, rigidMode):
         mc.setAttr("%s.pushOut" % rigidNodeShape, 0.0)
         mc.setAttr("%s.pushOutRadius" % rigidNodeShape, 0.0)
 
-def createRigid(driver, mesh, rigidMesh, rigidMode, solver):
+def createRigid(driver, mesh, rigidMesh, rigidMode, solver, solverMethod, smooth=False):
     """ Create rigid system
         :param driver: Passive driver mesh name
         :type driver: str
@@ -329,28 +309,45 @@ def createRigid(driver, mesh, rigidMesh, rigidMode, solver):
         :param rigidMode: Rigid mode ('collide', 'pushOut', 'passive')
         :type rigidMode: str
         :param solver: Nucleus name, or 'New Nucleus' to create a new one
-        :type solver: str """
+        :type solver: str
+        :param solverMethod: Solver method ('One Nucleus For All', 'One Nucleus By Mesh')
+        :type solverMethod: str
+        :param smooth: Add smooth to rigiMesh
+        :type smooth: bool """
     print "\n########## CREATE RIGID ##########"
     #-- Verif Args --#
     print "Checking Values ..."
     _checkClothArgs(driver, mesh, rigidMesh, solver)
+    #-- Create Passive --#
+    print "Creating Rigid Mesh ..."
+    rigidMesh = duplicateSelected(selObjects=mesh, name=rigidMesh)[0]
+    #-- Connect Driver --#
+    print "Connecting driver ..."
+    connectOutMesh(srcMesh=driver, outMesh=rigidMesh)
+    print "\t %s ---> %s" % (driver, rigidMesh)
+    #-- Smooth Option --#
+    if smooth:
+        print "\t ---> Smooth %s" % rigidMesh
+        mc.polySmooth(rigidMesh)
     #-- Create Rigid --#
-    duplicateSelected(selObjects=mesh, name=rigidMesh)
     defaultName = rigidMesh.replace('_pass', '')
     if solver == "New Nucleus":
         #-- Create Cloth Group --#
         print "Checking Cloth Groups ..."
-        clothGrp = createClothGroups("GRP_%s" % defaultName)
+        if solverMethod == "One Nucleus By Mesh":
+            clothGrp = createClothGroups("GRP_%s" % defaultName)
+        else:
+            clothGrp = "|ALL|SIMU|CLOTH"
         #-- Create RigidNodes --#
         print "\t ---> New Nucleus"
         mc.select(rigidMesh, r=True)
         rigidNodes = pCloth.createNRigid(createNew=True)
         nucleus = pRigg.findTypeInHistory(rigidNodes[0], ['nucleus'], future=True, past=True)
-        nucleus = mc.rename(nucleus, "%s_nucleus" % defaultName)
+        if solverMethod == "One Nucleus By Mesh":
+            nucleus = mc.rename(nucleus, "%s_nucleus" % defaultName)
+        else:
+            nucleus = mc.rename(nucleus, "%s_nucleus" % defaultName.split('_')[0])
         mc.parent(nucleus, clothGrp)
-        #-- Create Passive Group --#
-        print "Checking Rigid Group ..."
-        rigidGrp = createRigidGroups(clothGrp, "%s_passive" % clothGrp)
     else:
         #-- Create RigidNodes --#
         print "\t ---> Use Nucleus: %s" % solver
@@ -358,10 +355,14 @@ def createRigid(driver, mesh, rigidMesh, rigidMode, solver):
         rigidNodes = pCloth.createNRigid(useNucleus=solver)
         nucleus = pRigg.findTypeInHistory(rigidNodes[0], ['nucleus'], future=True, past=True)[0]
         clothGrp = pRigg.listTransforms(nucleus)[0]
-        #-- Create Passive Group --#
-        print "Checking Rigid Group ..."
+    #-- Create Passive Group --#
+    print "Checking Rigid Group ..."
+    if solverMethod == "One Nucleus By Mesh":
         rigidGrp = createRigidGroups(clothGrp, "%s_passive" % clothGrp)
         createRigidGroups(clothGrp, "%s_component" % clothGrp)
+    else:
+        rigidGrp = createRigidGroups(clothGrp, "%s_passive" % nucleus.split('_')[0])
+        createRigidGroups(clothGrp, "%s_component" % nucleus.split('_')[0])
     rigidNode = pRigg.listTransforms(rigidNodes[0])
     rigidNode = mc.rename(rigidNode, "%s_nRigid" % defaultName)
     mc.parent(rigidMesh, rigidGrp)
@@ -369,10 +370,6 @@ def createRigid(driver, mesh, rigidMesh, rigidMode, solver):
     print "\t ---> Nucleus: %s" % nucleus
     print "\t ---> RigidNode: %s" % rigidNode
     print "\t ---> RigidMesh: %s" % rigidMesh
-    #-- Connect Driver --#
-    print "Connecting driver ..."
-    connectOutMesh(srcMesh=driver, outMesh=rigidMesh)
-    print "\t %s ---> %s" % (driver, rigidMesh)
     #-- Edit Mode --#
     print "Editing Rigid Node ..."
     paramRigidMode(rigidNode, rigidMode)
@@ -389,14 +386,28 @@ def _checkConstArgs(dynConst, constName):
     if mc.objExists(constName):
         raise ValueError, "!!! Dynamic constraint already exists: %s !!!" % constName
 
-def storeConstraint(dynConst, constName):
+def storeConstraint(dynConst, constName, solverMethod):
+    """ Store and rename dynamic constraint
+        :param dynConst: Dynamic constraint name
+        :type dynConst: str
+        :param constName: Dynamic constraint result name
+        :type constName: str
+        :param solverMethod: Solver method ('One Nucleus For All', 'One Nucleus By Mesh')
+        :type solverMethod: str """
     print "\n########## STORE CONSTRAINT ##########"
     #-- Verif Args --#
     print "Checking Values ..."
     _checkConstArgs(dynConst, constName)
     #-- Create Component Group --#
+    print "Checking Component Group ..."
     nucleus = findtype(dynConst, ['nucleus'])[0]
     clothGrp = getParentTransform(nucleus)[0]
-    constGrp = createRigidGroups(clothGrp, "%s_component" % clothGrp.replace('GRP_', ''))
+    if solverMethod == "One Nucleus By Mesh":
+        constGrp = createRigidGroups(clothGrp, "%s_component" % clothGrp)
+    else:
+        constGrp = createRigidGroups(clothGrp, "%s_component" % nucleus.split('_')[0])
+    #-- Store Const --#
+    print "Storing Constraint ..."
     const = mc.rename(dynConst, constName)
     mc.parent(const, constGrp)
+    print "\t ---> %s" % const
