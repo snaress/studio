@@ -1,3 +1,4 @@
+from tools.maya.cmds import pRigg
 from lib.system import procMath as pMath
 try:
     import maya.cmds as mc
@@ -140,3 +141,115 @@ def polySelectTraverse(traversal=1):
                 result = mc.polyListComponentConversion(fuv=True, tuv=True)
                 if result:
                     mc.polySelectConstraint(pp=traversal, t=0x0010)
+
+def duplicateSelected(selObjects=None, name=None, worldParent=True):
+    """ Duplicate and parent to world selected objects
+        :param selObjects: Objects to duplicate.
+                           If None, duplicate selected scene nodes.
+        :type selObjects: str | list
+        :param name: New object name
+        :type name: str
+        :param worldParent: Parent new object to world
+        :type worldParent: bool
+        :return: Duplicate objects
+        :rtype: list """
+    #-- Check Object List --#
+    if selObjects is None:
+        objectList = mc.ls(sl=True)
+    else:
+        if isinstance(selObjects, str):
+            objectList = [selObjects]
+        else:
+            objectList = selObjects
+    #-- Duplicate Objects --#
+    cpList = []
+    for obj in objectList:
+        if name is None:
+            cpName = "%s__cp#" % obj.split(':')[-1].split('__')[0]
+        else:
+            cpName = name
+        cpObject = mc.duplicate(obj, n=cpName)
+        newName = cpObject[0]
+        #-- Parent To World --#
+        if worldParent:
+            if mc.listRelatives(cpObject[0], p=True) is not None:
+                newName = mc.parent(cpObject[0], w=True)
+        cpList.append(newName)
+    return cpList
+
+def connectOutMesh(srcMesh=None, outMesh=None, force=True):
+    """ Connect srcMesh.outMesh to outMesh.inMesh
+        :param srcMesh: Source mesh
+        :type srcMesh: str
+        :param outMesh: Out mesh
+        :type outMesh: str
+        :param force: Force connection
+        :type force: True """
+    #-- Check Object List --#
+    if srcMesh is None and outMesh is None:
+        selObjects = mc.ls(sl=True)
+        if not selObjects:
+            print "!!! Error: Select srcMesh, then outMesh !!!"
+        else:
+            srcMesh = selObjects[0]
+            outMesh = selObjects[1]
+    #-- Connect Attr --#
+    ind = pRigg.getNextFreeMultiIndex("%s.worldMesh" % srcMesh)
+    mc.connectAttr("%s.worldMesh[%s]" % (srcMesh, ind), "%s.inMesh" % outMesh, f=force)
+    print "// Connect %s.worldMesh ---> %s.inMesh" % (srcMesh, outMesh)
+
+def updateOutMesh(srcMesh=None, outMesh=None, force=True):
+    """ Update given outMesh, then remove connection
+        :param srcMesh: Source mesh
+        :type srcMesh: str
+        :param outMesh: Out mesh
+        :type outMesh: str
+        :param force: Force connection
+        :type force: True """
+    #-- Check Object List --#
+    if srcMesh is None and outMesh is None:
+        selObjects = mc.ls(sl=True)
+        print selObjects
+        if not selObjects:
+            print "!!! Error: Select srcMesh, then outMesh !!!"
+        else:
+            srcMesh = selObjects[0]
+            outMesh = selObjects[1]
+    #-- Update Mesh --#
+    connectOutMesh(srcMesh, outMesh, force=force)
+    mc.refresh()
+    mc.disconnectAttr("%s.outMesh" % srcMesh, "%s.inMesh" % outMesh)
+    print "// Update %s.outMesh ---> %s.inMesh" % (srcMesh, outMesh)
+
+def createOutMesh(selObjects=None, name=None, worldParent=True):
+    """ Create outMesh from selected objects
+        :param selObjects: Objects to duplicate and connect.
+                           If None, duplicate selected scene nodes.
+        :type selObjects: str | list
+        :param name: New object name
+        :type name: str
+        :param worldParent: Parent new object to world
+        :type worldParent: bool
+        :return: OutMesh objects
+        :rtype: list """
+    #-- Check Object List --#
+    if selObjects is None:
+        selObjects = mc.ls(sl=True)
+    else:
+        if isinstance(selObjects, str):
+            selObjects = [selObjects]
+    #-- Create OutMesh --#
+    outList = []
+    for obj in selObjects:
+        if name is None:
+            outName = "%s__out#" % obj.split(':')[-1].split('__')[0]
+        else:
+            outName = name
+        outMesh = duplicateSelected(selObjects=str(obj), name=str(outName), worldParent=worldParent)[0]
+        if isinstance(outMesh, list):
+            connectOutMesh(srcMesh=str(obj), outMesh=str(outMesh[0]))
+            outList.append(outMesh[0])
+        else:
+            connectOutMesh(srcMesh=str(obj), outMesh=str(outMesh))
+            outList.append(outMesh)
+    return outList
