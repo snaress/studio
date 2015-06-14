@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mwGrapher</class>
+ <widget class="QMainWindow" name="mwGrapher">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QGraphicsView" name="gvGraphZone"/>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="mWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <widget class="QMenu" name="mToolBarOptions">
+     <property name="title">
+      <string>ToolBar Options</string>
+     </property>
+     <widget class="QMenu" name="mTools">
+      <property name="title">
+       <string>Tools</string>
+      </property>
+      <widget class="QMenu" name="mOrientation">
+       <property name="title">
+        <string>Orientation</string>
+       </property>
+       <addaction name="miNorth"/>
+       <addaction name="miSouth"/>
+       <addaction name="miWest"/>
+       <addaction name="miEast"/>
+      </widget>
+      <addaction name="mOrientation"/>
+     </widget>
+     <addaction name="mTools"/>
+    </widget>
+    <addaction name="mToolBarOptions"/>
+   </widget>
+   <widget class="QMenu" name="mHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="mEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="miConnectNodes"/>
+   </widget>
+   <addaction name="mEdit"/>
+   <addaction name="mWindow"/>
+   <addaction name="mHelp"/>
+  </widget>
+  <widget class="QToolBar" name="tbTools">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>RightToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+  </widget>
+  <action name="miNorth">
+   <property name="text">
+    <string>North</string>
+   </property>
+  </action>
+  <action name="miSouth">
+   <property name="text">
+    <string>South</string>
+   </property>
+  </action>
+  <action name="miWest">
+   <property name="text">
+    <string>West</string>
+   </property>
+  </action>
+  <action name="miEast">
+   <property name="text">
+    <string>East</string>
+   </property>
+  </action>
+  <action name="miConnectNodes">
+   <property name="text">
+    <string>Connect Nodes</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
