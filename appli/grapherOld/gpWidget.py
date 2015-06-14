@@ -2,7 +2,7 @@ from PyQt4 import QtGui, QtCore
 from functools import partial
 from lib.qt import procQt as pQt
 from lib.qt import textEditor, scriptEditor
-from appli.grapher.ui import wgVariablesUI, nodeEditorUI
+from appli.grapherOld.ui import wgVariablesUI, nodeEditorUI
 
 
 class Comment(textEditor.TextEditor):

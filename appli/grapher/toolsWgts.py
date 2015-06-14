@@ -1,8 +1,7 @@
-import os
+import os, random
 from PyQt4 import QtGui, QtCore
-from lib.system import procFile as pFile
-from appli.grapher2.ui import wgToolsTabUI
-from appli.grapher2 import graphWgts as gpWgts
+from appli.grapher.ui import wgToolsTabUI
+from appli.grapher import graphWgts as gpWgts
 
 
 class ToolsBar(QtGui.QTabWidget):
@@ -15,14 +14,19 @@ class ToolsBar(QtGui.QTabWidget):
         self._setupUi()
 
     def _setupUi(self):
-        self.rf_tabs()
+        self.addTabs()
         self.tabOrientation('West')
 
-    def rf_tabs(self):
+    def addTabs(self):
         self.clear()
-        newTab = TabUtil(mainUi=self.mainUi)
-        self.insertTab(-1, newTab, 'util')
-        self.tabs.append(newTab)
+        #-- Tab Mode --#
+        tabMode = TabMode(mainUi=self.mainUi)
+        self.insertTab(-1, tabMode, 'Mode')
+        self.tabs.append(tabMode)
+        #-- Tab Util --#
+        tabUtil = TabUtil(mainUi=self.mainUi)
+        self.insertTab(-1, tabUtil, 'Util')
+        self.tabs.append(tabUtil)
 
     def tabOrientation(self, orient):
         if orient == 'North':
@@ -44,7 +48,6 @@ class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
 
     def __init__(self, **kwargs):
         self.mainUi = kwargs['mainUi']
-        self.graphScene = self.mainUi.graphScene
         super(ToolsTab, self).__init__()
         self.setupUi(self)
 
@@ -71,6 +74,12 @@ class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
         self.vlTools.insertWidget(0, newTools[1])
 
 
+class TabMode(ToolsTab):
+
+    def __init__(self, **kwargs):
+        super(TabMode, self).__init__(**kwargs)
+
+
 class TabUtil(ToolsTab):
 
     def __init__(self, **kwargs):
@@ -87,8 +96,9 @@ class TabUtil(ToolsTab):
     def createMayaNode(self):
         iconFile = os.path.join(self.mainUi.iconPath, "baseNode.svg")
         newNode = gpWgts.GraphNode(self.mainUi, iconFile)
-        newNode.nodeName = self.graphScene.getNextNameIndex("maya_node")
+        newNode.nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
         newNode.nodeLabel = "Maya Node"
-        self.graphScene.addItem(newNode)
+        newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
+        self.mainUi.currentGraphScene.addItem(newNode)
 
 

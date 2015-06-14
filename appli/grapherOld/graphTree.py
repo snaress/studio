@@ -1,7 +1,7 @@
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
-from appli.grapher.ui import graphNodeUI
+from appli.grapherOld.ui import graphNodeUI
 
 
 class GraphTree(QtGui.QTreeWidget):

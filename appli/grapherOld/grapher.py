@@ -1,5 +1,5 @@
 import os
-from appli import grapher
+from appli import grapherOld
 from lib.system import procFile as pFile
 
 
@@ -170,8 +170,8 @@ class Grapher(object):
     def _createLockFile(self, lockFile):
         """ Create lockFile
             :param lockFile: (str) : LockFile absolute path """
-        lockTxt = ["user = %r" % grapher.user,
-                   "station = %r" % grapher.station,
+        lockTxt = ["user = %r" % grapherOld.user,
+                   "station = %r" % grapherOld.station,
                    "date = %r" % pFile.getDate(),
                    "time = %r" % pFile.getTime()]
         try:

@@ -1,5 +1,30 @@
 import os, math
 from PyQt4 import QtGui, QtSvg, QtCore
+from appli.grapher.ui import wgGraphZoneUI
+
+
+class GraphZone(QtGui.QWidget, wgGraphZoneUI.Ui_wgGraphZone):
+
+    def __init__(self, mainUi, graphScene):
+        super(GraphZone, self).__init__()
+        self.mainUi = mainUi
+        self.graphScene = graphScene
+        self._setupUi()
+
+    def _setupUi(self):
+        self.setupUi(self)
+        self.gvGraphZone.setScene(self.graphScene)
+        self.gvGraphZone.setSceneRect(0, 0, 1000, 1000)
+        self.gvGraphZone.wheelEvent = self.graphZoneWheelEvent
+        self.gvGraphZone.resizeEvent = self.graphZoneResizeEvent
+        self.gvGraphZone.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(60, 60, 60, 255), QtCore.Qt.SolidPattern))
+
+    def graphZoneWheelEvent(self, event):
+        factor = 1.41 ** ((event.delta()*.5) / 240.0)
+        self.gvGraphZone.scale(factor, factor)
+
+    def graphZoneResizeEvent(self, event):
+        self.graphScene.setSceneRect(0, 0, self.gvGraphZone.width(), self.gvGraphZone.height())
 
 
 class GraphScene(QtGui.QGraphicsScene):
@@ -52,19 +77,6 @@ class GraphScene(QtGui.QGraphicsScene):
             ind = str(max(indList) + 1)
         return "%s_%s" % (name, ind)
 
-    def connectNodes(self):
-        if len(self.selBuffer['_order']) == 2:
-            startNode = self.selBuffer[self.selBuffer['_order'][0]]
-            startItem = startNode.outConnectionNode
-            endNode = self.selBuffer[self.selBuffer['_order'][1]]
-            endItem = endNode.inConnectionNode
-            connectionLine = LineConnection(startItem, endItem)
-            self.addItem(connectionLine)
-
-    def selectionArea(self):
-        print 'toto'
-        super(GraphScene, self).selectionArea()
-
     def mousePressEvent(self, event):
         item = self.itemAt(event.scenePos())
         if item is not None and hasattr(item, 'nodeType'):
@@ -111,7 +123,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
 
     def __init__(self, mainUi, iconFile, parent=None):
         self.mainUi = mainUi
-        self.graphScene = self.mainUi.graphScene
+        self.graphScene = self.mainUi.currentGraphScene
         self.iconFile = iconFile
         self.nodeType = "node"
         self.nodeName = "node_1"

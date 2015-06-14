@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>1000</width>
     <height>600</height>
    </rect>
   </property>
@@ -15,12 +15,36 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QGraphicsView" name="gvGraphZone"/>
-      </item>
-     </layout>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QWidget" name="verticalLayoutWidget">
+       <layout class="QVBoxLayout" name="vlTree">
+        <item>
+         <widget class="QTreeWidget" name="twTree">
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QTabWidget" name="tabGraph">
+       <property name="currentIndex">
+        <number>-1</number>
+       </property>
+      </widget>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -29,7 +53,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1000</width>
      <height>21</height>
     </rect>
    </property>
@@ -37,28 +61,16 @@
     <property name="title">
      <string>Window</string>
     </property>
-    <widget class="QMenu" name="mToolBarOptions">
+    <widget class="QMenu" name="mToolsBarOrientation">
      <property name="title">
-      <string>ToolBar Options</string>
+      <string>Tools Bar Orientation</string>
      </property>
-     <widget class="QMenu" name="mTools">
-      <property name="title">
-       <string>Tools</string>
-      </property>
-      <widget class="QMenu" name="mOrientation">
-       <property name="title">
-        <string>Orientation</string>
-       </property>
-       <addaction name="miNorth"/>
-       <addaction name="miSouth"/>
-       <addaction name="miWest"/>
-       <addaction name="miEast"/>
-      </widget>
-      <addaction name="mOrientation"/>
-     </widget>
-     <addaction name="mTools"/>
+     <addaction name="miNorth"/>
+     <addaction name="miSouth"/>
+     <addaction name="miWest"/>
+     <addaction name="miEast"/>
     </widget>
-    <addaction name="mToolBarOptions"/>
+    <addaction name="mToolsBarOrientation"/>
    </widget>
    <widget class="QMenu" name="mHelp">
     <property name="title">
@@ -69,6 +81,7 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="miAddGraphZone"/>
     <addaction name="miConnectNodes"/>
    </widget>
    <addaction name="mEdit"/>
@@ -83,9 +96,34 @@
     <enum>RightToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
   </widget>
+  <action name="miNorth2">
+   <property name="text">
+    <string>North</string>
+   </property>
+  </action>
+  <action name="miSouth2">
+   <property name="text">
+    <string>South</string>
+   </property>
+  </action>
+  <action name="miWest2">
+   <property name="text">
+    <string>West</string>
+   </property>
+  </action>
+  <action name="miEast2">
+   <property name="text">
+    <string>East</string>
+   </property>
+  </action>
+  <action name="miConnectNodes">
+   <property name="text">
+    <string>Connect Nodes</string>
+   </property>
+  </action>
   <action name="miNorth">
    <property name="text">
     <string>North</string>
@@ -106,9 +144,9 @@
     <string>East</string>
    </property>
   </action>
-  <action name="miConnectNodes">
+  <action name="miAddGraphZone">
    <property name="text">
-    <string>Connect Nodes</string>
+    <string>Add GraphZone</string>
    </property>
   </action>
  </widget>
