@@ -57,9 +57,9 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="mWindow">
+   <widget class="QMenu" name="mPref">
     <property name="title">
-     <string>Window</string>
+     <string>Pref</string>
     </property>
     <widget class="QMenu" name="mToolsBarOrientation">
      <property name="title">
@@ -70,6 +70,25 @@
      <addaction name="miWest"/>
      <addaction name="miEast"/>
     </widget>
+    <widget class="QMenu" name="mToolBarOrientation">
+     <property name="title">
+      <string>ToolBar Orientation</string>
+     </property>
+     <addaction name="miHorizontal"/>
+     <addaction name="miVertical"/>
+    </widget>
+    <widget class="QMenu" name="mStyle">
+     <property name="title">
+      <string>Style</string>
+     </property>
+     <addaction name="miDefaultStyle"/>
+     <addaction name="miDarkOrange"/>
+     <addaction name="miDarkGrey"/>
+     <addaction name="miRedGrey"/>
+    </widget>
+    <addaction name="mStyle"/>
+    <addaction name="separator"/>
+    <addaction name="mToolBarOrientation"/>
     <addaction name="mToolsBarOrientation"/>
    </widget>
    <widget class="QMenu" name="mHelp">
@@ -85,10 +104,16 @@
     <addaction name="miConnectNodes"/>
    </widget>
    <addaction name="mEdit"/>
-   <addaction name="mWindow"/>
+   <addaction name="mPref"/>
    <addaction name="mHelp"/>
   </widget>
   <widget class="QToolBar" name="tbTools">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -147,6 +172,36 @@
   <action name="miAddGraphZone">
    <property name="text">
     <string>Add GraphZone</string>
+   </property>
+  </action>
+  <action name="miHorizontal">
+   <property name="text">
+    <string>Horizontal</string>
+   </property>
+  </action>
+  <action name="miVertical">
+   <property name="text">
+    <string>Vertical</string>
+   </property>
+  </action>
+  <action name="miDefaultStyle">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="miDarkOrange">
+   <property name="text">
+    <string>Dark Orange</string>
+   </property>
+  </action>
+  <action name="miDarkGrey">
+   <property name="text">
+    <string>Dark Grey</string>
+   </property>
+  </action>
+  <action name="miRedGrey">
+   <property name="text">
+    <string>Red Grey</string>
    </property>
   </action>
  </widget>

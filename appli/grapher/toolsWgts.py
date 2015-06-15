@@ -1,4 +1,4 @@
-import os, random
+import random
 from PyQt4 import QtGui, QtCore
 from appli.grapher.ui import wgToolsTabUI
 from appli.grapher import graphWgts as gpWgts
@@ -7,13 +7,15 @@ from appli.grapher import graphWgts as gpWgts
 class ToolsBar(QtGui.QTabWidget):
 
     def __init__(self, **kwargs):
+        super(ToolsBar, self).__init__()
         self.mainUi = kwargs['mainUi']
+        self.log = self.mainUi.log
         self.pWidget = self.mainUi.tbTools
         self.tabs = []
-        super(ToolsBar, self).__init__()
         self._setupUi()
 
     def _setupUi(self):
+        self.log.debug("---> Setup Tools Bar ...")
         self.addTabs()
         self.tabOrientation('West')
 
@@ -47,8 +49,8 @@ class ToolsBar(QtGui.QTabWidget):
 class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
 
     def __init__(self, **kwargs):
-        self.mainUi = kwargs['mainUi']
         super(ToolsTab, self).__init__()
+        self.mainUi = kwargs['mainUi']
         self.setupUi(self)
 
     def setOrientation(self, orient):
@@ -87,18 +89,24 @@ class TabUtil(ToolsTab):
         self._addTools()
 
     def _addTools(self):
+        self.newTool('CreateSvgNode', cmd=self.createSvgNode, iconFile=None)
         self.newTool('CreateMayaNode', cmd=self.createMayaNode, iconFile="icon/toolCreateMayaNode.png")
         self.newTool('CreateAssetNode', cmd=self.createAssetNode, iconFile="icon/toolCreateAssetNode.png")
 
     def createAssetNode(self):
-        print 'new asset'
-
-    def createMayaNode(self):
-        iconFile = os.path.join(self.mainUi.iconPath, "baseNode.svg")
-        newNode = gpWgts.GraphNode(self.mainUi, iconFile)
-        newNode.nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
-        newNode.nodeLabel = "Maya Node"
+        nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_node")
+        newNode = gpWgts.AssetNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
 
+    def createMayaNode(self):
+        nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
+        newNode = gpWgts.MayaNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
+        self.mainUi.currentGraphScene.addItem(newNode)
 
+    def createSvgNode(self):
+        nodeName = self.mainUi.currentGraphScene.getNextNameIndex("svg_node")
+        newNode = gpWgts.SvgNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
+        self.mainUi.currentGraphScene.addItem(newNode)

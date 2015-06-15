@@ -1,4 +1,4 @@
-import os, math
+import math
 from PyQt4 import QtGui, QtSvg, QtCore
 from appli.grapher.ui import wgGraphZoneUI
 
@@ -8,10 +8,12 @@ class GraphZone(QtGui.QWidget, wgGraphZoneUI.Ui_wgGraphZone):
     def __init__(self, mainUi, graphScene):
         super(GraphZone, self).__init__()
         self.mainUi = mainUi
+        self.log = self.mainUi.log
         self.graphScene = graphScene
         self._setupUi()
 
     def _setupUi(self):
+        self.log.debug("---> Setup GraphZone ...")
         self.setupUi(self)
         self.gvGraphZone.setScene(self.graphScene)
         self.gvGraphZone.setSceneRect(0, 0, 1000, 1000)
@@ -30,12 +32,14 @@ class GraphZone(QtGui.QWidget, wgGraphZoneUI.Ui_wgGraphZone):
 class GraphScene(QtGui.QGraphicsScene):
 
     def __init__(self, mainUi):
-        self.mainUi = mainUi
         super(GraphScene, self).__init__()
+        self.mainUi = mainUi
+        self.log = self.mainUi.log
         self._setupUi()
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
+        self.log.debug("---> Setup GraphScene ...")
         self.line = None
         self.selBuffer = {'_order': []}
         self.connections = []
@@ -54,22 +58,26 @@ class GraphScene(QtGui.QGraphicsScene):
     def getAllNodes(self):
         items = []
         for item in self.items():
-            if hasattr(item, 'nodeType'):
-                if item.nodeType == "node":
+            if hasattr(item, '_type'):
+                if item._type == "nodeBase":
                     items.append(item)
         return items
 
     def getSelectedNodes(self):
         items = []
         for item in self.selectedItems():
-            if item.nodeType == "node":
-                items.append(item)
+            if hasattr(item, '_type'):
+                if item._type == "nodeBase":
+                    items.append(item)
         return items
 
     def getNextNameIndex(self, name):
         indList = []
+        checkName = name
+        if name.split('_')[-1].isdigit():
+            checkName = '_'.join(name.split('_')[:-1])
         for item in self.getAllNodes():
-            if item.nodeName.startswith(name):
+            if item.nodeName.startswith(checkName):
                 indList.append(int(item.nodeName.split('_')[-1]))
         if not indList:
             ind = "1"
@@ -79,14 +87,14 @@ class GraphScene(QtGui.QGraphicsScene):
 
     def mousePressEvent(self, event):
         item = self.itemAt(event.scenePos())
-        if item is not None and hasattr(item, 'nodeType'):
-            if event.button() == QtCore.Qt.LeftButton and item.nodeType == 'nodeConnection':
+        if item is not None and hasattr(item, '_type'):
+            if event.button() == QtCore.Qt.LeftButton and item._type == 'nodeConnection':
                 self.line = QtGui.QGraphicsLineItem(QtCore.QLineF(event.scenePos(), event.scenePos()))
                 self.addItem(self.line)
         super(GraphScene, self).mousePressEvent(event)
         #-- Check Node ElementId State --#
         for node in self.getAllNodes():
-            if node.nodeType == "node":
+            if node._type == "nodeBase":
                 if not node.isSelected():
                     node.setElementId("regular")
 
@@ -109,8 +117,8 @@ class GraphScene(QtGui.QGraphicsScene):
             self.removeItem(self.line)
             #-- Draw Line --#
             if startItems and endItems:
-                if hasattr(startItems[0], 'nodeType') and hasattr(endItems[0], 'nodeType'):
-                    if startItems[0].nodeType == 'nodeConnection' and endItems[0].nodeType == 'nodeConnection':
+                if hasattr(startItems[0], '_type') and hasattr(endItems[0], '_type'):
+                    if startItems[0]._type == 'nodeConnection' and endItems[0]._type == 'nodeConnection':
                         if not startItems[0].isInputConnection and endItems[0].isInputConnection:
                             connectionLine = LineConnection(startItems[0], endItems[0])
                             self.addItem(connectionLine)
@@ -121,14 +129,15 @@ class GraphScene(QtGui.QGraphicsScene):
 
 class GraphNode(QtSvg.QGraphicsSvgItem):
 
-    def __init__(self, mainUi, iconFile, parent=None):
-        self.mainUi = mainUi
-        self.graphScene = self.mainUi.currentGraphScene
-        self.iconFile = iconFile
-        self.nodeType = "node"
-        self.nodeName = "node_1"
-        self.nodeLabel = "Node_1"
-        super(GraphNode, self).__init__(self.iconFile, parent)
+    def __init__(self, **kwargs):
+        self.mainUi = kwargs['mainUi']
+        self._type = "nodeBase"
+        self.nodeName = kwargs['nodeName']
+        if not 'nodeLabel' in kwargs.keys():
+            self.nodeLabel = self.nodeName
+        else:
+            self.nodeLable = kwargs['nodeLabel']
+        super(GraphNode, self).__init__(self.iconFile)
         self.defaultBrush = QtGui.QPen()
         self._setupUi()
 
@@ -158,15 +167,22 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         self.addConnectionNodes()
 
     def addConnectionNodes(self):
-        connFile = os.path.join(self.mainUi.iconPath, "inConnection.svg")
-        self.outConnectionNode = NodeConnection(mainUi=self.mainUi, iconFile=connFile, parent=self)
-        self.outConnectionNode.setPos(self.width,
-                                      (self.height / 2) - (self.outConnectionNode.height / 2))
-        self.outConnectionNode.isInputConnection = False
-        self.inConnectionNode = NodeConnection(mainUi=self.mainUi, iconFile=connFile, parent=self)
-        self.inConnectionNode.setPos(0 - self.inConnectionNode.width,
-                                     (self.height / 2) - (self.inConnectionNode.height / 2))
-        self.inConnectionNode.isInputConnection = True
+        if self.hasInputFileConnection:
+            self.inputFileConnection = NodeConnection(mainUi=self.mainUi, nodeType='inputFileConnection',
+                                                      iconFile="icon/inputFileConnNode.svg", parent=self)
+            self.inputFileConnection.setPos(0 - self.inputFileConnection.width, 0)
+            self.inputFileConnection.isInputConnection = True
+        if self.hasInputDataConnection:
+            self.inputDataConnection = NodeConnection(mainUi=self.mainUi, nodeType='inputDataConnection',
+                                                      iconFile="icon/inputDataConnNode.svg", parent=self)
+            self.inputDataConnection.setPos(0 - self.inputDataConnection.width,
+                                            self.height - self.inputDataConnection.height)
+            self.inputDataConnection.isInputConnection = True
+        if self.hasOutputFileConnection:
+            self.outputFileConnection = NodeConnection(mainUi=self.mainUi, nodeType='outputFileConnection',
+                                                      iconFile="icon/outputFileConnNode.svg", parent=self)
+            self.outputFileConnection.setPos(self.width, (self.height / 2) - (self.outputFileConnection.height / 2))
+            self.outputFileConnection.isInputConnection = False
 
     def hoverMoveEvent(self, event):
         self.setElementId("hover")
@@ -185,7 +201,8 @@ class NodeConnection(QtSvg.QGraphicsSvgItem):
     def __init__(self, **kwargs):
         self.mainUi = kwargs['mainUi']
         self.iconFile = kwargs['iconFile']
-        self.nodeType = "nodeConnection"
+        self._type = "nodeConnection"
+        self.nodeType = kwargs['nodeType']
         self._parent = kwargs['parent']
         super(NodeConnection, self).__init__(self.iconFile, self._parent)
         self.isInputConnection = False
@@ -222,10 +239,10 @@ class NodeConnection(QtSvg.QGraphicsSvgItem):
 class LineConnection(QtGui.QGraphicsLineItem):
 
     def __init__(self, startNode, endNode):
+        super(LineConnection, self).__init__()
         self.startNode = startNode
         self.endNode = endNode
-        self.nodeType = 'lineConnection'
-        super(LineConnection, self).__init__()
+        self._type = 'lineConnection'
         self.lineColor = QtCore.Qt.black
         self.arrowHead = QtGui.QPolygonF()
         self.setZValue(-1.0)
@@ -260,6 +277,30 @@ class LineConnection(QtGui.QGraphicsLineItem):
         path.addPolygon(self.arrowHead)
         return path
 
+    def _arrowHeadCalculation(self, line, arrowSize):
+        try:
+            angle = math.acos(line.dx() / line.length())
+        except ZeroDivisionError:
+            angle = 0
+        if line.dy() >= 0:
+            angle = (math.pi * 2.0) - angle
+        #-- Arrow Direction --#
+        if self.startNode.isInputConnection:
+            revArrow = 1
+        else:
+            revArrow = -1
+        #-- Arrow Points --#
+        centerPoint = self.getCenterPoint()
+        arrowP1 = centerPoint + QtCore.QPointF(math.sin(angle + math.pi / 3.0) * arrowSize * revArrow,
+                                               math.cos(angle + math.pi / 3) * arrowSize * revArrow)
+        arrowP2 = centerPoint + QtCore.QPointF(math.sin(angle + math.pi - math.pi / 3.0) * arrowSize * revArrow,
+                                               math.cos(angle + math.pi - math.pi / 3.0) * arrowSize * revArrow)
+        #-- Clear arrowHead --#
+        self.arrowHead.clear()
+        #-- ArrowHead Polygon --#
+        for point in [centerPoint, arrowP1, arrowP2]:
+            self.arrowHead.append(point)
+
     def paint(self, painter, option, widget=None):
         arrowSize = 20.0
         line = self.getLine()
@@ -275,29 +316,41 @@ class LineConnection(QtGui.QGraphicsLineItem):
             painter.setPen(myPen)
         #-- Calculating Angle --#
         if line.length() > 0.0:
-            try:
-                angle = math.acos(line.dx() / line.length())
-            except ZeroDivisionError:
-                angle = 0
-            if line.dy() >= 0:
-                angle = (math.pi * 2.0) - angle
-            #-- Arrow Direction --#
-            if self.startNode.isInputConnection:
-                revArrow = 1
-            else:
-                revArrow = -1
-            #-- Arrow Points --#
-            centerPoint = self.getCenterPoint()
-            arrowP1 = centerPoint + QtCore.QPointF(math.sin(angle + math.pi / 3.0) * arrowSize * revArrow,
-                                                   math.cos(angle + math.pi / 3) * arrowSize * revArrow)
-            arrowP2 = centerPoint + QtCore.QPointF(math.sin(angle + math.pi - math.pi / 3.0) * arrowSize * revArrow,
-                                                   math.cos(angle + math.pi - math.pi / 3.0) * arrowSize * revArrow)
-            #-- Clear arrowHead --#
-            self.arrowHead.clear()
-            #-- ArrowHead Polygon --#
-            for point in [centerPoint, arrowP1, arrowP2]:
-                self.arrowHead.append(point)
+            self._arrowHeadCalculation(line, arrowSize)
             #-- Draw Line --#
             if line:
                 painter.drawPolygon(self.arrowHead)
                 painter.drawLine(line)
+
+
+class AssetNode(GraphNode):
+
+    def __init__(self, **kwargs):
+        self.iconFile = "icon/assetNode.svg"
+        self.nodeType = "assetNode"
+        self.hasInputFileConnection = False
+        self.hasInputDataConnection = False
+        self.hasOutputFileConnection = True
+        super(AssetNode, self).__init__(**kwargs)
+
+
+class MayaNode(GraphNode):
+
+    def __init__(self, **kwargs):
+        self.iconFile = "icon/mayaNode.svg"
+        self.nodeType = "mayaNode"
+        self.hasInputFileConnection = True
+        self.hasInputDataConnection = True
+        self.hasOutputFileConnection = True
+        super(MayaNode, self).__init__(**kwargs)
+
+
+class SvgNode(GraphNode):
+
+    def __init__(self, **kwargs):
+        self.iconFile = "icon/baseNode.svg"
+        self.nodeType = "svgNode"
+        self.hasInputFileConnection = True
+        self.hasInputDataConnection = False
+        self.hasOutputFileConnection = True
+        super(SvgNode, self).__init__(**kwargs)

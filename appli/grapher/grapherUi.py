@@ -1,31 +1,31 @@
 import sys
 from functools import partial
 from PyQt4 import QtGui, QtCore
-from appli import grapher
+from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from appli.grapher.ui import grapherUI
 from appli.grapher import graphWgts as gpWgts
 from appli.grapher import toolsWgts as tlWgts
 
 
-class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
+class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
 
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="Grapher-UI", level=logLvl)
         self.log.info("#-- Launching Grapher Ui --#")
-        self.iconPath = grapher.iconPath
         super(GrapherUi, self).__init__()
         self._setupUi()
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
+        self.log.debug("---> Setup Main Ui ...")
         self.setupUi(self)
         #-- GraphZone --#
         self.on_addGraphZone()
         #-- GraphTools --#
         self.graphTools = tlWgts.ToolsBar(mainUi=self)
         self.tbTools.addWidget(self.graphTools)
-        self.tbTools.orientationChanged.connect(self.toolBarOrientChanged)
+        self.tbTools.orientationChanged.connect(partial(self.toolBarOrientChanged, orient=False, force=False))
         #-- GraphMenu --#
         self._setupMenu()
 
@@ -33,9 +33,16 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def _setupMenu(self):
         #-- Menu Edit --#
         self.miAddGraphZone.triggered.connect(self.on_addGraphZone)
+        self.miAddGraphZone.setShortcut("Ctrl+N")
         self.miConnectNodes.triggered.connect(self.on_connectNodes)
         self.miConnectNodes.setShortcut("C")
-        #-- Menu Window --#
+        #-- Menu Pref --#
+        self.miDefaultStyle.triggered.connect(partial(self.on_StyleOption, styleName='default'))
+        self.miDarkOrange.triggered.connect(partial(self.on_StyleOption, styleName='darkOrange'))
+        self.miDarkGrey.triggered.connect(partial(self.on_StyleOption, styleName='darkGrey'))
+        self.miRedGrey.triggered.connect(partial(self.on_StyleOption, styleName='redGrey'))
+        self.miHorizontal.triggered.connect(partial(self.toolBarOrientChanged, orient='horizontal', force=True))
+        self.miVertical.triggered.connect(partial(self.toolBarOrientChanged, orient='vertical', force=True))
         self.miNorth.triggered.connect(partial(self.graphTools.tabOrientation, 'North'))
         self.miSouth.triggered.connect(partial(self.graphTools.tabOrientation, 'South'))
         self.miWest.triggered.connect(partial(self.graphTools.tabOrientation, 'West'))
@@ -63,7 +70,18 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
             connectionLine = gpWgts.LineConnection(startItem, endItem)
             self.currentGraphScene.addItem(connectionLine)
 
-    def toolBarOrientChanged(self):
+    def on_StyleOption(self, styleName='default'):
+        if styleName == 'default':
+            self.setStyleSheet("")
+        else:
+            self.setStyleSheet(self.applyStyle(styleName=styleName))
+
+    def toolBarOrientChanged(self, orient=False, force=False):
+        if force:
+            if orient == 'horizontal':
+                self.tbTools.setOrientation(QtCore.Qt.Horizontal)
+            elif orient == 'vertical':
+                self.tbTools.setOrientation(QtCore.Qt.Vertical)
         if self.tbTools.orientation() == 1:
             self.graphTools.tabOrientation('North')
         else:

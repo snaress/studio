@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher2\ud\wgToolsTab.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\ud\wgToolsTab.ui'
 #
-# Created: Sun Jun 14 02:44:41 2015
+# Created: Sun Jun 14 15:27:22 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgToolsTab(object):
     def setupUi(self, wgToolsTab):
         wgToolsTab.setObjectName(_fromUtf8("wgToolsTab"))
-        wgToolsTab.resize(469, 71)
+        wgToolsTab.resize(952, 255)
         self.gridLayout = QtGui.QGridLayout(wgToolsTab)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
@@ -37,7 +37,7 @@ class Ui_wgToolsTab(object):
         self.saHorizontal.setWidgetResizable(True)
         self.saHorizontal.setObjectName(_fromUtf8("saHorizontal"))
         self.saWidgetHorizontal = QtGui.QWidget()
-        self.saWidgetHorizontal.setGeometry(QtCore.QRect(0, 0, 317, 53))
+        self.saWidgetHorizontal.setGeometry(QtCore.QRect(0, 0, 800, 53))
         self.saWidgetHorizontal.setObjectName(_fromUtf8("saWidgetHorizontal"))
         self.gridLayout_2 = QtGui.QGridLayout(self.saWidgetHorizontal)
         self.gridLayout_2.setMargin(0)
@@ -61,7 +61,7 @@ class Ui_wgToolsTab(object):
         self.saVertical.setWidgetResizable(True)
         self.saVertical.setObjectName(_fromUtf8("saVertical"))
         self.saWidgetVertical = QtGui.QWidget()
-        self.saWidgetVertical.setGeometry(QtCore.QRect(0, 0, 148, 69))
+        self.saWidgetVertical.setGeometry(QtCore.QRect(0, 0, 148, 253))
         self.saWidgetVertical.setObjectName(_fromUtf8("saWidgetVertical"))
         self.gridLayout_3 = QtGui.QGridLayout(self.saWidgetVertical)
         self.gridLayout_3.setMargin(0)

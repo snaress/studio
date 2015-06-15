@@ -11,14 +11,12 @@ toolPack = __package__
 #-- Global Var --#
 user = os.environ.get('username')
 station = os.environ.get('computername')
-iconPath = os.path.join(toolPath, 'icon')
 
 
 #-- Show Info --#
 print '########## %s ##########' % toolName.upper()
 print 'Tool Path : ', toolPath
 print 'Tool Package : ', toolPack
-print 'Icon Path : ', iconPath
 print '#%s#' % ('-'*(22+len(toolName)))
 print 'User : ', user
 print 'Station : ', station

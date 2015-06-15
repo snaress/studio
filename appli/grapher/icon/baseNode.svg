@@ -5,7 +5,8 @@
 	 width="150px" height="75px" viewBox="0 0 150 75" enable-background="new 0 0 150 75" xml:space="preserve">
 <g id="selected">
 	<rect fill="#00AEEF" width="150" height="75"/>
-	<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="5.8433" y1="37.7705" x2="144.8672" y2="37.7705">
+	
+		<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="351.8027" y1="-222.9307" x2="490.8271" y2="-222.9307" gradientTransform="matrix(1 0 0 -1 -345.96 -185.1602)">
 		<stop  offset="0" style="stop-color:#333333"/>
 		<stop  offset="1" style="stop-color:#CCCCCC"/>
 	</linearGradient>
@@ -14,7 +15,8 @@
 </g>
 <g id="hover">
 	<rect fill="#FFF200" width="150" height="75"/>
-	<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="5.8433" y1="37.7705" x2="144.8672" y2="37.7705">
+	
+		<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="351.8027" y1="-222.9307" x2="490.8271" y2="-222.9307" gradientTransform="matrix(1 0 0 -1 -345.96 -185.1602)">
 		<stop  offset="0" style="stop-color:#333333"/>
 		<stop  offset="1" style="stop-color:#CCCCCC"/>
 	</linearGradient>
@@ -22,12 +24,14 @@
 		<rect x="5.843" y="5.628" fill="url(#SVGID_2_)" stroke="#000000" stroke-width="0.5" stroke-miterlimit="10" width="139.024" height="64.285"/>
 </g>
 <g id="regular">
-	<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="0" y1="37.5" x2="150" y2="37.5">
+	
+		<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="345.96" y1="-222.6602" x2="495.96" y2="-222.6602" gradientTransform="matrix(1 0 0 -1 -345.96 -185.1602)">
 		<stop  offset="0" style="stop-color:#CCCCCC"/>
 		<stop  offset="1" style="stop-color:#333333"/>
 	</linearGradient>
 	<rect fill="url(#SVGID_3_)" width="150" height="75"/>
-	<linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="5.8433" y1="37.7705" x2="144.8672" y2="37.7705">
+	
+		<linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="351.8027" y1="-222.9307" x2="490.8271" y2="-222.9307" gradientTransform="matrix(1 0 0 -1 -345.96 -185.1602)">
 		<stop  offset="0" style="stop-color:#333333"/>
 		<stop  offset="1" style="stop-color:#CCCCCC"/>
 	</linearGradient>
