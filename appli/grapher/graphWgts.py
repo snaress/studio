@@ -1,32 +1,29 @@
-import math
+import math, pprint
 from PyQt4 import QtGui, QtSvg, QtCore
-from appli.grapher.ui import wgGraphZoneUI
+# from appli.grapher import grapherTest as gpTest
 
 
-class GraphZone(QtGui.QWidget, wgGraphZoneUI.Ui_wgGraphZone):
-
+class GraphZone(QtGui.QGraphicsView):
     def __init__(self, mainUi, graphScene):
         super(GraphZone, self).__init__()
         self.mainUi = mainUi
         self.log = self.mainUi.log
         self.graphScene = graphScene
+        self.ctrlKey = False
         self._setupUi()
 
     def _setupUi(self):
         self.log.debug("---> Setup GraphZone ...")
-        self.setupUi(self)
-        self.gvGraphZone.setScene(self.graphScene)
-        self.gvGraphZone.setSceneRect(0, 0, 1000, 1000)
-        self.gvGraphZone.wheelEvent = self.graphZoneWheelEvent
-        self.gvGraphZone.resizeEvent = self.graphZoneResizeEvent
-        self.gvGraphZone.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(60, 60, 60, 255), QtCore.Qt.SolidPattern))
+        self.setScene(self.graphScene)
+        self.setSceneRect(0, 0, 10000, 10000)
+        self.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(60, 60, 60, 255), QtCore.Qt.SolidPattern))
 
-    def graphZoneWheelEvent(self, event):
+    def wheelEvent(self, event):
         factor = 1.41 ** ((event.delta()*.5) / 240.0)
-        self.gvGraphZone.scale(factor, factor)
+        self.scale(factor, factor)
 
-    def graphZoneResizeEvent(self, event):
-        self.graphScene.setSceneRect(0, 0, self.gvGraphZone.width(), self.gvGraphZone.height())
+    def resizeEvent(self, event):
+        self.graphScene.setSceneRect(0, 0, self.width(), self.height())
 
 
 class GraphScene(QtGui.QGraphicsScene):
@@ -40,9 +37,9 @@ class GraphScene(QtGui.QGraphicsScene):
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
         self.log.debug("---> Setup GraphScene ...")
+        self.ctrlKey = False
         self.line = None
         self.selBuffer = {'_order': []}
-        self.connections = []
         self.selectionChanged.connect(self._selectionChanged)
 
     def _selectionChanged(self):
@@ -85,6 +82,20 @@ class GraphScene(QtGui.QGraphicsScene):
             ind = str(max(indList) + 1)
         return "%s_%s" % (name, ind)
 
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Delete:
+            for item in self.selectedItems():
+                if item._type == 'lineConnection':
+                    item.deleteLine()
+                else:
+                    item.deleteNode()
+        if event.key() == QtCore.Qt.Key_Control:
+            self.ctrlKey = True
+
+    def keyReleaseEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Control:
+            self.ctrlKey = False
+
     def mousePressEvent(self, event):
         item = self.itemAt(event.scenePos())
         if item is not None and hasattr(item, '_type'):
@@ -121,6 +132,9 @@ class GraphScene(QtGui.QGraphicsScene):
                     if startItems[0]._type == 'nodeConnection' and endItems[0]._type == 'nodeConnection':
                         if not startItems[0].isInputConnection and endItems[0].isInputConnection:
                             connectionLine = LineConnection(startItems[0], endItems[0])
+                            startItems[0].connections.append(connectionLine)
+                            endItems[0].connections.append(connectionLine)
+                            # connectionLine = gpTest.LineConnection(startItems[0], endItems[0])
                             self.addItem(connectionLine)
                             connectionLine.updatePosition()
         self.line = None
@@ -154,6 +168,16 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
     def height(self):
         return self.nodeSize[1]
 
+    def getConnections(self):
+        cDict = {}
+        if self.hasInputFileConnection:
+            cDict['inputFile'] = self.inputFileConnection.connections
+        if self.hasInputDataConnection:
+            cDict['inputData'] = self.inputDataConnection.connections
+        if self.hasOutputFileConnection:
+            cDict['outputFile'] = self.outputFileConnection.connections
+        return cDict
+
     def _setupUi(self):
         self.defaultBrush.setWidth(2)
         self.defaultBrush.setColor(QtCore.Qt.white)
@@ -170,19 +194,39 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         if self.hasInputFileConnection:
             self.inputFileConnection = NodeConnection(mainUi=self.mainUi, nodeType='inputFileConnection',
                                                       iconFile="icon/inputFileConnNode.svg", parent=self)
-            self.inputFileConnection.setPos(0 - self.inputFileConnection.width, 0)
+            self.inputFileConnection.setPos(0 - self.inputFileConnection.width,
+                                            - (self.inputFileConnection.height / 2))
             self.inputFileConnection.isInputConnection = True
         if self.hasInputDataConnection:
             self.inputDataConnection = NodeConnection(mainUi=self.mainUi, nodeType='inputDataConnection',
                                                       iconFile="icon/inputDataConnNode.svg", parent=self)
             self.inputDataConnection.setPos(0 - self.inputDataConnection.width,
-                                            self.height - self.inputDataConnection.height)
+                                            self.height - (self.inputDataConnection.height / 2))
             self.inputDataConnection.isInputConnection = True
         if self.hasOutputFileConnection:
             self.outputFileConnection = NodeConnection(mainUi=self.mainUi, nodeType='outputFileConnection',
                                                       iconFile="icon/outputFileConnNode.svg", parent=self)
             self.outputFileConnection.setPos(self.width, (self.height / 2) - (self.outputFileConnection.height / 2))
             self.outputFileConnection.isInputConnection = False
+
+    def deleteNode(self):
+        #-- Delete Connections --#
+        cDict = self.getConnections()
+        for k, v in cDict.iteritems():
+            deletedItems = []
+            for item in v:
+                deletedItems.append(item)
+                item.deleteLine()
+            #-- Update Node connections --#
+            for item in deletedItems:
+                if k == 'inputFile':
+                    self.inputFileConnection.connections.remove(item)
+                elif k == 'inputData':
+                    self.inputDataConnection.connections.remove(item)
+                elif k == 'outputFile':
+                    self.outputFileConnection.connections.remove(item)
+        #-- Delete Node --#
+        self.scene().removeItem(self)
 
     def hoverMoveEvent(self, event):
         self.setElementId("hover")
@@ -196,8 +240,6 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
 
 class NodeConnection(QtSvg.QGraphicsSvgItem):
 
-    lineConnected = QtCore.pyqtSignal()
-
     def __init__(self, **kwargs):
         self.mainUi = kwargs['mainUi']
         self.iconFile = kwargs['iconFile']
@@ -205,8 +247,8 @@ class NodeConnection(QtSvg.QGraphicsSvgItem):
         self.nodeType = kwargs['nodeType']
         self._parent = kwargs['parent']
         super(NodeConnection, self).__init__(self.iconFile, self._parent)
+        self.connections = []
         self.isInputConnection = False
-        self.connectedLine = []
         self._setupUi()
 
     @property
@@ -262,8 +304,9 @@ class LineConnection(QtGui.QGraphicsLineItem):
 
     def updatePosition(self):
         self.setLine(self.getLine())
-        self.startNode.connectedLine.append(self)
-        self.endNode.connectedLine.append(self)
+
+    def deleteLine(self):
+        self.scene().removeItem(self)
 
     def boundingRect(self):
         extra = (self.pen().width() + 100) / 2.0
@@ -307,13 +350,12 @@ class LineConnection(QtGui.QGraphicsLineItem):
         painter.setBrush(self.lineColor)
         myPen = self.pen()
         myPen.setColor(self.lineColor)
-        painter.setPen(myPen)
         #-- Selected Color --#
         if self.isSelected():
             painter.setBrush(QtCore.Qt.yellow)
             myPen.setColor(QtCore.Qt.yellow)
             myPen.setStyle(QtCore.Qt.DashLine)
-            painter.setPen(myPen)
+        painter.setPen(myPen)
         #-- Calculating Angle --#
         if line.length() > 0.0:
             self._arrowHeadCalculation(line, arrowSize)
@@ -321,36 +363,3 @@ class LineConnection(QtGui.QGraphicsLineItem):
             if line:
                 painter.drawPolygon(self.arrowHead)
                 painter.drawLine(line)
-
-
-class AssetNode(GraphNode):
-
-    def __init__(self, **kwargs):
-        self.iconFile = "icon/assetNode.svg"
-        self.nodeType = "assetNode"
-        self.hasInputFileConnection = False
-        self.hasInputDataConnection = False
-        self.hasOutputFileConnection = True
-        super(AssetNode, self).__init__(**kwargs)
-
-
-class MayaNode(GraphNode):
-
-    def __init__(self, **kwargs):
-        self.iconFile = "icon/mayaNode.svg"
-        self.nodeType = "mayaNode"
-        self.hasInputFileConnection = True
-        self.hasInputDataConnection = True
-        self.hasOutputFileConnection = True
-        super(MayaNode, self).__init__(**kwargs)
-
-
-class SvgNode(GraphNode):
-
-    def __init__(self, **kwargs):
-        self.iconFile = "icon/baseNode.svg"
-        self.nodeType = "svgNode"
-        self.hasInputFileConnection = True
-        self.hasInputDataConnection = False
-        self.hasOutputFileConnection = True
-        super(SvgNode, self).__init__(**kwargs)

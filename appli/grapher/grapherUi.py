@@ -41,12 +41,14 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.miDarkOrange.triggered.connect(partial(self.on_StyleOption, styleName='darkOrange'))
         self.miDarkGrey.triggered.connect(partial(self.on_StyleOption, styleName='darkGrey'))
         self.miRedGrey.triggered.connect(partial(self.on_StyleOption, styleName='redGrey'))
-        self.miHorizontal.triggered.connect(partial(self.toolBarOrientChanged, orient='horizontal', force=True))
-        self.miVertical.triggered.connect(partial(self.toolBarOrientChanged, orient='vertical', force=True))
-        self.miNorth.triggered.connect(partial(self.graphTools.tabOrientation, 'North'))
-        self.miSouth.triggered.connect(partial(self.graphTools.tabOrientation, 'South'))
-        self.miWest.triggered.connect(partial(self.graphTools.tabOrientation, 'West'))
-        self.miEast.triggered.connect(partial(self.graphTools.tabOrientation, 'East'))
+        self.miToolBarVisibility.triggered.connect(self.on_toolBarVisibility)
+        self.miToolBarVisibility.setShortcut("T")
+        self.miBarHorizontal.triggered.connect(partial(self.toolBarOrientChanged, orient='horizontal', force=True))
+        self.miBarVertical.triggered.connect(partial(self.toolBarOrientChanged, orient='vertical', force=True))
+        self.miTabNorth.triggered.connect(partial(self.graphTools.tabOrientation, 'North'))
+        self.miTabSouth.triggered.connect(partial(self.graphTools.tabOrientation, 'South'))
+        self.miTabWest.triggered.connect(partial(self.graphTools.tabOrientation, 'West'))
+        self.miTabEast.triggered.connect(partial(self.graphTools.tabOrientation, 'East'))
 
     @property
     def currentGraphZone(self):
@@ -64,9 +66,9 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
     def on_connectNodes(self):
         if len(self.currentGraphScene.selBuffer['_order']) == 2:
             startNode = self.currentGraphScene.selBuffer[self.currentGraphScene.selBuffer['_order'][0]]
-            startItem = startNode.outConnectionNode
+            startItem = startNode.outputFileConnection
             endNode = self.currentGraphScene.selBuffer[self.currentGraphScene.selBuffer['_order'][1]]
-            endItem = endNode.inConnectionNode
+            endItem = endNode.inputFileConnection
             connectionLine = gpWgts.LineConnection(startItem, endItem)
             self.currentGraphScene.addItem(connectionLine)
 
@@ -75,6 +77,9 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
             self.setStyleSheet("")
         else:
             self.setStyleSheet(self.applyStyle(styleName=styleName))
+
+    def on_toolBarVisibility(self):
+        self.tbTools.setVisible(self.miToolBarVisibility.isChecked())
 
     def toolBarOrientChanged(self, orient=False, force=False):
         if force:

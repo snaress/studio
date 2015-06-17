@@ -1,3 +1,5 @@
+version = '0.0.1'
+
 import os
 from lib.qt import procQt as pQt
 

@@ -1,7 +1,7 @@
 import random
 from PyQt4 import QtGui, QtCore
 from appli.grapher.ui import wgToolsTabUI
-from appli.grapher import graphWgts as gpWgts
+from appli.grapher import graphNodes
 
 
 class ToolsBar(QtGui.QTabWidget):
@@ -80,6 +80,13 @@ class TabMode(ToolsTab):
 
     def __init__(self, **kwargs):
         super(TabMode, self).__init__(**kwargs)
+        self._addTools()
+
+    def _addTools(self):
+        self.newTool('createModelingGraph', cmd=self.createModelingGraph, iconFile=None)
+
+    def createModelingGraph(self):
+        pass
 
 
 class TabUtil(ToolsTab):
@@ -95,18 +102,18 @@ class TabUtil(ToolsTab):
 
     def createAssetNode(self):
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_node")
-        newNode = gpWgts.AssetNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode = graphNodes.AssetNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
 
     def createMayaNode(self):
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
-        newNode = gpWgts.MayaNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode = graphNodes.MayaNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
 
     def createSvgNode(self):
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("svg_node")
-        newNode = gpWgts.SvgNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode = graphNodes.SvgNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
