@@ -14,7 +14,7 @@
    <string>Grapher</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QGridLayout" name="glGrapher">
     <property name="margin">
      <number>0</number>
     </property>
@@ -43,6 +43,40 @@
        <property name="currentIndex">
         <number>-1</number>
        </property>
+       <property name="tabsClosable">
+        <bool>false</bool>
+       </property>
+       <property name="movable">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QFrame" name="vfNodeData">
+       <layout class="QVBoxLayout" name="vlNodeData">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QTreeWidget" name="twNodeData">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::NoSelection</enum>
+          </property>
+          <property name="indentation">
+           <number>0</number>
+          </property>
+          <property name="expandsOnDoubleClick">
+           <bool>false</bool>
+          </property>
+          <attribute name="headerVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -100,6 +134,7 @@
     <addaction name="mStyle"/>
     <addaction name="separator"/>
     <addaction name="mToolsBar"/>
+    <addaction name="miParamsVisibility"/>
    </widget>
    <widget class="QMenu" name="mHelp">
     <property name="title">
@@ -235,10 +270,21 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>ToolBar Visibility</string>
+   </property>
+  </action>
+  <action name="miParamsVisibility">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Params Visibility</string>
    </property>
   </action>
  </widget>

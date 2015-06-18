@@ -4,8 +4,7 @@ from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from appli.grapher.ui import grapherUI
-from appli.grapher import graphWgts as gpWgts
-from appli.grapher import toolsWgts as tlWgts
+from appli.grapher import graphWgts, toolsWgts, dataWgts
 
 
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
@@ -22,12 +21,16 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.setupUi(self)
         #-- GraphZone --#
         self.on_addGraphZone()
+        #-- DataZone --#
+        self.dataZone = dataWgts.DataZone(self)
         #-- GraphTools --#
-        self.graphTools = tlWgts.ToolsBar(mainUi=self)
+        self.graphTools = toolsWgts.ToolsBar(mainUi=self)
         self.tbTools.addWidget(self.graphTools)
         self.tbTools.orientationChanged.connect(partial(self.toolBarOrientChanged, orient=False, force=False))
         #-- GraphMenu --#
         self._setupMenu()
+        self.on_toolBarVisibility()
+        self.on_paramsVisibility()
 
     # noinspection PyUnresolvedReferences
     def _setupMenu(self):
@@ -49,6 +52,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.miTabSouth.triggered.connect(partial(self.graphTools.tabOrientation, 'South'))
         self.miTabWest.triggered.connect(partial(self.graphTools.tabOrientation, 'West'))
         self.miTabEast.triggered.connect(partial(self.graphTools.tabOrientation, 'East'))
+        self.miParamsVisibility.triggered.connect(self.on_paramsVisibility)
+        self.miParamsVisibility.setShortcut("D")
 
     @property
     def currentGraphZone(self):
@@ -59,8 +64,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         return self.currentGraphZone.graphScene
 
     def on_addGraphZone(self):
-        newGraphScene = gpWgts.GraphScene(self)
-        newGraphZone = gpWgts.GraphZone(self, newGraphScene)
+        newGraphScene = graphWgts.GraphScene(self)
+        newGraphZone = graphWgts.GraphZone(self, newGraphScene)
         self.tabGraph.insertTab(-1, newGraphZone, 'Untitled')
 
     def on_connectNodes(self):
@@ -69,7 +74,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
             startItem = startNode.outputFileConnection
             endNode = self.currentGraphScene.selBuffer[self.currentGraphScene.selBuffer['_order'][1]]
             endItem = endNode.inputFileConnection
-            connectionLine = gpWgts.LineConnection(startItem, endItem)
+            connectionLine = graphWgts.LineConnection(startItem, endItem)
             self.currentGraphScene.addItem(connectionLine)
 
     def on_StyleOption(self, styleName='default'):
@@ -80,6 +85,9 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
 
     def on_toolBarVisibility(self):
         self.tbTools.setVisible(self.miToolBarVisibility.isChecked())
+
+    def on_paramsVisibility(self):
+        self.vfNodeData.setVisible(self.miParamsVisibility.isChecked())
 
     def toolBarOrientChanged(self, orient=False, force=False):
         if force:

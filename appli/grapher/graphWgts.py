@@ -1,9 +1,10 @@
-import math, pprint
+import math
 from PyQt4 import QtGui, QtSvg, QtCore
 # from appli.grapher import grapherTest as gpTest
 
 
 class GraphZone(QtGui.QGraphicsView):
+
     def __init__(self, mainUi, graphScene):
         super(GraphZone, self).__init__()
         self.mainUi = mainUi

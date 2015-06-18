@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\ud\grapher.ui'
 #
-# Created: Wed Jun 17 04:38:31 2015
+# Created: Thu Jun 18 03:18:45 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -29,10 +29,10 @@ class Ui_mwGrapher(object):
         mwGrapher.resize(1000, 600)
         self.centralwidget = QtGui.QWidget(mwGrapher)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
-        self.gridLayout = QtGui.QGridLayout(self.centralwidget)
-        self.gridLayout.setMargin(0)
-        self.gridLayout.setSpacing(0)
-        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
+        self.glGrapher = QtGui.QGridLayout(self.centralwidget)
+        self.glGrapher.setMargin(0)
+        self.glGrapher.setSpacing(0)
+        self.glGrapher.setObjectName(_fromUtf8("glGrapher"))
         self.splitter = QtGui.QSplitter(self.centralwidget)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName(_fromUtf8("splitter"))
@@ -46,8 +46,23 @@ class Ui_mwGrapher(object):
         self.twTree.headerItem().setText(0, _fromUtf8("1"))
         self.vlTree.addWidget(self.twTree)
         self.tabGraph = QtGui.QTabWidget(self.splitter)
+        self.tabGraph.setTabsClosable(False)
+        self.tabGraph.setMovable(True)
         self.tabGraph.setObjectName(_fromUtf8("tabGraph"))
-        self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
+        self.vfNodeData = QtGui.QFrame(self.splitter)
+        self.vfNodeData.setObjectName(_fromUtf8("vfNodeData"))
+        self.vlNodeData = QtGui.QVBoxLayout(self.vfNodeData)
+        self.vlNodeData.setSpacing(0)
+        self.vlNodeData.setObjectName(_fromUtf8("vlNodeData"))
+        self.twNodeData = QtGui.QTreeWidget(self.vfNodeData)
+        self.twNodeData.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
+        self.twNodeData.setIndentation(0)
+        self.twNodeData.setExpandsOnDoubleClick(False)
+        self.twNodeData.setObjectName(_fromUtf8("twNodeData"))
+        self.twNodeData.headerItem().setText(0, _fromUtf8("1"))
+        self.twNodeData.header().setVisible(False)
+        self.vlNodeData.addWidget(self.twNodeData)
+        self.glGrapher.addWidget(self.splitter, 0, 0, 1, 1)
         mwGrapher.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(mwGrapher)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1000, 21))
@@ -116,8 +131,12 @@ class Ui_mwGrapher(object):
         self.miHideToolBar.setObjectName(_fromUtf8("miHideToolBar"))
         self.miToolBarVisibility = QtGui.QAction(mwGrapher)
         self.miToolBarVisibility.setCheckable(True)
-        self.miToolBarVisibility.setChecked(True)
+        self.miToolBarVisibility.setChecked(False)
         self.miToolBarVisibility.setObjectName(_fromUtf8("miToolBarVisibility"))
+        self.miParamsVisibility = QtGui.QAction(mwGrapher)
+        self.miParamsVisibility.setCheckable(True)
+        self.miParamsVisibility.setChecked(True)
+        self.miParamsVisibility.setObjectName(_fromUtf8("miParamsVisibility"))
         self.mBarOrientation.addAction(self.miBarHorizontal)
         self.mBarOrientation.addAction(self.miBarVertical)
         self.mTabOrientation.addAction(self.miTabNorth)
@@ -134,6 +153,7 @@ class Ui_mwGrapher(object):
         self.mPref.addAction(self.mStyle.menuAction())
         self.mPref.addSeparator()
         self.mPref.addAction(self.mToolsBar.menuAction())
+        self.mPref.addAction(self.miParamsVisibility)
         self.mEdit.addAction(self.miAddGraphZone)
         self.mEdit.addAction(self.miConnectNodes)
         self.menubar.addAction(self.mGrapher.menuAction())
@@ -175,4 +195,5 @@ class Ui_mwGrapher(object):
         self.miShowToolBar.setText(_translate("mwGrapher", "Show", None))
         self.miHideToolBar.setText(_translate("mwGrapher", "Hide", None))
         self.miToolBarVisibility.setText(_translate("mwGrapher", "ToolBar Visibility", None))
+        self.miParamsVisibility.setText(_translate("mwGrapher", "Params Visibility", None))
 
