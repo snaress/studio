@@ -1,6 +1,6 @@
 import os
 from lib import qt
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui, QtCore, uic
 from lib.system import procFile as pFile
 
 #========================================== Compile Ui ===========================================#
@@ -178,6 +178,99 @@ class CompileUi2(object):
             :type pyFile: str """
         try:
             os.system("%s %s > %s" % (self.pyUic, uiFile, pyFile))
+        except:
+            raise IOError, "Error: Can not convert %s" % pyFile
+
+
+class CompileUi3(object):
+    """ Convert uiFile from uiDir path to pyFile into uiDest path
+        :param uiDir: Source Path to list
+        :type uiDir: str
+        :param uiDest: Destination path
+        :type uiDest: str
+        :param pyUic: pyuic.bat absolut path
+        :type pyUic: str """
+
+    def __init__(self, uiDir=None, uiDest=None, pyUic=None):
+        print "#----- Compile UI -----#"
+        self.uic = uic
+        self.uiDir = uiDir
+        self.uiDest = uiDest
+        self.uiToPy()
+
+    @property
+    def uiPath(self):
+        """ Get ui file source path
+            :return: Ui file source path
+            :rtype: str """
+        if self.uiDir is not None:
+            return os.path.join(self.uiDir, 'ud')
+
+    @property
+    def pyPath(self):
+        """ Get ui file destination path
+            :return: Ui file destination path
+            :rtype: str """
+        if self.uiDest is not None:
+            return self.uiDest
+        if self.uiDest is None and self.uiDir is not None:
+            return os.path.join(self.uiDir, 'ui')
+
+    def uiToPy(self):
+        """ Check kwargs, path and date before convertion """
+        #-- Check Kwargs and Path --#
+        if self.uiDir is None:
+            raise KeyError, "!!! 'uiDir' kwargs can not be empty !!!"
+        print "uiPath = %s" % self.uiPath
+        if not os.path.exists(self.uiPath):
+            raise IOError, "!!! 'uiPath' not found: %s !!!" % self.uiPath
+        print "pyPath = %s" % self.pyPath
+        if not os.path.exists(self.pyPath):
+            raise IOError, "!!! 'pyPath' not found: %s !!!" % self.pyPath
+        #-- Convert --#
+        files = os.listdir(self.uiPath) or []
+        for f in files:
+            if f.endswith('.ui'):
+                uiFile = os.path.join(self.uiPath, f)
+                pyFile = os.path.join(self.pyPath, f.replace('.ui', 'UI.py'))
+                if self.checkDate(uiFile, pyFile) in ['create', 'update']:
+                    self.convert(uiFile, pyFile)
+
+    @staticmethod
+    def checkDate(uiFile, pyFile):
+        """ Compare uiFile and pyFile modif date
+            :param uiFile: uiFile absolut path
+            :type uiFile: str
+            :param pyFile: pyFile absolut path
+            :type pyFile: str
+            :return: 'create', 'update', 'ok'
+            :rtype: str """
+        if pyFile is None:
+            print "%s \t ---> \t CREATE" % os.path.basename(pyFile)
+            return 'create'
+        else:
+            if not os.path.exists(pyFile):
+                print "%s \t ---> \t CREATE" % os.path.basename(pyFile)
+                return 'create'
+            else:
+                uiDate = os.path.getmtime(uiFile)
+                pyDate = os.path.getmtime(pyFile)
+                if uiDate > pyDate:
+                    print "%s \t ---> \t UPDATE" % os.path.basename(pyFile)
+                    return 'update'
+                else:
+                    print "%s \t ---> \t OK" % os.path.basename(pyFile)
+                    return 'ok'
+
+    def convert(self, uiFile, pyFile):
+        """ Convert uiFile into pyFile
+            :param uiFile: uiFile absolut path
+            :type uiFile: str
+            :param pyFile: pyFile absolut path
+            :type pyFile: str """
+        try:
+            # os.system("%s %s > %s" % (self.pyUic, uiFile, pyFile))
+            self.uic.compileUi(uiFile, pyFile)
         except:
             raise IOError, "Error: Can not convert %s" % pyFile
 
