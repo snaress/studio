@@ -270,19 +270,19 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
     def addConnectionNodes(self):
         if self.hasInputFileConnection:
             self.inputFileConnection = NodeConnection(mainUi=self.mainUi, nodeType='inputFileConnection',
-                                                      iconFile="gui/ui/icon/inputFileConnNode.svg", parent=self)
+                                                      iconFile="gui/icon/inputFileConnNode.svg", parent=self)
             self.inputFileConnection.setPos(0 - self.inputFileConnection.width,
                                             - (self.inputFileConnection.height / 2))
             self.inputFileConnection.isInputConnection = True
         if self.hasInputDataConnection:
             self.inputDataConnection = NodeConnection(mainUi=self.mainUi, nodeType='inputDataConnection',
-                                                      iconFile="gui/ui/icon/inputDataConnNode.svg", parent=self)
+                                                      iconFile="gui/icon/inputDataConnNode.svg", parent=self)
             self.inputDataConnection.setPos(0 - self.inputDataConnection.width,
                                             self.height - (self.inputDataConnection.height / 2))
             self.inputDataConnection.isInputConnection = True
         if self.hasOutputFileConnection:
             self.outputFileConnection = NodeConnection(mainUi=self.mainUi, nodeType='outputFileConnection',
-                                                      iconFile="gui/ui/icon/outputFileConnNode.svg", parent=self)
+                                                      iconFile="gui/icon/outputFileConnNode.svg", parent=self)
             self.outputFileConnection.setPos(self.width, (self.height / 2) - (self.outputFileConnection.height / 2))
             self.outputFileConnection.isInputConnection = False
 

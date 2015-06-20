@@ -33,8 +33,8 @@ class DataGroup(QtGui.QWidget, wgDataGroupUI.Ui_wgDataGroup):
         self.mainUi = mainUi
         self.pItem = pItem
         self.grpName = groupName
-        self.collapseIcon = QtGui.QIcon("gui/ui/icon/treeCollapse.png")
-        self.expandIcon = QtGui.QIcon("gui/ui/icon/treeExpand.png")
+        self.collapseIcon = QtGui.QIcon("gui/icon/treeCollapse.png")
+        self.expandIcon = QtGui.QIcon("gui/icon/treeExpand.png")
         super(DataGroup, self).__init__()
         self._setupUi()
 

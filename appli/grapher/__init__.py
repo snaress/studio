@@ -20,6 +20,6 @@ print 'Tool Package : ', toolPack
 print '#%s#' % ('-'*(22+len(toolName)))
 print 'User : ', user
 print 'Station : ', station
-pQt.CompileUi2(uiDir=os.path.join(toolPath, 'gui', 'ui', 'src'),
+pQt.CompileUi2(uiDir=os.path.join(toolPath, 'gui', 'src'),
                uiDest=os.path.join(toolPath, 'gui', 'ui'))
 print '%s\n' % ('#'*(22+len(toolName)))

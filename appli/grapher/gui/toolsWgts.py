@@ -98,8 +98,8 @@ class TabUtil(ToolsTab):
 
     def _addTools(self):
         self.newTool('CreateSvgNode', cmd=self.createSvgNode, iconFile=None)
-        self.newTool('CreateMayaNode', cmd=self.createMayaNode, iconFile="ui/icon/toolCreateMayaNode.png")
-        self.newTool('CreateAssetNode', cmd=self.createAssetNode, iconFile="ui/icon/toolCreateAssetNode.png")
+        self.newTool('CreateMayaNode', cmd=self.createMayaNode, iconFile="gui/icon/toolCreateMayaNode.png")
+        self.newTool('CreateAssetNode', cmd=self.createAssetNode, iconFile="gui/icon/toolCreateAssetNode.png")
 
     def createAssetNode(self):
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_node")
