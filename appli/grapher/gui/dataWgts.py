@@ -1,5 +1,5 @@
-from PyQt4 import QtGui, QtCore
-from appli.grapher.ui import wgDataGroupUI, wgDataNodeIdUI
+from PyQt4 import QtGui
+from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeIdUI
 
 
 class DataZone(object):
@@ -33,8 +33,8 @@ class DataGroup(QtGui.QWidget, wgDataGroupUI.Ui_wgDataGroup):
         self.mainUi = mainUi
         self.pItem = pItem
         self.grpName = groupName
-        self.collapseIcon = QtGui.QIcon("icon/treeCollapse.png")
-        self.expandIcon = QtGui.QIcon("icon/treeExpand.png")
+        self.collapseIcon = QtGui.QIcon("gui/ui/icon/treeCollapse.png")
+        self.expandIcon = QtGui.QIcon("gui/ui/icon/treeExpand.png")
         super(DataGroup, self).__init__()
         self._setupUi()
 

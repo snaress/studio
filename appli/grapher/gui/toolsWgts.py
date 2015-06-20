@@ -1,7 +1,7 @@
 import random
 from PyQt4 import QtGui, QtCore
-from appli.grapher.ui import wgToolsTabUI
-from appli.grapher import graphNodes
+from appli.grapher.gui.ui import wgToolsTabUI
+from appli.grapher.template import graphNodes
 
 
 class ToolsBar(QtGui.QTabWidget):
@@ -51,6 +51,7 @@ class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
     def __init__(self, **kwargs):
         super(ToolsTab, self).__init__()
         self.mainUi = kwargs['mainUi']
+        self.log = self.mainUi.log
         self.setupUi(self)
 
     def setOrientation(self, orient):
@@ -97,23 +98,26 @@ class TabUtil(ToolsTab):
 
     def _addTools(self):
         self.newTool('CreateSvgNode', cmd=self.createSvgNode, iconFile=None)
-        self.newTool('CreateMayaNode', cmd=self.createMayaNode, iconFile="icon/toolCreateMayaNode.png")
-        self.newTool('CreateAssetNode', cmd=self.createAssetNode, iconFile="icon/toolCreateAssetNode.png")
+        self.newTool('CreateMayaNode', cmd=self.createMayaNode, iconFile="ui/icon/toolCreateMayaNode.png")
+        self.newTool('CreateAssetNode', cmd=self.createAssetNode, iconFile="ui/icon/toolCreateAssetNode.png")
 
     def createAssetNode(self):
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_node")
+        self.log.info("#-- Creating Asset Node: %s --#" % nodeName, newLinesBefor=1)
         newNode = graphNodes.AssetNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
 
     def createMayaNode(self):
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
+        self.log.info("#-- Creating Maya Node: %s --#" % nodeName, newLinesBefor=1)
         newNode = graphNodes.MayaNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
 
     def createSvgNode(self):
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("svg_node")
+        self.log.info("#-- Creating Svg Node: %s --#" % nodeName, newLinesBefor=1)
         newNode = graphNodes.SvgNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)

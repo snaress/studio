@@ -1,5 +1,3 @@
-version = '0.0.1'
-
 import os
 from lib.qt import procQt as pQt
 
@@ -22,5 +20,6 @@ print 'Tool Package : ', toolPack
 print '#%s#' % ('-'*(22+len(toolName)))
 print 'User : ', user
 print 'Station : ', station
-pQt.CompileUi2(uiDir=toolPath)
+pQt.CompileUi2(uiDir=os.path.join(toolPath, 'gui', 'ui', 'src'),
+               uiDest=os.path.join(toolPath, 'gui', 'ui'))
 print '%s\n' % ('#'*(22+len(toolName)))

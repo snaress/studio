@@ -1,10 +1,10 @@
-from graphWgts import GraphNode
+from appli.grapher.gui.graphWgts import GraphNode
 
 
 class AssetNode(GraphNode):
 
     def __init__(self, **kwargs):
-        self.iconFile = "icon/assetNode.svg"
+        self.iconFile = "gui/ui/icon/assetNode.svg"
         self.nodeType = "assetNode"
         self.hasInputFileConnection = False
         self.hasInputDataConnection = False
@@ -15,7 +15,7 @@ class AssetNode(GraphNode):
 class MayaNode(GraphNode):
 
     def __init__(self, **kwargs):
-        self.iconFile = "icon/mayaNode.svg"
+        self.iconFile = "gui/ui/icon/mayaNode.svg"
         self.nodeType = "mayaNode"
         self.hasInputFileConnection = True
         self.hasInputDataConnection = True
@@ -26,7 +26,7 @@ class MayaNode(GraphNode):
 class SvgNode(GraphNode):
 
     def __init__(self, **kwargs):
-        self.iconFile = "icon/baseNode.svg"
+        self.iconFile = "gui/ui/icon/baseNode.svg"
         self.nodeType = "svgNode"
         self.hasInputFileConnection = True
         self.hasInputDataConnection = False
