@@ -60,6 +60,12 @@
         </property>
         <item>
          <widget class="QTreeWidget" name="twNodeData">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="selectionMode">
            <enum>QAbstractItemView::NoSelection</enum>
           </property>

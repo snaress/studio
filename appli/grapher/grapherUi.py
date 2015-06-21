@@ -29,7 +29,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         #-- DataZone --#
         self.dataZone = dataWgts.DataZone(self)
         #-- GraphTools --#
-        self.graphTools = toolsWgts.ToolsBar(mainUi=self)
+        self.graphTools = toolsWgts.ToolsBar(self)
         self.tbTools.addWidget(self.graphTools)
         self.tbTools.orientationChanged.connect(partial(self.on_toolBarOrientChanged, orient=False, force=False))
         #-- GraphMenu --#
@@ -67,6 +67,13 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.miTabEast.triggered.connect(partial(self.graphTools.tabOrientation, 'East'))
         #-- Menu Help --#
         self.miPrintConnections.triggered.connect(self.on_printSelNodeConnections)
+
+    @property
+    def editMode(self):
+        """ Get edition mode state
+            :return: Edition mode state
+            :rtype: bool """
+        return self.miEditMode.isChecked()
 
     @property
     def currentGraphZone(self):

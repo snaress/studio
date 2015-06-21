@@ -32,10 +32,16 @@
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="hlNodeType">
      <property name="spacing">
-      <number>2</number>
+      <number>6</number>
      </property>
      <item>
       <widget class="QLabel" name="lNodeType">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
          <width>65</width>
@@ -58,6 +64,12 @@
        <property name="text">
         <string/>
        </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
     </layout>
@@ -65,10 +77,16 @@
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="hlNodeName">
      <property name="spacing">
-      <number>2</number>
+      <number>6</number>
      </property>
      <item>
       <widget class="QLabel" name="lNodeName">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
          <width>65</width>
@@ -87,17 +105,30 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leNodeName"/>
+      <widget class="QLineEdit" name="leNodeName">
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="hlNodeLabel">
      <property name="spacing">
-      <number>2</number>
+      <number>6</number>
      </property>
      <item>
       <widget class="QLabel" name="lNodeLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
          <width>65</width>
@@ -116,7 +147,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leNodeLabel"/>
+      <widget class="QLineEdit" name="leNodeLabel">
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Data Group</string>
   </property>
   <layout class="QGridLayout" name="glDataGroup">
    <property name="horizontalSpacing">

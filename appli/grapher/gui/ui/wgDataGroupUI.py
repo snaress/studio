@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\ud\wgDataGroup.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgDataGroup.ui'
 #
-# Created: Thu Jun 18 02:38:32 2015
+# Created: Sat Jun 20 19:41:37 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -61,6 +61,6 @@ class Ui_wgDataGroup(object):
         QtCore.QMetaObject.connectSlotsByName(wgDataGroup)
 
     def retranslateUi(self, wgDataGroup):
-        wgDataGroup.setWindowTitle(_translate("wgDataGroup", "Form", None))
+        wgDataGroup.setWindowTitle(_translate("wgDataGroup", "Data Group", None))
         self.lGrpName.setText(_translate("wgDataGroup", "TextLabel", None))
 

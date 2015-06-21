@@ -1,36 +1,30 @@
-import random
-from PyQt4 import QtGui, QtCore
-from appli.grapher.gui.ui import wgToolsTabUI
-from appli.grapher.template import graphNodes
+from PyQt4 import QtGui
+from appli.grapher.template import toolsTab
 
 
 class ToolsBar(QtGui.QTabWidget):
+    """ Grapher tools tab
+        :param mainUi: Grapher main window
+        :type mainUi: QtGui.QMainWindow """
 
-    def __init__(self, **kwargs):
+    def __init__(self, mainUi):
         super(ToolsBar, self).__init__()
-        self.mainUi = kwargs['mainUi']
+        self.mainUi = mainUi
         self.log = self.mainUi.log
         self.pWidget = self.mainUi.tbTools
         self.tabs = []
         self._setupUi()
 
     def _setupUi(self):
+        """ Setup tools tab """
         self.log.debug("---> Setup Tools Bar ...")
         self.addTabs()
         self.tabOrientation('West')
 
-    def addTabs(self):
-        self.clear()
-        #-- Tab Mode --#
-        tabMode = TabMode(mainUi=self.mainUi)
-        self.insertTab(-1, tabMode, 'Mode')
-        self.tabs.append(tabMode)
-        #-- Tab Util --#
-        tabUtil = TabUtil(mainUi=self.mainUi)
-        self.insertTab(-1, tabUtil, 'Util')
-        self.tabs.append(tabUtil)
-
     def tabOrientation(self, orient):
+        """ Edit tools tab orientation
+            :param orient: 'North', 'South', 'West', 'East'
+            :type orient: str """
         if orient == 'North':
             self.setTabPosition(QtGui.QTabWidget.North)
         elif orient == 'South':
@@ -45,79 +39,14 @@ class ToolsBar(QtGui.QTabWidget):
             elif orient in ['West', 'East']:
                 tab.setOrientation('vertical')
 
-
-class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
-
-    def __init__(self, **kwargs):
-        super(ToolsTab, self).__init__()
-        self.mainUi = kwargs['mainUi']
-        self.log = self.mainUi.log
-        self.setupUi(self)
-
-    def setOrientation(self, orient):
-        if orient == 'horizontal':
-            self.saHorizontal.setVisible(True)
-            self.saVertical.setVisible(False)
-        elif orient == 'vertical':
-            self.saHorizontal.setVisible(False)
-            self.saVertical.setVisible(True)
-
-    # noinspection PyUnresolvedReferences
-    def newTool(self, name, cmd=None, iconFile=None):
-        newTools = [QtGui.QPushButton(), QtGui.QPushButton()]
-        for tool in newTools:
-            tool.setText(name)
-            if cmd is not None:
-                tool.clicked.connect(cmd)
-            if iconFile is not None:
-                qIcon = QtGui.QIcon(iconFile)
-                tool.setIcon(qIcon)
-                tool.setIconSize(QtCore.QSize(24, 24))
-        self.hlTools.insertWidget(0, newTools[0])
-        self.vlTools.insertWidget(0, newTools[1])
-
-
-class TabMode(ToolsTab):
-
-    def __init__(self, **kwargs):
-        super(TabMode, self).__init__(**kwargs)
-        self._addTools()
-
-    def _addTools(self):
-        self.newTool('createModelingGraph', cmd=self.createModelingGraph, iconFile=None)
-
-    def createModelingGraph(self):
-        pass
-
-
-class TabUtil(ToolsTab):
-
-    def __init__(self, **kwargs):
-        super(TabUtil, self).__init__(**kwargs)
-        self._addTools()
-
-    def _addTools(self):
-        self.newTool('CreateSvgNode', cmd=self.createSvgNode, iconFile=None)
-        self.newTool('CreateMayaNode', cmd=self.createMayaNode, iconFile="gui/icon/toolCreateMayaNode.png")
-        self.newTool('CreateAssetNode', cmd=self.createAssetNode, iconFile="gui/icon/toolCreateAssetNode.png")
-
-    def createAssetNode(self):
-        nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_node")
-        self.log.info("#-- Creating Asset Node: %s --#" % nodeName, newLinesBefor=1)
-        newNode = graphNodes.AssetNode(mainUi=self.mainUi, nodeName=nodeName)
-        newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
-        self.mainUi.currentGraphScene.addItem(newNode)
-
-    def createMayaNode(self):
-        nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
-        self.log.info("#-- Creating Maya Node: %s --#" % nodeName, newLinesBefor=1)
-        newNode = graphNodes.MayaNode(mainUi=self.mainUi, nodeName=nodeName)
-        newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
-        self.mainUi.currentGraphScene.addItem(newNode)
-
-    def createSvgNode(self):
-        nodeName = self.mainUi.currentGraphScene.getNextNameIndex("svg_node")
-        self.log.info("#-- Creating Svg Node: %s --#" % nodeName, newLinesBefor=1)
-        newNode = graphNodes.SvgNode(mainUi=self.mainUi, nodeName=nodeName)
-        newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
-        self.mainUi.currentGraphScene.addItem(newNode)
+    def addTabs(self):
+        """ Add tools tab """
+        self.clear()
+        #-- Tab Mode --#
+        tabMode = toolsTab.TabMode(mainUi=self.mainUi)
+        self.insertTab(-1, tabMode, 'Mode')
+        self.tabs.append(tabMode)
+        #-- Tab Util --#
+        tabUtil = toolsTab.TabUtil(mainUi=self.mainUi)
+        self.insertTab(-1, tabUtil, 'Util')
+        self.tabs.append(tabUtil)

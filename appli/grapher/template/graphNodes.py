@@ -2,9 +2,12 @@ from appli.grapher.gui.graphWgts import GraphNode
 
 
 class AssetNode(GraphNode):
+    """ GraphNode template
+        :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
+        :type kwargs: dict """
 
     def __init__(self, **kwargs):
-        self.iconFile = "gui/icon/assetNode.svg"
+        self.iconFile = "gui/icon/svg/assetNode.svg"
         self.nodeType = "assetNode"
         self.hasInputFileConnection = False
         self.hasInputDataConnection = False
@@ -13,9 +16,12 @@ class AssetNode(GraphNode):
 
 
 class MayaNode(GraphNode):
+    """ GraphNode template
+        :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
+        :type kwargs: dict """
 
     def __init__(self, **kwargs):
-        self.iconFile = "gui/icon/mayaNode.svg"
+        self.iconFile = "gui/icon/svg/mayaNode.svg"
         self.nodeType = "mayaNode"
         self.hasInputFileConnection = True
         self.hasInputDataConnection = True
@@ -24,9 +30,12 @@ class MayaNode(GraphNode):
 
 
 class SvgNode(GraphNode):
+    """ GraphNode template
+        :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
+        :type kwargs: dict """
 
     def __init__(self, **kwargs):
-        self.iconFile = "gui/icon/baseNode.svg"
+        self.iconFile = "gui/icon/svg/baseNode.svg"
         self.nodeType = "svgNode"
         self.hasInputFileConnection = True
         self.hasInputDataConnection = False
