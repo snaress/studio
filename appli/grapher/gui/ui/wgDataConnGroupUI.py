@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgDataConnGroup.ui'
 #
-# Created: Sat Jun 20 21:21:45 2015
+# Created: Sun Jun 21 02:41:05 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -32,6 +32,11 @@ class Ui_wgConnGroup(object):
         self.glDataGroup.setHorizontalSpacing(2)
         self.glDataGroup.setVerticalSpacing(0)
         self.glDataGroup.setObjectName(_fromUtf8("glDataGroup"))
+        self.line_3 = QtGui.QFrame(wgConnGroup)
+        self.line_3.setFrameShape(QtGui.QFrame.VLine)
+        self.line_3.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_3.setObjectName(_fromUtf8("line_3"))
+        self.glDataGroup.addWidget(self.line_3, 0, 4, 1, 1)
         self.line_2 = QtGui.QFrame(wgConnGroup)
         self.line_2.setFrameShape(QtGui.QFrame.VLine)
         self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
@@ -65,16 +70,6 @@ class Ui_wgConnGroup(object):
         self.lCount = QtGui.QLabel(wgConnGroup)
         self.lCount.setObjectName(_fromUtf8("lCount"))
         self.glDataGroup.addWidget(self.lCount, 0, 5, 1, 1)
-        self.pbGrpSelect = QtGui.QPushButton(wgConnGroup)
-        self.pbGrpSelect.setMinimumSize(QtCore.QSize(45, 20))
-        self.pbGrpSelect.setMaximumSize(QtCore.QSize(45, 20))
-        self.pbGrpSelect.setObjectName(_fromUtf8("pbGrpSelect"))
-        self.glDataGroup.addWidget(self.pbGrpSelect, 0, 7, 1, 1)
-        self.line_3 = QtGui.QFrame(wgConnGroup)
-        self.line_3.setFrameShape(QtGui.QFrame.VLine)
-        self.line_3.setFrameShadow(QtGui.QFrame.Sunken)
-        self.line_3.setObjectName(_fromUtf8("line_3"))
-        self.glDataGroup.addWidget(self.line_3, 0, 4, 1, 1)
 
         self.retranslateUi(wgConnGroup)
         QtCore.QMetaObject.connectSlotsByName(wgConnGroup)
@@ -83,5 +78,4 @@ class Ui_wgConnGroup(object):
         wgConnGroup.setWindowTitle(_translate("wgConnGroup", "Connection Group", None))
         self.lGrpName.setText(_translate("wgConnGroup", "TextLabel", None))
         self.lCount.setText(_translate("wgConnGroup", "0", None))
-        self.pbGrpSelect.setText(_translate("wgConnGroup", "select", None))
 

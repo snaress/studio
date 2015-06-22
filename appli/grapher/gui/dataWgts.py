@@ -131,9 +131,22 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
     def __init__(self, mainUi):
         self.mainUi = mainUi
         self.pItem = None
+        self.currentNode = None
         self.defaultState = 'collapsed'
         super(DataNodeConnections, self).__init__()
+        self.upIcon = QtGui.QIcon("gui/icon/png/arrowUp.png")
+        self.dnIcon = QtGui.QIcon("gui/icon/png/arrowDn.png")
+        self.delIcon = QtGui.QIcon("gui/icon/png/buttonDel.png")
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """ Setup 'Node Connections' data category """
         self.setupUi(self)
+        self.pbUp.setIcon(self.upIcon)
+        self.pbDn.setIcon(self.dnIcon)
+        self.pbDel.setIcon(self.delIcon)
+        self.pbDel.clicked.connect(self.on_deleteConnection)
 
     @property
     def connectionsType(self):
@@ -157,6 +170,7 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
         for connType in self.connectionsType:
             newCat = QtGui.QTreeWidgetItem()
             newCat.connType = connType
+            newCat.itemType = 'group'
             newCat._widget = NodeConnectionGroup(self.mainUi, newCat, groupName=connType)
             self.twNodeConnections.addTopLevelItem(newCat)
             self.twNodeConnections.setItemWidget(newCat, 0, newCat._widget)
@@ -165,20 +179,23 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
         """ Update params from given node
             :param node: Graph node
             :type node: QtSvg.QGraphicsSvgItem """
+        self.currentNode = node
         self.twNodeConnections.clear()
         self.addConnectionsType()
-        connInfo = node.getConnections()
+        connInfo = self.currentNode.getConnections()
         for k in self.connectionsType:
             items = []
             if k in connInfo.keys():
                 typeItem = self.getTypeItem(k)
                 for n in sorted(connInfo[k].keys()):
+                    lineConnection = connInfo[k][n]['line']
                     if k == 'outputFile':
                         linkedNode = connInfo[k][n]['dstNode']
                     else:
                         linkedNode = connInfo[k][n]['srcNode']
                     newLink = QtGui.QTreeWidgetItem()
-                    newLink._widget = NodeConnectionItem(self.mainUi, newLink, n, linkedNode)
+                    newLink.itemType = 'child'
+                    newLink._widget = NodeConnectionItem(self.mainUi, newLink, n, lineConnection, linkedNode)
                     typeItem.addChild(newLink)
                     self.twNodeConnections.setItemWidget(newLink, 0, newLink._widget)
                     items.append(newLink)
@@ -188,6 +205,22 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
                     typeItem._widget.on_icon()
                 else:
                     typeItem._widget.lCount.setText("0")
+
+    def on_moveConnection(self, side):
+        selItems = self.twNodeConnections.selectedItems()
+        if selItems and self.mainUi.editMode:
+            item = selItems[0]
+            if item.itemType == 'child':
+                pass
+
+    def on_deleteConnection(self):
+        """ Command launched when 'Delete' QPushButton is clicked,
+            Delete selected connection """
+        if self.mainUi.editMode and self.currentNode is not None:
+            for item in self.twNodeConnections.selectedItems():
+                if item.itemType == 'child':
+                    item._widget.lineConnection.deleteLine()
+                    self.setDataFromNode(self.currentNode)
 
     def clearData(self):
         """ Clear category params """
@@ -218,7 +251,6 @@ class NodeConnectionGroup(QtGui.QWidget, wgDataConnGroupUI.Ui_wgConnGroup):
         self.setupUi(self)
         self.lGrpName.setText(self.grpName)
         self.pbGrpName.clicked.connect(self.on_icon)
-        self.pbGrpSelect.clicked.connect(self.on_select)
         self.rf_icon()
 
     def rf_icon(self):
@@ -234,14 +266,6 @@ class NodeConnectionGroup(QtGui.QWidget, wgDataConnGroupUI.Ui_wgConnGroup):
         self.pItem.treeWidget().setItemExpanded(self.pItem, self.pbGrpName.isChecked())
         self.rf_icon()
 
-    def on_select(self):
-        if self.pItem.isSelected():
-            print 'sel'
-        else:
-            for n in range(self.pItem.childCount()):
-                if self.pItem.child(n).isSelected():
-                    print 'child sel'
-
 
 class NodeConnectionItem(QtGui.QWidget, wgDataConnItemUI.Ui_wgDataConnItem):
     """ Connection category item widget
@@ -251,13 +275,16 @@ class NodeConnectionItem(QtGui.QWidget, wgDataConnItemUI.Ui_wgDataConnItem):
         :type pItem: QtGui.QTreeWidgetItem
         :param index: Connection index
         :type index: int
+        :param lineConnection: Graph scene line item
+        :type lineConnection: QtGui.QGraphicsLineItem | QtGui.QGraphicsPathItem
         :param linkedNode: Linked graph node
         :type linkedNode: QtSvg.QGraphicsSvgItem"""
 
-    def __init__(self, mainUi, pItem, index, linkedNode):
+    def __init__(self, mainUi, pItem, index, lineConnection, linkedNode):
         self.mainUi = mainUi
         self.pItem = pItem
         self.index = index
+        self.lineConnection = lineConnection
         self.linkedNode = linkedNode
         super(NodeConnectionItem, self).__init__()
         self._setupUi()
@@ -268,3 +295,12 @@ class NodeConnectionItem(QtGui.QWidget, wgDataConnItemUI.Ui_wgDataConnItem):
         self.setupUi(self)
         self.lIndex.setText(str(self.index))
         self.lConnectedNode.setText(self.linkedNode.nodeLabel)
+
+    def mouseDoubleClickEvent(self, event):
+        """ Add mouse double click options: Select linked node in graphScene """
+        if self.pItem.isSelected():
+            graphScene = self.mainUi.currentGraphScene
+            graphScene.clearNodeSelection()
+            self.pItem._widget.linkedNode.setSelected(True)
+            graphScene.rf_nodesElementId()
+            self.pItem._widget.linkedNode.connectNodeData()

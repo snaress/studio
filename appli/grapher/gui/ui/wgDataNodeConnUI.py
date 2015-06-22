@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgDataNodeConn.ui'
 #
-# Created: Sat Jun 20 17:38:03 2015
+# Created: Sun Jun 21 20:33:00 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -32,29 +32,34 @@ class Ui_wgNodeConnections(object):
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.hlNodeConnections = QtGui.QHBoxLayout()
-        self.hlNodeConnections.setSpacing(2)
+        self.hlNodeConnections.setSpacing(0)
         self.hlNodeConnections.setObjectName(_fromUtf8("hlNodeConnections"))
         self.pbUp = QtGui.QPushButton(wgNodeConnections)
-        self.pbUp.setMinimumSize(QtCore.QSize(40, 20))
-        self.pbUp.setMaximumSize(QtCore.QSize(40, 20))
+        self.pbUp.setMinimumSize(QtCore.QSize(20, 20))
+        self.pbUp.setMaximumSize(QtCore.QSize(20, 20))
+        self.pbUp.setText(_fromUtf8(""))
         self.pbUp.setObjectName(_fromUtf8("pbUp"))
         self.hlNodeConnections.addWidget(self.pbUp)
         self.pbDn = QtGui.QPushButton(wgNodeConnections)
-        self.pbDn.setMinimumSize(QtCore.QSize(40, 20))
-        self.pbDn.setMaximumSize(QtCore.QSize(40, 20))
+        self.pbDn.setMinimumSize(QtCore.QSize(20, 20))
+        self.pbDn.setMaximumSize(QtCore.QSize(20, 20))
+        self.pbDn.setText(_fromUtf8(""))
         self.pbDn.setObjectName(_fromUtf8("pbDn"))
         self.hlNodeConnections.addWidget(self.pbDn)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hlNodeConnections.addItem(spacerItem)
         self.pbDel = QtGui.QPushButton(wgNodeConnections)
-        self.pbDel.setMinimumSize(QtCore.QSize(40, 20))
-        self.pbDel.setMaximumSize(QtCore.QSize(40, 20))
+        self.pbDel.setMinimumSize(QtCore.QSize(20, 20))
+        self.pbDel.setMaximumSize(QtCore.QSize(20, 20))
+        self.pbDel.setText(_fromUtf8(""))
         self.pbDel.setObjectName(_fromUtf8("pbDel"))
         self.hlNodeConnections.addWidget(self.pbDel)
         self.gridLayout.addLayout(self.hlNodeConnections, 0, 0, 1, 1)
         self.twNodeConnections = QtGui.QTreeWidget(wgNodeConnections)
-        self.twNodeConnections.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
+        self.twNodeConnections.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.twNodeConnections.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.twNodeConnections.setIndentation(0)
+        self.twNodeConnections.setExpandsOnDoubleClick(False)
         self.twNodeConnections.setObjectName(_fromUtf8("twNodeConnections"))
         self.twNodeConnections.headerItem().setText(0, _fromUtf8("1"))
         self.twNodeConnections.header().setVisible(False)
@@ -65,7 +70,4 @@ class Ui_wgNodeConnections(object):
 
     def retranslateUi(self, wgNodeConnections):
         wgNodeConnections.setWindowTitle(_translate("wgNodeConnections", "Node Connections", None))
-        self.pbUp.setText(_translate("wgNodeConnections", "Up", None))
-        self.pbDn.setText(_translate("wgNodeConnections", "Dn", None))
-        self.pbDel.setText(_translate("wgNodeConnections", "Del", None))
 

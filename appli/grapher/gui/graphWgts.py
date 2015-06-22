@@ -131,6 +131,20 @@ class GraphScene(QtGui.QGraphicsScene):
             ind = str(max(indList) + 1)
         return "%s_%s" % (name, ind)
 
+    def clearNodeSelection(self):
+        """ Unselect all graph nodes """
+        for node in self.getSelectedNodes():
+            node.setSelected(False)
+
+    def rf_nodesElementId(self):
+        """ Refresh graph nodes element id """
+        for node in self.getAllNodes():
+            if node._type == "nodeBase":
+                if node.isSelected():
+                    node.setElementId("selected")
+                else:
+                    node.setElementId("regular")
+
     def rf_connections(self):
         """ Refresh graphScene connections line """
         self.log.debug("Refresh Graph Connections ...")
@@ -203,10 +217,7 @@ class GraphScene(QtGui.QGraphicsScene):
                 dataItem.clearData()
         super(GraphScene, self).mousePressEvent(event)
         #-- Check Node ElementId State --#
-        for node in self.getAllNodes():
-            if node._type == "nodeBase":
-                if not node.isSelected():
-                    node.setElementId("regular")
+        self.rf_nodesElementId()
 
     def mouseMoveEvent(self, event):
         """ Add mouse move options: 'left' = If line construction is detected, will draw the line
@@ -616,7 +627,7 @@ class LinkConnection(QtGui.QGraphicsPathItem):
         self._type = 'linkConnection'
         self.lineColor = QtCore.Qt.cyan
         self.setZValue(-1.0)
-        self.setPen(QtGui.QPen(self.lineColor, 1, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        self.setPen(QtGui.QPen(self.lineColor, 1.5, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
 
     @property
     def startNode(self):

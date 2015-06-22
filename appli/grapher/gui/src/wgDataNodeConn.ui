@@ -23,24 +23,24 @@
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="hlNodeConnections">
      <property name="spacing">
-      <number>2</number>
+      <number>0</number>
      </property>
      <item>
       <widget class="QPushButton" name="pbUp">
        <property name="minimumSize">
         <size>
-         <width>40</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>Up</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -48,18 +48,18 @@
       <widget class="QPushButton" name="pbDn">
        <property name="minimumSize">
         <size>
-         <width>40</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>Dn</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -80,18 +80,18 @@
       <widget class="QPushButton" name="pbDel">
        <property name="minimumSize">
         <size>
-         <width>40</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>40</width>
+         <width>20</width>
          <height>20</height>
         </size>
        </property>
        <property name="text">
-        <string>Del</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -99,11 +99,17 @@
    </item>
    <item row="1" column="0">
     <widget class="QTreeWidget" name="twNodeConnections">
+     <property name="editTriggers">
+      <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+     </property>
      <property name="selectionMode">
-      <enum>QAbstractItemView::ExtendedSelection</enum>
+      <enum>QAbstractItemView::SingleSelection</enum>
      </property>
      <property name="indentation">
       <number>0</number>
+     </property>
+     <property name="expandsOnDoubleClick">
+      <bool>false</bool>
      </property>
      <attribute name="headerVisible">
       <bool>false</bool>
