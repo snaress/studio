@@ -133,7 +133,7 @@ class TabUtil(ToolsTab):
     def createAssetNode(self):
         """ Add tool: Create Asset Node """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_node")
-        self.log.info("#-- Creating Asset Node: %s --#" % nodeName, newLinesBefor=1)
+        self.log.info("#-- Creating Asset Node: %s --#" % nodeName)
         newNode = graphNodes.AssetNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
@@ -141,7 +141,7 @@ class TabUtil(ToolsTab):
     def createMayaNode(self):
         """ Add tool: Create Maya Node """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
-        self.log.info("#-- Creating Maya Node: %s --#" % nodeName, newLinesBefor=1)
+        self.log.info("#-- Creating Maya Node: %s --#" % nodeName)
         newNode = graphNodes.MayaNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
@@ -149,7 +149,7 @@ class TabUtil(ToolsTab):
     def createSvgNode(self):
         """ Add tool: Create Svg Node """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("svg_node")
-        self.log.info("#-- Creating Svg Node: %s --#" % nodeName, newLinesBefor=1)
+        self.log.info("#-- Creating Svg Node: %s --#" % nodeName)
         newNode = graphNodes.SvgNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)

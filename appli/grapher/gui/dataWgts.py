@@ -1,4 +1,5 @@
 from PyQt4 import QtGui
+from functools import partial
 from lib.qt import procQt as pQt
 from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeIdUI, wgDataNodeConnUI, wgDataConnGroupUI,\
                                  wgDataConnItemUI
@@ -130,6 +131,7 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
 
     def __init__(self, mainUi):
         self.mainUi = mainUi
+        self.log = self.mainUi.log
         self.pItem = None
         self.currentNode = None
         self.defaultState = 'collapsed'
@@ -144,7 +146,9 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
         """ Setup 'Node Connections' data category """
         self.setupUi(self)
         self.pbUp.setIcon(self.upIcon)
+        self.pbUp.clicked.connect(partial(self.on_moveConnection, side='up'))
         self.pbDn.setIcon(self.dnIcon)
+        self.pbDn.clicked.connect(partial(self.on_moveConnection, side='down'))
         self.pbDel.setIcon(self.delIcon)
         self.pbDel.clicked.connect(self.on_deleteConnection)
 
@@ -170,8 +174,7 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
         for connType in self.connectionsType:
             newCat = QtGui.QTreeWidgetItem()
             newCat.connType = connType
-            newCat.itemType = 'group'
-            newCat._widget = NodeConnectionGroup(self.mainUi, newCat, groupName=connType)
+            newCat._widget = NodeConnectionGroup(self.mainUi, newCat)
             self.twNodeConnections.addTopLevelItem(newCat)
             self.twNodeConnections.setItemWidget(newCat, 0, newCat._widget)
 
@@ -188,14 +191,16 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
             if k in connInfo.keys():
                 typeItem = self.getTypeItem(k)
                 for n in sorted(connInfo[k].keys()):
-                    lineConnection = connInfo[k][n]['line']
                     if k == 'outputFile':
-                        linkedNode = connInfo[k][n]['dstNode']
+                        direction = 'dst'
                     else:
-                        linkedNode = connInfo[k][n]['srcNode']
+                        direction = 'src'
                     newLink = QtGui.QTreeWidgetItem()
-                    newLink.itemType = 'child'
-                    newLink._widget = NodeConnectionItem(self.mainUi, newLink, n, lineConnection, linkedNode)
+                    newLink.index = n
+                    newLink.linkedLine = connInfo[k][n]['line']
+                    newLink.linkedNode = connInfo[k][n]['%sNode' % direction]
+                    newLink.linkedPlug = connInfo[k][n]['%sItem' % direction]
+                    newLink._widget = NodeConnectionItem(self.mainUi, newLink)
                     typeItem.addChild(newLink)
                     self.twNodeConnections.setItemWidget(newLink, 0, newLink._widget)
                     items.append(newLink)
@@ -206,19 +211,41 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
                 else:
                     typeItem._widget.lCount.setText("0")
 
-    def on_moveConnection(self, side):
+    def on_moveConnection(self, side='up'):
+        """ Edit connection order
+            :param side: 'up' or 'down'
+            :type side: str """
         selItems = self.twNodeConnections.selectedItems()
-        if selItems and self.mainUi.editMode:
+        if selItems and self.currentNode is not None and self.mainUi.editMode:
             item = selItems[0]
-            if item.itemType == 'child':
-                pass
+            parent = item.parent()
+            linkedNodeName = item.linkedNode.nodeLabel
+            plug = getattr(self.currentNode, '%sConnection' % parent.connType)
+            if side == 'up':
+                if item.index > 0:
+                    self.log.debug("Moving connection up: %s ..." % linkedNodeName)
+                    link = plug.connections.pop(item.index)
+                    plug.connections.insert((item.index - 1), link)
+            else:
+                if item.index < (parent.childCount() - 1):
+                    self.log.debug("Moving connection down: %s ..." % linkedNodeName)
+                    link = plug.connections.pop(item.index)
+                    plug.connections.insert((item.index + 1), link)
+            self.setDataFromNode(self.currentNode)
+            #-- Keep Item Selected --#
+            for n in range(self.twNodeConnections.topLevelItemCount()):
+                grpItem = self.twNodeConnections.topLevelItem(n)
+                if grpItem.connType == parent.connType:
+                    for c in range(grpItem.childCount()):
+                        if grpItem.child(c).linkedNode.nodeLabel == linkedNodeName:
+                            self.twNodeConnections.setItemSelected(grpItem.child(c), True)
 
     def on_deleteConnection(self):
         """ Command launched when 'Delete' QPushButton is clicked,
             Delete selected connection """
         if self.mainUi.editMode and self.currentNode is not None:
             for item in self.twNodeConnections.selectedItems():
-                if item.itemType == 'child':
+                if item.parent() is not None:
                     item._widget.lineConnection.deleteLine()
                     self.setDataFromNode(self.currentNode)
 
@@ -232,14 +259,12 @@ class NodeConnectionGroup(QtGui.QWidget, wgDataConnGroupUI.Ui_wgConnGroup):
         :param mainUi: Grapher main window
         :type mainUi: QtGui.QMainWindow
         :param pItem: Parent widget item
-        :type pItem: QtGui.QTreeWidgetItem
-        :param groupName: Connection category group name
-        :type groupName: str """
+        :type pItem: QtGui.QTreeWidgetItem """
 
-    def __init__(self, mainUi, pItem, groupName='Untitled'):
+    def __init__(self, mainUi, pItem):
         self.mainUi = mainUi
         self.pItem = pItem
-        self.grpName = groupName
+        self.grpName = self.pItem.connType
         self.collapsedIcon= QtGui.QIcon("gui/icon/png/itemCollapsed.png")
         self.expandedIcon = QtGui.QIcon("gui/icon/png/itemExpanded.png")
         super(NodeConnectionGroup, self).__init__()
@@ -272,20 +297,15 @@ class NodeConnectionItem(QtGui.QWidget, wgDataConnItemUI.Ui_wgDataConnItem):
         :param mainUi: Grapher main window
         :type mainUi: QtGui.QMainWindow
         :param pItem: Parent widget item
-        :type pItem: QtGui.QTreeWidgetItem
-        :param index: Connection index
-        :type index: int
-        :param lineConnection: Graph scene line item
-        :type lineConnection: QtGui.QGraphicsLineItem | QtGui.QGraphicsPathItem
-        :param linkedNode: Linked graph node
-        :type linkedNode: QtSvg.QGraphicsSvgItem"""
+        :type pItem: QtGui.QTreeWidgetItem """
 
-    def __init__(self, mainUi, pItem, index, lineConnection, linkedNode):
+    def __init__(self, mainUi, pItem):
         self.mainUi = mainUi
         self.pItem = pItem
-        self.index = index
-        self.lineConnection = lineConnection
-        self.linkedNode = linkedNode
+        self.index = self.pItem.index
+        self.lineConnection = self.pItem.linkedLine
+        self.linkedNode = self.pItem.linkedNode
+        self.linkedPlug = self.pItem.linkedPlug
         super(NodeConnectionItem, self).__init__()
         self._setupUi()
 
