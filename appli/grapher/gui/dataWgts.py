@@ -136,8 +136,8 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
         self.currentNode = None
         self.defaultState = 'collapsed'
         super(DataNodeConnections, self).__init__()
-        self.upIcon = QtGui.QIcon("gui/icon/png/arrowUp.png")
-        self.dnIcon = QtGui.QIcon("gui/icon/png/arrowDn.png")
+        self.upIcon = QtGui.QIcon("gui/icon/png/arrowUpBlue.png")
+        self.dnIcon = QtGui.QIcon("gui/icon/png/arrowDnBlue.png")
         self.delIcon = QtGui.QIcon("gui/icon/png/buttonDel.png")
         self._setupUi()
 
