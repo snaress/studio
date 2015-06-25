@@ -4,11 +4,13 @@ from PyQt4 import QtGui, QtSvg, QtCore
 
 
 class GraphZone(QtGui.QGraphicsView):
-    """ Graphic view widget, child of grapher.tagGraph. Contains graphScene
-        :param mainUi: Grapher main window
-        :type mainUi: QtGui.QMainWindow
-        :param graphScene: Graph scene
-        :type graphScene: QtGui.QGraphicsScene """
+    """
+    Graphic view widget, child of grapher.tagGraph. Contains graphScene
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    :param graphScene: Graph scene
+    :type graphScene: QtGui.QGraphicsScene
+    """
 
     def __init__(self, mainUi, graphScene):
         super(GraphZone, self).__init__()
@@ -16,10 +18,13 @@ class GraphZone(QtGui.QGraphicsView):
         self.log = self.mainUi.log
         self.graphScene = graphScene
         self.ctrlKey = False
+        self.zoomFactor = 1
         self._setupUi()
 
     def _setupUi(self):
-        """ Setup graphZone """
+        """
+        Setup graphZone
+        """
         self.log.debug("---> Setup GraphZone ...")
         self.setScene(self.graphScene)
         self.setSceneRect(0, 0, 10000, 10000)
@@ -27,19 +32,29 @@ class GraphZone(QtGui.QGraphicsView):
         self.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(60, 60, 60, 255), QtCore.Qt.SolidPattern))
 
     def wheelEvent(self, event):
-        """ Scale graph view (zoom fit) """
+        """
+        Scale graph view (zoom fit)
+        """
         factor = 1.41 ** ((event.delta()*.5) / 240.0)
         self.scale(factor, factor)
+        if event.delta() > 0:
+            self.zoomFactor += factor
+        else:
+            self.zoomFactor -= factor
 
     def resizeEvent(self, event):
-        """ Resize graph view (widget size) """
+        """
+        Resize graph view (widget size)
+        """
         self.graphScene.setSceneRect(0, 0, self.width(), self.height())
 
 
 class GraphScene(QtGui.QGraphicsScene):
-    """ Graphic scene widget, child of grapher.graphZone. Contains graphNodes
-        :param mainUi: Grapher main window
-        :type mainUi: QtGui.QMainWindow """
+    """
+    Graphic scene widget, child of grapher.graphZone. Contains graphNodes
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    """
 
     def __init__(self, mainUi):
         super(GraphScene, self).__init__()
@@ -50,14 +65,18 @@ class GraphScene(QtGui.QGraphicsScene):
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
-        """ Setup graphScene """
+        """
+        Setup graphScene
+        """
         self.log.debug("---> Setup GraphScene ...")
         self.line = None
         self.selBuffer = {'_order': []}
         self.selectionChanged.connect(self._selectionChanged)
 
     def _selectionChanged(self):
-        """ Store node selection order """
+        """
+        Store node selection order
+        """
         selNodes = self.getSelectedNodes()
         if not selNodes:
             self.selBuffer = {'_order': []}
@@ -68,9 +87,11 @@ class GraphScene(QtGui.QGraphicsScene):
                     self.selBuffer[item.nodeName] = item
 
     def getAllNodes(self):
-        """ Get all graphScene nodes (_type=='nodeBase')
-            :return: GraphScene nodes
-            :rtype: list """
+        """
+        Get all graphScene nodes (_type=='nodeBase')
+        :return: GraphScene nodes
+        :rtype: list
+        """
         items = []
         for item in self.items():
             if hasattr(item, '_type'):
@@ -79,9 +100,11 @@ class GraphScene(QtGui.QGraphicsScene):
         return items
 
     def getAllLines(self):
-        """ Get all graphScene lines (_type in ['lineConnection', 'linkConnection'])
-            :return: GraphScene lines
-            :rtype: list """
+        """
+        Get all graphScene lines (_type in ['lineConnection', 'linkConnection'])
+        :return: GraphScene lines
+        :rtype: list
+        """
         lines = []
         for item in self.items():
             if hasattr(item, '_type'):
@@ -90,9 +113,11 @@ class GraphScene(QtGui.QGraphicsScene):
         return lines
 
     def getSelectedNodes(self):
-        """ Get selected graphScene nodes (_type=='nodeBase')
-            :return: Selected graphScene nodes
-            :rtype: list """
+        """
+        Get selected graphScene nodes (_type=='nodeBase')
+        :return: Selected graphScene nodes
+        :rtype: list
+        """
         items = []
         for item in self.selectedItems():
             if hasattr(item, '_type'):
@@ -101,23 +126,32 @@ class GraphScene(QtGui.QGraphicsScene):
         return items
 
     def getSelectedNodesArea(self):
-        """ Get selected nodes bbox
-            :return: Bounding box region (minX, maxX, minY, maxY)
-            :rtype: (int, int, int, int) """
+        """
+        Get selected nodes bbox
+        :return: Bounding box region (posX, posY, width, height)
+        :rtype: (float, float, float, float)
+        """
         nodes = self.getSelectedNodes()
         posX = []
         posY = []
-        for node in nodes:
-            posX.append(node.pos().x())
-            posY.append(node.pos().y())
-        return min(posX), max(posX), min(posY), max(posY)
+        if len(nodes) > 1:
+            for node in nodes:
+                posX.append(node.pos().x())
+                posY.append(node.pos().y())
+        x = (max(posX) + min(posX)) / 2
+        y = (max(posY) + min(posY)) / 2
+        w = max(posX) - min(posX)
+        h = max(posY) - min(posY)
+        return x, y, w, h
 
     def getNextNameIndex(self, name):
-        """ Get next free nodeName index
-            :param name: Node name
-            :type name: str
-            :return: Clean name with extension
-            :rtype: str """
+        """
+        Get next free nodeName index
+        :param name: Node name
+        :type name: str
+        :return: Clean name with extension
+        :rtype: str
+        """
         indList = []
         checkName = name
         if name.split('_')[-1].isdigit():
@@ -132,12 +166,16 @@ class GraphScene(QtGui.QGraphicsScene):
         return "%s_%s" % (name, ind)
 
     def clearNodeSelection(self):
-        """ Unselect all graph nodes """
+        """
+        Unselect all graph nodes
+        """
         for node in self.getSelectedNodes():
             node.setSelected(False)
 
     def rf_nodesElementId(self):
-        """ Refresh graph nodes element id """
+        """
+        Refresh graph nodes element id
+        """
         for node in self.getAllNodes():
             if node._type == "nodeBase":
                 if node.isSelected():
@@ -146,7 +184,9 @@ class GraphScene(QtGui.QGraphicsScene):
                     node.setElementId("regular")
 
     def rf_connections(self):
-        """ Refresh graphScene connections line """
+        """
+        Refresh graphScene connections line
+        """
         self.log.debug("Refresh Graph Connections ...")
         cList = []
         for line in self.getAllLines():
@@ -159,13 +199,15 @@ class GraphScene(QtGui.QGraphicsScene):
                 self.createLine(c['src'], c['dst'], lineType='link')
 
     def createLine(self, startItem, endItem, lineType='line'):
-        """ Create connection line
-            :param startItem: Start node connectionItem
-            :type startItem: QtSvg.QGraphicsSvgItem
-            :param endItem: End node connectionItem
-            :type endItem: QtSvg.QGraphicsSvgItem
-            :param lineType: Connection line type ('line' or 'link')
-            :type lineType: str """
+        """
+        Create connection line
+        :param startItem: Start node connectionItem
+        :type startItem: QtSvg.QGraphicsSvgItem
+        :param endItem: End node connectionItem
+        :type endItem: QtSvg.QGraphicsSvgItem
+        :param lineType: Connection line type ('line' or 'link')
+        :type lineType: str
+        """
         self.log.debug("Creating line: %s ---> %s ..." % (startItem._parent.nodeName, endItem._parent.nodeName))
         if lineType == 'line':
             connectionLine = LineConnection(self.mainUi, startItem, endItem)
@@ -177,8 +219,10 @@ class GraphScene(QtGui.QGraphicsScene):
         connectionLine.updatePosition()
 
     def keyPressEvent(self, event):
-        """ Add key press options: 'Delete' = Delete selected nodes or lines
-                                   'Control' = Draw selection region """
+        """
+        Add key press options: 'Delete' = Delete selected nodes or lines
+                               'Control' = Draw selection region
+        """
         if event.key() == QtCore.Qt.Key_Delete:
             if self.mainUi.editMode:
                 for item in self.selectedItems():
@@ -190,7 +234,9 @@ class GraphScene(QtGui.QGraphicsScene):
             self.mainUi.currentGraphZone.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
 
     def keyReleaseEvent(self, event):
-        """ Add key release options: 'Control' = Select nodes and lines in selection area """
+        """
+        Add key release options: 'Control' = Select nodes and lines in selection area
+        """
         if event.key() == QtCore.Qt.Key_Control:
             self.mainUi.currentGraphZone.setDragMode(QtGui.QGraphicsView.NoDrag)
             for item in self.selectedItems():
@@ -198,10 +244,12 @@ class GraphScene(QtGui.QGraphicsScene):
                     item.setElementId("selected")
 
     def mousePressEvent(self, event):
-        """ Add mouse press options: 'Left' = - If itemType is 'nodeConnection', store start position
-                                                for line creation
-                                              - If itemType is 'nodeBase', will connect node data to dataZone
-                                              - If empty, will clear dataZone and update node.elementId """
+        """
+        Add mouse press options: 'Left' = - If itemType is 'nodeConnection', store start position
+                                            for line creation
+                                          - If itemType is 'nodeBase', will connect node data to dataZone
+                                          - If empty, will clear dataZone and update node.elementId
+        """
         item = self.itemAt(event.scenePos())
         if item is not None and hasattr(item, '_type'):
             if event.button() == QtCore.Qt.LeftButton and item._type == 'nodeConnection':
@@ -220,8 +268,10 @@ class GraphScene(QtGui.QGraphicsScene):
         self.rf_nodesElementId()
 
     def mouseMoveEvent(self, event):
-        """ Add mouse move options: 'left' = If line construction is detected, will draw the line
-                                             and update endPoint position """
+        """
+        Add mouse move options: 'left' = If line construction is detected, will draw the line
+                                         and update endPoint position
+        """
         if self.line:
             newLine = QtCore.QLineF(self.line.line().p1(), event.scenePos())
             self.line.setLine(newLine)
@@ -229,8 +279,10 @@ class GraphScene(QtGui.QGraphicsScene):
         self.update()
 
     def mouseReleaseEvent(self, event):
-        """ Add mouse release options: 'left' = If line construction is detected, will draw the final connection
-                                                and clear construction line item """
+        """
+        Add mouse release options: 'left' = If line construction is detected, will draw the final connection
+                                            and clear construction line item
+        """
         if self.line:
             #-- Tmp Line --#
             startItems = self.items(self.line.line().p1())
@@ -252,9 +304,11 @@ class GraphScene(QtGui.QGraphicsScene):
 
 
 class GraphNode(QtSvg.QGraphicsSvgItem):
-    """ Graphic svg item, child of grapher.graphScene. Contains node params and datas
-        :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
-        :type kwargs: dict """
+    """
+    Graphic svg item, child of grapher.graphScene. Contains node params and datas
+    :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
+    :type kwargs: dict
+    """
 
     def __init__(self, **kwargs):
         self.mainUi = kwargs['mainUi']
@@ -266,12 +320,15 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
             self.nodeLabel = self.nodeName
         else:
             self.nodeLabel = kwargs['nodeLabel']
+        self.nodeEnabled = True
         super(GraphNode, self).__init__(self.iconFile)
         self.defaultBrush = QtGui.QPen()
         self._setupUi()
 
     def _setupUi(self):
-        """ Setup svg graph node """
+        """
+        Setup svg graph node
+        """
         self.defaultBrush.setWidth(2)
         self.defaultBrush.setColor(QtCore.Qt.white)
         self.setFlags(QtGui.QGraphicsItem.ItemIsSelectable|
@@ -282,56 +339,64 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         self.setElementId("regular")
         self.setToolTip("Name = %s\nLabel = %s" % (self.nodeName, self.nodeLabel))
         self.addLabelNode()
-        self.addConnectionNodes()
+        self.addConnectionPlugs()
 
     @property
     def nodeSize(self):
-        """ get graph node size
-            :return: Node size (width, height)
-            :rtype: (int, int) """
+        """
+        get graph node size
+        :return: Node size (width, height)
+        :rtype: (int, int)
+        """
         size = (self.boundingRect().width(), self.boundingRect().height())
         return size
 
     @property
     def width(self):
-        """ get graph node width
-            :return: Node width
-            :rtype: int """
+        """
+        get graph node width
+        :return: Node width
+        :rtype: int
+        """
         return self.nodeSize[0]
 
     @property
     def height(self):
-        """ get graph node height
-            :return: Node height
-            :rtype: int """
+        """
+        get graph node height
+        :return: Node height
+        :rtype: int
+        """
         return self.nodeSize[1]
 
     def getConnections(self):
-        """ Get graph node connections
-            :return: Node connections
-            :rtype: dict """
+        """
+        Get graph node connections
+        :return: Node connections
+        :rtype: dict
+        """
         cDict = {}
-        if self.hasInputFileConnection:
+        if self.hasInputFilePlug:
             cDict['inputFile'] = {}
-            for n, line  in enumerate(self.inputFileConnection.connections):
+            for n, line  in enumerate(self.inputFilePlug.connections):
                 cDict['inputFile'][n] = {}
                 cDict['inputFile'][n]['line'] = line
                 cDict['inputFile'][n]['srcItem'] = line.startItem
                 cDict['inputFile'][n]['srcNode'] = line.startNode
                 cDict['inputFile'][n]['dstItem'] = line.endItem
                 cDict['inputFile'][n]['dstNode'] = line.endNode
-        if self.hasInputDataConnection:
+        if self.hasInputDataPlug:
             cDict['inputData'] = {}
-            for n, line  in enumerate(self.inputDataConnection.connections):
+            for n, line  in enumerate(self.inputDataPlug.connections):
                 cDict['inputData'][n] = {}
                 cDict['inputData'][n]['line'] = line
                 cDict['inputData'][n]['srcItem'] = line.startItem
                 cDict['inputData'][n]['srcNode'] = line.startNode
                 cDict['inputData'][n]['dstItem'] = line.endItem
                 cDict['inputData'][n]['dstNode'] = line.endNode
-        if self.hasOutputFileConnection:
+        if self.hasOutputFilePlug:
             cDict['outputFile'] = {}
-            for n, line  in enumerate(self.outputFileConnection.connections):
+            for n, line  in enumerate(self.outputFilePlug.connections):
                 cDict['outputFile'][n] = {}
                 cDict['outputFile'][n]['line'] = line
                 cDict['outputFile'][n]['srcItem'] = line.startItem
@@ -341,9 +406,11 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         return cDict
 
     def getConnectionsInfo(self):
-        """ Get graph node connections readable info
-            :return: Node connections info
-            :rtype: dict """
+        """
+        Get graph node connections readable info
+        :return: Node connections info
+        :rtype: dict
+        """
         rDict = {}
         cDict = self.getConnections()
         for conn in sorted(cDict.keys()):
@@ -358,7 +425,9 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         return rDict
 
     def addLabelNode(self):
-        """ Add graph node label item """
+        """
+        Add graph node label item
+        """
         font = QtGui.QFont("SansSerif", 14)
         font.setStyleHint(QtGui.QFont.Helvetica)
         self.nodeTextLabel = QtGui.QGraphicsTextItem(self.nodeLabel, self)
@@ -366,28 +435,30 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         self.nodeTextLabel.setDefaultTextColor(QtGui.QColor(QtCore.Qt.white))
         self.nodeTextLabel.setPos(0, self.height)
 
-    def addConnectionNodes(self):
-        """ Add graph node connections plug """
-        if self.hasInputFileConnection:
-            self.inputFileConnection = NodeConnection(mainUi=self.mainUi, nodeType='inputFileConnection',
-                                                      iconFile="gui/icon/svg/inputFileConnNode.svg", parent=self)
-            self.inputFileConnection.setPos(0 - self.inputFileConnection.width,
-                                            - (self.inputFileConnection.height / 2))
-            self.inputFileConnection.isInputConnection = True
-        if self.hasInputDataConnection:
-            self.inputDataConnection = NodeConnection(mainUi=self.mainUi, nodeType='inputDataConnection',
-                                                      iconFile="gui/icon/svg/inputDataConnNode.svg", parent=self)
-            self.inputDataConnection.setPos(0 - self.inputDataConnection.width,
-                                            self.height - (self.inputDataConnection.height / 2))
-            self.inputDataConnection.isInputConnection = True
-        if self.hasOutputFileConnection:
-            self.outputFileConnection = NodeConnection(mainUi=self.mainUi, nodeType='outputFileConnection',
-                                                      iconFile="gui/icon/svg/outputFileConnNode.svg", parent=self)
-            self.outputFileConnection.setPos(self.width, (self.height / 2) - (self.outputFileConnection.height / 2))
-            self.outputFileConnection.isInputConnection = False
+    def addConnectionPlugs(self):
+        """
+        Add graph node connections plug
+        """
+        if self.hasInputFilePlug:
+            self.inputFilePlug = NodeConnection(mainUi=self.mainUi, nodeType='inputFilePlug',
+                                                iconFile="gui/icon/svg/inputFilePlug.svg", parent=self)
+            self.inputFilePlug.setPos(0 - self.inputFilePlug.width, - (self.inputFilePlug.height / 2))
+            self.inputFilePlug.isInputConnection = True
+        if self.hasInputDataPlug:
+            self.inputDataPlug = NodeConnection(mainUi=self.mainUi, nodeType='inputDataPlug',
+                                                iconFile="gui/icon/svg/inputDataPlug.svg", parent=self)
+            self.inputDataPlug.setPos(0 - self.inputDataPlug.width, self.height - (self.inputDataPlug.height / 2))
+            self.inputDataPlug.isInputConnection = True
+        if self.hasOutputFilePlug:
+            self.outputFilePlug = NodeConnection(mainUi=self.mainUi, nodeType='outputFilePlug',
+                                                 iconFile="gui/icon/svg/outputFilePlug.svg", parent=self)
+            self.outputFilePlug.setPos(self.width, (self.height / 2) - (self.outputFilePlug.height / 2))
+            self.outputFilePlug.isInputConnection = False
 
     def deleteNode(self):
-        """ Delete graph node and connected lines """
+        """
+        Delete graph node and connected lines
+        """
         self.log.debug("Deleting node: %s ..." % self.nodeName)
         #-- Delete Connections --#
         cDict = self.getConnections()
@@ -402,7 +473,9 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         self.scene().removeItem(self)
 
     def connectNodeData(self):
-        """ Connect graph node data to dataZone """
+        """
+        Connect graph node data to dataZone
+        """
         self.log.debug("Connecting node data: %s ..." % self.nodeName)
         groups = pQt.getTopItems(self.dataTree)
         for grpItem in groups:
@@ -410,11 +483,15 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
             dataItem.setDataFromNode(self)
 
     def hoverMoveEvent(self, event):
-        """ Add hover move options: Change node style """
+        """
+        Add hover move options: Change node style
+        """
         self.setElementId("hover")
 
     def hoverLeaveEvent(self, event):
-        """ Add hover leave options: Change node style """
+        """
+        Add hover leave options: Change node style
+        """
         if self.isSelected():
             self.setElementId("selected")
         else:
@@ -422,9 +499,11 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
 
 
 class NodeConnection(QtSvg.QGraphicsSvgItem):
-    """ Graphic svg item, child of graphNode. Contains graphNode connections
-        :param kwargs: Graph node dict (mainUi, iconFile, nodeType, parent)
-        :type kwargs: dict """
+    """
+    Graphic svg item, child of graphNode. Contains graphNode connections
+    :param kwargs: Graph node dict (mainUi, iconFile, nodeType, parent)
+    :type kwargs: dict
+    """
 
     def __init__(self, **kwargs):
         self.mainUi = kwargs['mainUi']
@@ -438,53 +517,69 @@ class NodeConnection(QtSvg.QGraphicsSvgItem):
         self._setupUi()
 
     def _setupUi(self):
-        """ Setup svg graph node connections plug """
+        """
+        Setup svg graph node connections plug
+        """
         self.setAcceptHoverEvents(True)
         self.setElementId("regular")
 
     @property
     def nodeSize(self):
-        """ get graph node plug size
-            :return: Node plug size (width, height)
-            :rtype: (int, int) """
+        """
+        get graph node plug size
+        :return: Node plug size (width, height)
+        :rtype: (int, int)
+        """
         size = (self.boundingRect().width(), self.boundingRect().height())
         return size
 
     @property
     def width(self):
-        """ get graph node plug width
-            :return: Node plug width
-            :rtype: int """
+        """
+        get graph node plug width
+        :return: Node plug width
+        :rtype: int
+        """
         return self.nodeSize[0]
 
     @property
     def height(self):
-        """ get graph node plug height
-            :return: Node plug height
-            :rtype: int """
+        """
+        get graph node plug height
+        :return: Node plug height
+        :rtype: int
+        """
         return self.nodeSize[1]
 
     def hoverMoveEvent(self,event):
-        """ Add hover move options: Change node style """
+        """
+        Add hover move options: Change node style
+        """
         self.setElementId("hover")
 
     def hoverLeaveEvent(self, event):
-        """ Add hover leave options: Change node style """
+        """
+        Add hover leave options: Change node style
+        """
         self.setElementId("regular")
 
     def mouseReleaseEvent(self, event):
-        """ Add mouse release options: Change node style """
+        """
+        Add mouse release options: Change node style
+        """
         self.setElementId("regular")
 
 
 class LineConnection(QtGui.QGraphicsLineItem):
-    """ Graphic line item, child of grapher.graphScene. Contains line connection
-        :param mainUi: Grapher main window
-        :type mainUi: QtGui.QMainWindow
-        :param startItem: Start node connection plug
-        :type startItem: QtSvg.QGraphicsSvgItem
-        :param endItem: End node connection plug
-        :type endItem: QtSvg.QGraphicsSvgItem """
+    """
+    Graphic line item, child of grapher.graphScene. Contains line connection
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    :param startItem: Start node connection plug
+    :type startItem: QtSvg.QGraphicsSvgItem
+    :param endItem: End node connection plug
+    :type endItem: QtSvg.QGraphicsSvgItem
+    """
 
     def __init__(self, mainUi, startItem, endItem):
         self.mainUi = mainUi
@@ -501,41 +596,53 @@ class LineConnection(QtGui.QGraphicsLineItem):
 
     @property
     def startNode(self):
-        """ Get start graph node (_type='nodeBase')
-            :return: Start node
-            :rtype: QtSvg.QGraphicsSvgItem """
+        """
+        Get start graph node (_type='nodeBase')
+        :return: Start node
+        :rtype: QtSvg.QGraphicsSvgItem
+        """
         return self.startItem._parent
 
     @property
     def endNode(self):
-        """ Get end graph node (_type='nodeBase')
-            :return: End node
-            :rtype: QtSvg.QGraphicsSvgItem """
+        """
+        Get end graph node (_type='nodeBase')
+        :return: End node
+        :rtype: QtSvg.QGraphicsSvgItem
+        """
         return self.endItem._parent
 
     def getLine(self):
-        """ Get line coords
-            :return: Line coords
-            :rtype: QtCore.QLineF """
+        """
+        Get line coords
+        :return: Line coords
+        :rtype: QtCore.QLineF
+        """
         p1 = self.startItem.sceneBoundingRect().center()
         p2 = self.endItem.sceneBoundingRect().center()
         return QtCore.QLineF(self.mapFromScene(p1), self.mapFromScene(p2))
 
     def getCenterPoint(self):
-        """ Get line center point
-            :return: Line center point
-            :rtype: QtCore.QPointF """
+        """
+        Get line center point
+        :return: Line center point
+        :rtype: QtCore.QPointF
+        """
         line = self.getLine()
         centerX = (line.p1().x() + line.p2().x()) / 2
         centerY = (line.p1().y() + line.p2().y()) / 2
         return QtCore.QPointF(centerX, centerY)
 
     def updatePosition(self):
-        """ Update line position """
+        """
+        Update line position
+        """
         self.setLine(self.getLine())
 
     def deleteLine(self):
-        """ Delete line and remove connections plug storage """
+        """
+        Delete line and remove connections plug storage
+        """
         self.log.debug("Deleting line: %s ---> %s ..." % (self.startItem._parent.nodeName,
                                                          self.endItem._parent.nodeName))
         self.startItem.connections.remove(self)
@@ -543,9 +650,11 @@ class LineConnection(QtGui.QGraphicsLineItem):
         self.scene().removeItem(self)
 
     def _arrowHeadCalculation(self, line):
-        """ Calculate and update arrow orientation
-            :param line: Connection line point position
-            :type line: QtCore.QLineF """
+        """
+        Calculate and update arrow orientation
+        :param line: Connection line point position
+        :type line: QtCore.QLineF
+        """
         arrowSize = 20.0
         try:
             angle = math.acos(line.dx() / line.length())
@@ -571,9 +680,11 @@ class LineConnection(QtGui.QGraphicsLineItem):
             self.arrowHead.append(point)
 
     def boundingRect(self):
-        """ Calculate line bounding rect
-            :return: Line bounding rect
-            :rtype: QtCore.QRectF """
+        """
+        Calculate line bounding rect
+        :return: Line bounding rect
+        :rtype: QtCore.QRectF
+        """
         extra = (self.pen().width() + 100) / 2.0
         line = self.getLine()
         p1 = line.p1()
@@ -581,15 +692,19 @@ class LineConnection(QtGui.QGraphicsLineItem):
         return QtCore.QRectF(p1, QtCore.QSizeF(p2.x()-p1.x(), p2.y()-p1.y())).normalized().adjusted(-extra,-extra,extra,extra)
 
     def shape(self):
-        """ Line shape with arrow
-            :return: Line shape
-            :rtype: QtGui.QPainterPath """
+        """
+        Line shape with arrow
+        :return: Line shape
+        :rtype: QtGui.QPainterPath
+        """
         path = super(LineConnection, self).shape()
         path.addPolygon(self.arrowHead)
         return path
 
     def paint(self, painter, option, widget=None):
-        """ Draw line connection """
+        """
+        Draw line connection
+        """
         line = self.getLine()
         painter.setBrush(self.lineColor)
         myPen = self.pen()
@@ -610,13 +725,15 @@ class LineConnection(QtGui.QGraphicsLineItem):
 
 
 class LinkConnection(QtGui.QGraphicsPathItem):
-    """ Graphic link item, child of grapher.graphScene. Contains link connection
-        :param mainUi: Grapher main window
-        :type mainUi: QtGui.QMainWindow
-        :param startItem: Start node connection plug
-        :type startItem: QtSvg.QGraphicsSvgItem
-        :param endItem: End node connection plug
-        :type endItem: QtSvg.QGraphicsSvgItem """
+    """
+    Graphic link item, child of grapher.graphScene. Contains link connection
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    :param startItem: Start node connection plug
+    :type startItem: QtSvg.QGraphicsSvgItem
+    :param endItem: End node connection plug
+    :type endItem: QtSvg.QGraphicsSvgItem
+    """
 
     def __init__(self, mainUi, startItem, endItem):
         self.mainUi = mainUi
@@ -631,41 +748,53 @@ class LinkConnection(QtGui.QGraphicsPathItem):
 
     @property
     def startNode(self):
-        """ Get start graph node (_type='nodeBase')
-            :return: Start node
-            :rtype: QtSvg.QGraphicsSvgItem """
+        """
+        Get start graph node (_type='nodeBase')
+        :return: Start node
+        :rtype: QtSvg.QGraphicsSvgItem
+        """
         return self.startItem._parent
 
     @property
     def endNode(self):
-        """ Get end graph node (_type='nodeBase')
-            :return: end node
-            :rtype: QtSvg.QGraphicsSvgItem """
+        """
+        Get end graph node (_type='nodeBase')
+        :return: end node
+        :rtype: QtSvg.QGraphicsSvgItem
+        """
         return self.endItem._parent
 
     def getLine(self):
-        """ Get link coords
-            :return: Line coords
-            :rtype: QtCore.QLineF """
+        """
+        Get link coords
+        :return: Line coords
+        :rtype: QtCore.QLineF
+        """
         p1 = self.startItem.sceneBoundingRect().center()
         p2 = self.endItem.sceneBoundingRect().center()
         return QtCore.QLineF(self.mapFromScene(p1), self.mapFromScene(p2))
 
     def getCenterPoint(self):
-        """ Get link center point
-            :return: Link center point
-            :rtype: QtCore.QPointF """
+        """
+        Get link center point
+        :return: Link center point
+        :rtype: QtCore.QPointF
+        """
         line = self.getLine()
         centerX = (line.p1().x() + line.p2().x()) / 2
         centerY = (line.p1().y() + line.p2().y()) / 2
         return QtCore.QPointF(centerX, centerY)
 
     def updatePosition(self):
-        """ Update link position """
+        """
+        Update link position
+        """
         self.setPath(self.createPath())
 
     def deleteLine(self):
-        """ Delete link and remove connections plug storage """
+        """
+        Delete link and remove connections plug storage
+        """
         self.log.debug("Deleting line: %s ---> %s ..." % (self.startItem._parent.nodeName,
                                                           self.endItem._parent.nodeName))
         self.startItem.connections.remove(self)
@@ -673,9 +802,11 @@ class LinkConnection(QtGui.QGraphicsPathItem):
         self.scene().removeItem(self)
 
     def createPath(self):
-        """ Calculate link angle
-            :return: Link path
-            :rtype: QtGui.QPainterPath """
+        """
+        Calculate link angle
+        :return: Link path
+        :rtype: QtGui.QPainterPath
+        """
         line = self.getLine()
         centerPoint = self.getCenterPoint()
         coef = QtCore.QPointF(abs(centerPoint.x() - line.p1().x()), 0)
@@ -686,7 +817,9 @@ class LinkConnection(QtGui.QGraphicsPathItem):
         return path
 
     def paint(self, painter, option, widget=None):
-        """ Draw line connection """
+        """
+        Draw line connection
+        """
         myPen = self.pen()
         myPen.setColor(self.lineColor)
         painter.setPen(myPen)

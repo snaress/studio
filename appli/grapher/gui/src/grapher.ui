@@ -162,6 +162,8 @@
     <property name="title">
      <string>Grapher</string>
     </property>
+    <addaction name="miLoadProject"/>
+    <addaction name="miEditProject"/>
    </widget>
    <widget class="QMenu" name="menuDisplay">
     <property name="title">
@@ -169,6 +171,7 @@
     </property>
     <addaction name="miToolBarVisibility"/>
     <addaction name="miDataVisibility"/>
+    <addaction name="miFitInScene"/>
     <addaction name="miFitInView"/>
    </widget>
    <addaction name="mGrapher"/>
@@ -325,6 +328,26 @@
   <action name="miFitInView">
    <property name="text">
     <string>Fit In View</string>
+   </property>
+  </action>
+  <action name="miNewProject">
+   <property name="text">
+    <string>New Project</string>
+   </property>
+  </action>
+  <action name="miLoadProject">
+   <property name="text">
+    <string>Load Project</string>
+   </property>
+  </action>
+  <action name="miEditProject">
+   <property name="text">
+    <string>Edit Project</string>
+   </property>
+  </action>
+  <action name="miFitInScene">
+   <property name="text">
+    <string>Fit In Scene</string>
    </property>
   </action>
  </widget>

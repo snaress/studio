@@ -5,9 +5,11 @@ from appli.grapher.template import graphNodes
 
 
 class ToolsBar(QtGui.QTabWidget):
-    """ Grapher tools tab
-        :param mainUi: Grapher main window
-        :type mainUi: QtGui.QMainWindow """
+    """
+    Grapher tools tab
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    """
 
     def __init__(self, mainUi):
         super(ToolsBar, self).__init__()
@@ -18,15 +20,19 @@ class ToolsBar(QtGui.QTabWidget):
         self._setupUi()
 
     def _setupUi(self):
-        """ Setup tools tab """
+        """
+        Setup tools tab
+        """
         self.log.debug("---> Setup Tools Bar ...")
         self.addTabs()
         self.tabOrientation('West')
 
     def tabOrientation(self, orient):
-        """ Edit tools tab orientation
-            :param orient: 'North', 'South', 'West', 'East'
-            :type orient: str """
+        """
+        Edit tools tab orientation
+        :param orient: 'North', 'South', 'West', 'East'
+        :type orient: str
+        """
         if orient == 'North':
             self.setTabPosition(QtGui.QTabWidget.North)
         elif orient == 'South':
@@ -42,7 +48,9 @@ class ToolsBar(QtGui.QTabWidget):
                 tab.setOrientation('vertical')
 
     def addTabs(self):
-        """ Add tools tab """
+        """
+        Add tools tab
+        """
         self.clear()
         #-- Tab Mode --#
         tabMode = TabMode(mainUi=self.mainUi)
@@ -55,9 +63,11 @@ class ToolsBar(QtGui.QTabWidget):
 
 
 class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
-    """ Grapher tools tab widget
-        :param mainUi: Grapher main window
-        :type mainUi: QtGui.QMainWindow """
+    """
+    Grapher tools tab widget
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    """
 
     def __init__(self, mainUi):
         super(ToolsTab, self).__init__()
@@ -66,9 +76,11 @@ class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
         self.setupUi(self)
 
     def setOrientation(self, orient):
-        """ Edit tools orientation
-            :param orient: 'horizontal' or 'vertical'
-            :type orient: str """
+        """
+        Edit tools orientation
+        :param orient: 'horizontal' or 'vertical'
+        :type orient: str
+        """
         if orient == 'horizontal':
             self.saHorizontal.setVisible(True)
             self.saVertical.setVisible(False)
@@ -78,13 +90,15 @@ class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
 
     # noinspection PyUnresolvedReferences
     def newTool(self, name, cmd=None, iconFile=None):
-        """ Add tool to tab
-            :param name: Tool button name
-            :type name: str
-            :param cmd: Tool button command
-            :type cmd: object
-            :param iconFile: Tool button iconfile
-            :type iconFile: str | None """
+        """
+        Add tool to tab
+        :param name: Tool button name
+        :type name: str
+        :param cmd: Tool button command
+        :type cmd: object
+        :param iconFile: Tool button iconfile
+        :type iconFile: str | None
+        """
         newTools = [QtGui.QPushButton(), QtGui.QPushButton()]
         for tool in newTools:
             tool.setText(name)
@@ -99,16 +113,20 @@ class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
 
 
 class TabMode(ToolsTab):
-    """ Modeling tool tab template
-        :param mainUi: Grapher main window
-        :type mainUi: QtGui.QMainWindow """
+    """
+    Modeling tool tab template
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    """
 
     def __init__(self, mainUi):
         super(TabMode, self).__init__(mainUi)
         self._addTools()
 
     def _addTools(self):
-        """ Add tools to tab """
+        """
+        Add tools to tab
+        """
         self.newTool('createModelingGraph', cmd=self.createModelingGraph, iconFile=None)
 
     def createModelingGraph(self):
@@ -116,22 +134,28 @@ class TabMode(ToolsTab):
 
 
 class TabUtil(ToolsTab):
-    """ Util tool tab template
-        :param mainUi: Grapher main window
-        :type mainUi: QtGui.QMainWindow """
+    """
+    Util tool tab template
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    """
 
     def __init__(self, mainUi):
         super(TabUtil, self).__init__(mainUi)
         self._addTools()
 
     def _addTools(self):
-        """ Add tools to tab """
+        """
+        Add tools to tab
+        """
         self.newTool('CreateSvgNode', cmd=self.createSvgNode, iconFile=None)
         self.newTool('CreateMayaNode', cmd=self.createMayaNode, iconFile="gui/icon/png/toolCreateMayaNode.png")
         self.newTool('CreateAssetNode', cmd=self.createAssetNode, iconFile="gui/icon/png/toolCreateAssetNode.png")
 
     def createAssetNode(self):
-        """ Add tool: Create Asset Node """
+        """
+        Add tool: Create Asset Node
+        """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_node")
         self.log.info("#-- Creating Asset Node: %s --#" % nodeName)
         newNode = graphNodes.AssetNode(mainUi=self.mainUi, nodeName=nodeName)
@@ -139,7 +163,9 @@ class TabUtil(ToolsTab):
         self.mainUi.currentGraphScene.addItem(newNode)
 
     def createMayaNode(self):
-        """ Add tool: Create Maya Node """
+        """
+        Add tool: Create Maya Node
+        """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
         self.log.info("#-- Creating Maya Node: %s --#" % nodeName)
         newNode = graphNodes.MayaNode(mainUi=self.mainUi, nodeName=nodeName)
@@ -147,7 +173,9 @@ class TabUtil(ToolsTab):
         self.mainUi.currentGraphScene.addItem(newNode)
 
     def createSvgNode(self):
-        """ Add tool: Create Svg Node """
+        """
+        Add tool: Create Svg Node
+        """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("svg_node")
         self.log.info("#-- Creating Svg Node: %s --#" % nodeName)
         newNode = graphNodes.SvgNode(mainUi=self.mainUi, nodeName=nodeName)

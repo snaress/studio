@@ -1,4 +1,5 @@
 import os
+from lib.env import studio
 from lib.qt import procQt as pQt
 
 
@@ -11,7 +12,7 @@ toolPack = __package__
 #-- Global Var --#
 user = os.environ.get('username')
 station = os.environ.get('computername')
-
+graphRootPath = os.path.join(studio.rndBinPath, toolName)
 
 #-- Show Info --#
 print '########## %s ##########' % toolName.upper()

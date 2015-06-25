@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Sat Jun 20 20:01:32 2015
+# Created: Thu Jun 25 02:45:59 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -149,6 +149,14 @@ class Ui_mwGrapher(object):
         self.miEditMode.setObjectName(_fromUtf8("miEditMode"))
         self.miFitInView = QtGui.QAction(mwGrapher)
         self.miFitInView.setObjectName(_fromUtf8("miFitInView"))
+        self.miNewProject = QtGui.QAction(mwGrapher)
+        self.miNewProject.setObjectName(_fromUtf8("miNewProject"))
+        self.miLoadProject = QtGui.QAction(mwGrapher)
+        self.miLoadProject.setObjectName(_fromUtf8("miLoadProject"))
+        self.miEditProject = QtGui.QAction(mwGrapher)
+        self.miEditProject.setObjectName(_fromUtf8("miEditProject"))
+        self.miFitInScene = QtGui.QAction(mwGrapher)
+        self.miFitInScene.setObjectName(_fromUtf8("miFitInScene"))
         self.mBarOrientation.addAction(self.miBarHorizontal)
         self.mBarOrientation.addAction(self.miBarVertical)
         self.mTabOrientation.addAction(self.miTabNorth)
@@ -169,8 +177,11 @@ class Ui_mwGrapher(object):
         self.mEdit.addAction(self.miEditMode)
         self.mEdit.addSeparator()
         self.mEdit.addAction(self.miConnectNodes)
+        self.mGrapher.addAction(self.miLoadProject)
+        self.mGrapher.addAction(self.miEditProject)
         self.menuDisplay.addAction(self.miToolBarVisibility)
         self.menuDisplay.addAction(self.miDataVisibility)
+        self.menuDisplay.addAction(self.miFitInScene)
         self.menuDisplay.addAction(self.miFitInView)
         self.menubar.addAction(self.mGrapher.menuAction())
         self.menubar.addAction(self.mEdit.menuAction())
@@ -217,4 +228,8 @@ class Ui_mwGrapher(object):
         self.miPrintConnections.setText(_translate("mwGrapher", "Print Sel Connections", None))
         self.miEditMode.setText(_translate("mwGrapher", "Edit Mode", None))
         self.miFitInView.setText(_translate("mwGrapher", "Fit In View", None))
+        self.miNewProject.setText(_translate("mwGrapher", "New Project", None))
+        self.miLoadProject.setText(_translate("mwGrapher", "Load Project", None))
+        self.miEditProject.setText(_translate("mwGrapher", "Edit Project", None))
+        self.miFitInScene.setText(_translate("mwGrapher", "Fit In Scene", None))
 
