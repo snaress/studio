@@ -25,13 +25,13 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>55</height>
+       <height>40</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>55</height>
+       <height>40</height>
       </size>
      </property>
      <property name="widgetResizable">
@@ -43,7 +43,7 @@
         <x>0</x>
         <y>0</y>
         <width>800</width>
-        <height>53</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">

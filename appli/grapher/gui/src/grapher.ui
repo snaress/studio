@@ -14,7 +14,7 @@
    <string>Grapher</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="glGrapher">
+   <layout class="QGridLayout" name="gridLayout">
     <property name="margin">
      <number>0</number>
     </property>
@@ -26,17 +26,17 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="verticalLayoutWidget">
-       <layout class="QVBoxLayout" name="vlTree">
-        <item>
-         <widget class="QTreeWidget" name="twTree">
-          <column>
-           <property name="text">
-            <string notr="true">1</string>
-           </property>
-          </column>
-         </widget>
-        </item>
+      <widget class="QFrame" name="qfProjectTree">
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
+       <layout class="QVBoxLayout" name="vlProjectTree">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
        </layout>
       </widget>
       <widget class="QTabWidget" name="tabGraph">
@@ -90,6 +90,9 @@
      </widget>
     </item>
    </layout>
+   <zorder>splitter</zorder>
+   <zorder>twNodeData</zorder>
+   <zorder>vfNodeData</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -129,6 +132,7 @@
      </widget>
      <addaction name="mBarOrientation"/>
      <addaction name="mTabOrientation"/>
+     <addaction name="miButtonIconOnly"/>
     </widget>
     <widget class="QMenu" name="mStyle">
      <property name="title">
@@ -169,8 +173,9 @@
     <property name="title">
      <string>Display</string>
     </property>
-    <addaction name="miToolBarVisibility"/>
+    <addaction name="miTreeVisibility"/>
     <addaction name="miDataVisibility"/>
+    <addaction name="miToolBarVisibility"/>
     <addaction name="miFitInScene"/>
     <addaction name="miFitInView"/>
    </widget>
@@ -348,6 +353,25 @@
   <action name="miFitInScene">
    <property name="text">
     <string>Fit In Scene</string>
+   </property>
+  </action>
+  <action name="miTreeVisibility">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tree Visibility</string>
+   </property>
+  </action>
+  <action name="miButtonIconOnly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Button Icon Only</string>
    </property>
   </action>
  </widget>

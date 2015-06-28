@@ -1,5 +1,4 @@
 import os
-from lib.env import studio
 from lib.qt import procQt as pQt
 
 
@@ -12,7 +11,9 @@ toolPack = __package__
 #-- Global Var --#
 user = os.environ.get('username')
 station = os.environ.get('computername')
-graphRootPath = os.path.join(studio.rndBinPath, toolName)
+grapherRootPath = os.path.join('E:', os.sep, 'grapher')
+prodsRootPath =  os.path.join('E:', os.sep, 'prods')
+
 
 #-- Show Info --#
 print '########## %s ##########' % toolName.upper()
@@ -21,6 +22,8 @@ print 'Tool Package : ', toolPack
 print '#%s#' % ('-'*(22+len(toolName)))
 print 'User : ', user
 print 'Station : ', station
+print 'Grapher Root Path : ', grapherRootPath
+print 'Prods Root Path : ', prodsRootPath
 pQt.CompileUi2(uiDir=os.path.join(toolPath, 'gui', 'src'),
                uiDest=os.path.join(toolPath, 'gui', 'ui'))
 print '%s\n' % ('#'*(22+len(toolName)))

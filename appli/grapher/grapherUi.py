@@ -1,4 +1,4 @@
-import sys
+import os, sys
 from pprint import pprint
 from appli import grapher
 from functools import partial
@@ -16,12 +16,19 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
     :type logLvl: str
     """
 
-    def __init__(self, logLvl='info'):
+    def __init__(self, project=None, logLvl='info'):
         self.log = pFile.Logger(title="Grapher-UI", level=logLvl)
         self.log.info("#-- Launching Grapher Ui --#")
-        self.rootPath = grapher.graphRootPath
+        self.grapherRootPath = grapher.grapherRootPath
+        self.prodsRootPath = grapher.prodsRootPath
         super(GrapherUi, self).__init__()
+        self.projectPath = None
+        self.projectName = None
+        self.projectAlias = None
+        self.projectFullName = None
         self._setupUi()
+        if project is not None:
+            self.loadProject(project)
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
@@ -30,6 +37,9 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         """
         self.log.debug("---> Setup Main Ui ...")
         self.setupUi(self)
+        #-- GraphTree --#
+        self.graphTree = projectWgts.ProjectTree(self)
+        self.vlProjectTree.addWidget(self.graphTree)
         #-- GraphZone --#
         self.on_addGraphZone()
         #-- DataZone --#
@@ -50,18 +60,21 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         """
         #-- Menu Grapher --#
         self.miLoadProject.triggered.connect(self.on_loadProject)
+        self.miEditProject.triggered.connect(self.on_editProject)
         #-- Menu Edit --#
         self.miAddGraphZone.triggered.connect(self.on_addGraphZone)
         self.miAddGraphZone.setShortcut("Ctrl+N")
         self.miEditMode.triggered.connect(self.on_editMode)
-        self.miEditMode.setShortcut("E")
+        self.miEditMode.setShortcut("Ctrl+E")
         self.miConnectNodes.triggered.connect(self.on_connectNodes)
-        self.miConnectNodes.setShortcut("C")
+        self.miConnectNodes.setShortcut("L")
         #-- Menu Display --#
-        self.miToolBarVisibility.triggered.connect(self.on_toolBarVisibility)
-        self.miToolBarVisibility.setShortcut("T")
+        self.miTreeVisibility.triggered.connect(self.on_treeVisibility)
+        self.miTreeVisibility.setShortcut("Shift+T")
         self.miDataVisibility.triggered.connect(self.on_dataVisibility)
-        self.miDataVisibility.setShortcut("D")
+        self.miDataVisibility.setShortcut("Ctrl+D")
+        self.miToolBarVisibility.triggered.connect(self.on_toolBarVisibility)
+        self.miToolBarVisibility.setShortcut("Ctrl+T")
         self.miFitInScene.triggered.connect(self.on_fitInScene)
         self.miFitInScene.setShortcut("H")
         self.miFitInView.triggered.connect(self.on_fitInView)
@@ -77,6 +90,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.miTabSouth.triggered.connect(partial(self.graphTools.tabOrientation, 'South'))
         self.miTabWest.triggered.connect(partial(self.graphTools.tabOrientation, 'West'))
         self.miTabEast.triggered.connect(partial(self.graphTools.tabOrientation, 'East'))
+        self.miButtonIconOnly.triggered.connect(self.graphTools.toolsAspect)
+        self.miButtonIconOnly.setShortcut("Ctrl+I")
         #-- Menu Help --#
         self.miPrintConnections.triggered.connect(self.on_printSelNodeConnections)
 
@@ -109,11 +124,20 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
 
     def on_loadProject(self):
         """
-        Command launched when 'New Project' QMenuItem is triggered
+        Command launched when 'Load Project' QMenuItem is triggered
         Open new project dialog
         """
         self.fdNewProject = projectWgts.LoadProject(self)
         self.fdNewProject.exec_()
+
+    def on_editProject(self):
+        """
+        Command launched when 'Edit Project' QMenuItem is triggered
+        Open project settings dialog
+        """
+        if self.projectName is not None:
+            self.fdEditProject = projectWgts.EditProject(self)
+            self.fdEditProject.show()
 
     def on_addGraphZone(self):
         """
@@ -130,6 +154,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         Turn on or off edition mode
         """
         self.currentGraphScene.rf_connections()
+        widget = self.dataZone.getDataWidgetFromGroupName('Node Id')
+        widget.rf_labelState()
 
     def on_connectNodes(self):
         """
@@ -143,12 +169,12 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
             endItem = endNode.inputFilePlug
             self.currentGraphScene.createLine(startItem, endItem)
 
-    def on_toolBarVisibility(self):
+    def on_treeVisibility(self):
         """
-        Command launched when 'ToolBar Visibility' QMenuItem is triggered
-        Turn on or off tools bar visibility
+        Command launched when 'Tree Visibility' QMenuItem is triggered
+        Turn on or off tree visibility
         """
-        self.tbTools.setVisible(self.miToolBarVisibility.isChecked())
+        self.qfProjectTree.setVisible(self.miTreeVisibility.isChecked())
 
     def on_dataVisibility(self):
         """
@@ -156,6 +182,13 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         Turn on or off data visibility
         """
         self.vfNodeData.setVisible(self.miDataVisibility.isChecked())
+
+    def on_toolBarVisibility(self):
+        """
+        Command launched when 'ToolBar Visibility' QMenuItem is triggered
+        Turn on or off tools bar visibility
+        """
+        self.tbTools.setVisible(self.miToolBarVisibility.isChecked())
 
     def on_fitInScene(self):
         """
@@ -176,7 +209,6 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         if len(graphScene.selectedItems()) > 1:
             x, y, w, h = graphScene.getSelectedNodesArea()
             graphZone.fitInView(x, y, w, y, QtCore.Qt.KeepAspectRatio)
-
 
     def on_StyleOption(self, styleName='default'):
         """
@@ -203,8 +235,11 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
                 self.tbTools.setOrientation(QtCore.Qt.Vertical)
         if self.tbTools.orientation() == 1:
             self.graphTools.tabOrientation('North')
+            self.miButtonIconOnly.setChecked(True)
         else:
             self.graphTools.tabOrientation('West')
+            self.miButtonIconOnly.setChecked(False)
+        self.graphTools.toolsAspect()
 
     def on_printSelNodeConnections(self):
         """
@@ -219,6 +254,22 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
             pprint(item.getConnectionsInfo())
         print '#' * 60, "\n"
 
+    def loadProject(self, project):
+        """
+        Load given project
+        :param project: Project full name
+        :type: str
+        """
+        self.log.info("Loading project %s ..." % project)
+        self.projectPath = os.path.join(self.grapherRootPath, 'projects', project)
+        if not os.path.exists(self.projectPath):
+            raise IOError, "!!! Project '%s' not found !!!" % project
+        self.projectAlias = project.split('--')[0]
+        self.projectName = project.split('--')[1]
+        self.projectFullName = project
+        self.setWindowTitle("Grapher | %s | %s" % (self.projectAlias, self.projectName))
+        self.graphTree.rf_projectTree()
+
     def closeEvent(self, *args, **kwargs):
         """
         Clear graphZone to fix a bug when ui is closing
@@ -226,17 +277,20 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.tabGraph.clear()
 
 
-def launch(logLvl='info'):
+def launch(project=None, logLvl='info'):
     """
     Grapher launcher
+    :param project: Grapher project
+    :type project: str
     :param logLvl: Log level ('critical', 'error', 'warning', 'info', 'debug')
     :type logLvl: str
     """
     app = QtGui.QApplication(sys.argv)
-    window = GrapherUi(logLvl=logLvl)
+    window = GrapherUi(project=project, logLvl=logLvl)
     window.show()
     sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
-    launch(logLvl='debug')
+    # launch(logLvl='debug')
+    launch(project='a2--asterix2', logLvl='debug')

@@ -17,6 +17,7 @@ class ToolsBar(QtGui.QTabWidget):
         self.log = self.mainUi.log
         self.pWidget = self.mainUi.tbTools
         self.tabs = []
+        self.tools = []
         self._setupUi()
 
     def _setupUi(self):
@@ -47,17 +48,31 @@ class ToolsBar(QtGui.QTabWidget):
             elif orient in ['West', 'East']:
                 tab.setOrientation('vertical')
 
+    def toolsAspect(self):
+        """
+        Edit tools button aspect
+        """
+        for tab in self.tabs:
+            tab.rf_size()
+        for tool in self.tools:
+            if self.mainUi.miButtonIconOnly.isChecked():
+                tool.setText("")
+                tool.setToolTip(tool.name)
+            else:
+                tool.setText(tool.name)
+                tool.setToolTip("")
+
     def addTabs(self):
         """
         Add tools tab
         """
         self.clear()
         #-- Tab Mode --#
-        tabMode = TabMode(mainUi=self.mainUi)
+        tabMode = TabMode(self.mainUi, self)
         self.insertTab(-1, tabMode, 'Mode')
         self.tabs.append(tabMode)
         #-- Tab Util --#
-        tabUtil = TabUtil(mainUi=self.mainUi)
+        tabUtil = TabUtil(self.mainUi, self)
         self.insertTab(-1, tabUtil, 'Util')
         self.tabs.append(tabUtil)
 
@@ -67,11 +82,14 @@ class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
     Grapher tools tab widget
     :param mainUi: Grapher main window
     :type mainUi: QtGui.QMainWindow
+    :param tabWidget: Parent tabWidget
+    :type tabWidget: QtGui.QTabWidget
     """
 
-    def __init__(self, mainUi):
+    def __init__(self, mainUi, tabWidget):
         super(ToolsTab, self).__init__()
         self.mainUi = mainUi
+        self.tabWidget = tabWidget
         self.log = self.mainUi.log
         self.setupUi(self)
 
@@ -88,6 +106,17 @@ class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
             self.saHorizontal.setVisible(False)
             self.saVertical.setVisible(True)
 
+    def rf_size(self):
+        """
+        refresh toolBar size
+        """
+        if self.mainUi.miButtonIconOnly.isChecked():
+            self.saVertical.setMinimumWidth(40)
+            self.saVertical.setMaximumWidth(40)
+        else:
+            self.saVertical.setMinimumWidth(150)
+            self.saVertical.setMaximumWidth(150)
+
     # noinspection PyUnresolvedReferences
     def newTool(self, name, cmd=None, iconFile=None):
         """
@@ -102,6 +131,7 @@ class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
         newTools = [QtGui.QPushButton(), QtGui.QPushButton()]
         for tool in newTools:
             tool.setText(name)
+            tool.name = name
             if cmd is not None:
                 tool.clicked.connect(cmd)
             if iconFile is not None:
@@ -110,6 +140,7 @@ class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
                 tool.setIconSize(QtCore.QSize(24, 24))
         self.hlTools.insertWidget(0, newTools[0])
         self.vlTools.insertWidget(0, newTools[1])
+        self.tabWidget.tools.extend(newTools)
 
 
 class TabMode(ToolsTab):
@@ -117,10 +148,12 @@ class TabMode(ToolsTab):
     Modeling tool tab template
     :param mainUi: Grapher main window
     :type mainUi: QtGui.QMainWindow
+    :param tabWidget: Parent tabWidget
+    :type tabWidget: QtGui.QTabWidget
     """
 
-    def __init__(self, mainUi):
-        super(TabMode, self).__init__(mainUi)
+    def __init__(self, mainUi, tabWidget):
+        super(TabMode, self).__init__(mainUi, tabWidget)
         self._addTools()
 
     def _addTools(self):
@@ -138,21 +171,33 @@ class TabUtil(ToolsTab):
     Util tool tab template
     :param mainUi: Grapher main window
     :type mainUi: QtGui.QMainWindow
+    :param tabWidget: Parent tabWidget
+    :type tabWidget: QtGui.QTabWidget
     """
 
-    def __init__(self, mainUi):
-        super(TabUtil, self).__init__(mainUi)
+    def __init__(self, mainUi, tabWidget):
+        super(TabUtil, self).__init__(mainUi, tabWidget)
         self._addTools()
 
     def _addTools(self):
         """
         Add tools to tab
         """
-        self.newTool('CreateSvgNode', cmd=self.createSvgNode, iconFile=None)
-        self.newTool('CreateMayaNode', cmd=self.createMayaNode, iconFile="gui/icon/png/toolCreateMayaNode.png")
-        self.newTool('CreateAssetNode', cmd=self.createAssetNode, iconFile="gui/icon/png/toolCreateAssetNode.png")
+        self.newTool('MayaNode', cmd=self.mayaNode, iconFile="gui/icon/png/toolMayaNode.png")
+        self.newTool('AssetNode', cmd=self.assetNode, iconFile="gui/icon/png/toolAssetNode.png")
+        self.newTool('AssetCastingNode', cmd=self.assetCastingNode, iconFile="gui/icon/png/toolAssetCastingNode.png")
 
-    def createAssetNode(self):
+    def assetCastingNode(self):
+        """
+        Add tool: Create Asset Casting Node
+        """
+        nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_casting_node")
+        self.log.info("#-- Creating Casting Asset Node: %s --#" % nodeName)
+        newNode = graphNodes.AssetCastingNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
+        self.mainUi.currentGraphScene.addItem(newNode)
+
+    def assetNode(self):
         """
         Add tool: Create Asset Node
         """
@@ -162,22 +207,12 @@ class TabUtil(ToolsTab):
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
 
-    def createMayaNode(self):
+    def mayaNode(self):
         """
         Add tool: Create Maya Node
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
         self.log.info("#-- Creating Maya Node: %s --#" % nodeName)
         newNode = graphNodes.MayaNode(mainUi=self.mainUi, nodeName=nodeName)
-        newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
-        self.mainUi.currentGraphScene.addItem(newNode)
-
-    def createSvgNode(self):
-        """
-        Add tool: Create Svg Node
-        """
-        nodeName = self.mainUi.currentGraphScene.getNextNameIndex("svg_node")
-        self.log.info("#-- Creating Svg Node: %s --#" % nodeName)
-        newNode = graphNodes.SvgNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)

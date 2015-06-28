@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\ud\wgToolsTab.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgToolsTab.ui'
 #
-# Created: Sun Jun 14 15:27:22 2015
+# Created: Sun Jun 28 04:14:48 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -32,12 +32,12 @@ class Ui_wgToolsTab(object):
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.saHorizontal = QtGui.QScrollArea(wgToolsTab)
-        self.saHorizontal.setMinimumSize(QtCore.QSize(0, 55))
-        self.saHorizontal.setMaximumSize(QtCore.QSize(16777215, 55))
+        self.saHorizontal.setMinimumSize(QtCore.QSize(0, 40))
+        self.saHorizontal.setMaximumSize(QtCore.QSize(16777215, 40))
         self.saHorizontal.setWidgetResizable(True)
         self.saHorizontal.setObjectName(_fromUtf8("saHorizontal"))
         self.saWidgetHorizontal = QtGui.QWidget()
-        self.saWidgetHorizontal.setGeometry(QtCore.QRect(0, 0, 800, 53))
+        self.saWidgetHorizontal.setGeometry(QtCore.QRect(0, 0, 800, 38))
         self.saWidgetHorizontal.setObjectName(_fromUtf8("saWidgetHorizontal"))
         self.gridLayout_2 = QtGui.QGridLayout(self.saWidgetHorizontal)
         self.gridLayout_2.setMargin(0)

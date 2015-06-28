@@ -250,6 +250,7 @@ class GraphScene(QtGui.QGraphicsScene):
                                           - If itemType is 'nodeBase', will connect node data to dataZone
                                           - If empty, will clear dataZone and update node.elementId
         """
+        self.mainUi.dataZone.clearDataZone()
         item = self.itemAt(event.scenePos())
         if item is not None and hasattr(item, '_type'):
             if event.button() == QtCore.Qt.LeftButton and item._type == 'nodeConnection':
@@ -258,11 +259,6 @@ class GraphScene(QtGui.QGraphicsScene):
                     self.addItem(self.line)
             elif event.button() == QtCore.Qt.LeftButton and item._type == 'nodeBase':
                 item.connectNodeData()
-        else:
-            groups = pQt.getTopItems(self.dataTree)
-            for grpItem in groups:
-                dataItem = grpItem.child(0)._widget
-                dataItem.clearData()
         super(GraphScene, self).mousePressEvent(event)
         #-- Check Node ElementId State --#
         self.rf_nodesElementId()
@@ -337,7 +333,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         self.setCachingEnabled(False)
         self.setAcceptHoverEvents(True)
         self.setElementId("regular")
-        self.setToolTip("Name = %s\nLabel = %s" % (self.nodeName, self.nodeLabel))
+        self.rf_toolTip()
         self.addLabelNode()
         self.addConnectionPlugs()
 
@@ -424,6 +420,18 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
                         rDict[conn][n][k] = v.nodeName
         return rDict
 
+    def rf_toolTip(self):
+        """
+        Refresh node toolTip
+        """
+        self.setToolTip("Name = %s\nLabel = %s" % (self.nodeName, self.nodeLabel))
+
+    def rf_nodeLabel(self):
+        """
+        Refresh label nodeText
+        """
+        self.nodeTextLabel.setPlainText(self.nodeLabel)
+
     def addLabelNode(self):
         """
         Add graph node label item
@@ -455,6 +463,18 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
             self.outputFilePlug.setPos(self.width, (self.height / 2) - (self.outputFilePlug.height / 2))
             self.outputFilePlug.isInputConnection = False
 
+    def connectNodeData(self):
+        """
+        Connect graph node data to dataZone
+        """
+        self.log.debug("Connecting node data: %s ..." % self.nodeName)
+        self.mainUi.dataZone.addNodeCategory(self)
+        groups = pQt.getTopItems(self.dataTree)
+        for grpItem in groups:
+            dataItem = grpItem.child(0)._widget
+            dataItem.setDataFromNode(self)
+        self.mainUi.dataZone.restoreDataGrpState()
+
     def deleteNode(self):
         """
         Delete graph node and connected lines
@@ -471,16 +491,6 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         #-- Delete Node --#
         self.log.debug("Deleting node ...")
         self.scene().removeItem(self)
-
-    def connectNodeData(self):
-        """
-        Connect graph node data to dataZone
-        """
-        self.log.debug("Connecting node data: %s ..." % self.nodeName)
-        groups = pQt.getTopItems(self.dataTree)
-        for grpItem in groups:
-            dataItem = grpItem.child(0)._widget
-            dataItem.setDataFromNode(self)
 
     def hoverMoveEvent(self, event):
         """

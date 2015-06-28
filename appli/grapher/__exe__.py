@@ -4,6 +4,7 @@ import optparse
 #-- Options --#
 usage = "grapher -v [Verbose]"
 parser = optparse.OptionParser(usage=usage)
+parser.add_option('-p', '--project', type='string', help="[str] Load given project.")
 parser.add_option('-v', '--verbose', type='choice', default='info',
                   choices=['critical', 'error', 'warning', 'info', 'debug'],
                   help=''.join(["[choice=('critical', 'error', 'warning', 'info', 'debug')]",

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>337</width>
-    <height>382</height>
+    <width>250</width>
+    <height>249</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,6 +48,18 @@
       <number>1</number>
      </property>
      <layout class="QGridLayout" name="glNewProject">
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
       <property name="horizontalSpacing">
        <number>2</number>
       </property>
@@ -120,6 +132,15 @@
    </item>
    <item row="2" column="0">
     <widget class="QTreeWidget" name="twProjects">
+     <property name="indentation">
+      <number>2</number>
+     </property>
+     <property name="itemsExpandable">
+      <bool>false</bool>
+     </property>
+     <property name="expandsOnDoubleClick">
+      <bool>false</bool>
+     </property>
      <attribute name="headerVisible">
       <bool>false</bool>
      </attribute>

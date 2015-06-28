@@ -2,7 +2,7 @@ from PyQt4 import QtGui
 from functools import partial
 from lib.qt import procQt as pQt
 from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeIdUI, wgDataNodeConnUI, wgDataConnGroupUI,\
-                                 wgDataConnItemUI
+                                 wgDataConnItemUI, wgDataAssetCastingUI
 
 
 #======================================== GENERAL ========================================#
@@ -19,7 +19,31 @@ class DataZone(object):
         self.log = self.mainUi.log
         self.log.debug("---> Setup DataZone ...")
         self.dataTree = self.mainUi.twNodeData
-        self.addAllCategory()
+        self.dataGrpState = {}
+
+    def getDataWidgetFromGroupName(self, groupName):
+        """
+        Get QWidget from data group name
+        :param groupName: Data group name
+        :type groupName: str
+        :return: Data widget
+        :rtype: QtGui.QWidget
+        """
+        for item in pQt.getTopItems(self.mainUi.twNodeData):
+            if item._widget.grpName == groupName:
+                return item.child(0)._widget
+
+    def getGroupItemIndexFromGroupName(self, grpName):
+        """
+        Get topLevelItem position index
+        :param grpName: Data group name
+        :type grpName: str
+        :return: Group item index
+        :rtype: int
+        """
+        for n, item in enumerate(pQt.getTopItems(self.dataTree)):
+            if item._widget.grpName == grpName:
+                return n
 
     def addCategory(self, groupName, QWidget):
         """
@@ -41,17 +65,35 @@ class DataZone(object):
         dataGrp.addChild(dataParams)
         self.dataTree.setItemWidget(dataParams, 0, dataParams._widget)
         dataParams._widget.pItem = dataParams
-        #-- Init Item Default State --#
-        if dataParams._widget.defaultState == 'expanded':
-            dataGrp._widget.pbGrpName.setChecked(True)
-            dataGrp._widget.on_icon()
 
-    def addAllCategory(self):
+    def addNodeCategory(self, node):
         """
-        Add all data zone category
+        Add specific node data zone category
         """
-        self.addCategory('Node Id', DataNodeId(self.mainUi))
-        self.addCategory('Node Connections', DataNodeConnections(self.mainUi))
+        for dWidget in node.dataWidgets():
+             self.addCategory(dWidget['name'], dWidget['class'])
+
+    def restoreDataGrpState(self):
+        """
+        Restore data group state
+        """
+        for item in pQt.getTopItems(self.dataTree):
+            if item._widget.grpName in self.dataGrpState.keys():
+                storeState = self.dataGrpState[item._widget.grpName]
+                itemState = item.isExpanded()
+                if not storeState == itemState:
+                    if itemState:
+                        item._widget.pbGrpName.setChecked(False)
+                    else:
+                        item._widget.pbGrpName.setChecked(True)
+                    item._widget.rf_icon()
+                    item.setExpanded(self.dataGrpState[item._widget.grpName])
+
+    def clearDataZone(self):
+        """
+        Clear grapher data zone
+        """
+        self.dataTree.clear()
 
 
 class DataGroup(QtGui.QWidget, wgDataGroupUI.Ui_wgDataGroup):
@@ -102,6 +144,7 @@ class DataGroup(QtGui.QWidget, wgDataGroupUI.Ui_wgDataGroup):
         """
         self.pItem.treeWidget().setItemExpanded(self.pItem, self.pbGrpName.isChecked())
         self.rf_icon()
+        self.mainUi.dataZone.dataGrpState[self.pItem._widget.grpName] = self.pItem.isExpanded()
 
 #======================================== NODE ID ========================================#
 
@@ -115,9 +158,17 @@ class DataNodeId(QtGui.QWidget, wgDataNodeIdUI.Ui_wgNodeId):
     def __init__(self, mainUi):
         self.mainUi = mainUi
         self.pItem = None
-        self.defaultState = 'expanded'
+        self.currentNode = None
         super(DataNodeId, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """
+        Setup 'Node Id' data category
+        """
         self.setupUi(self)
+        self.leNodeLabel.editingFinished.connect(self.on_label)
 
     @property
     def params(self):
@@ -128,21 +179,36 @@ class DataNodeId(QtGui.QWidget, wgDataNodeIdUI.Ui_wgNodeId):
         """
         return {'nodeType': self.leNodeType, 'nodeName': self.leNodeName, 'nodeLabel': self.leNodeLabel}
 
+    def rf_labelState(self):
+        """
+        Refresh label read only state
+        """
+        self.leNodeLabel.setReadOnly(not self.mainUi.editMode)
+
     def setDataFromNode(self, node):
         """
         Update params from given node
         :param node: Graph node
         :type node: QtSvg.QGraphicsSvgItem
         """
+        self.currentNode = node
         for k, QWidget in self.params.iteritems():
             QWidget.setText(getattr(node, k))
 
-    def clearData(self):
+    def on_label(self):
         """
-        Clear category params
+        Command launched when 'Node Label' QLineEdit is edited.
+        Will renome the node is in edit mode.
         """
-        for k, QWidget in self.params.iteritems():
-            QWidget.clear()
+        if not self.mainUi.editMode:
+            self.leNodeLabel.setText(self.currentNode.nodeLabel)
+        else:
+            if self.currentNode is not None:
+                self.currentNode.nodeLabel = str(self.leNodeLabel.text())
+                self.currentNode.rf_toolTip()
+                self.currentNode.rf_nodeLabel()
+            else:
+                self.leNodeLabel.clear()
 
 #=================================== NODE CONNECTIONS ====================================#
 
@@ -158,7 +224,6 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
         self.log = self.mainUi.log
         self.pItem = None
         self.currentNode = None
-        self.defaultState = 'collapsed'
         super(DataNodeConnections, self).__init__()
         self.upIcon = QtGui.QIcon("gui/icon/png/arrowUpBlue.png")
         self.dnIcon = QtGui.QIcon("gui/icon/png/arrowDnBlue.png")
@@ -288,12 +353,6 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
                     item._widget.lineConnection.deleteLine()
                     self.setDataFromNode(self.currentNode)
 
-    def clearData(self):
-        """
-        Clear category params
-        """
-        self.twNodeConnections.clear()
-
 
 class NodeConnectionGroup(QtGui.QWidget, wgDataConnGroupUI.Ui_wgConnGroup):
     """
@@ -401,4 +460,30 @@ class NodeConnectionItem(QtGui.QWidget, wgDataConnItemUI.Ui_wgDataConnItem):
             graphScene.clearNodeSelection()
             self.pItem._widget.linkedNode.setSelected(True)
             graphScene.rf_nodesElementId()
+            self.mainUi.dataZone.clearDataZone()
             self.pItem._widget.linkedNode.connectNodeData()
+
+#==================================== ASSET CASTING =====================================#
+
+class NodeAssetCasting(QtGui.QWidget, wgDataAssetCastingUI.Ui_wgDataAssetCasting):
+
+    def __init__(self, mainUi):
+        self.mainUi = mainUi
+        self.pItem = None
+        self.log = self.mainUi.log
+        super(NodeAssetCasting, self).__init__()
+        self._setupUi()
+
+    def _setupUi(self):
+        """
+        Setup 'Node Connections' data category
+        """
+        self.setupUi(self)
+
+    def setDataFromNode(self, node):
+        """
+        Update params from given node
+        :param node: Graph node
+        :type node: QtSvg.QGraphicsSvgItem
+        """
+        pass

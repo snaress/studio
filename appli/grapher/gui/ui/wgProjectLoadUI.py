@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgProjectLoad.ui'
 #
-# Created: Thu Jun 25 01:43:13 2015
+# Created: Fri Jun 26 01:04:28 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgLoadProject(object):
     def setupUi(self, wgLoadProject):
         wgLoadProject.setObjectName(_fromUtf8("wgLoadProject"))
-        wgLoadProject.resize(337, 382)
+        wgLoadProject.resize(250, 249)
         self.gridLayout = QtGui.QGridLayout(wgLoadProject)
         self.gridLayout.setContentsMargins(2, 1, 1, 1)
         self.gridLayout.setHorizontalSpacing(2)
@@ -40,6 +40,7 @@ class Ui_wgLoadProject(object):
         self.qfNewProject.setLineWidth(1)
         self.qfNewProject.setObjectName(_fromUtf8("qfNewProject"))
         self.glNewProject = QtGui.QGridLayout(self.qfNewProject)
+        self.glNewProject.setContentsMargins(2, 1, 2, 1)
         self.glNewProject.setHorizontalSpacing(2)
         self.glNewProject.setVerticalSpacing(1)
         self.glNewProject.setObjectName(_fromUtf8("glNewProject"))
@@ -74,6 +75,9 @@ class Ui_wgLoadProject(object):
         self.glNewProject.addLayout(self.hlButtons, 3, 0, 1, 2)
         self.gridLayout.addWidget(self.qfNewProject, 1, 0, 1, 1)
         self.twProjects = QtGui.QTreeWidget(wgLoadProject)
+        self.twProjects.setIndentation(2)
+        self.twProjects.setItemsExpandable(False)
+        self.twProjects.setExpandsOnDoubleClick(False)
         self.twProjects.setObjectName(_fromUtf8("twProjects"))
         self.twProjects.headerItem().setText(0, _fromUtf8("1"))
         self.twProjects.header().setVisible(False)
