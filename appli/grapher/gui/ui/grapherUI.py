@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Sun Jun 28 04:00:59 2015
+# Created: Mon Jun 29 00:49:49 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -88,13 +88,13 @@ class Ui_mwGrapher(object):
         self.menuDisplay.setObjectName(_fromUtf8("menuDisplay"))
         mwGrapher.setMenuBar(self.menubar)
         self.tbTools = QtGui.QToolBar(mwGrapher)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tbTools.sizePolicy().hasHeightForWidth())
         self.tbTools.setSizePolicy(sizePolicy)
         self.tbTools.setObjectName(_fromUtf8("tbTools"))
-        mwGrapher.addToolBar(QtCore.Qt.RightToolBarArea, self.tbTools)
+        mwGrapher.addToolBar(QtCore.Qt.BottomToolBarArea, self.tbTools)
         self.miNorth2 = QtGui.QAction(mwGrapher)
         self.miNorth2.setObjectName(_fromUtf8("miNorth2"))
         self.miSouth2 = QtGui.QAction(mwGrapher)

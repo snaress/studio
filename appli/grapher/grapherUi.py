@@ -51,6 +51,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         #-- GraphMenu --#
         self._setupMenu()
         self.on_toolBarVisibility()
+        self.on_toolBarOrientChanged()
         self.on_dataVisibility()
 
     # noinspection PyUnresolvedReferences

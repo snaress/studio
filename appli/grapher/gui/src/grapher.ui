@@ -90,9 +90,6 @@
      </widget>
     </item>
    </layout>
-   <zorder>splitter</zorder>
-   <zorder>twNodeData</zorder>
-   <zorder>vfNodeData</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -187,7 +184,7 @@
   </widget>
   <widget class="QToolBar" name="tbTools">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -196,7 +193,7 @@
     <string>toolBar</string>
    </property>
    <attribute name="toolBarArea">
-    <enum>RightToolBarArea</enum>
+    <enum>BottomToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
