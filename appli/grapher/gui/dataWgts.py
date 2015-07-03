@@ -477,7 +477,7 @@ class NodeConnectionItem(QtGui.QWidget, wgDataConnItemUI.Ui_wgDataConnItem):
             self.pItem._widget.linkedNode.setSelected(True)
             graphScene.rf_nodesElementId()
             self.mainUi.dataZone.clearDataZone()
-            self.pItem._widget.linkedNode.connectNodeData()
+            self.mainUi.dataZone.connectNodeData(self.pItem._widget.linkedNode)
 
 #==================================== ASSET CASTING =====================================#
 
