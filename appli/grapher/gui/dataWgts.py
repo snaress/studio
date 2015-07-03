@@ -69,9 +69,25 @@ class DataZone(object):
     def addNodeCategory(self, node):
         """
         Add specific node data zone category
+        :param node: Selected graph node
+        :type node: QtSvg.QGraphicsSvgItem
         """
         for dWidget in node.dataWidgets():
              self.addCategory(dWidget['name'], dWidget['class'])
+
+    def connectNodeData(self, node):
+        """
+        Connect graph node data to dataZone
+        :param node: Selected graph node
+        :type node: QtSvg.QGraphicsSvgItem
+        """
+        self.log.debug("Connecting node data: %s ..." % node.nodeName)
+        self.addNodeCategory(node)
+        groups = pQt.getTopItems(self.dataTree)
+        for grpItem in groups:
+            dataItem = grpItem.child(0)._widget
+            dataItem.setDataFromNode(node)
+        self.restoreDataGrpState()
 
     def restoreDataGrpState(self):
         """

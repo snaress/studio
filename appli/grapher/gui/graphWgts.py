@@ -1,4 +1,3 @@
-import math
 from lib.qt import procQt as pQt
 from PyQt4 import QtGui, QtSvg, QtCore
 
@@ -17,8 +16,6 @@ class GraphZone(QtGui.QGraphicsView):
         self.mainUi = mainUi
         self.log = self.mainUi.log
         self.graphScene = graphScene
-        self.ctrlKey = False
-        self.zoomFactor = 1
         self._setupUi()
 
     def _setupUi(self):
@@ -37,10 +34,6 @@ class GraphZone(QtGui.QGraphicsView):
         """
         factor = 1.41 ** ((event.delta()*.5) / 240.0)
         self.scale(factor, factor)
-        if event.delta() > 0:
-            self.zoomFactor += factor
-        else:
-            self.zoomFactor -= factor
 
     def resizeEvent(self, event):
         """
@@ -71,6 +64,8 @@ class GraphScene(QtGui.QGraphicsScene):
         self.log.debug("---> Setup GraphScene ...")
         self.line = None
         self.selBuffer = {'_order': []}
+        self.mousePos = None
+        self.ctrlKey = False
         self.selectionChanged.connect(self._selectionChanged)
 
     def _selectionChanged(self):
@@ -138,11 +133,7 @@ class GraphScene(QtGui.QGraphicsScene):
             for node in nodes:
                 posX.append(node.pos().x())
                 posY.append(node.pos().y())
-        x = (max(posX) + min(posX)) / 2
-        y = (max(posY) + min(posY)) / 2
-        w = max(posX) - min(posX)
-        h = max(posY) - min(posY)
-        return x, y, w, h
+        return QtCore.QRectF(min(posX), min(posY), (max(posX) - min(posX)), (max(posY) - min(posY)))
 
     def getNextNameIndex(self, name):
         """
@@ -194,25 +185,20 @@ class GraphScene(QtGui.QGraphicsScene):
             line.deleteLine()
         for c in cList:
             if self.mainUi.editMode:
-                self.createLine(c['src'], c['dst'], lineType='line')
+                self.createLine(c['src'], c['dst'])
             else:
-                self.createLine(c['src'], c['dst'], lineType='link')
+                self.createLine(c['src'], c['dst'])
 
-    def createLine(self, startItem, endItem, lineType='line'):
+    def createLine(self, startItem, endItem):
         """
         Create connection line
         :param startItem: Start node connectionItem
         :type startItem: QtSvg.QGraphicsSvgItem
         :param endItem: End node connectionItem
         :type endItem: QtSvg.QGraphicsSvgItem
-        :param lineType: Connection line type ('line' or 'link')
-        :type lineType: str
         """
         self.log.debug("Creating line: %s ---> %s ..." % (startItem._parent.nodeName, endItem._parent.nodeName))
-        if lineType == 'line':
-            connectionLine = LineConnection(self.mainUi, startItem, endItem)
-        else:
-            connectionLine = LinkConnection(self.mainUi, startItem, endItem)
+        connectionLine = LinkConnection(self.mainUi, startItem, endItem)
         startItem.connections.append(connectionLine)
         endItem.connections.append(connectionLine)
         self.addItem(connectionLine)
@@ -221,27 +207,24 @@ class GraphScene(QtGui.QGraphicsScene):
     def keyPressEvent(self, event):
         """
         Add key press options: 'Delete' = Delete selected nodes or lines
-                               'Control' = Draw selection region
+                               'Control' = Store state for move options
         """
         if event.key() == QtCore.Qt.Key_Delete:
             if self.mainUi.editMode:
                 for item in self.selectedItems():
-                    if item._type == 'lineConnection':
+                    if item._type == 'linkConnection':
                         item.deleteLine()
                     else:
                         item.deleteNode()
-        if event.key() == QtCore.Qt.Key_Control:
-            self.mainUi.currentGraphZone.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+        elif event.key() == QtCore.Qt.Key_Control:
+            self.ctrlKey = True
 
     def keyReleaseEvent(self, event):
         """
-        Add key release options: 'Control' = Select nodes and lines in selection area
+        Add key release options: 'Control' = Clear state storage
         """
         if event.key() == QtCore.Qt.Key_Control:
-            self.mainUi.currentGraphZone.setDragMode(QtGui.QGraphicsView.NoDrag)
-            for item in self.selectedItems():
-                if item._type == 'nodeBase':
-                    item.setElementId("selected")
+            self.ctrlKey = False
 
     def mousePressEvent(self, event):
         """
@@ -250,6 +233,7 @@ class GraphScene(QtGui.QGraphicsScene):
                                           - If itemType is 'nodeBase', will connect node data to dataZone
                                           - If empty, will clear dataZone and update node.elementId
         """
+        self.mousePos = self.mainUi.currentGraphZone.mapFromScene(event.scenePos())
         self.mainUi.dataZone.clearDataZone()
         item = self.itemAt(event.scenePos())
         if item is not None and hasattr(item, '_type'):
@@ -258,7 +242,9 @@ class GraphScene(QtGui.QGraphicsScene):
                     self.line = QtGui.QGraphicsLineItem(QtCore.QLineF(event.scenePos(), event.scenePos()))
                     self.addItem(self.line)
             elif event.button() == QtCore.Qt.LeftButton and item._type == 'nodeBase':
-                item.connectNodeData()
+                self.mainUi.dataZone.connectNodeData(item)
+        elif item is None and not self.ctrlKey:
+            self.mainUi.currentGraphZone.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         super(GraphScene, self).mousePressEvent(event)
         #-- Check Node ElementId State --#
         self.rf_nodesElementId()
@@ -271,6 +257,12 @@ class GraphScene(QtGui.QGraphicsScene):
         if self.line:
             newLine = QtCore.QLineF(self.line.line().p1(), event.scenePos())
             self.line.setLine(newLine)
+        else:
+            if self.ctrlKey and self.mousePos is not None:
+                newPos = self.mousePos - self.mainUi.currentGraphZone.mapFromScene(event.scenePos())
+                print newPos
+                self.mainUi.currentGraphZone.mapToScene(QtCore.QRect(newPos.x(), newPos.y(),
+                                                                        self.width() / 2, self.height() / 2))
         super(GraphScene, self).mouseMoveEvent(event)
         self.update()
 
@@ -294,8 +286,13 @@ class GraphScene(QtGui.QGraphicsScene):
                     if startItems[0]._type == 'nodeConnection' and endItems[0]._type == 'nodeConnection':
                         if not startItems[0].isInputConnection and endItems[0].isInputConnection:
                             if self.mainUi.editMode:
-                                self.createLine(startItems[0], endItems[0], lineType='line')
+                                self.createLine(startItems[0], endItems[0])
         self.line = None
+        self.mousePos = None
+        self.mainUi.currentGraphZone.setDragMode(QtGui.QGraphicsView.NoDrag)
+        for item in self.selectedItems():
+            if item._type == 'nodeBase':
+                item.setElementId("selected")
         super(GraphScene, self).mouseReleaseEvent(event)
 
 
@@ -463,18 +460,6 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
             self.outputFilePlug.setPos(self.width, (self.height / 2) - (self.outputFilePlug.height / 2))
             self.outputFilePlug.isInputConnection = False
 
-    def connectNodeData(self):
-        """
-        Connect graph node data to dataZone
-        """
-        self.log.debug("Connecting node data: %s ..." % self.nodeName)
-        self.mainUi.dataZone.addNodeCategory(self)
-        groups = pQt.getTopItems(self.dataTree)
-        for grpItem in groups:
-            dataItem = grpItem.child(0)._widget
-            dataItem.setDataFromNode(self)
-        self.mainUi.dataZone.restoreDataGrpState()
-
     def deleteNode(self):
         """
         Delete graph node and connected lines
@@ -580,160 +565,6 @@ class NodeConnection(QtSvg.QGraphicsSvgItem):
         self.setElementId("regular")
 
 
-class LineConnection(QtGui.QGraphicsLineItem):
-    """
-    Graphic line item, child of grapher.graphScene. Contains line connection
-    :param mainUi: Grapher main window
-    :type mainUi: QtGui.QMainWindow
-    :param startItem: Start node connection plug
-    :type startItem: QtSvg.QGraphicsSvgItem
-    :param endItem: End node connection plug
-    :type endItem: QtSvg.QGraphicsSvgItem
-    """
-
-    def __init__(self, mainUi, startItem, endItem):
-        self.mainUi = mainUi
-        self.log = self.mainUi.log
-        super(LineConnection, self).__init__()
-        self.startItem = startItem
-        self.endItem = endItem
-        self._type = 'lineConnection'
-        self.lineColor = QtCore.Qt.black
-        self.arrowHead = QtGui.QPolygonF()
-        self.setZValue(-1.0)
-        self.setFlags(QtGui.QGraphicsItem.ItemIsSelectable|QtGui.QGraphicsItem.ItemIsFocusable)
-        self.setPen(QtGui.QPen(self.lineColor, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
-
-    @property
-    def startNode(self):
-        """
-        Get start graph node (_type='nodeBase')
-        :return: Start node
-        :rtype: QtSvg.QGraphicsSvgItem
-        """
-        return self.startItem._parent
-
-    @property
-    def endNode(self):
-        """
-        Get end graph node (_type='nodeBase')
-        :return: End node
-        :rtype: QtSvg.QGraphicsSvgItem
-        """
-        return self.endItem._parent
-
-    def getLine(self):
-        """
-        Get line coords
-        :return: Line coords
-        :rtype: QtCore.QLineF
-        """
-        p1 = self.startItem.sceneBoundingRect().center()
-        p2 = self.endItem.sceneBoundingRect().center()
-        return QtCore.QLineF(self.mapFromScene(p1), self.mapFromScene(p2))
-
-    def getCenterPoint(self):
-        """
-        Get line center point
-        :return: Line center point
-        :rtype: QtCore.QPointF
-        """
-        line = self.getLine()
-        centerX = (line.p1().x() + line.p2().x()) / 2
-        centerY = (line.p1().y() + line.p2().y()) / 2
-        return QtCore.QPointF(centerX, centerY)
-
-    def updatePosition(self):
-        """
-        Update line position
-        """
-        self.setLine(self.getLine())
-
-    def deleteLine(self):
-        """
-        Delete line and remove connections plug storage
-        """
-        self.log.debug("Deleting line: %s ---> %s ..." % (self.startItem._parent.nodeName,
-                                                         self.endItem._parent.nodeName))
-        self.startItem.connections.remove(self)
-        self.endItem.connections.remove(self)
-        self.scene().removeItem(self)
-
-    def _arrowHeadCalculation(self, line):
-        """
-        Calculate and update arrow orientation
-        :param line: Connection line point position
-        :type line: QtCore.QLineF
-        """
-        arrowSize = 20.0
-        try:
-            angle = math.acos(line.dx() / line.length())
-        except ZeroDivisionError:
-            angle = 0
-        if line.dy() >= 0:
-            angle = (math.pi * 2.0) - angle
-        #-- Arrow Direction --#
-        if self.startItem.isInputConnection:
-            revArrow = 1
-        else:
-            revArrow = -1
-        #-- Arrow Points --#
-        centerPoint = self.getCenterPoint()
-        arrowP1 = centerPoint + QtCore.QPointF(math.sin(angle + math.pi / 3.0) * arrowSize * revArrow,
-                                               math.cos(angle + math.pi / 3) * arrowSize * revArrow)
-        arrowP2 = centerPoint + QtCore.QPointF(math.sin(angle + math.pi - math.pi / 3.0) * arrowSize * revArrow,
-                                               math.cos(angle + math.pi - math.pi / 3.0) * arrowSize * revArrow)
-        #-- Clear arrowHead --#
-        self.arrowHead.clear()
-        #-- ArrowHead Polygon --#
-        for point in [centerPoint, arrowP1, arrowP2]:
-            self.arrowHead.append(point)
-
-    def boundingRect(self):
-        """
-        Calculate line bounding rect
-        :return: Line bounding rect
-        :rtype: QtCore.QRectF
-        """
-        extra = (self.pen().width() + 100) / 2.0
-        line = self.getLine()
-        p1 = line.p1()
-        p2 = line.p2()
-        return QtCore.QRectF(p1, QtCore.QSizeF(p2.x()-p1.x(), p2.y()-p1.y())).normalized().adjusted(-extra,-extra,extra,extra)
-
-    def shape(self):
-        """
-        Line shape with arrow
-        :return: Line shape
-        :rtype: QtGui.QPainterPath
-        """
-        path = super(LineConnection, self).shape()
-        path.addPolygon(self.arrowHead)
-        return path
-
-    def paint(self, painter, option, widget=None):
-        """
-        Draw line connection
-        """
-        line = self.getLine()
-        painter.setBrush(self.lineColor)
-        myPen = self.pen()
-        myPen.setColor(self.lineColor)
-        #-- Selected Color --#
-        if self.isSelected():
-            painter.setBrush(QtCore.Qt.yellow)
-            myPen.setColor(QtCore.Qt.yellow)
-            myPen.setStyle(QtCore.Qt.DashLine)
-        painter.setPen(myPen)
-        #-- Calculating Angle --#
-        if line.length() > 0.0:
-            self._arrowHeadCalculation(line)
-            #-- Draw Line --#
-            if line:
-                painter.drawPolygon(self.arrowHead)
-                painter.drawLine(line)
-
-
 class LinkConnection(QtGui.QGraphicsPathItem):
     """
     Graphic link item, child of grapher.graphScene. Contains link connection
@@ -754,6 +585,7 @@ class LinkConnection(QtGui.QGraphicsPathItem):
         self._type = 'linkConnection'
         self.lineColor = QtCore.Qt.cyan
         self.setZValue(-1.0)
+        self.setFlags(QtGui.QGraphicsPathItem.ItemIsSelectable|QtGui.QGraphicsPathItem.ItemIsFocusable)
         self.setPen(QtGui.QPen(self.lineColor, 1.5, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
 
     @property
@@ -807,9 +639,26 @@ class LinkConnection(QtGui.QGraphicsPathItem):
         """
         self.log.debug("Deleting line: %s ---> %s ..." % (self.startItem._parent.nodeName,
                                                           self.endItem._parent.nodeName))
-        self.startItem.connections.remove(self)
-        self.endItem.connections.remove(self)
-        self.scene().removeItem(self)
+        if self in self.startItem.connections:
+            self.startItem.connections.remove(self)
+        if self in self.endItem.connections:
+            self.endItem.connections.remove(self)
+        try:
+            self.scene().removeItem(self)
+        except:
+            pass
+
+    def boundingRect(self):
+        """
+        Calculate line bounding rect
+        :return: Line bounding rect
+        :rtype: QtCore.QRectF
+        """
+        extra = (self.pen().width() + 100) / 2.0
+        line = self.getLine()
+        p1 = line.p1()
+        p2 = line.p2()
+        return QtCore.QRectF(p1, QtCore.QSizeF(p2.x()-p1.x(), p2.y()-p1.y())).normalized().adjusted(-extra,-extra,extra,extra)
 
     def createPath(self):
         """
@@ -832,5 +681,16 @@ class LinkConnection(QtGui.QGraphicsPathItem):
         """
         myPen = self.pen()
         myPen.setColor(self.lineColor)
-        painter.setPen(myPen)
-        painter.drawPath(self.createPath())
+        if self.isSelected():
+            painter.setBrush(QtCore.Qt.yellow)
+            myPen.setColor(QtCore.Qt.yellow)
+            myPen.setStyle(QtCore.Qt.DashLine)
+        else:
+            if self.mainUi.editMode:
+                painter.setBrush(QtCore.Qt.lightGray)
+                myPen.setColor(QtCore.Qt.lightGray)
+            else:
+                if self.getLine().p1().x() >= self.getLine().p2().x():
+                    painter.setBrush(QtCore.Qt.red)
+                    myPen.setColor(QtCore.Qt.red)
+        painter.strokePath(self.createPath(), myPen)

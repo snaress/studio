@@ -160,7 +160,7 @@ class TabMode(ToolsTab):
         """
         Add tools to tab
         """
-        self.newTool('createModelingGraph', cmd=self.createModelingGraph, iconFile=None)
+        self.newTool('createModelingGraph', cmd=self.createModelingGraph, iconFile="gui/icon/png/toolModeBranch.png")
 
     def createModelingGraph(self):
         pass

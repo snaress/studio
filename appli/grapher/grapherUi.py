@@ -154,9 +154,9 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         Command launched when 'Edit Mode' QMenuItem is triggered.
         Turn on or off edition mode
         """
-        self.currentGraphScene.rf_connections()
         widget = self.dataZone.getDataWidgetFromGroupName('Node Id')
-        widget.rf_labelState()
+        if widget is not None:
+            widget.rf_labelState()
 
     def on_connectNodes(self):
         """
@@ -203,13 +203,10 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         Command launched when 'Fit In View' QMenuItem is triggered
         Fit graphZone to selected nodes
         """
-        graphZone = self.currentGraphZone
-        graphScene = self.currentGraphScene
-        if len(graphScene.selectedItems()) == 1:
-            graphZone.fitInView(graphScene.selectedItems()[0], QtCore.Qt.KeepAspectRatio)
-        if len(graphScene.selectedItems()) > 1:
-            x, y, w, h = graphScene.getSelectedNodesArea()
-            graphZone.fitInView(x, y, w, y, QtCore.Qt.KeepAspectRatio)
+        if len(self.currentGraphScene.selectedItems()) == 1:
+            self.currentGraphZone.fitInView(self.currentGraphScene.selectedItems()[0], QtCore.Qt.KeepAspectRatio)
+        if len(self.currentGraphScene.selectedItems()) > 1:
+            self.currentGraphZone.fitInView(self.currentGraphScene.getSelectedNodesArea(), QtCore.Qt.KeepAspectRatio)
 
     def on_StyleOption(self, styleName='default'):
         """
