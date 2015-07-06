@@ -389,6 +389,8 @@ class ProjectTree(QtGui.QTreeWidget):
         self.setMinimumWidth(200)
         self.setHeaderHidden(False)
         self.setIndentation(15)
+        self.setDragEnabled(True)
+        self.setDragDropMode(QtGui.QAbstractItemView.DragOnly)
         self.rf_treeHeader()
 
     @property
@@ -503,6 +505,15 @@ class ProjectTree(QtGui.QTreeWidget):
         newItem._widget = ProjectTreeItem(self.mainUi, newItem)
         return newItem
 
+    def startDrag(self, event):
+        """
+        Store dragged item for graphScene drops
+        """
+        item = self.selectedItems()[0]
+        if item.itemType == 'file':
+            self.mainUi.currentGraphScene.treeItemDragged = item
+            super(ProjectTree, self).startDrag(event)
+
 
 class ProjectTreeItem(QtGui.QWidget, wgTreeItemUI.Ui_wgTreeItem):
 
@@ -529,4 +540,6 @@ class ProjectTreeItem(QtGui.QWidget, wgTreeItemUI.Ui_wgTreeItem):
         else:
             if self.pItem.itemName.endswith('.cst'):
                 self.typeIcon = QtGui.QIcon("gui/icon/png/toolAssetCastingNode.png")
+            if self.pItem.itemName.endswith('.grp'):
+                self.typeIcon = QtGui.QIcon("gui/icon/png/treeGraph.png")
         self.pbItemIcon.setIcon(self.typeIcon)

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgDataAssetCasting.ui'
 #
-# Created: Sun Jun 28 18:07:32 2015
+# Created: Sat Jul 04 01:23:34 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -41,7 +41,7 @@ class Ui_wgDataAssetCasting(object):
         self.hlAssetEntity.addWidget(self.lAssetEntity)
         self.leAssetEntity = QtGui.QLineEdit(wgDataAssetCasting)
         self.leAssetEntity.setText(_fromUtf8(""))
-        self.leAssetEntity.setFrame(False)
+        self.leAssetEntity.setFrame(True)
         self.leAssetEntity.setReadOnly(True)
         self.leAssetEntity.setObjectName(_fromUtf8("leAssetEntity"))
         self.hlAssetEntity.addWidget(self.leAssetEntity)
@@ -56,7 +56,7 @@ class Ui_wgDataAssetCasting(object):
         self.hlAssetType.addWidget(self.lAssetType)
         self.leAssetType = QtGui.QLineEdit(wgDataAssetCasting)
         self.leAssetType.setText(_fromUtf8(""))
-        self.leAssetType.setFrame(False)
+        self.leAssetType.setFrame(True)
         self.leAssetType.setReadOnly(True)
         self.leAssetType.setObjectName(_fromUtf8("leAssetType"))
         self.hlAssetType.addWidget(self.leAssetType)
@@ -71,7 +71,7 @@ class Ui_wgDataAssetCasting(object):
         self.hlAssetSpec.addWidget(self.lAssetSpec)
         self.leAssetSpec = QtGui.QLineEdit(wgDataAssetCasting)
         self.leAssetSpec.setText(_fromUtf8(""))
-        self.leAssetSpec.setFrame(False)
+        self.leAssetSpec.setFrame(True)
         self.leAssetSpec.setReadOnly(True)
         self.leAssetSpec.setObjectName(_fromUtf8("leAssetSpec"))
         self.hlAssetSpec.addWidget(self.leAssetSpec)
@@ -86,7 +86,7 @@ class Ui_wgDataAssetCasting(object):
         self.hlAssetName.addWidget(self.lAssetName)
         self.leAssetName = QtGui.QLineEdit(wgDataAssetCasting)
         self.leAssetName.setText(_fromUtf8(""))
-        self.leAssetName.setFrame(False)
+        self.leAssetName.setFrame(True)
         self.leAssetName.setReadOnly(True)
         self.leAssetName.setObjectName(_fromUtf8("leAssetName"))
         self.hlAssetName.addWidget(self.leAssetName)
@@ -101,7 +101,7 @@ class Ui_wgDataAssetCasting(object):
         self.hlNamespace.addWidget(self.lNamespace)
         self.leNamespace = QtGui.QLineEdit(wgDataAssetCasting)
         self.leNamespace.setText(_fromUtf8(""))
-        self.leNamespace.setFrame(False)
+        self.leNamespace.setFrame(True)
         self.leNamespace.setReadOnly(True)
         self.leNamespace.setObjectName(_fromUtf8("leNamespace"))
         self.hlNamespace.addWidget(self.leNamespace)

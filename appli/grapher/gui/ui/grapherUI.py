@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Mon Jun 29 00:49:49 2015
+# Created: Sat Jul 04 16:57:03 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,6 +44,7 @@ class Ui_mwGrapher(object):
         self.vlProjectTree.setMargin(0)
         self.vlProjectTree.setObjectName(_fromUtf8("vlProjectTree"))
         self.tabGraph = QtGui.QTabWidget(self.splitter)
+        self.tabGraph.setAcceptDrops(True)
         self.tabGraph.setTabsClosable(False)
         self.tabGraph.setMovable(True)
         self.tabGraph.setObjectName(_fromUtf8("tabGraph"))
@@ -145,8 +146,8 @@ class Ui_mwGrapher(object):
         self.miEditMode.setCheckable(True)
         self.miEditMode.setChecked(True)
         self.miEditMode.setObjectName(_fromUtf8("miEditMode"))
-        self.miFitInView = QtGui.QAction(mwGrapher)
-        self.miFitInView.setObjectName(_fromUtf8("miFitInView"))
+        self.miFitInSelection = QtGui.QAction(mwGrapher)
+        self.miFitInSelection.setObjectName(_fromUtf8("miFitInSelection"))
         self.miNewProject = QtGui.QAction(mwGrapher)
         self.miNewProject.setObjectName(_fromUtf8("miNewProject"))
         self.miLoadProject = QtGui.QAction(mwGrapher)
@@ -162,6 +163,8 @@ class Ui_mwGrapher(object):
         self.miButtonIconOnly = QtGui.QAction(mwGrapher)
         self.miButtonIconOnly.setCheckable(True)
         self.miButtonIconOnly.setObjectName(_fromUtf8("miButtonIconOnly"))
+        self.miSaveGraphAs = QtGui.QAction(mwGrapher)
+        self.miSaveGraphAs.setObjectName(_fromUtf8("miSaveGraphAs"))
         self.mBarOrientation.addAction(self.miBarHorizontal)
         self.mBarOrientation.addAction(self.miBarVertical)
         self.mTabOrientation.addAction(self.miTabNorth)
@@ -185,11 +188,13 @@ class Ui_mwGrapher(object):
         self.mEdit.addAction(self.miConnectNodes)
         self.mGrapher.addAction(self.miLoadProject)
         self.mGrapher.addAction(self.miEditProject)
+        self.mGrapher.addSeparator()
+        self.mGrapher.addAction(self.miSaveGraphAs)
         self.menuDisplay.addAction(self.miTreeVisibility)
         self.menuDisplay.addAction(self.miDataVisibility)
         self.menuDisplay.addAction(self.miToolBarVisibility)
         self.menuDisplay.addAction(self.miFitInScene)
-        self.menuDisplay.addAction(self.miFitInView)
+        self.menuDisplay.addAction(self.miFitInSelection)
         self.menubar.addAction(self.mGrapher.menuAction())
         self.menubar.addAction(self.mEdit.menuAction())
         self.menubar.addAction(self.menuDisplay.menuAction())
@@ -234,11 +239,12 @@ class Ui_mwGrapher(object):
         self.miDataVisibility.setText(_translate("mwGrapher", "Data Visibility", None))
         self.miPrintConnections.setText(_translate("mwGrapher", "Print Sel Connections", None))
         self.miEditMode.setText(_translate("mwGrapher", "Edit Mode", None))
-        self.miFitInView.setText(_translate("mwGrapher", "Fit In View", None))
+        self.miFitInSelection.setText(_translate("mwGrapher", "Fit In Selection", None))
         self.miNewProject.setText(_translate("mwGrapher", "New Project", None))
         self.miLoadProject.setText(_translate("mwGrapher", "Load Project", None))
         self.miEditProject.setText(_translate("mwGrapher", "Edit Project", None))
         self.miFitInScene.setText(_translate("mwGrapher", "Fit In Scene", None))
         self.miTreeVisibility.setText(_translate("mwGrapher", "Tree Visibility", None))
         self.miButtonIconOnly.setText(_translate("mwGrapher", "Button Icon Only", None))
+        self.miSaveGraphAs.setText(_translate("mwGrapher", "Save Graph As", None))
 

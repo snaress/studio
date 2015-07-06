@@ -62,6 +62,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         #-- Menu Grapher --#
         self.miLoadProject.triggered.connect(self.on_loadProject)
         self.miEditProject.triggered.connect(self.on_editProject)
+        self.miSaveGraphAs.triggered.connect(self.on_saveGraphAs)
         #-- Menu Edit --#
         self.miAddGraphZone.triggered.connect(self.on_addGraphZone)
         self.miAddGraphZone.setShortcut("Ctrl+N")
@@ -78,8 +79,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.miToolBarVisibility.setShortcut("Ctrl+T")
         self.miFitInScene.triggered.connect(self.on_fitInScene)
         self.miFitInScene.setShortcut("H")
-        self.miFitInView.triggered.connect(self.on_fitInView)
-        self.miFitInView.setShortcut("F")
+        self.miFitInSelection.triggered.connect(self.on_fitInSelection)
+        self.miFitInSelection.setShortcut("F")
         #-- Menu Pref --#
         self.miDefaultStyle.triggered.connect(partial(self.on_StyleOption, styleName='default'))
         self.miDarkOrange.triggered.connect(partial(self.on_StyleOption, styleName='darkOrange'))
@@ -140,6 +141,14 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
             self.fdEditProject = projectWgts.EditProject(self)
             self.fdEditProject.show()
 
+    def on_saveGraphAs(self):
+        """
+        Command launched when 'Save Graph As' QMenuItem is triggered, Open fileDialog
+        """
+        self.fdSaveGraphAs = pQt.fileDialog(fdMode='save', fdFileMode='AnyFile', fdRoot=self.projectPath,
+                                            fdCmd=self.saveGraphAs, fdFilters=['*.grp*'])
+        self.fdSaveGraphAs.exec_()
+
     def on_addGraphZone(self):
         """
         Command launched when 'Add GraphZone' QMenuItem is triggered
@@ -148,6 +157,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         newGraphScene = graphWgts.GraphScene(self)
         newGraphZone = graphWgts.GraphZone(self, newGraphScene)
         self.tabGraph.insertTab(-1, newGraphZone, 'Untitled')
+        self.tabGraph.setAcceptDrops(True)
 
     def on_editMode(self):
         """
@@ -198,9 +208,9 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         """
         self.currentGraphZone.fitInView(self.currentGraphScene.itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
 
-    def on_fitInView(self):
+    def on_fitInSelection(self):
         """
-        Command launched when 'Fit In View' QMenuItem is triggered
+        Command launched when 'Fit In Selection' QMenuItem is triggered
         Fit graphZone to selected nodes
         """
         if len(self.currentGraphScene.selectedItems()) == 1:
@@ -258,7 +268,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         :param project: Project full name
         :type: str
         """
-        self.log.info("Loading project %s ..." % project)
+        self.log.info("#===== Loading project %s =====#" % project)
         self.projectPath = os.path.join(self.grapherRootPath, 'projects', project)
         if not os.path.exists(self.projectPath):
             raise IOError, "!!! Project '%s' not found !!!" % project
@@ -267,6 +277,14 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.projectFullName = project
         self.setWindowTitle("Grapher | %s | %s" % (self.projectAlias, self.projectName))
         self.graphTree.rf_projectTree()
+
+    def saveGraphAs(self):
+        """
+        Get fileDialog result, launch graph save
+        """
+        result = self.fdSaveGraphAs.selectedFiles()
+        self.log.info("Save current graph as: %s" % result[0])
+        self.currentGraphZone.saveGraphAs(result[0])
 
     def closeEvent(self, *args, **kwargs):
         """

@@ -68,13 +68,13 @@ class ToolsBar(QtGui.QTabWidget):
         """
         self.clear()
         #-- Tab Mode --#
-        tabMode = TabMode(self.mainUi, self)
-        self.insertTab(-1, tabMode, 'Mode')
-        self.tabs.append(tabMode)
+        self.tabMode = TabMode(self.mainUi, self)
+        self.insertTab(-1, self.tabMode, 'Mode')
+        self.tabs.append(self.tabMode)
         #-- Tab Util --#
-        tabUtil = TabUtil(self.mainUi, self)
-        self.insertTab(-1, tabUtil, 'Util')
-        self.tabs.append(tabUtil)
+        self.tabUtil = TabUtil(self.mainUi, self)
+        self.insertTab(-1, self.tabUtil, 'Util')
+        self.tabs.append(self.tabUtil)
 
 
 class ToolsTab(QtGui.QWidget, wgToolsTabUI.Ui_wgToolsTab):
@@ -160,9 +160,9 @@ class TabMode(ToolsTab):
         """
         Add tools to tab
         """
-        self.newTool('createModelingGraph', cmd=self.createModelingGraph, iconFile="gui/icon/png/toolModeBranch.png")
+        self.newTool('ModeCharsGraph', cmd=self.modeCharsGraph, iconFile="gui/icon/png/toolModeCharsBranch.png")
 
-    def createModelingGraph(self):
+    def modeCharsGraph(self):
         pass
 
 
@@ -176,6 +176,7 @@ class TabUtil(ToolsTab):
     """
 
     def __init__(self, mainUi, tabWidget):
+        self.mainUi = mainUi
         super(TabUtil, self).__init__(mainUi, tabWidget)
         self._addTools()
 
@@ -183,6 +184,7 @@ class TabUtil(ToolsTab):
         """
         Add tools to tab
         """
+        self.newTool('DataNode', cmd=self.dataNode, iconFile="gui/icon/png/toolDataNode.png")
         self.newTool('MayaNode', cmd=self.mayaNode, iconFile="gui/icon/png/toolMayaNode.png")
         self.newTool('AssetNode', cmd=self.assetNode, iconFile="gui/icon/png/toolAssetNode.png")
         self.newTool('AssetCastingNode', cmd=self.assetCastingNode, iconFile="gui/icon/png/toolAssetCastingNode.png")
@@ -190,29 +192,51 @@ class TabUtil(ToolsTab):
     def assetCastingNode(self):
         """
         Add tool: Create Asset Casting Node
+        :return: Graph node
+        :rtype: AssetCastingNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_casting_node")
         self.log.info("#-- Creating Casting Asset Node: %s --#" % nodeName)
         newNode = graphNodes.AssetCastingNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
+        return newNode
 
     def assetNode(self):
         """
         Add tool: Create Asset Node
+        :return: Graph node
+        :rtype: AssetNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_node")
-        self.log.info("#-- Creating Asset Node: %s --#" % nodeName)
+        self.mainUi.log.info("#-- Creating Asset Node: %s --#" % nodeName)
         newNode = graphNodes.AssetNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
+        return newNode
 
     def mayaNode(self):
         """
         Add tool: Create Maya Node
+        :return: Graph node
+        :rtype: MayaNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
         self.log.info("#-- Creating Maya Node: %s --#" % nodeName)
         newNode = graphNodes.MayaNode(mainUi=self.mainUi, nodeName=nodeName)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
+        return newNode
+
+    def dataNode(self):
+        """
+        Add tool: Create Maya Node
+        :return: Graph node
+        :rtype: DataNode
+        """
+        nodeName = self.mainUi.currentGraphScene.getNextNameIndex("data_node")
+        self.log.info("#-- Creating Maya Node: %s --#" % nodeName)
+        newNode = graphNodes.DataNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
+        self.mainUi.currentGraphScene.addItem(newNode)
+        return newNode

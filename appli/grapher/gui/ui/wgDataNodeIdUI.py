@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgDataNodeId.ui'
 #
-# Created: Sun Jun 28 01:02:09 2015
+# Created: Sat Jul 04 01:23:35 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -46,7 +46,7 @@ class Ui_wgNodeId(object):
         self.hlNodeType.addWidget(self.lNodeType)
         self.leNodeType = QtGui.QLineEdit(wgNodeId)
         self.leNodeType.setText(_fromUtf8(""))
-        self.leNodeType.setFrame(False)
+        self.leNodeType.setFrame(True)
         self.leNodeType.setReadOnly(True)
         self.leNodeType.setObjectName(_fromUtf8("leNodeType"))
         self.hlNodeType.addWidget(self.leNodeType)
@@ -65,7 +65,7 @@ class Ui_wgNodeId(object):
         self.lNodeName.setObjectName(_fromUtf8("lNodeName"))
         self.hlNodeName.addWidget(self.lNodeName)
         self.leNodeName = QtGui.QLineEdit(wgNodeId)
-        self.leNodeName.setFrame(False)
+        self.leNodeName.setFrame(True)
         self.leNodeName.setReadOnly(True)
         self.leNodeName.setObjectName(_fromUtf8("leNodeName"))
         self.hlNodeName.addWidget(self.leNodeName)
@@ -84,7 +84,7 @@ class Ui_wgNodeId(object):
         self.lNodeLabel.setObjectName(_fromUtf8("lNodeLabel"))
         self.hlNodeLabel.addWidget(self.lNodeLabel)
         self.leNodeLabel = QtGui.QLineEdit(wgNodeId)
-        self.leNodeLabel.setFrame(False)
+        self.leNodeLabel.setFrame(True)
         self.leNodeLabel.setReadOnly(False)
         self.leNodeLabel.setObjectName(_fromUtf8("leNodeLabel"))
         self.hlNodeLabel.addWidget(self.leNodeLabel)

@@ -1,8 +1,9 @@
 from PyQt4 import QtGui
 from functools import partial
 from lib.qt import procQt as pQt
+from lib.qt.scriptEditor import ScriptZone
 from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeIdUI, wgDataNodeConnUI, wgDataConnGroupUI,\
-                                 wgDataConnItemUI, wgDataAssetCastingUI
+                                 wgDataConnItemUI, wgDataAssetCastingUI, wgDataNodeScriptUI
 
 
 #======================================== GENERAL ========================================#
@@ -472,22 +473,26 @@ class NodeConnectionItem(QtGui.QWidget, wgDataConnItemUI.Ui_wgDataConnItem):
         Add mouse double click options: Select linked node in graphScene
         """
         if self.pItem.isSelected():
-            graphScene = self.mainUi.currentGraphScene
-            graphScene.clearNodeSelection()
+            self.mainUi.currentGraphScene.clearNodeSelection()
             self.pItem._widget.linkedNode.setSelected(True)
-            graphScene.rf_nodesElementId()
+            self.mainUi.currentGraphScene.rf_nodesElementId()
             self.mainUi.dataZone.clearDataZone()
             self.mainUi.dataZone.connectNodeData(self.pItem._widget.linkedNode)
 
 #==================================== ASSET CASTING =====================================#
 
-class NodeAssetCasting(QtGui.QWidget, wgDataAssetCastingUI.Ui_wgDataAssetCasting):
+class DataNodeAssetCasting(QtGui.QWidget, wgDataAssetCastingUI.Ui_wgDataAssetCasting):
+    """
+    Data category widget. Contains node asset casting data
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    """
 
     def __init__(self, mainUi):
         self.mainUi = mainUi
         self.pItem = None
         self.log = self.mainUi.log
-        super(NodeAssetCasting, self).__init__()
+        super(DataNodeAssetCasting, self).__init__()
         self._setupUi()
 
     def _setupUi(self):
@@ -496,10 +501,84 @@ class NodeAssetCasting(QtGui.QWidget, wgDataAssetCastingUI.Ui_wgDataAssetCasting
         """
         self.setupUi(self)
 
+    @property
+    def params(self):
+        """
+        Get category ui params
+        :return: Category params
+        :rtype: dict
+        """
+        return {'assetEntity': self.leAssetEntity, 'assetType': self.leAssetType, 'assetSpec': self.leAssetSpec,
+                'assetName': self.leAssetName, 'assetNs': self.leNamespace}
+
     def setDataFromNode(self, node):
         """
         Update params from given node
         :param node: Graph node
         :type node: QtSvg.QGraphicsSvgItem
         """
-        pass
+        self.currentNode = node
+        for k, QWidget in self.params.iteritems():
+            if hasattr(node, k):
+                QWidget.setText(getattr(node, k))
+            else:
+                setattr(node, k, None)
+                QWidget.setText("None")
+
+#===================================== PYTHON DATA ======================================#
+
+class DataNodeScript(QtGui.QWidget, wgDataNodeScriptUI.Ui_wgDataScript):
+    """
+    Data category widget. Contains node script data
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    """
+
+    def __init__(self, mainUi):
+        self.mainUi = mainUi
+        self.pItem = None
+        super(DataNodeScript, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """
+        Setup 'Node Connections' data category
+        """
+        self.setupUi(self)
+        self.setMinimumHeight(self.mainUi.twNodeData.height() - 100)
+        self.scriptZone = NodeScript()
+        self.vlScriptZone.addWidget(self.scriptZone)
+        self.pbCancel.clicked.connect(self.on_cancel)
+
+    def setDataFromNode(self, node):
+        """
+        Update params from given node
+        :param node: Graph node
+        :type node: QtSvg.QGraphicsSvgItem
+        """
+        self.currentNode = node
+        if hasattr(node, 'scriptTxt'):
+            self.scriptZone.setCode(node.scriptTxt)
+        else:
+            setattr(node, 'scriptTxt', "")
+            self.scriptZone.setCode("")
+
+    def on_save(self):
+        """
+        Command launched when 'Save' QPuchButton is clicked. Save script state
+        """
+        self.currentNode.scriptTxt = self.scriptZone.getCode()
+
+    def on_cancel(self):
+        """
+        Command launched when 'Cancel' QPuchButton is clicked.
+        Restore script to last save state
+        """
+        self.scriptZone.setCode(self.currentNode.scripTxt)
+
+
+class NodeScript(ScriptZone):
+
+    def __init__(self):
+        super(NodeScript, self).__init__()

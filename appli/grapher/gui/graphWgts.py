@@ -1,5 +1,6 @@
-from lib.qt import procQt as pQt
+import os
 from PyQt4 import QtGui, QtSvg, QtCore
+from lib.system import procFile as pFile
 
 
 class GraphZone(QtGui.QGraphicsView):
@@ -25,8 +26,92 @@ class GraphZone(QtGui.QGraphicsView):
         self.log.debug("---> Setup GraphZone ...")
         self.setScene(self.graphScene)
         self.setSceneRect(0, 0, 10000, 10000)
+        self.scale(0.5, 0.5)
         self.setRubberBandSelectionMode(QtCore.Qt.IntersectsItemShape)
         self.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(60, 60, 60, 255), QtCore.Qt.SolidPattern))
+
+    def loadGraph(self, graphRelPath):
+        """
+        Load graph from given relative path
+        :param graphRelPath: Graph relative path
+        :type graphRelPath: str
+        """
+        self.log.info("Loading Graph %s ..." % graphRelPath)
+        graphFile = pFile.conformPath(os.path.join(self.mainUi.projectPath, graphRelPath))
+        graphData = pFile.readPyFile(graphFile)
+        self.createGraphFromData(graphData)
+
+    def saveGraphAs(self, graphFullPath):
+        """
+        Save graph as given fileName
+        :param graphFullPath: Graph file full name
+        :type graphFullPath: str
+        """
+        filePath = "%s.grp.py" % (graphFullPath.split('.')[0])
+        sceneDict = self.graphScene.getSceneDict()
+        graphTxt = []
+        for itemType in ['nodes', 'links']:
+            graphTxt.append("%s = %s" % (itemType, sceneDict[itemType]))
+        pFile.writeFile(filePath, '\n'.join(graphTxt))
+
+    def createGraphFromData(self, graphData):
+        """
+        Create graph from given data
+        :param graphData: Graph datas
+        :type graphData: dict
+        """
+        self.log.debug("#-- Creating Graph --#")
+        #-- Add Nodes --#
+        for n in sorted(graphData['nodes'].keys()):
+            newNode = self.graphScene.createNode(graphData['nodes'][n]['nodeType'])
+            newNode.setPos(graphData['nodes'][n]['nodePosition'][0], graphData['nodes'][n]['nodePosition'][1])
+            newNode.setNodeParams(**graphData['nodes'][n])
+        #-- Add Links --#
+        inPlugs = ['inputFile', 'inputData']
+        outPlugs = ['outputFile']
+        for n in sorted(graphData['links'].keys()):
+            for outPlug in outPlugs:
+                for np in sorted(graphData['links'][n][outPlug].keys()):
+                    srcLabel = graphData['links'][n][outPlug][np]['srcLabel']
+                    dstLabel = graphData['links'][n][outPlug][np]['dstLabel']
+                    srcNode = self.graphScene.getNodeFromNodeLabel(srcLabel)
+                    srcItem = getattr(srcNode, '%sPlug' % outPlug)
+                    dstNode = self.graphScene.getNodeFromNodeLabel(dstLabel)
+                    if srcNode is not None and dstNode is not None:
+                        for inPlug in inPlugs:
+                            for npp in sorted(graphData['links'].keys()):
+                                if inPlug in graphData['links'][npp].keys():
+                                    for nppp in sorted(graphData['links'][npp][inPlug].keys()):
+                                        if graphData['links'][npp][inPlug][nppp]['srcLabel'] == srcLabel:
+                                            dstItem = getattr(dstNode, '%sPlug' % inPlug)
+                                            self.graphScene.createLine(srcItem, dstItem)
+
+    # noinspection PyArgumentList,PyCallByClass,PyTypeChecker
+    def mouseMoveEvent(self, event):
+        """
+        Add mouse move options: 'Left': If ctrlKey is True, enable scene drag movement
+        """
+        if event.y() < 0 or event.y() > self.height() or event.x() < 0 or event.x() > self.width():
+            globalPos = self.mapToGlobal(event.pos())
+            if event.y() < 0 or event.y() > self.height():
+                if event.y() < 0:
+                    globalPos.setY(globalPos.y() + self.height())
+                else:
+                    globalPos.setY(globalPos.y() - self.height())
+            else:
+                if event.x() < 0:
+                    globalPos.setX(globalPos.x() + self.width())
+                else:
+                    globalPos.setX(globalPos.x() - self.width())
+            r_event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonRelease, self.mapFromGlobal(QtGui.QCursor.pos()),
+                                        QtCore.Qt.LeftButton, QtCore.Qt.NoButton, QtCore.Qt.NoModifier)
+            self.mouseReleaseEvent(r_event)
+            QtGui.QCursor.setPos(globalPos)
+            p_event = QtGui.QMouseEvent(QtCore.QEvent.MouseButtonPress, self.mapFromGlobal(QtGui.QCursor.pos()),
+                                        QtCore.Qt.LeftButton, QtCore.Qt.LeftButton, QtCore.Qt.NoModifier)
+            QtCore.QTimer.singleShot(0, lambda: self.mousePressEvent(p_event))
+        else:
+            super(GraphZone, self).mouseMoveEvent(event)
 
     def wheelEvent(self, event):
         """
@@ -64,8 +149,8 @@ class GraphScene(QtGui.QGraphicsScene):
         self.log.debug("---> Setup GraphScene ...")
         self.line = None
         self.selBuffer = {'_order': []}
-        self.mousePos = None
         self.ctrlKey = False
+        self.treeItemDragged = None
         self.selectionChanged.connect(self._selectionChanged)
 
     def _selectionChanged(self):
@@ -135,6 +220,18 @@ class GraphScene(QtGui.QGraphicsScene):
                 posY.append(node.pos().y())
         return QtCore.QRectF(min(posX), min(posY), (max(posX) - min(posX)), (max(posY) - min(posY)))
 
+    def getNodeFromNodeLabel(self, nodeLabel):
+        """
+        Get graphNode item from given nodeLabel
+        :param nodeLabel: Node label
+        :type nodeLabel: str
+        :return: Node matching with given nodeLabel
+        :rtype: GraphNode
+        """
+        for node in self.getAllNodes():
+            if node.nodeLabel == nodeLabel:
+                return node
+
     def getNextNameIndex(self, name):
         """
         Get next free nodeName index
@@ -155,6 +252,18 @@ class GraphScene(QtGui.QGraphicsScene):
         else:
             ind = str(max(indList) + 1)
         return "%s_%s" % (name, ind)
+
+    def getSceneDict(self):
+        """
+        Get scene contents
+        :return: Scene nodes and links
+        :rtype: dict
+        """
+        sceneDict = {'nodes':{}, 'links': {}}
+        for n, node in enumerate(self.getAllNodes()):
+            sceneDict['nodes'][n] = node.getNodeParams()
+            sceneDict['links'][n] = node.getConnectionsInfo()
+        return sceneDict
 
     def clearNodeSelection(self):
         """
@@ -189,6 +298,45 @@ class GraphScene(QtGui.QGraphicsScene):
             else:
                 self.createLine(c['src'], c['dst'])
 
+    def _drawLine(self):
+        """
+        Draw connection line
+        """
+        if self.line:
+            #-- Tmp Line --#
+            startItems = self.items(self.line.line().p1())
+            if len(startItems) and startItems[0] == self.line:
+                startItems.pop(0)
+            endItems = self.items(self.line.line().p2())
+            if len(endItems) and endItems[0] == self.line:
+                endItems.pop(0)
+            self.removeItem(self.line)
+            #-- Draw Line --#
+            if startItems and endItems:
+                if hasattr(startItems[0], '_type') and hasattr(endItems[0], '_type'):
+                    if startItems[0]._type == 'nodeConnection' and endItems[0]._type == 'nodeConnection':
+                        if not startItems[0].isInputConnection and endItems[0].isInputConnection:
+                            if self.mainUi.editMode:
+                                self.createLine(startItems[0], endItems[0])
+        self.line = None
+
+    def createNode(self, nodeType):
+        """
+        Create given nodeType graphNode
+        :param nodeType: GraphNode type
+        :type nodeType: str
+        :return: New graphNode
+        :rtype: GraphNode
+        """
+        if nodeType == 'assetCastingNode':
+            return self.mainUi.graphTools.tabUtil.assetCastingNode()
+        elif nodeType == 'assetNode':
+            return self.mainUi.graphTools.tabUtil.assetNode()
+        elif nodeType == 'mayaNode':
+            return self.mainUi.graphTools.tabUtil.mayaNode()
+        elif nodeType == 'dataNode':
+            return self.mainUi.graphTools.tabUtil.dataNode()
+
     def createLine(self, startItem, endItem):
         """
         Create connection line
@@ -203,6 +351,43 @@ class GraphScene(QtGui.QGraphicsScene):
         endItem.connections.append(connectionLine)
         self.addItem(connectionLine)
         connectionLine.updatePosition()
+
+    def dropFromTree(self, event):
+        """
+        Drop selected project tree item
+        :param event: Mouse release rvent
+        :type event: QtGui.QGraphicsSceneMouseEvent
+        """
+        if self.treeItemDragged is not None:
+            if event.button() == QtCore.Qt.LeftButton:
+                ext = self.treeItemDragged.itemName.split('.')[-1]
+                if ext in ['cst']:
+                    self.dropTreeNode(ext, event)
+                elif ext in ['grp']:
+                    self.mainUi.currentGraphZone.loadGraph(self.treeItemDragged.relPath)
+            elif event.button() == QtCore.Qt.RightButton:
+                self.log.debug("Tree drag canceled")
+        self.treeItemDragged = None
+
+    def dropTreeNode(self, ext, event):
+        """
+        Drop Selected tree item node to graphScene
+        :param ext: Node type extension ('cst', 'a7')
+        :type ext: str
+        :param event: Mouse release rvent
+        :type event: QtGui.QGraphicsSceneMouseEvent
+        """
+        #-- Create Node --#
+        if ext == 'cst':
+            newNode = self.createNode('assetCastingNode')
+        else:
+            newNode = None
+        #-- Add Node Datas --#
+        if newNode is not None:
+            newNode.loadDatas(self.treeItemDragged.relPath)
+            newNode.setPos(QtCore.QPointF(event.scenePos().x(), event.scenePos().y()))
+        else:
+            self.log.debug("Tree drag canceled")
 
     def keyPressEvent(self, event):
         """
@@ -232,19 +417,25 @@ class GraphScene(QtGui.QGraphicsScene):
                                             for line creation
                                           - If itemType is 'nodeBase', will connect node data to dataZone
                                           - If empty, will clear dataZone and update node.elementId
+                                          - If empty and ctrlKey is False: Enable area selection
+                                          - If empty and ctrlKey is True: Enable move by drag
         """
-        self.mousePos = self.mainUi.currentGraphZone.mapFromScene(event.scenePos())
         self.mainUi.dataZone.clearDataZone()
         item = self.itemAt(event.scenePos())
         if item is not None and hasattr(item, '_type'):
+            #-- Create Line --#
             if event.button() == QtCore.Qt.LeftButton and item._type == 'nodeConnection':
                 if self.mainUi.editMode:
                     self.line = QtGui.QGraphicsLineItem(QtCore.QLineF(event.scenePos(), event.scenePos()))
                     self.addItem(self.line)
+            #-- Connect Node To DataZone --#
             elif event.button() == QtCore.Qt.LeftButton and item._type == 'nodeBase':
                 self.mainUi.dataZone.connectNodeData(item)
+        #-- Enable Area Selection Or Moving Scene --#
         elif item is None and not self.ctrlKey:
             self.mainUi.currentGraphZone.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+        elif item is None and self.ctrlKey:
+            self.mainUi.currentGraphZone.setDragMode(QtGui.QGraphicsView.ScrollHandDrag)
         super(GraphScene, self).mousePressEvent(event)
         #-- Check Node ElementId State --#
         self.rf_nodesElementId()
@@ -257,39 +448,18 @@ class GraphScene(QtGui.QGraphicsScene):
         if self.line:
             newLine = QtCore.QLineF(self.line.line().p1(), event.scenePos())
             self.line.setLine(newLine)
-        else:
-            if self.ctrlKey and self.mousePos is not None:
-                newPos = self.mousePos - self.mainUi.currentGraphZone.mapFromScene(event.scenePos())
-                print newPos
-                self.mainUi.currentGraphZone.mapToScene(QtCore.QRect(newPos.x(), newPos.y(),
-                                                                        self.width() / 2, self.height() / 2))
         super(GraphScene, self).mouseMoveEvent(event)
         self.update()
 
     def mouseReleaseEvent(self, event):
         """
         Add mouse release options: 'left' = If line construction is detected, will draw the final connection
-                                            and clear construction line item
+                                            and clear construction line item.
+                                            If treeItemDragged is not None, drop selected tree item in graphScene
         """
-        if self.line:
-            #-- Tmp Line --#
-            startItems = self.items(self.line.line().p1())
-            if len(startItems) and startItems[0] == self.line:
-                startItems.pop(0)
-            endItems = self.items(self.line.line().p2())
-            if len(endItems) and endItems[0] == self.line:
-                endItems.pop(0)
-            self.removeItem(self.line)
-            #-- Draw Line --#
-            if startItems and endItems:
-                if hasattr(startItems[0], '_type') and hasattr(endItems[0], '_type'):
-                    if startItems[0]._type == 'nodeConnection' and endItems[0]._type == 'nodeConnection':
-                        if not startItems[0].isInputConnection and endItems[0].isInputConnection:
-                            if self.mainUi.editMode:
-                                self.createLine(startItems[0], endItems[0])
-        self.line = None
-        self.mousePos = None
+        self._drawLine()
         self.mainUi.currentGraphZone.setDragMode(QtGui.QGraphicsView.NoDrag)
+        self.dropFromTree(event)
         for item in self.selectedItems():
             if item._type == 'nodeBase':
                 item.setElementId("selected")
@@ -362,6 +532,29 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         """
         return self.nodeSize[1]
 
+    def getNodeParams(self):
+        """
+        Get Node params and datas
+        :return: Node params
+        :rtype: dict
+        """
+        params = {'nodeType': self.nodeType, 'nodeName': self.nodeName, 'nodeLabel': self.nodeLabel,
+                  'nodePosition': (self.scenePos().x(), self.scenePos().y())}
+        for k in self.dataKeys:
+            params[k] = getattr(self, k)
+        return params
+
+    def setNodeParams(self, **kwargs):
+        """
+        Set node params and datas
+        :param kwargs: params and datas to set
+        :type kwargs: dict
+        """
+        excludedKey = ['nodePosition', 'nodeName', 'nodeType']
+        for k, v in kwargs.iteritems():
+            if not k in excludedKey:
+                setattr(self, k, v)
+
     def getConnections(self):
         """
         Get graph node connections
@@ -415,6 +608,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
                         rDict[conn][n][k] = v._type
                     elif k.endswith('Node'):
                         rDict[conn][n][k] = v.nodeName
+                        rDict[conn][n][k.replace('Node', 'Label')] = v.nodeLabel
         return rDict
 
     def rf_toolTip(self):
@@ -459,6 +653,21 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
                                                  iconFile="gui/icon/svg/outputFilePlug.svg", parent=self)
             self.outputFilePlug.setPos(self.width, (self.height / 2) - (self.outputFilePlug.height / 2))
             self.outputFilePlug.isInputConnection = False
+
+    def loadDatas(self, dataRelPath):
+        """
+        Load data from grapher file
+        :param dataRelPath: Node data file relative path
+        :type dataRelPath: str
+        """
+        self.log.info("Loading %s" % dataRelPath)
+        dataFile = os.path.join(self.mainUi.projectPath, dataRelPath)
+        datas = pFile.readPyFile(dataFile)
+        for data in self.dataKeys:
+            setattr(self, data, datas[data])
+        self.nodeLabel = "%s_cst" % self.assetName
+        self.rf_nodeLabel()
+        self.rf_toolTip()
 
     def deleteNode(self):
         """

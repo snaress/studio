@@ -11,7 +11,7 @@ class AssetCastingNode(GraphNode):
 
     def __init__(self, **kwargs):
         self.iconFile = "gui/icon/svg/assetCastingNode.svg"
-        self.nodeType = "AssetCastingNode"
+        self.nodeType = "assetCastingNode"
         self.hasInputFilePlug = False
         self.hasInputDataPlug = False
         self.hasOutputFilePlug = True
@@ -25,10 +25,16 @@ class AssetCastingNode(GraphNode):
         """
         return [{'name': 'Node Id', 'class': dataWgts.DataNodeId(self.mainUi)},
                 {'name': 'Node Connections', 'class': dataWgts.DataNodeConnections(self.mainUi)},
-                {'name': 'Asset Casting', 'class': dataWgts.NodeAssetCasting(self.mainUi)}]
+                {'name': 'Asset Casting', 'class': dataWgts.DataNodeAssetCasting(self.mainUi)}]
 
+    @property
     def dataKeys(self):
-        return ['assetType', 'assetSpec', 'assetName', 'assetNs']
+        """
+        Asset casting node data keys
+        :return: data keys
+        :rtype: list
+        """
+        return ['assetEntity', 'assetType', 'assetSpec', 'assetName', 'assetNs']
 
 
 class AssetNode(GraphNode):
@@ -55,6 +61,15 @@ class AssetNode(GraphNode):
         return [{'name': 'Node Id', 'class': dataWgts.DataNodeId(self.mainUi)},
                 {'name': 'Node Connections', 'class': dataWgts.DataNodeConnections(self.mainUi)}]
 
+    @property
+    def dataKeys(self):
+        """
+        Asset casting node data keys
+        :return: data keys
+        :rtype: list
+        """
+        return []
+
 
 class MayaNode(GraphNode):
     """
@@ -79,3 +94,47 @@ class MayaNode(GraphNode):
         """
         return [{'name': 'Node Id', 'class': dataWgts.DataNodeId(self.mainUi)},
                 {'name': 'Node Connections', 'class': dataWgts.DataNodeConnections(self.mainUi)}]
+
+    @property
+    def dataKeys(self):
+        """
+        Asset casting node data keys
+        :return: data keys
+        :rtype: list
+        """
+        return []
+
+
+class DataNode(GraphNode):
+    """
+    GraphNode template
+    :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
+    :type kwargs: dict
+    """
+
+    def __init__(self, **kwargs):
+        self.iconFile = "gui/icon/svg/dataNode.svg"
+        self.nodeType = "dataNode"
+        self.hasInputFilePlug = False
+        self.hasInputDataPlug = False
+        self.hasOutputFilePlug = True
+        super(DataNode, self).__init__(**kwargs)
+
+    def dataWidgets(self):
+        """
+        Node specific data widgets
+        :return: Node widget dicts
+        :rtype: list
+        """
+        return [{'name': 'Node Id', 'class': dataWgts.DataNodeId(self.mainUi)},
+                {'name': 'Node Connections', 'class': dataWgts.DataNodeConnections(self.mainUi)},
+                {'name': 'Node Script', 'class': dataWgts.DataNodeScript(self.mainUi)}]
+
+    @property
+    def dataKeys(self):
+        """
+        Asset casting node data keys
+        :return: data keys
+        :rtype: list
+        """
+        return ['scriptTxt']
