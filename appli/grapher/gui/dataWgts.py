@@ -1,6 +1,9 @@
+import os
 from PyQt4 import QtGui
+from lib.env import studio
 from functools import partial
 from lib.qt import procQt as pQt
+from lib.system import procFile as pFile
 from lib.qt.scriptEditor import ScriptZone
 from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeIdUI, wgDataNodeConnUI, wgDataConnGroupUI,\
                                  wgDataConnItemUI, wgDataAssetCastingUI, wgDataNodeScriptUI
@@ -196,11 +199,12 @@ class DataNodeId(QtGui.QWidget, wgDataNodeIdUI.Ui_wgNodeId):
         """
         return {'nodeType': self.leNodeType, 'nodeName': self.leNodeName, 'nodeLabel': self.leNodeLabel}
 
-    def rf_labelState(self):
+    def rf_editModeState(self):
         """
         Refresh label read only state
         """
         self.leNodeLabel.setReadOnly(not self.mainUi.editMode)
+        self.leNodeLabel.setEnabled(self.mainUi.editMode)
 
     def setDataFromNode(self, node):
         """
@@ -328,6 +332,14 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
                 else:
                     typeItem._widget.lCount.setText("0")
 
+    def rf_editModeState(self):
+        """
+        Refresh connections buttons state
+        """
+        self.pbUp.setEnabled(self.mainUi.editMode)
+        self.pbDn.setEnabled(self.mainUi.editMode)
+        self.pbDel.setEnabled(self.mainUi.editMode)
+
     def on_moveConnection(self, side='up'):
         """
         Edit connection order
@@ -339,7 +351,7 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
             item = selItems[0]
             parent = item.parent()
             linkedNodeName = item.linkedNode.nodeLabel
-            plug = getattr(self.currentNode, '%sConnection' % parent.connType)
+            plug = getattr(self.currentNode, '%sPlug' % parent.connType)
             if side == 'up':
                 if item.index > 0:
                     self.log.debug("Moving connection up: %s ..." % linkedNodeName)
@@ -536,7 +548,11 @@ class DataNodeScript(QtGui.QWidget, wgDataNodeScriptUI.Ui_wgDataScript):
 
     def __init__(self, mainUi):
         self.mainUi = mainUi
+        self.log = self.mainUi.log
         self.pItem = None
+        self.externEditor = studio.pyCharm
+        self.externIcon = QtGui.QIcon("gui/icon/png/arrowUpBlue.png")
+        self.updatIcon = QtGui.QIcon("gui/icon/png/arrowDnGreen.png")
         super(DataNodeScript, self).__init__()
         self._setupUi()
 
@@ -547,8 +563,15 @@ class DataNodeScript(QtGui.QWidget, wgDataNodeScriptUI.Ui_wgDataScript):
         """
         self.setupUi(self)
         self.setMinimumHeight(self.mainUi.twNodeData.height() - 100)
-        self.scriptZone = NodeScript()
+        self.scriptZone = ScriptZone()
         self.vlScriptZone.addWidget(self.scriptZone)
+        self.pbExtern.setIcon(self.externIcon)
+        self.pbExtern.clicked.connect(self.on_externScript)
+        self.pbExtern.setToolTip("External Edit")
+        self.pbUpdate.setIcon(self.updatIcon)
+        self.pbUpdate.clicked.connect(self.on_updateScript)
+        self.pbUpdate.setToolTip("Update Script")
+        self.pbSave.clicked.connect(self.on_save)
         self.pbCancel.clicked.connect(self.on_cancel)
 
     def setDataFromNode(self, node):
@@ -563,11 +586,62 @@ class DataNodeScript(QtGui.QWidget, wgDataNodeScriptUI.Ui_wgDataScript):
         else:
             setattr(node, 'scriptTxt', "")
             self.scriptZone.setCode("")
+        self.rf_sciptButtonsState()
+
+    def rf_editModeState(self):
+        """
+        Refresh script buttons state
+        """
+        self.pbExtern.setVisible(self.mainUi.editMode)
+        self.pbUpdate.setVisible(self.mainUi.editMode)
+        self.pbSave.setEnabled(self.mainUi.editMode)
+        self.pbCancel.setEnabled(self.mainUi.editMode)
+
+    def rf_sciptButtonsState(self):
+        """
+        Refresh external edit buttons state
+        """
+        if self.currentNode is None:
+            self.pbExtern.setEnabled(True)
+            self.pbUpdate.setEnabled(False)
+        else:
+            if self.currentNode.externFile is None:
+                self.pbExtern.setEnabled(True)
+                self.pbUpdate.setEnabled(False)
+            else:
+                self.pbExtern.setEnabled(False)
+                self.pbUpdate.setEnabled(True)
+
+    def on_externScript(self):
+        """
+        Command launched when 'External Edit' QPuchButton is clicked.
+        Write current script in tmpFile, then launched it in external script editor
+        """
+        self.currentNode.externFile = os.path.join(self.mainUi.grapherRootPath, 'users', 'tmp.py')
+        self.log.debug("External edtion: %s" % self.currentNode.externFile)
+        try:
+            pFile.writeFile(self.currentNode.externFile, str(self.scriptZone.getCode()))
+        except:
+            raise IOError, "!!! Can not write tmpFile for external edit !!!"
+        self.rf_sciptButtonsState()
+        os.system('%s %s' % (os.path.normpath(self.externEditor), os.path.normpath(self.currentNode.externFile)))
+
+    def on_updateScript(self):
+        """
+        Command launched when 'Update Script' QPuchButton is clicked. Update current script from tmpFile.
+        """
+        if self.currentNode.externFile is None:
+            raise IOError, "!!! Can not find extern file!!!"
+        self.log.debug("Update script from %s" % self.currentNode.externFile)
+        self.scriptZone.setCode(''.join(pFile.readFile(self.currentNode.externFile)))
+        self.currentNode.externFile = None
+        self.rf_sciptButtonsState()
 
     def on_save(self):
         """
         Command launched when 'Save' QPuchButton is clicked. Save script state
         """
+        self.log.info("Saving script to data node ...")
         self.currentNode.scriptTxt = self.scriptZone.getCode()
 
     def on_cancel(self):
@@ -575,10 +649,5 @@ class DataNodeScript(QtGui.QWidget, wgDataNodeScriptUI.Ui_wgDataScript):
         Command launched when 'Cancel' QPuchButton is clicked.
         Restore script to last save state
         """
+        self.log.info("Canceling script edition ...")
         self.scriptZone.setCode(self.currentNode.scripTxt)
-
-
-class NodeScript(ScriptZone):
-
-    def __init__(self):
-        super(NodeScript, self).__init__()

@@ -1,6 +1,7 @@
 import os, sys
 from pprint import pprint
 from appli import grapher
+from lib.env import studio
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
@@ -19,6 +20,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
     def __init__(self, project=None, logLvl='info'):
         self.log = pFile.Logger(title="Grapher-UI", level=logLvl)
         self.log.info("#-- Launching Grapher Ui --#")
+        self.studio = studio
         self.grapherRootPath = grapher.grapherRootPath
         self.prodsRootPath = grapher.prodsRootPath
         super(GrapherUi, self).__init__()
@@ -164,9 +166,11 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         Command launched when 'Edit Mode' QMenuItem is triggered.
         Turn on or off edition mode
         """
-        widget = self.dataZone.getDataWidgetFromGroupName('Node Id')
-        if widget is not None:
-            widget.rf_labelState()
+        groups = ['Node Id', 'Node Connections', 'Node Script']
+        for grp in groups:
+            widget = self.dataZone.getDataWidgetFromGroupName(grp)
+            if widget is not None:
+                widget.rf_editModeState()
 
     def on_connectNodes(self):
         """

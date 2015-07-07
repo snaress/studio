@@ -66,6 +66,8 @@ class GraphZone(QtGui.QGraphicsView):
             newNode = self.graphScene.createNode(graphData['nodes'][n]['nodeType'])
             newNode.setPos(graphData['nodes'][n]['nodePosition'][0], graphData['nodes'][n]['nodePosition'][1])
             newNode.setNodeParams(**graphData['nodes'][n])
+            newNode.rf_nodeLabel()
+            newNode.rf_toolTip()
         #-- Add Links --#
         inPlugs = ['inputFile', 'inputData']
         outPlugs = ['outputFile']

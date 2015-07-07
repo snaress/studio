@@ -119,6 +119,7 @@ class DataNode(GraphNode):
         self.hasInputDataPlug = False
         self.hasOutputFilePlug = True
         super(DataNode, self).__init__(**kwargs)
+        self.externFile = None
 
     def dataWidgets(self):
         """
