@@ -316,7 +316,7 @@ class GraphScene(QtGui.QGraphicsScene):
             #-- Draw Line --#
             if startItems and endItems:
                 if hasattr(startItems[0], '_type') and hasattr(endItems[0], '_type'):
-                    if startItems[0]._type == 'nodeConnection' and endItems[0]._type == 'nodeConnection':
+                    if startItems[0]._type == 'nodePlug' and endItems[0]._type == 'nodePlug':
                         if not startItems[0].isInputConnection and endItems[0].isInputConnection:
                             if self.mainUi.editMode:
                                 self.createLine(startItems[0], endItems[0])
@@ -415,7 +415,7 @@ class GraphScene(QtGui.QGraphicsScene):
 
     def mousePressEvent(self, event):
         """
-        Add mouse press options: 'Left' = - If itemType is 'nodeConnection', store start position
+        Add mouse press options: 'Left' = - If itemType is 'nodePlug', store start position
                                             for line creation
                                           - If itemType is 'nodeBase', will connect node data to dataZone
                                           - If empty, will clear dataZone and update node.elementId
@@ -426,7 +426,7 @@ class GraphScene(QtGui.QGraphicsScene):
         item = self.itemAt(event.scenePos())
         if item is not None and hasattr(item, '_type'):
             #-- Create Line --#
-            if event.button() == QtCore.Qt.LeftButton and item._type == 'nodeConnection':
+            if event.button() == QtCore.Qt.LeftButton and item._type == 'nodePlug':
                 if self.mainUi.editMode:
                     self.line = QtGui.QGraphicsLineItem(QtCore.QLineF(event.scenePos(), event.scenePos()))
                     self.addItem(self.line)
@@ -480,6 +480,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         self.log = self.mainUi.log
         self.dataTree = self.mainUi.twNodeData
         self._type = "nodeBase"
+        self.nodeId = kwargs['nodeId']
         self.nodeName = kwargs['nodeName']
         if not 'nodeLabel' in kwargs.keys():
             self.nodeLabel = self.nodeName
@@ -714,7 +715,7 @@ class NodeConnection(QtSvg.QGraphicsSvgItem):
     def __init__(self, **kwargs):
         self.mainUi = kwargs['mainUi']
         self.iconFile = kwargs['iconFile']
-        self._type = "nodeConnection"
+        self._type = "nodePlug"
         self.nodeType = kwargs['nodeType']
         self._parent = kwargs['parent']
         super(NodeConnection, self).__init__(self.iconFile, self._parent)

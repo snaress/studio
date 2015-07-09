@@ -189,6 +189,7 @@ class DataNodeId(QtGui.QWidget, wgDataNodeIdUI.Ui_wgNodeId):
         """
         self.setupUi(self)
         self.leNodeLabel.editingFinished.connect(self.on_label)
+        self.rf_editModeState()
 
     @property
     def params(self):
@@ -263,6 +264,7 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
         self.pbDn.clicked.connect(partial(self.on_moveConnection, side='down'))
         self.pbDel.setIcon(self.delIcon)
         self.pbDel.clicked.connect(self.on_deleteConnection)
+        self.rf_editModeState()
 
     @property
     def connectionsType(self):
@@ -573,6 +575,7 @@ class DataNodeScript(QtGui.QWidget, wgDataNodeScriptUI.Ui_wgDataScript):
         self.pbUpdate.setToolTip("Update Script")
         self.pbSave.clicked.connect(self.on_save)
         self.pbCancel.clicked.connect(self.on_cancel)
+        self.rf_editModeState()
 
     def setDataFromNode(self, node):
         """

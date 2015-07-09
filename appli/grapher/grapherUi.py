@@ -179,7 +179,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         """
         if len(self.currentGraphScene.selBuffer['_order']) == 2:
             startNode = self.currentGraphScene.selBuffer[self.currentGraphScene.selBuffer['_order'][0]]
-            startItem = startNode.outputDataPlug
+            startItem = startNode.outputFilePlug
             endNode = self.currentGraphScene.selBuffer[self.currentGraphScene.selBuffer['_order'][1]]
             endItem = endNode.inputFilePlug
             self.currentGraphScene.createLine(startItem, endItem)

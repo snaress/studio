@@ -1,4 +1,4 @@
-import random
+import random, time
 from PyQt4 import QtGui, QtCore
 from appli.grapher.gui.ui import wgToolsTabUI
 from appli.grapher.template import graphNodes
@@ -196,8 +196,9 @@ class TabUtil(ToolsTab):
         :rtype: AssetCastingNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_casting_node")
+        nodeId = time.time()
         self.log.info("#-- Creating Casting Asset Node: %s --#" % nodeName)
-        newNode = graphNodes.AssetCastingNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode = graphNodes.AssetCastingNode(mainUi=self.mainUi, nodeName=nodeName, nodeId=nodeId)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
         return newNode
@@ -209,8 +210,9 @@ class TabUtil(ToolsTab):
         :rtype: AssetNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_node")
+        nodeId = time.time()
         self.mainUi.log.info("#-- Creating Asset Node: %s --#" % nodeName)
-        newNode = graphNodes.AssetNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode = graphNodes.AssetNode(mainUi=self.mainUi, nodeName=nodeName, nodeId=nodeId)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
         return newNode
@@ -222,8 +224,9 @@ class TabUtil(ToolsTab):
         :rtype: MayaNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
+        nodeId = time.time()
         self.log.info("#-- Creating Maya Node: %s --#" % nodeName)
-        newNode = graphNodes.MayaNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode = graphNodes.MayaNode(mainUi=self.mainUi, nodeName=nodeName, nodeId=nodeId)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
         return newNode
@@ -235,8 +238,9 @@ class TabUtil(ToolsTab):
         :rtype: DataNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("data_node")
+        nodeId = time.time()
         self.log.info("#-- Creating Maya Node: %s --#" % nodeName)
-        newNode = graphNodes.DataNode(mainUi=self.mainUi, nodeName=nodeName)
+        newNode = graphNodes.DataNode(mainUi=self.mainUi, nodeName=nodeName, nodeId=nodeId)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
         self.mainUi.currentGraphScene.addItem(newNode)
         return newNode
