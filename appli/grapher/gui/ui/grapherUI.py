@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Sat Jul 04 16:57:03 2015
+# Created: Sat Jul 11 13:03:20 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -165,6 +165,8 @@ class Ui_mwGrapher(object):
         self.miButtonIconOnly.setObjectName(_fromUtf8("miButtonIconOnly"))
         self.miSaveGraphAs = QtGui.QAction(mwGrapher)
         self.miSaveGraphAs.setObjectName(_fromUtf8("miSaveGraphAs"))
+        self.miDelGraphZone = QtGui.QAction(mwGrapher)
+        self.miDelGraphZone.setObjectName(_fromUtf8("miDelGraphZone"))
         self.mBarOrientation.addAction(self.miBarHorizontal)
         self.mBarOrientation.addAction(self.miBarVertical)
         self.mTabOrientation.addAction(self.miTabNorth)
@@ -183,6 +185,7 @@ class Ui_mwGrapher(object):
         self.mPref.addAction(self.mToolsBar.menuAction())
         self.mHelp.addAction(self.miPrintConnections)
         self.mEdit.addAction(self.miAddGraphZone)
+        self.mEdit.addAction(self.miDelGraphZone)
         self.mEdit.addAction(self.miEditMode)
         self.mEdit.addSeparator()
         self.mEdit.addAction(self.miConnectNodes)
@@ -247,4 +250,5 @@ class Ui_mwGrapher(object):
         self.miTreeVisibility.setText(_translate("mwGrapher", "Tree Visibility", None))
         self.miButtonIconOnly.setText(_translate("mwGrapher", "Button Icon Only", None))
         self.miSaveGraphAs.setText(_translate("mwGrapher", "Save Graph As", None))
+        self.miDelGraphZone.setText(_translate("mwGrapher", "Delete GraphZone", None))
 

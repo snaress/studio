@@ -37,9 +37,11 @@ class GraphZone(QtGui.QGraphicsView):
         :type graphRelPath: str
         """
         self.log.info("Loading Graph %s ..." % graphRelPath)
-        graphFile = pFile.conformPath(os.path.join(self.mainUi.projectPath, graphRelPath))
-        graphData = pFile.readPyFile(graphFile)
+        graphFullName = pFile.conformPath(os.path.join(self.mainUi.projectPath, graphRelPath))
+        graphData = pFile.readPyFile(graphFullName)
         self.createGraphFromData(graphData)
+        self.mainUi.tabGraph.setTabText(self.mainUi.tabGraph.currentIndex(),
+                                        graphRelPath.replace('graph', '').replace('.py', ''))
 
     def saveGraphAs(self, graphFullPath):
         """
@@ -74,17 +76,17 @@ class GraphZone(QtGui.QGraphicsView):
         for n in sorted(graphData['links'].keys()):
             for outPlug in outPlugs:
                 for np in sorted(graphData['links'][n][outPlug].keys()):
-                    srcLabel = graphData['links'][n][outPlug][np]['srcLabel']
-                    dstLabel = graphData['links'][n][outPlug][np]['dstLabel']
-                    srcNode = self.graphScene.getNodeFromNodeLabel(srcLabel)
+                    srcId = graphData['links'][n][outPlug][np]['srcId']
+                    dstId = graphData['links'][n][outPlug][np]['dstId']
+                    srcNode = self.graphScene.getNodeFromNodeId(srcId)
                     srcItem = getattr(srcNode, '%sPlug' % outPlug)
-                    dstNode = self.graphScene.getNodeFromNodeLabel(dstLabel)
+                    dstNode = self.graphScene.getNodeFromNodeId(dstId)
                     if srcNode is not None and dstNode is not None:
                         for inPlug in inPlugs:
                             for npp in sorted(graphData['links'].keys()):
                                 if inPlug in graphData['links'][npp].keys():
                                     for nppp in sorted(graphData['links'][npp][inPlug].keys()):
-                                        if graphData['links'][npp][inPlug][nppp]['srcLabel'] == srcLabel:
+                                        if graphData['links'][npp][inPlug][nppp]['srcId'] == srcId:
                                             dstItem = getattr(dstNode, '%sPlug' % inPlug)
                                             self.graphScene.createLine(srcItem, dstItem)
 
@@ -222,16 +224,28 @@ class GraphScene(QtGui.QGraphicsScene):
                 posY.append(node.pos().y())
         return QtCore.QRectF(min(posX), min(posY), (max(posX) - min(posX)), (max(posY) - min(posY)))
 
-    def getNodeFromNodeLabel(self, nodeLabel):
+    def getNodeFromNodeName(self, nodeName):
         """
-        Get graphNode item from given nodeLabel
-        :param nodeLabel: Node label
-        :type nodeLabel: str
-        :return: Node matching with given nodeLabel
+        Get graphNode item from given nodeName
+        :param nodeName: Node label
+        :type nodeName: str
+        :return: Node matching with given nodeName
         :rtype: GraphNode
         """
         for node in self.getAllNodes():
-            if node.nodeLabel == nodeLabel:
+            if node.nodeName == nodeName:
+                return node
+
+    def getNodeFromNodeId(self, nodeId):
+        """
+        Get graphNode item from given nodeName
+        :param nodeId: Node id
+        :type nodeId: str
+        :return: Node matching with given nodeName
+        :rtype: GraphNode
+        """
+        for node in self.getAllNodes():
+            if node.nodeId == nodeId:
                 return node
 
     def getNextNameIndex(self, name):
@@ -471,21 +485,18 @@ class GraphScene(QtGui.QGraphicsScene):
 class GraphNode(QtSvg.QGraphicsSvgItem):
     """
     Graphic svg item, child of grapher.graphScene. Contains node params and datas
-    :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
+    :param kwargs: Graph node dict (mainUi, nodeName, nodeId)
     :type kwargs: dict
     """
+
+    _type = "nodeBase"
 
     def __init__(self, **kwargs):
         self.mainUi = kwargs['mainUi']
         self.log = self.mainUi.log
         self.dataTree = self.mainUi.twNodeData
-        self._type = "nodeBase"
         self.nodeId = kwargs['nodeId']
         self.nodeName = kwargs['nodeName']
-        if not 'nodeLabel' in kwargs.keys():
-            self.nodeLabel = self.nodeName
-        else:
-            self.nodeLabel = kwargs['nodeLabel']
         self.nodeEnabled = True
         super(GraphNode, self).__init__(self.iconFile)
         self.defaultBrush = QtGui.QPen()
@@ -541,7 +552,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         :return: Node params
         :rtype: dict
         """
-        params = {'nodeType': self.nodeType, 'nodeName': self.nodeName, 'nodeLabel': self.nodeLabel,
+        params = {'nodeType': self.nodeType, 'nodeName': self.nodeName, 'nodeId': self.nodeId,
                   'nodePosition': (self.scenePos().x(), self.scenePos().y())}
         for k in self.dataKeys:
             params[k] = getattr(self, k)
@@ -553,7 +564,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         :param kwargs: params and datas to set
         :type kwargs: dict
         """
-        excludedKey = ['nodePosition', 'nodeName', 'nodeType']
+        excludedKey = ['nodePosition', 'nodeType']
         for k, v in kwargs.iteritems():
             if not k in excludedKey:
                 setattr(self, k, v)
@@ -611,20 +622,20 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
                         rDict[conn][n][k] = v._type
                     elif k.endswith('Node'):
                         rDict[conn][n][k] = v.nodeName
-                        rDict[conn][n][k.replace('Node', 'Label')] = v.nodeLabel
+                        rDict[conn][n][k.replace('Node', 'Id')] = v.nodeId
         return rDict
 
     def rf_toolTip(self):
         """
         Refresh node toolTip
         """
-        self.setToolTip("Name = %s\nLabel = %s" % (self.nodeName, self.nodeLabel))
+        self.setToolTip("Name = %s\nId = %s" % (self.nodeName, self.nodeId))
 
     def rf_nodeLabel(self):
         """
         Refresh label nodeText
         """
-        self.nodeTextLabel.setPlainText(self.nodeLabel)
+        self.nodeTextLabel.setPlainText(self.nodeName)
 
     def addLabelNode(self):
         """
@@ -632,7 +643,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         """
         font = QtGui.QFont("SansSerif", 14)
         font.setStyleHint(QtGui.QFont.Helvetica)
-        self.nodeTextLabel = QtGui.QGraphicsTextItem(self.nodeLabel, self)
+        self.nodeTextLabel = QtGui.QGraphicsTextItem(self.nodeName, self)
         self.nodeTextLabel.setFont(font)
         self.nodeTextLabel.setDefaultTextColor(QtGui.QColor(QtCore.Qt.white))
         self.nodeTextLabel.setPos(0, self.height)
@@ -668,7 +679,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         datas = pFile.readPyFile(dataFile)
         for data in self.dataKeys:
             setattr(self, data, datas[data])
-        self.nodeLabel = "%s_cst" % self.assetName
+        self.nodeName = "%s_cst" % self.assetName
         self.rf_nodeLabel()
         self.rf_toolTip()
 
@@ -712,10 +723,11 @@ class NodeConnection(QtSvg.QGraphicsSvgItem):
     :type kwargs: dict
     """
 
+    _type = "nodePlug"
+
     def __init__(self, **kwargs):
         self.mainUi = kwargs['mainUi']
         self.iconFile = kwargs['iconFile']
-        self._type = "nodePlug"
         self.nodeType = kwargs['nodeType']
         self._parent = kwargs['parent']
         super(NodeConnection, self).__init__(self.iconFile, self._parent)
@@ -788,13 +800,14 @@ class LinkConnection(QtGui.QGraphicsPathItem):
     :type endItem: QtSvg.QGraphicsSvgItem
     """
 
+    _type = 'linkConnection'
+
     def __init__(self, mainUi, startItem, endItem):
         self.mainUi = mainUi
         self.log = self.mainUi.log
         super(LinkConnection, self).__init__()
         self.startItem = startItem
         self.endItem = endItem
-        self._type = 'linkConnection'
         self.lineColor = QtCore.Qt.cyan
         self.setZValue(-1.0)
         self.setFlags(QtGui.QGraphicsPathItem.ItemIsSelectable|QtGui.QGraphicsPathItem.ItemIsFocusable)

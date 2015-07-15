@@ -188,7 +188,7 @@ class DataNodeId(QtGui.QWidget, wgDataNodeIdUI.Ui_wgNodeId):
         Setup 'Node Id' data category
         """
         self.setupUi(self)
-        self.leNodeLabel.editingFinished.connect(self.on_label)
+        self.leNodeName.editingFinished.connect(self.on_name)
         self.rf_editModeState()
 
     @property
@@ -198,14 +198,14 @@ class DataNodeId(QtGui.QWidget, wgDataNodeIdUI.Ui_wgNodeId):
         :return: Category params
         :rtype: dict
         """
-        return {'nodeType': self.leNodeType, 'nodeName': self.leNodeName, 'nodeLabel': self.leNodeLabel}
+        return {'nodeType': self.leNodeType, 'nodeName': self.leNodeName, 'nodeId': self.leNodeId}
 
     def rf_editModeState(self):
         """
         Refresh label read only state
         """
-        self.leNodeLabel.setReadOnly(not self.mainUi.editMode)
-        self.leNodeLabel.setEnabled(self.mainUi.editMode)
+        self.leNodeName.setReadOnly(not self.mainUi.editMode)
+        # self.leNodeName.setEnabled(self.mainUi.editMode)
 
     def setDataFromNode(self, node):
         """
@@ -217,20 +217,20 @@ class DataNodeId(QtGui.QWidget, wgDataNodeIdUI.Ui_wgNodeId):
         for k, QWidget in self.params.iteritems():
             QWidget.setText(getattr(node, k))
 
-    def on_label(self):
+    def on_name(self):
         """
         Command launched when 'Node Label' QLineEdit is edited.
         Will renome the node is in edit mode.
         """
         if not self.mainUi.editMode:
-            self.leNodeLabel.setText(self.currentNode.nodeLabel)
+            self.leNodeName.setText(self.currentNode.nodeName)
         else:
             if self.currentNode is not None:
-                self.currentNode.nodeLabel = str(self.leNodeLabel.text())
+                self.currentNode.nodeName = str(self.leNodeName.text())
                 self.currentNode.rf_toolTip()
                 self.currentNode.rf_nodeLabel()
             else:
-                self.leNodeLabel.clear()
+                self.leNodeName.clear()
 
 #=================================== NODE CONNECTIONS ====================================#
 
@@ -352,7 +352,7 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
         if selItems and self.currentNode is not None and self.mainUi.editMode:
             item = selItems[0]
             parent = item.parent()
-            linkedNodeName = item.linkedNode.nodeLabel
+            linkedNodeName = item.linkedNode.nodeName
             plug = getattr(self.currentNode, '%sPlug' % parent.connType)
             if side == 'up':
                 if item.index > 0:
@@ -370,7 +370,7 @@ class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
                 grpItem = self.twNodeConnections.topLevelItem(n)
                 if grpItem.connType == parent.connType:
                     for c in range(grpItem.childCount()):
-                        if grpItem.child(c).linkedNode.nodeLabel == linkedNodeName:
+                        if grpItem.child(c).linkedNode.nodeName == linkedNodeName:
                             self.twNodeConnections.setItemSelected(grpItem.child(c), True)
 
     def on_deleteConnection(self):
@@ -459,7 +459,7 @@ class NodeConnectionItem(QtGui.QWidget, wgDataConnItemUI.Ui_wgDataConnItem):
         """
         self.setupUi(self)
         self.lIndex.setText(str(self.index))
-        self.lConnectedNode.setText(self.linkedNode.nodeLabel)
+        self.lConnectedNode.setText(self.linkedNode.nodeName)
         self._addEnableIcon()
 
     # noinspection PyUnresolvedReferences
@@ -645,7 +645,7 @@ class DataNodeScript(QtGui.QWidget, wgDataNodeScriptUI.Ui_wgDataScript):
         Command launched when 'Save' QPuchButton is clicked. Save script state
         """
         self.log.info("Saving script to data node ...")
-        self.currentNode.scriptTxt = self.scriptZone.getCode()
+        self.currentNode.scriptTxt = str(self.scriptZone.getCode())
 
     def on_cancel(self):
         """

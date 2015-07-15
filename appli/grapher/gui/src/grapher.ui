@@ -158,6 +158,7 @@
      <string>Edit</string>
     </property>
     <addaction name="miAddGraphZone"/>
+    <addaction name="miDelGraphZone"/>
     <addaction name="miEditMode"/>
     <addaction name="separator"/>
     <addaction name="miConnectNodes"/>
@@ -379,6 +380,11 @@
   <action name="miSaveGraphAs">
    <property name="text">
     <string>Save Graph As</string>
+   </property>
+  </action>
+  <action name="miDelGraphZone">
+   <property name="text">
+    <string>Delete GraphZone</string>
    </property>
   </action>
  </widget>

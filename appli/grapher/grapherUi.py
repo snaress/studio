@@ -68,6 +68,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         #-- Menu Edit --#
         self.miAddGraphZone.triggered.connect(self.on_addGraphZone)
         self.miAddGraphZone.setShortcut("Ctrl+N")
+        self.miDelGraphZone.triggered.connect(self.on_delGraphZone)
+        self.miDelGraphZone.setShortcut("Ctrl+Del")
         self.miEditMode.triggered.connect(self.on_editMode)
         self.miEditMode.setShortcut("Ctrl+E")
         self.miConnectNodes.triggered.connect(self.on_connectNodes)
@@ -109,6 +111,15 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         return self.miEditMode.isChecked()
 
     @property
+    def currentTabText(self):
+        """
+        Get current graph tabText
+        :return: Current tab text
+        :rtype: str
+        """
+        return str(self.tabGraph.tabText(self.tabGraph.currentIndex()))
+
+    @property
     def currentGraphZone(self):
         """
         Get grapher view from active graphTab
@@ -147,7 +158,12 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         """
         Command launched when 'Save Graph As' QMenuItem is triggered, Open fileDialog
         """
-        self.fdSaveGraphAs = pQt.fileDialog(fdMode='save', fdFileMode='AnyFile', fdRoot=self.projectPath,
+        title = self.currentTabText
+        if title == 'Untitled':
+            rootPath = pFile.conformPath(self.projectPath)
+        else:
+            rootPath = pFile.conformPath(os.path.join(self.projectPath, 'graph%s' % '/'.join(title.split('/')[:-1])))
+        self.fdSaveGraphAs = pQt.fileDialog(fdMode='save', fdFileMode='AnyFile', fdRoot=rootPath,
                                             fdCmd=self.saveGraphAs, fdFilters=['*.grp*'])
         self.fdSaveGraphAs.exec_()
 
@@ -160,6 +176,13 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         newGraphZone = graphWgts.GraphZone(self, newGraphScene)
         self.tabGraph.insertTab(-1, newGraphZone, 'Untitled')
         self.tabGraph.setAcceptDrops(True)
+
+    def on_delGraphZone(self):
+        """
+        Command launched when 'Delete GraphZone' QMenuItem is triggered
+        Delete current graphTab
+        """
+        self.tabGraph.removeTab(self.tabGraph.currentIndex())
 
     def on_editMode(self):
         """

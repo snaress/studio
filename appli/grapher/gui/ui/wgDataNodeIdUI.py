@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgDataNodeId.ui'
 #
-# Created: Sat Jul 04 01:23:35 2015
+# Created: Thu Jul 09 22:48:05 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -70,25 +70,25 @@ class Ui_wgNodeId(object):
         self.leNodeName.setObjectName(_fromUtf8("leNodeName"))
         self.hlNodeName.addWidget(self.leNodeName)
         self.glNodeId.addLayout(self.hlNodeName, 1, 0, 1, 1)
-        self.hlNodeLabel = QtGui.QHBoxLayout()
-        self.hlNodeLabel.setSpacing(6)
-        self.hlNodeLabel.setObjectName(_fromUtf8("hlNodeLabel"))
-        self.lNodeLabel = QtGui.QLabel(wgNodeId)
+        self.hlNodeId = QtGui.QHBoxLayout()
+        self.hlNodeId.setSpacing(6)
+        self.hlNodeId.setObjectName(_fromUtf8("hlNodeId"))
+        self.lNodeId = QtGui.QLabel(wgNodeId)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.lNodeLabel.sizePolicy().hasHeightForWidth())
-        self.lNodeLabel.setSizePolicy(sizePolicy)
-        self.lNodeLabel.setMinimumSize(QtCore.QSize(65, 0))
-        self.lNodeLabel.setMaximumSize(QtCore.QSize(65, 16777215))
-        self.lNodeLabel.setObjectName(_fromUtf8("lNodeLabel"))
-        self.hlNodeLabel.addWidget(self.lNodeLabel)
-        self.leNodeLabel = QtGui.QLineEdit(wgNodeId)
-        self.leNodeLabel.setFrame(True)
-        self.leNodeLabel.setReadOnly(False)
-        self.leNodeLabel.setObjectName(_fromUtf8("leNodeLabel"))
-        self.hlNodeLabel.addWidget(self.leNodeLabel)
-        self.glNodeId.addLayout(self.hlNodeLabel, 2, 0, 1, 1)
+        sizePolicy.setHeightForWidth(self.lNodeId.sizePolicy().hasHeightForWidth())
+        self.lNodeId.setSizePolicy(sizePolicy)
+        self.lNodeId.setMinimumSize(QtCore.QSize(65, 0))
+        self.lNodeId.setMaximumSize(QtCore.QSize(65, 16777215))
+        self.lNodeId.setObjectName(_fromUtf8("lNodeId"))
+        self.hlNodeId.addWidget(self.lNodeId)
+        self.leNodeId = QtGui.QLineEdit(wgNodeId)
+        self.leNodeId.setFrame(True)
+        self.leNodeId.setReadOnly(True)
+        self.leNodeId.setObjectName(_fromUtf8("leNodeId"))
+        self.hlNodeId.addWidget(self.leNodeId)
+        self.glNodeId.addLayout(self.hlNodeId, 2, 0, 1, 1)
         self.line = QtGui.QFrame(wgNodeId)
         self.line.setFrameShape(QtGui.QFrame.HLine)
         self.line.setFrameShadow(QtGui.QFrame.Sunken)
@@ -102,5 +102,5 @@ class Ui_wgNodeId(object):
         wgNodeId.setWindowTitle(_translate("wgNodeId", "Node Id", None))
         self.lNodeType.setText(_translate("wgNodeId", "Node Type: ", None))
         self.lNodeName.setText(_translate("wgNodeId", "Node Name: ", None))
-        self.lNodeLabel.setText(_translate("wgNodeId", "Node Label: ", None))
+        self.lNodeId.setText(_translate("wgNodeId", "Node Id: ", None))
 

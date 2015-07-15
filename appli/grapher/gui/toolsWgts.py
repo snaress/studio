@@ -196,7 +196,7 @@ class TabUtil(ToolsTab):
         :rtype: AssetCastingNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_casting_node")
-        nodeId = time.time()
+        nodeId = str(time.time())
         self.log.info("#-- Creating Casting Asset Node: %s --#" % nodeName)
         newNode = graphNodes.AssetCastingNode(mainUi=self.mainUi, nodeName=nodeName, nodeId=nodeId)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
@@ -210,7 +210,7 @@ class TabUtil(ToolsTab):
         :rtype: AssetNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("asset_node")
-        nodeId = time.time()
+        nodeId = str(time.time())
         self.mainUi.log.info("#-- Creating Asset Node: %s --#" % nodeName)
         newNode = graphNodes.AssetNode(mainUi=self.mainUi, nodeName=nodeName, nodeId=nodeId)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
@@ -224,7 +224,7 @@ class TabUtil(ToolsTab):
         :rtype: MayaNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("maya_node")
-        nodeId = time.time()
+        nodeId = str(time.time())
         self.log.info("#-- Creating Maya Node: %s --#" % nodeName)
         newNode = graphNodes.MayaNode(mainUi=self.mainUi, nodeName=nodeName, nodeId=nodeId)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))
@@ -238,7 +238,7 @@ class TabUtil(ToolsTab):
         :rtype: DataNode
         """
         nodeName = self.mainUi.currentGraphScene.getNextNameIndex("data_node")
-        nodeId = time.time()
+        nodeId = str(time.time())
         self.log.info("#-- Creating Maya Node: %s --#" % nodeName)
         newNode = graphNodes.DataNode(mainUi=self.mainUi, nodeName=nodeName, nodeId=nodeId)
         newNode.setPos(random.randrange(200, 400), random.randrange(200, 400))

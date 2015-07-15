@@ -5,7 +5,7 @@ from appli.grapher.gui import dataWgts
 class AssetCastingNode(GraphNode):
     """
     GraphNode template
-    :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
+    :param kwargs: Graph node dict (mainUi, nodeName, nodeId)
     :type kwargs: dict
     """
 
@@ -40,7 +40,7 @@ class AssetCastingNode(GraphNode):
 class AssetNode(GraphNode):
     """
     GraphNode template
-    :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
+    :param kwargs: Graph node dict (mainUi, nodeName, nodeId)
     :type kwargs: dict
     """
 
@@ -74,7 +74,7 @@ class AssetNode(GraphNode):
 class MayaNode(GraphNode):
     """
     GraphNode template
-    :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
+    :param kwargs: Graph node dict (mainUi, nodeName, nodeId)
     :type kwargs: dict
     """
 
@@ -108,7 +108,7 @@ class MayaNode(GraphNode):
 class DataNode(GraphNode):
     """
     GraphNode template
-    :param kwargs: Graph node dict (mainUi, nodeName, nodeLabel)
+    :param kwargs: Graph node dict (mainUi, nodeName, nodeId)
     :type kwargs: dict
     """
 
