@@ -133,6 +133,7 @@ def createUser(usersRootPath, userName):
         os.mkdir(userPath)
         os.mkdir(os.path.join(userPath, 'scripts'))
         os.mkdir(os.path.join(userPath, 'tmp'))
+        os.mkdir(os.path.join(userPath, 'tmp', 'externData'))
     except:
         raise IOError, "!!! Can not create user folders !!!"
 
@@ -152,3 +153,23 @@ def getAllUsers(usersRootPath):
         if os.path.isdir(userPath) and not fld.startswith('_'):
             users.append(fld)
     return users
+
+def createExternPath(externRootPath, projectFullName):
+    """
+    Create extern tmp path for externalized data
+    :param externRootPath: Extern tmp root path
+    :type externRootPath: str
+    :param projectFullName: Current project full name
+    :type projectFullName: str
+    :return: Extern path
+    :rtype: str
+    """
+    if not os.path.exists(externRootPath):
+        raise IOError, "!!! Extern root path doesn't exists: %s !!!" % externRootPath
+    externPath = os.path.join(externRootPath, projectFullName)
+    if not os.path.exists(externPath):
+        try:
+            os.mkdir(externPath)
+        except:
+            raise IOError, "!!! Can not create extern path !!!"
+    return externPath

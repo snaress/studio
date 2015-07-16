@@ -5,6 +5,7 @@ from functools import partial
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from lib.qt.scriptEditor import ScriptZone
+from appli.grapher.core import grapher as gpCore
 from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeIdUI, wgDataNodeConnUI, wgDataConnGroupUI,\
                                  wgDataConnItemUI, wgDataAssetCastingUI, wgDataNodeScriptUI
 
@@ -620,14 +621,19 @@ class DataNodeScript(QtGui.QWidget, wgDataNodeScriptUI.Ui_wgDataScript):
         Command launched when 'External Edit' QPuchButton is clicked.
         Write current script in tmpFile, then launched it in external script editor
         """
-        self.currentNode.externFile = os.path.join(self.mainUi.grapherRootPath, 'users', 'tmp.py')
-        self.log.debug("External edtion: %s" % self.currentNode.externFile)
-        try:
-            pFile.writeFile(self.currentNode.externFile, str(self.scriptZone.getCode()))
-        except:
-            raise IOError, "!!! Can not write tmpFile for external edit !!!"
-        self.rf_sciptButtonsState()
-        os.system('%s %s' % (os.path.normpath(self.externEditor), os.path.normpath(self.currentNode.externFile)))
+        if self.mainUi.projectFullName is not None:
+            externPath = os.path.join(self.mainUi.grapherRootPath, 'users', self.mainUi.userName, 'tmp', 'externData')
+            externProjectPath = gpCore.createExternPath(externPath, self.mainUi.projectFullName)
+            self.currentNode.externFile = os.path.join(externProjectPath, '%s.py' % self.currentNode.nodeName)
+            self.log.debug("External edtion: %s" % self.currentNode.externFile)
+            try:
+                pFile.writeFile(self.currentNode.externFile, str(self.scriptZone.getCode()))
+            except:
+                raise IOError, "!!! Can not write tmpFile for external edit !!!"
+            self.rf_sciptButtonsState()
+            os.system('%s %s' % (os.path.normpath(self.externEditor), os.path.normpath(self.currentNode.externFile)))
+        else:
+            self.log.error("!!! No project loaded !!!")
 
     def on_updateScript(self):
         """
