@@ -16,4 +16,4 @@ if __name__ == '__main__':
     options = eval(str(options))
 
     from appli.grapher import grapherUi
-    grapherUi.launch(logLvl=options['verbose'])
+    grapherUi.launch(project=options['project'], logLvl=options['verbose'])

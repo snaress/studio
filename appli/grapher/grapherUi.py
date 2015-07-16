@@ -7,6 +7,7 @@ from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from appli.grapher.gui.ui import grapherUI
+from appli.grapher.core import grapher as gpCore
 from appli.grapher.gui import projectWgts, toolsWgts, dataWgts, graphWgts
 
 
@@ -21,8 +22,10 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.log = pFile.Logger(title="Grapher-UI", level=logLvl)
         self.log.info("#-- Launching Grapher Ui --#")
         self.studio = studio
+        self.userName = grapher.user
         self.grapherRootPath = grapher.grapherRootPath
         self.prodsRootPath = grapher.prodsRootPath
+        self._checkUser()
         super(GrapherUi, self).__init__()
         self.projectPath = None
         self.projectName = None
@@ -31,6 +34,17 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self._setupUi()
         if project is not None:
             self.loadProject(project)
+
+    def _checkUser(self):
+        """
+        Check if user exists in Grapher data base
+        """
+        users = gpCore.getAllUsers(os.path.join(self.grapherRootPath, 'users'))
+        if not self.userName in users:
+            self.log.info("Create User folders: %s" % self.userName)
+            gpCore.createUser(os.path.join(self.grapherRootPath, 'users'), self.userName)
+        else:
+            self.log.info("User found: %s" % self.userName)
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
@@ -302,7 +316,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.projectAlias = project.split('--')[0]
         self.projectName = project.split('--')[1]
         self.projectFullName = project
-        self.setWindowTitle("Grapher | %s | %s" % (self.projectAlias, self.projectName))
+        self.setWindowTitle("Grapher | %s | %s | %s" % (self.projectAlias, self.projectName, self.userName))
         self.graphTree.rf_projectTree()
 
     def saveGraphAs(self):

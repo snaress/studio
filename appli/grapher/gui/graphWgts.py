@@ -185,14 +185,14 @@ class GraphScene(QtGui.QGraphicsScene):
 
     def getAllLines(self):
         """
-        Get all graphScene lines (_type in ['lineConnection', 'linkConnection'])
-        :return: GraphScene lines
+        Get all graphScene nodeLink
+        :return: GraphScene nodeLink
         :rtype: list
         """
         lines = []
         for item in self.items():
             if hasattr(item, '_type'):
-                if item._type in ['lineConnection', 'linkConnection']:
+                if item._type == 'nodeLink':
                     lines.append(item)
         return lines
 
@@ -413,7 +413,7 @@ class GraphScene(QtGui.QGraphicsScene):
         if event.key() == QtCore.Qt.Key_Delete:
             if self.mainUi.editMode:
                 for item in self.selectedItems():
-                    if item._type == 'linkConnection':
+                    if item._type == 'nodeLink':
                         item.deleteLine()
                     else:
                         item.deleteNode()
@@ -800,7 +800,7 @@ class LinkConnection(QtGui.QGraphicsPathItem):
     :type endItem: QtSvg.QGraphicsSvgItem
     """
 
-    _type = 'linkConnection'
+    _type = 'nodeLink'
 
     def __init__(self, mainUi, startItem, endItem):
         self.mainUi = mainUi

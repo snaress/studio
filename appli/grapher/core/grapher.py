@@ -115,3 +115,40 @@ def getProjectTree(projectRootPath):
     :rtype: dict
     """
     return pFile.pathToDict(projectRootPath)
+
+def createUser(usersRootPath, userName):
+    """
+    Create new user folders in Grapher data base
+    :param usersRootPath: Users root path
+    :type usersRootPath: str
+    :param userName: New user name
+    :type userName: str
+    """
+    if not os.path.exists(usersRootPath):
+        raise IOError, "!!! Users RootPath doesn't exists: %s !!!" % usersRootPath
+    userPath = os.path.join(usersRootPath, userName)
+    if os.path.exists(userPath):
+        raise IOError, "!!! User already exists: %s !!!" % userName
+    try:
+        os.mkdir(userPath)
+        os.mkdir(os.path.join(userPath, 'scripts'))
+        os.mkdir(os.path.join(userPath, 'tmp'))
+    except:
+        raise IOError, "!!! Can not create user folders !!!"
+
+def getAllUsers(usersRootPath):
+    """
+    Get all users in Grapher data base
+    :param usersRootPath: Users root path
+    :type usersRootPath: str
+    :return: User list
+    :rtype: list
+    """
+    if not os.path.exists(usersRootPath):
+        raise IOError, "!!! Users RootPath doesn't exists: %s !!!" % usersRootPath
+    users = []
+    for fld in os.listdir(usersRootPath):
+        userPath = os.path.join(usersRootPath, fld)
+        if os.path.isdir(userPath) and not fld.startswith('_'):
+            users.append(fld)
+    return users

@@ -6,6 +6,7 @@ from lib.qt import procQt as pQt
 toolPath = os.path.normpath(os.path.dirname(__file__))
 toolName = toolPath.split(os.sep)[-1]
 toolPack = __package__
+os.chdir(toolPath)
 
 
 #-- Global Var --#
