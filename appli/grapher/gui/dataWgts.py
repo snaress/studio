@@ -6,7 +6,7 @@ from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from lib.qt.scriptEditor import ScriptZone
 from appli.grapher.core import grapher as gpCore
-from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeIdUI, wgDataNodeConnUI, wgDataConnGroupUI,\
+from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeIdUI, wgDataPlugItemUI, wgDataNodeConnUI, wgDataConnGroupUI,\
                                  wgDataConnItemUI, wgDataAssetCastingUI, wgDataNodeScriptUI
 
 
@@ -167,6 +167,175 @@ class DataGroup(QtGui.QWidget, wgDataGroupUI.Ui_wgDataGroup):
         self.rf_icon()
         self.mainUi.dataZone.dataGrpState[self.pItem._widget.grpName] = self.pItem.isExpanded()
 
+
+class DataConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
+    """
+    Data category widget. Contains node connections data
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    """
+
+    def __init__(self, mainUi):
+        self.mainUi = mainUi
+        self.log = self.mainUi.log
+        self.pItem = None
+        self.currentNode = None
+        self.connectionInfo = None
+        super(DataConnections, self).__init__()
+        self.upIcon = QtGui.QIcon("gui/icon/png/arrowUpBlue.png")
+        self.dnIcon = QtGui.QIcon("gui/icon/png/arrowDnBlue.png")
+        self.delIcon = QtGui.QIcon("gui/icon/png/buttonDel.png")
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """
+        Setup 'Node Connections' data category
+        """
+        self.setupUi(self)
+        self.pbUp.setIcon(self.upIcon)
+        self.pbUp.clicked.connect(partial(self.on_moveConnection, side='up'))
+        self.pbDn.setIcon(self.dnIcon)
+        self.pbDn.clicked.connect(partial(self.on_moveConnection, side='down'))
+        self.pbDel.setIcon(self.delIcon)
+        self.pbDel.clicked.connect(self.on_deleteConnection)
+        self.rf_editModeState()
+
+    def setDataFromNode(self, node):
+        """
+        Update params from given node
+        :param node: Graph node
+        :type node: QtSvg.QGraphicsSvgItem
+        """
+        self.currentNode = node
+        self.connectionInfo = self.currentNode.getConnections()
+        self.twNodeConnections.clear()
+        items = []
+        if self._plugType in self.connectionInfo.keys():
+            for n in sorted(self.connectionInfo[self._plugType].keys()):
+                if self._plugType == 'outputFile':
+                    direction = 'dst'
+                else:
+                    direction = 'src'
+                newLink = QtGui.QTreeWidgetItem()
+                newLink.index = n
+                newLink.connType = self._plugType
+                newLink.linkedLine = self.connectionInfo[self._plugType][n]['line']
+                newLink.linkedNode = self.connectionInfo[self._plugType][n]['%sNode' % direction]
+                newLink.linkedPlug = self.connectionInfo[self._plugType][n]['%sItem' % direction]
+                newLink._widget = DataConnectionItem(self.mainUi, self, newLink)
+                self.twNodeConnections.addTopLevelItem(newLink)
+                self.twNodeConnections.setItemWidget(newLink, 0, newLink._widget)
+                items.append(newLink)
+
+    def rf_editModeState(self):
+        """
+        Refresh connections buttons state
+        """
+        self.pbUp.setEnabled(self.mainUi.editMode)
+        self.pbDn.setEnabled(self.mainUi.editMode)
+        self.pbDel.setEnabled(self.mainUi.editMode)
+
+    def on_moveConnection(self, side='up'):
+        """
+        Edit connection order
+        :param side: 'up' or 'down'
+        :type side: str
+        """
+        selItems = self.twNodeConnections.selectedItems()
+        if selItems and self.currentNode is not None and self.mainUi.editMode:
+            item = selItems[0]
+            linkedNodeName = item.linkedNode.nodeName
+            plug = getattr(self.currentNode, '%sPlug' % item.connType)
+            if side == 'up':
+                if item.index > 0:
+                    self.log.debug("Moving connection up: %s ..." % linkedNodeName)
+                    link = plug.connections.pop(item.index)
+                    plug.connections.insert((item.index - 1), link)
+            else:
+                if item.index < (len(pQt.getTopItems(self.twNodeConnections)) - 1):
+                    self.log.debug("Moving connection down: %s ..." % linkedNodeName)
+                    link = plug.connections.pop(item.index)
+                    plug.connections.insert((item.index + 1), link)
+            self.setDataFromNode(self.currentNode)
+            #-- Keep Item Selected --#
+            for item in pQt.getTopItems(self.twNodeConnections):
+                if item.linkedNode.nodeName == linkedNodeName:
+                    self.twNodeConnections.setItemSelected(item, True)
+
+    def on_deleteConnection(self):
+        """
+        Command launched when 'Delete' QPushButton is clicked,
+        Delete selected connection
+        """
+        if self.mainUi.editMode and self.currentNode is not None:
+            for item in self.twNodeConnections.selectedItems():
+                item._widget.lineConnection.deleteLine()
+                self.setDataFromNode(self.currentNode)
+
+
+class DataConnectionItem(QtGui.QWidget, wgDataPlugItemUI.Ui_wgDataPlugItem):
+    """
+    Connection category item widget
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    :param pItem: Parent widget item
+    :type pItem: QtGui.QTreeWidgetItem
+    """
+
+    def __init__(self, mainUi, pWidget, pItem):
+        self.mainUi = mainUi
+        self.pWidget = pWidget
+        self.pItem = pItem
+        self.index = self.pItem.index
+        self.plugType = self.pWidget._plugType
+        self.lineConnection = self.pItem.linkedLine
+        self.linkedNode = self.pItem.linkedNode
+        self.linkedPlug = self.pItem.linkedPlug
+        super(DataConnectionItem, self).__init__()
+        self.enableIcon = QtGui.QIcon("gui/icon/png/enable.png")
+        self.disableIcon = QtGui.QIcon("gui/icon/png/disable.png")
+        self._setupUi()
+
+    def _setupUi(self):
+        """
+        Setup Widget
+        """
+        self.setupUi(self)
+        if not self.plugType == "inputFile":
+            self.qfInputFile.setVisible(False)
+        self.lIndex.setText(str(self.index))
+        self.lConnectedNode.setText(self.linkedNode.nodeName)
+        self._addEnableIcon()
+
+    # noinspection PyUnresolvedReferences
+    def _addEnableIcon(self):
+        """
+        Add enable connection state icon
+        """
+        self.pbEnable.clicked.connect(self.rf_enableIcon)
+        self.rf_enableIcon()
+
+    def rf_enableIcon(self):
+        """
+        Refresh enable icon state
+        """
+        if self.pbEnable.isChecked():
+            self.pbEnable.setIcon(self.enableIcon)
+        else:
+            self.pbEnable.setIcon(self.disableIcon)
+
+    def mouseDoubleClickEvent(self, event):
+        """
+        Add mouse double click options: Select linked node in graphScene
+        """
+        if self.pItem.isSelected():
+            self.mainUi.currentGraphScene.clearNodeSelection()
+            self.pItem._widget.linkedNode.setSelected(True)
+            self.mainUi.currentGraphScene.rf_nodesElementId()
+            self.mainUi.dataZone.clearDataZone()
+            self.mainUi.dataZone.connectNodeData(self.pItem._widget.linkedNode)
+
 #======================================== NODE ID ========================================#
 
 class DataNodeId(QtGui.QWidget, wgDataNodeIdUI.Ui_wgNodeId):
@@ -233,266 +402,293 @@ class DataNodeId(QtGui.QWidget, wgDataNodeIdUI.Ui_wgNodeId):
             else:
                 self.leNodeName.clear()
 
-#=================================== NODE CONNECTIONS ====================================#
+#=================================== INPUT FILE PLUG =====================================#
 
-class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
-    """
-    Data category widget. Contains node connections data
-    :param mainUi: Grapher main window
-    :type mainUi: QtGui.QMainWindow
-    """
+class DataInputFilePlug(DataConnections):
+
+    _plugType = "inputFile"
 
     def __init__(self, mainUi):
-        self.mainUi = mainUi
-        self.log = self.mainUi.log
-        self.pItem = None
-        self.currentNode = None
-        super(DataNodeConnections, self).__init__()
-        self.upIcon = QtGui.QIcon("gui/icon/png/arrowUpBlue.png")
-        self.dnIcon = QtGui.QIcon("gui/icon/png/arrowDnBlue.png")
-        self.delIcon = QtGui.QIcon("gui/icon/png/buttonDel.png")
-        self._setupUi()
+        super(DataInputFilePlug, self).__init__(mainUi)
 
-    # noinspection PyUnresolvedReferences
-    def _setupUi(self):
-        """
-        Setup 'Node Connections' data category
-        """
-        self.setupUi(self)
-        self.pbUp.setIcon(self.upIcon)
-        self.pbUp.clicked.connect(partial(self.on_moveConnection, side='up'))
-        self.pbDn.setIcon(self.dnIcon)
-        self.pbDn.clicked.connect(partial(self.on_moveConnection, side='down'))
-        self.pbDel.setIcon(self.delIcon)
-        self.pbDel.clicked.connect(self.on_deleteConnection)
-        self.rf_editModeState()
+#=================================== INPUT DATA PLUG =====================================#
 
-    @property
-    def connectionsType(self):
-        """
-        Get allowed connection type
-        :return: Node connection type
-        :rtype: list
-        """
-        return ['inputFile', 'inputData', 'outputFile']
+class DataInputDataPlug(DataConnections):
 
-    def getTypeItem(self, typeName):
-        """
-        Get connection type item
-        :param typeName: Connection type name
-        :type typeName: str
-        :return: Connection type item
-        :rtype: QtGui.QTreeWidgetItem
-        """
-        for item in pQt.getTopItems(self.twNodeConnections):
-            if item.connType == typeName:
-                return item
+    _plugType = "inputData"
 
-    def addConnectionsType(self):
-        """
-        Add Connection type item
-        """
-        for connType in self.connectionsType:
-            newCat = QtGui.QTreeWidgetItem()
-            newCat.connType = connType
-            newCat._widget = NodeConnectionGroup(self.mainUi, newCat)
-            self.twNodeConnections.addTopLevelItem(newCat)
-            self.twNodeConnections.setItemWidget(newCat, 0, newCat._widget)
+    def __init__(self, mainUi):
+        super(DataInputDataPlug, self).__init__(mainUi)
 
-    def setDataFromNode(self, node):
-        """
-        Update params from given node
-        :param node: Graph node
-        :type node: QtSvg.QGraphicsSvgItem
-        """
-        self.currentNode = node
-        self.twNodeConnections.clear()
-        self.addConnectionsType()
-        connInfo = self.currentNode.getConnections()
-        for k in self.connectionsType:
-            items = []
-            if k in connInfo.keys():
-                typeItem = self.getTypeItem(k)
-                for n in sorted(connInfo[k].keys()):
-                    if k == 'outputFile':
-                        direction = 'dst'
-                    else:
-                        direction = 'src'
-                    newLink = QtGui.QTreeWidgetItem()
-                    newLink.index = n
-                    newLink.connType = typeItem.connType
-                    newLink.linkedLine = connInfo[k][n]['line']
-                    newLink.linkedNode = connInfo[k][n]['%sNode' % direction]
-                    newLink.linkedPlug = connInfo[k][n]['%sItem' % direction]
-                    newLink._widget = NodeConnectionItem(self.mainUi, self, newLink)
-                    typeItem.addChild(newLink)
-                    self.twNodeConnections.setItemWidget(newLink, 0, newLink._widget)
-                    items.append(newLink)
-                if items:
-                    typeItem._widget.lCount.setText(str(len(items)))
-                    typeItem._widget.pbGrpName.setChecked(True)
-                    typeItem._widget.on_icon()
-                else:
-                    typeItem._widget.lCount.setText("0")
+#================================== OUTPUT FILE PLUG =====================================#
 
-    def rf_editModeState(self):
-        """
-        Refresh connections buttons state
-        """
-        self.pbUp.setEnabled(self.mainUi.editMode)
-        self.pbDn.setEnabled(self.mainUi.editMode)
-        self.pbDel.setEnabled(self.mainUi.editMode)
+class DataOutputFilePlug(DataConnections):
 
-    def on_moveConnection(self, side='up'):
-        """
-        Edit connection order
-        :param side: 'up' or 'down'
-        :type side: str
-        """
-        selItems = self.twNodeConnections.selectedItems()
-        if selItems and self.currentNode is not None and self.mainUi.editMode:
-            item = selItems[0]
-            parent = item.parent()
-            linkedNodeName = item.linkedNode.nodeName
-            plug = getattr(self.currentNode, '%sPlug' % parent.connType)
-            if side == 'up':
-                if item.index > 0:
-                    self.log.debug("Moving connection up: %s ..." % linkedNodeName)
-                    link = plug.connections.pop(item.index)
-                    plug.connections.insert((item.index - 1), link)
-            else:
-                if item.index < (parent.childCount() - 1):
-                    self.log.debug("Moving connection down: %s ..." % linkedNodeName)
-                    link = plug.connections.pop(item.index)
-                    plug.connections.insert((item.index + 1), link)
-            self.setDataFromNode(self.currentNode)
-            #-- Keep Item Selected --#
-            for n in range(self.twNodeConnections.topLevelItemCount()):
-                grpItem = self.twNodeConnections.topLevelItem(n)
-                if grpItem.connType == parent.connType:
-                    for c in range(grpItem.childCount()):
-                        if grpItem.child(c).linkedNode.nodeName == linkedNodeName:
-                            self.twNodeConnections.setItemSelected(grpItem.child(c), True)
+    _plugType = "outputFile"
 
-    def on_deleteConnection(self):
-        """
-        Command launched when 'Delete' QPushButton is clicked,
-        Delete selected connection
-        """
-        if self.mainUi.editMode and self.currentNode is not None:
-            for item in self.twNodeConnections.selectedItems():
-                if item.parent() is not None:
-                    item._widget.lineConnection.deleteLine()
-                    self.setDataFromNode(self.currentNode)
+    def __init__(self, mainUi):
+        super(DataOutputFilePlug, self).__init__(mainUi)
 
+#=================================== NODE CONNECTIONS ====================================#
 
-class NodeConnectionGroup(QtGui.QWidget, wgDataConnGroupUI.Ui_wgConnGroup):
-    """
-    Connection category group widget
-    :param mainUi: Grapher main window
-    :type mainUi: QtGui.QMainWindow
-    :param pItem: Parent widget item
-    :type pItem: QtGui.QTreeWidgetItem
-    """
-
-    def __init__(self, mainUi, pItem):
-        self.mainUi = mainUi
-        self.pItem = pItem
-        self.grpName = self.pItem.connType
-        self.collapsedIcon= QtGui.QIcon("gui/icon/png/itemCollapsed.png")
-        self.expandedIcon = QtGui.QIcon("gui/icon/png/itemExpanded.png")
-        super(NodeConnectionGroup, self).__init__()
-        self._setupUi()
-
-    # noinspection PyUnresolvedReferences
-    def _setupUi(self):
-        """
-        Setup widget
-        """
-        self.setupUi(self)
-        self.lGrpName.setText(self.grpName)
-        self.pbGrpName.clicked.connect(self.on_icon)
-        self.rf_icon()
-
-    def rf_icon(self):
-        """
-        Refresh category group icon button
-        """
-        if self.pbGrpName.isChecked():
-            self.pbGrpName.setIcon(self.expandedIcon)
-        else:
-            self.pbGrpName.setIcon(self.collapsedIcon)
-
-    def on_icon(self):
-        """
-        Command launched when category group button is clicked,
-        Expand category group
-        """
-        self.pItem.treeWidget().setItemExpanded(self.pItem, self.pbGrpName.isChecked())
-        self.rf_icon()
+# class DataNodeConnections(QtGui.QWidget, wgDataNodeConnUI.Ui_wgNodeConnections):
+#     """
+#     Data category widget. Contains node connections data
+#     :param mainUi: Grapher main window
+#     :type mainUi: QtGui.QMainWindow
+#     """
+#
+#     def __init__(self, mainUi):
+#         self.mainUi = mainUi
+#         self.log = self.mainUi.log
+#         self.pItem = None
+#         self.currentNode = None
+#         super(DataNodeConnections, self).__init__()
+#         self.upIcon = QtGui.QIcon("gui/icon/png/arrowUpBlue.png")
+#         self.dnIcon = QtGui.QIcon("gui/icon/png/arrowDnBlue.png")
+#         self.delIcon = QtGui.QIcon("gui/icon/png/buttonDel.png")
+#         self._setupUi()
+#
+#     # noinspection PyUnresolvedReferences
+#     def _setupUi(self):
+#         """
+#         Setup 'Node Connections' data category
+#         """
+#         self.setupUi(self)
+#         self.pbUp.setIcon(self.upIcon)
+#         self.pbUp.clicked.connect(partial(self.on_moveConnection, side='up'))
+#         self.pbDn.setIcon(self.dnIcon)
+#         self.pbDn.clicked.connect(partial(self.on_moveConnection, side='down'))
+#         self.pbDel.setIcon(self.delIcon)
+#         self.pbDel.clicked.connect(self.on_deleteConnection)
+#         self.rf_editModeState()
+#
+#     @property
+#     def connectionsType(self):
+#         """
+#         Get allowed connection type
+#         :return: Node connection type
+#         :rtype: list
+#         """
+#         return ['inputFile', 'inputData', 'outputFile']
+#
+#     def getTypeItem(self, typeName):
+#         """
+#         Get connection type item
+#         :param typeName: Connection type name
+#         :type typeName: str
+#         :return: Connection type item
+#         :rtype: QtGui.QTreeWidgetItem
+#         """
+#         for item in pQt.getTopItems(self.twNodeConnections):
+#             if item.connType == typeName:
+#                 return item
+#
+#     def addConnectionsType(self):
+#         """
+#         Add Connection type item
+#         """
+#         for connType in self.connectionsType:
+#             newCat = QtGui.QTreeWidgetItem()
+#             newCat.connType = connType
+#             newCat._widget = NodeConnectionGroup(self.mainUi, newCat)
+#             self.twNodeConnections.addTopLevelItem(newCat)
+#             self.twNodeConnections.setItemWidget(newCat, 0, newCat._widget)
+#
+#     def setDataFromNode(self, node):
+#         """
+#         Update params from given node
+#         :param node: Graph node
+#         :type node: QtSvg.QGraphicsSvgItem
+#         """
+#         self.currentNode = node
+#         self.twNodeConnections.clear()
+#         self.addConnectionsType()
+#         connInfo = self.currentNode.getConnections()
+#         for k in self.connectionsType:
+#             items = []
+#             if k in connInfo.keys():
+#                 typeItem = self.getTypeItem(k)
+#                 for n in sorted(connInfo[k].keys()):
+#                     if k == 'outputFile':
+#                         direction = 'dst'
+#                     else:
+#                         direction = 'src'
+#                     newLink = QtGui.QTreeWidgetItem()
+#                     newLink.index = n
+#                     newLink.connType = typeItem.connType
+#                     newLink.linkedLine = connInfo[k][n]['line']
+#                     newLink.linkedNode = connInfo[k][n]['%sNode' % direction]
+#                     newLink.linkedPlug = connInfo[k][n]['%sItem' % direction]
+#                     newLink._widget = NodeConnectionItem(self.mainUi, self, newLink)
+#                     typeItem.addChild(newLink)
+#                     self.twNodeConnections.setItemWidget(newLink, 0, newLink._widget)
+#                     items.append(newLink)
+#                 if items:
+#                     typeItem._widget.lCount.setText(str(len(items)))
+#                     typeItem._widget.pbGrpName.setChecked(True)
+#                     typeItem._widget.on_icon()
+#                 else:
+#                     typeItem._widget.lCount.setText("0")
+#
+#     def rf_editModeState(self):
+#         """
+#         Refresh connections buttons state
+#         """
+#         self.pbUp.setEnabled(self.mainUi.editMode)
+#         self.pbDn.setEnabled(self.mainUi.editMode)
+#         self.pbDel.setEnabled(self.mainUi.editMode)
+#
+#     def on_moveConnection(self, side='up'):
+#         """
+#         Edit connection order
+#         :param side: 'up' or 'down'
+#         :type side: str
+#         """
+#         selItems = self.twNodeConnections.selectedItems()
+#         if selItems and self.currentNode is not None and self.mainUi.editMode:
+#             item = selItems[0]
+#             parent = item.parent()
+#             linkedNodeName = item.linkedNode.nodeName
+#             plug = getattr(self.currentNode, '%sPlug' % parent.connType)
+#             if side == 'up':
+#                 if item.index > 0:
+#                     self.log.debug("Moving connection up: %s ..." % linkedNodeName)
+#                     link = plug.connections.pop(item.index)
+#                     plug.connections.insert((item.index - 1), link)
+#             else:
+#                 if item.index < (parent.childCount() - 1):
+#                     self.log.debug("Moving connection down: %s ..." % linkedNodeName)
+#                     link = plug.connections.pop(item.index)
+#                     plug.connections.insert((item.index + 1), link)
+#             self.setDataFromNode(self.currentNode)
+#             #-- Keep Item Selected --#
+#             for n in range(self.twNodeConnections.topLevelItemCount()):
+#                 grpItem = self.twNodeConnections.topLevelItem(n)
+#                 if grpItem.connType == parent.connType:
+#                     for c in range(grpItem.childCount()):
+#                         if grpItem.child(c).linkedNode.nodeName == linkedNodeName:
+#                             self.twNodeConnections.setItemSelected(grpItem.child(c), True)
+#
+#     def on_deleteConnection(self):
+#         """
+#         Command launched when 'Delete' QPushButton is clicked,
+#         Delete selected connection
+#         """
+#         if self.mainUi.editMode and self.currentNode is not None:
+#             for item in self.twNodeConnections.selectedItems():
+#                 if item.parent() is not None:
+#                     item._widget.lineConnection.deleteLine()
+#                     self.setDataFromNode(self.currentNode)
 
 
-class NodeConnectionItem(QtGui.QWidget, wgDataConnItemUI.Ui_wgDataConnItem):
-    """
-    Connection category item widget
-    :param mainUi: Grapher main window
-    :type mainUi: QtGui.QMainWindow
-    :param pItem: Parent widget item
-    :type pItem: QtGui.QTreeWidgetItem
-    """
+# class NodeConnectionGroup(QtGui.QWidget, wgDataConnGroupUI.Ui_wgConnGroup):
+#     """
+#     Connection category group widget
+#     :param mainUi: Grapher main window
+#     :type mainUi: QtGui.QMainWindow
+#     :param pItem: Parent widget item
+#     :type pItem: QtGui.QTreeWidgetItem
+#     """
+#
+#     def __init__(self, mainUi, pItem):
+#         self.mainUi = mainUi
+#         self.pItem = pItem
+#         self.grpName = self.pItem.connType
+#         self.collapsedIcon= QtGui.QIcon("gui/icon/png/itemCollapsed.png")
+#         self.expandedIcon = QtGui.QIcon("gui/icon/png/itemExpanded.png")
+#         super(NodeConnectionGroup, self).__init__()
+#         self._setupUi()
+#
+#     # noinspection PyUnresolvedReferences
+#     def _setupUi(self):
+#         """
+#         Setup widget
+#         """
+#         self.setupUi(self)
+#         self.lGrpName.setText(self.grpName)
+#         self.pbGrpName.clicked.connect(self.on_icon)
+#         self.rf_icon()
+#
+#     def rf_icon(self):
+#         """
+#         Refresh category group icon button
+#         """
+#         if self.pbGrpName.isChecked():
+#             self.pbGrpName.setIcon(self.expandedIcon)
+#         else:
+#             self.pbGrpName.setIcon(self.collapsedIcon)
+#
+#     def on_icon(self):
+#         """
+#         Command launched when category group button is clicked,
+#         Expand category group
+#         """
+#         self.pItem.treeWidget().setItemExpanded(self.pItem, self.pbGrpName.isChecked())
+#         self.rf_icon()
 
-    def __init__(self, mainUi, pWidget, pItem):
-        self.mainUi = mainUi
-        self.pWidget = pWidget
-        self.pItem = pItem
-        self.index = self.pItem.index
-        self.lineConnection = self.pItem.linkedLine
-        self.linkedNode = self.pItem.linkedNode
-        self.linkedPlug = self.pItem.linkedPlug
-        super(NodeConnectionItem, self).__init__()
-        self.enableIcon = QtGui.QIcon("gui/icon/png/enable.png")
-        self.disableIcon = QtGui.QIcon("gui/icon/png/disable.png")
-        self._setupUi()
 
-    def _setupUi(self):
-        """
-        Setup Widget
-        """
-        self.setupUi(self)
-        self.lIndex.setText(str(self.index))
-        self.lConnectedNode.setText(self.linkedNode.nodeName)
-        self._addEnableIcon()
-
-    # noinspection PyUnresolvedReferences
-    def _addEnableIcon(self):
-        """
-        Add enable connection state icon
-        """
-        if self.pItem.connType not in ['outputFile']:
-            self.pbEnable.clicked.connect(self.rf_enableIcon)
-            self.rf_enableIcon()
-        else:
-            self.pbEnable.setVisible(False)
-
-    def rf_enableIcon(self):
-        """
-        Refresh enable icon state
-        """
-        if self.pbEnable.isChecked():
-            self.pbEnable.setIcon(self.enableIcon)
-        else:
-            self.pbEnable.setIcon(self.disableIcon)
-
-    def mouseDoubleClickEvent(self, event):
-        """
-        Add mouse double click options: Select linked node in graphScene
-        """
-        if self.pItem.isSelected():
-            self.mainUi.currentGraphScene.clearNodeSelection()
-            self.pItem._widget.linkedNode.setSelected(True)
-            self.mainUi.currentGraphScene.rf_nodesElementId()
-            self.mainUi.dataZone.clearDataZone()
-            self.mainUi.dataZone.connectNodeData(self.pItem._widget.linkedNode)
+# class NodeConnectionItem(QtGui.QWidget, wgDataConnItemUI.Ui_wgDataConnItem):
+#     """
+#     Connection category item widget
+#     :param mainUi: Grapher main window
+#     :type mainUi: QtGui.QMainWindow
+#     :param pItem: Parent widget item
+#     :type pItem: QtGui.QTreeWidgetItem
+#     """
+#
+#     def __init__(self, mainUi, pWidget, pItem):
+#         self.mainUi = mainUi
+#         self.pWidget = pWidget
+#         self.pItem = pItem
+#         self.index = self.pItem.index
+#         self.lineConnection = self.pItem.linkedLine
+#         self.linkedNode = self.pItem.linkedNode
+#         self.linkedPlug = self.pItem.linkedPlug
+#         super(NodeConnectionItem, self).__init__()
+#         self.enableIcon = QtGui.QIcon("gui/icon/png/enable.png")
+#         self.disableIcon = QtGui.QIcon("gui/icon/png/disable.png")
+#         self._setupUi()
+#
+#     def _setupUi(self):
+#         """
+#         Setup Widget
+#         """
+#         self.setupUi(self)
+#         self.lIndex.setText(str(self.index))
+#         self.lConnectedNode.setText(self.linkedNode.nodeName)
+#         self._addEnableIcon()
+#
+#     # noinspection PyUnresolvedReferences
+#     def _addEnableIcon(self):
+#         """
+#         Add enable connection state icon
+#         """
+#         if self.pItem.connType not in ['outputFile']:
+#             self.pbEnable.clicked.connect(self.rf_enableIcon)
+#             self.rf_enableIcon()
+#         else:
+#             self.pbEnable.setVisible(False)
+#
+#     def rf_enableIcon(self):
+#         """
+#         Refresh enable icon state
+#         """
+#         if self.pbEnable.isChecked():
+#             self.pbEnable.setIcon(self.enableIcon)
+#         else:
+#             self.pbEnable.setIcon(self.disableIcon)
+#
+#     def mouseDoubleClickEvent(self, event):
+#         """
+#         Add mouse double click options: Select linked node in graphScene
+#         """
+#         if self.pItem.isSelected():
+#             self.mainUi.currentGraphScene.clearNodeSelection()
+#             self.pItem._widget.linkedNode.setSelected(True)
+#             self.mainUi.currentGraphScene.rf_nodesElementId()
+#             self.mainUi.dataZone.clearDataZone()
+#             self.mainUi.dataZone.connectNodeData(self.pItem._widget.linkedNode)
 
 #==================================== ASSET CASTING =====================================#
 
@@ -535,7 +731,11 @@ class DataNodeAssetCasting(QtGui.QWidget, wgDataAssetCastingUI.Ui_wgDataAssetCas
         self.currentNode = node
         for k, QWidget in self.params.iteritems():
             if hasattr(node, k):
-                QWidget.setText(getattr(node, k))
+                v = getattr(node, k)
+                if v is not None:
+                    QWidget.setText(getattr(node, k))
+                else:
+                    QWidget.setText("None")
             else:
                 setattr(node, k, None)
                 QWidget.setText("None")

@@ -24,7 +24,7 @@ class AssetCastingNode(GraphNode):
         :rtype: list
         """
         return [{'name': 'Node Id', 'class': dataWgts.DataNodeId(self.mainUi)},
-                {'name': 'Node Connections', 'class': dataWgts.DataNodeConnections(self.mainUi)},
+                {'name': 'Node Output File', 'class': dataWgts.DataOutputFilePlug(self.mainUi)},
                 {'name': 'Asset Casting', 'class': dataWgts.DataNodeAssetCasting(self.mainUi)}]
 
     @property
@@ -59,7 +59,7 @@ class AssetNode(GraphNode):
         :rtype: list
         """
         return [{'name': 'Node Id', 'class': dataWgts.DataNodeId(self.mainUi)},
-                {'name': 'Node Connections', 'class': dataWgts.DataNodeConnections(self.mainUi)}]
+                {'name': 'Node Output File', 'class': dataWgts.DataOutputFilePlug(self.mainUi)}]
 
     @property
     def dataKeys(self):
@@ -93,7 +93,9 @@ class MayaNode(GraphNode):
         :rtype: list
         """
         return [{'name': 'Node Id', 'class': dataWgts.DataNodeId(self.mainUi)},
-                {'name': 'Node Connections', 'class': dataWgts.DataNodeConnections(self.mainUi)}]
+                {'name': 'Node Input File', 'class': dataWgts.DataInputFilePlug(self.mainUi)},
+                {'name': 'Node Input Data', 'class': dataWgts.DataInputDataPlug(self.mainUi)},
+                {'name': 'Node Output File', 'class': dataWgts.DataOutputFilePlug(self.mainUi)}]
 
     @property
     def dataKeys(self):
@@ -128,7 +130,7 @@ class DataNode(GraphNode):
         :rtype: list
         """
         return [{'name': 'Node Id', 'class': dataWgts.DataNodeId(self.mainUi)},
-                {'name': 'Node Connections', 'class': dataWgts.DataNodeConnections(self.mainUi)},
+                {'name': 'Node Output File', 'class': dataWgts.DataOutputFilePlug(self.mainUi)},
                 {'name': 'Node Script', 'class': dataWgts.DataNodeScript(self.mainUi)}]
 
     @property
