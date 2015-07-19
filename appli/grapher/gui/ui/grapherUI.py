@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Sat Jul 11 13:03:20 2015
+# Created: Sat Jul 18 12:53:57 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -55,7 +55,7 @@ class Ui_mwGrapher(object):
         self.vlNodeData.setMargin(0)
         self.vlNodeData.setObjectName(_fromUtf8("vlNodeData"))
         self.twNodeData = QtGui.QTreeWidget(self.vfNodeData)
-        self.twNodeData.setMinimumSize(QtCore.QSize(200, 0))
+        self.twNodeData.setMinimumSize(QtCore.QSize(300, 0))
         self.twNodeData.setSelectionMode(QtGui.QAbstractItemView.NoSelection)
         self.twNodeData.setIndentation(0)
         self.twNodeData.setExpandsOnDoubleClick(False)

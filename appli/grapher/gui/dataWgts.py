@@ -6,8 +6,8 @@ from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from lib.qt.scriptEditor import ScriptZone
 from appli.grapher.core import grapher as gpCore
-from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeIdUI, wgDataPlugItemUI, wgDataNodeConnUI,\
-                                 wgDataAssetCastingUI, wgDataNodeScriptUI
+from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeConnUI, wgDataPlugItemUI, wgDataNodeIdUI,\
+                                 wgDataNodeFileUI, wgDataAssetCastingUI, wgDataNodeScriptUI
 
 
 #======================================== GENERAL ========================================#
@@ -297,6 +297,7 @@ class DataConnectionItem(QtGui.QWidget, wgDataPlugItemUI.Ui_wgDataPlugItem):
         self.disableIcon = QtGui.QIcon("gui/icon/png/disable.png")
         self._setupUi()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """
         Setup Widget
@@ -306,6 +307,7 @@ class DataConnectionItem(QtGui.QWidget, wgDataPlugItemUI.Ui_wgDataPlugItem):
             self.qfInputFile.setVisible(False)
         self.lIndex.setText(str(self.index))
         self.lConnectedNode.setText(self.linkedNode.nodeName)
+        self.cbLoadMethod.currentIndexChanged.connect(self.rf_loadMethodVisibility)
         self._addEnableIcon()
 
     # noinspection PyUnresolvedReferences
@@ -313,8 +315,20 @@ class DataConnectionItem(QtGui.QWidget, wgDataPlugItemUI.Ui_wgDataPlugItem):
         """
         Add enable connection state icon
         """
-        self.pbEnable.clicked.connect(self.rf_enableIcon)
-        self.rf_enableIcon()
+        if self.pItem.connType not in ['outputFile']:
+            self.pbEnable.clicked.connect(self.rf_enableIcon)
+            self.rf_enableIcon()
+        else:
+            self.pbEnable.setVisible(False)
+
+    @property
+    def loadMethod(self):
+        """
+        Get current load method
+        :return: Load method
+        :rtype: str
+        """
+        return str(self.cbLoadMethod.currentText())
 
     def rf_enableIcon(self):
         """
@@ -324,6 +338,10 @@ class DataConnectionItem(QtGui.QWidget, wgDataPlugItemUI.Ui_wgDataPlugItem):
             self.pbEnable.setIcon(self.enableIcon)
         else:
             self.pbEnable.setIcon(self.disableIcon)
+
+    def rf_loadMethodVisibility(self):
+        if self.loadMethod == 'Load':
+            pass
 
     def mouseDoubleClickEvent(self, event):
         """
@@ -402,7 +420,7 @@ class DataNodeId(QtGui.QWidget, wgDataNodeIdUI.Ui_wgNodeId):
             else:
                 self.leNodeName.clear()
 
-#=================================== INPUT FILE PLUG =====================================#
+#==================================== INPUT FILE PLUG ====================================#
 
 class DataInputFilePlug(DataConnections):
 
@@ -411,7 +429,7 @@ class DataInputFilePlug(DataConnections):
     def __init__(self, mainUi):
         super(DataInputFilePlug, self).__init__(mainUi)
 
-#=================================== INPUT DATA PLUG =====================================#
+#==================================== INPUT DATA PLUG ====================================#
 
 class DataInputDataPlug(DataConnections):
 
@@ -420,7 +438,7 @@ class DataInputDataPlug(DataConnections):
     def __init__(self, mainUi):
         super(DataInputDataPlug, self).__init__(mainUi)
 
-#================================== OUTPUT FILE PLUG =====================================#
+#=================================== OUTPUT FILE PLUG ====================================#
 
 class DataOutputFilePlug(DataConnections):
 
@@ -429,7 +447,184 @@ class DataOutputFilePlug(DataConnections):
     def __init__(self, mainUi):
         super(DataOutputFilePlug, self).__init__(mainUi)
 
-#==================================== ASSET CASTING =====================================#
+#======================================= NODE FILE =======================================#
+
+class DataNodeFile(QtGui.QWidget, wgDataNodeFileUI.Ui_wgDataNodeFile):
+    """
+    Data category widget. Contains node file
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    """
+
+    def __init__(self, mainUi):
+        self.mainUi = mainUi
+        self.pItem = None
+        self.currentNode = None
+        super(DataNodeFile, self).__init__()
+        self.enableIcon = QtGui.QIcon("gui/icon/png/enable.png")
+        self.disableIcon = QtGui.QIcon("gui/icon/png/disable.png")
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """
+        Setup 'Node Id' data category
+        """
+        self.setupUi(self)
+        self.rbFullPath.clicked.connect(self.rf_nodeFile)
+        self.rbRelPath.clicked.connect(self.rf_nodeFile)
+        self.rbFileName.clicked.connect(self.rf_nodeFile)
+        self.pbEnable.clicked.connect(self.rf_enableIcon)
+        self.pbFromCasting.clicked.connect(self.on_setFromCasting)
+        self.pbOpen.clicked.connect(self.on_open)
+        self.rf_btnsVisibility()
+        self.rf_enableIcon()
+
+    @property
+    def params(self):
+        """
+        Get category ui params
+        :return: Category params
+        :rtype: dict
+        """
+        return {'nodeFile': self.leNodeFile}
+
+    def hasCasting(self):
+        """
+        Check if current node has castingNode plugged
+        :return: CastingNode if any connected, else False
+        :rtype: AssetCastingNode
+        """
+        if self.currentNode is not None:
+            connections = self.currentNode.getConnections()
+            if 'inputData' in connections.keys():
+                for n in sorted(connections['inputData'].keys()):
+                    srcNode = connections['inputData'][n]['srcNode']
+                    if srcNode.nodeType == 'assetCastingNode':
+                        return srcNode
+
+    def rf_editModeState(self):
+        """
+        Refresh node file state
+        """
+        self.rf_btnsVisibility()
+
+    def rf_btnsVisibility(self):
+        """
+        Refresh node file buttons visibility
+        """
+        if not self.mainUi.editMode:
+            self.pbOpen.setVisible(False)
+            self.pbFromCasting.setVisible(False)
+        else:
+            if self.hasCasting():
+                self.pbOpen.setVisible(True)
+                self.pbFromCasting.setVisible(True)
+            else:
+                self.pbOpen.setVisible(True)
+                self.pbFromCasting.setVisible(False)
+
+    def rf_enableIcon(self):
+        """
+        Refresh enable icon state
+        """
+        if self.pbEnable.isChecked():
+            self.pbEnable.setIcon(self.enableIcon)
+        else:
+            self.pbEnable.setIcon(self.disableIcon)
+
+    def rf_nodeFile(self):
+        """
+        Refresh nodeFile QLineEdit
+        """
+        if self.rbFullPath.isChecked():
+            self.leNodeFile.setText(self.currentNode.nodeFile)
+        elif self.rbRelPath.isChecked():
+            self.leNodeFile.setText(self.currentNode.fileRelPath)
+        elif self.rbFileName.isChecked():
+            self.leNodeFile.setText(self.currentNode.fileName)
+
+    def setDataFromNode(self, node):
+        """
+        Update params from given node
+        :param node: Graph node
+        :type node: QtSvg.QGraphicsSvgItem
+        """
+        self.currentNode = node
+        self.rf_btnsVisibility()
+        for k, QWidget in self.params.iteritems():
+            if hasattr(node, k):
+                self.rf_nodeFile()
+            else:
+                setattr(node, k, None)
+                QWidget.setText("None")
+
+    def setNodeDatas(self, fileRootPath=None, fileRelPath=None, fileName=None):
+        """
+        Set node file datas
+        :param fileRootPath: File root path
+        :type fileRootPath: str | None
+        :param fileRelPath: File relative path
+        :type fileRelPath: str
+        :param fileName: File name
+        :type fileName: str
+        """
+        self.currentNode.fileRelPath = pFile.conformPath(fileRelPath)
+        self.currentNode.fileName = fileName
+        if fileRootPath is None:
+            self.currentNode.fileRootPath = None
+            self.currentNode.nodeFile = pFile.conformPath(fileRelPath)
+        else:
+            self.currentNode.fileRootPath = pFile.conformPath(fileRootPath)
+            self.currentNode.nodeFile = pFile.conformPath(os.path.join(fileRootPath, fileRelPath))
+
+    def on_setFromCasting(self):
+        """
+        Command launched when 'Set From Casting' QPushButton is clicked.
+        Edit node file QLineEdit
+        """
+        if self.mainUi.projectFullName is not None:
+            #-- Genere File Path From Casting Node --#
+            castingNode = self.hasCasting()
+            step = self.currentNode.nodeName.split('_')[0]
+            rootPath = os.path.join(self.mainUi.prodsRootPath, self.mainUi.projectFullName)
+            fileName = "%s_%s.ma" % (castingNode.assetName, self.currentNode.nodeName)
+            relPath = os.path.join(castingNode.relativePath, self.currentNode.app, 'proc', step, fileName)
+            #-- Edit Node --#
+            self.setNodeDatas(fileRootPath=rootPath, fileRelPath=relPath, fileName=fileName)
+            #-- Refresh Ui --#
+            self.setDataFromNode(self.currentNode)
+
+    def on_open(self):
+        """
+        Command launched when 'Open' QPushButton is clicked. Launch file dialog
+        """
+        if self.mainUi.projectFullName is None:
+            rootPath = self.mainUi.prodsRootPath
+        else:
+            if self.currentNode.nodeFile is None:
+                rootPath = self.mainUi.prodsRootPath
+            else:
+                rootPath = os.path.dirname(self.currentNode.nodeFile)
+        self.fdNodeFile = pQt.fileDialog(fdMode='open', fdFileMode='AnyFile', fdFilters=['*.ma', '*.mb'],
+                                         fdRoot=rootPath, fdCmd=self.on_openAccept)
+        self.fdNodeFile.exec_()
+
+    def on_openAccept(self):
+        """
+        Command launched when 'fdOpen' QPushButton is clicked. Edit node file QLineEdit
+        """
+        selFiles = self.fdNodeFile.selectedFiles()
+        if selFiles:
+            #-- Edit Node --#
+            nodeFile = str(selFiles[0])
+            fileName = os.path.basename(os.path.normpath(nodeFile))
+            self.setNodeDatas(fileRootPath=None, fileRelPath=nodeFile, fileName=fileName)
+            #-- Refresh Ui --#
+            self.fdNodeFile.close()
+            self.setDataFromNode(self.currentNode)
+
+#==================================== ASSET CASTING ======================================#
 
 class DataNodeAssetCasting(QtGui.QWidget, wgDataAssetCastingUI.Ui_wgDataAssetCasting):
     """
@@ -504,7 +699,7 @@ class DataNodeScript(QtGui.QWidget, wgDataNodeScriptUI.Ui_wgDataScript):
         Setup 'Node Connections' data category
         """
         self.setupUi(self)
-        self.setMinimumHeight(self.mainUi.twNodeData.height() - 100)
+        self.setMinimumHeight(self.mainUi.twNodeData.height() - 150)
         self.scriptZone = ScriptZone()
         self.vlScriptZone.addWidget(self.scriptZone)
         self.pbExtern.setIcon(self.externIcon)

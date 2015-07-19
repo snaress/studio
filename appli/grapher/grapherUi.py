@@ -90,7 +90,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.miConnectNodes.setShortcut("L")
         #-- Menu Display --#
         self.miTreeVisibility.triggered.connect(self.on_treeVisibility)
-        self.miTreeVisibility.setShortcut("Shift+T")
+        self.miTreeVisibility.setShortcut("Ctrl+P")
         self.miDataVisibility.triggered.connect(self.on_dataVisibility)
         self.miDataVisibility.setShortcut("Ctrl+D")
         self.miToolBarVisibility.triggered.connect(self.on_toolBarVisibility)
@@ -203,7 +203,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         Command launched when 'Edit Mode' QMenuItem is triggered.
         Turn on or off edition mode
         """
-        groups = ['Node Id', 'Node Connections', 'Node Script']
+        groups = ['Node Id', 'Node File', 'Node Connections', 'Node Input File', 'Node Input Data',
+                  'Node Output File', 'Node Script']
         for grp in groups:
             widget = self.dataZone.getDataWidgetFromGroupName(grp)
             if widget is not None:

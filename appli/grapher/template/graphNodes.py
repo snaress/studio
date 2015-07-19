@@ -1,3 +1,4 @@
+import os
 from appli.grapher.gui.graphWgts import GraphNode
 from appli.grapher.gui import dataWgts
 
@@ -15,6 +16,8 @@ class AssetCastingNode(GraphNode):
         self.hasInputFilePlug = False
         self.hasInputDataPlug = False
         self.hasOutputFilePlug = True
+        self.hasLaunchCmd = False
+        self.hasExecCmd = False
         super(AssetCastingNode, self).__init__(**kwargs)
 
     def dataWidgets(self):
@@ -36,6 +39,10 @@ class AssetCastingNode(GraphNode):
         """
         return ['assetEntity', 'assetType', 'assetSpec', 'assetName', 'assetNs']
 
+    @property
+    def relativePath(self):
+        return os.path.join(self.assetEntity, self.assetType, self.assetSpec, self.assetName)
+
 
 class AssetNode(GraphNode):
     """
@@ -50,6 +57,8 @@ class AssetNode(GraphNode):
         self.hasInputFilePlug = False
         self.hasInputDataPlug = False
         self.hasOutputFilePlug = True
+        self.hasLaunchCmd = False
+        self.hasExecCmd = False
         super(AssetNode, self).__init__(**kwargs)
 
     def dataWidgets(self):
@@ -59,7 +68,8 @@ class AssetNode(GraphNode):
         :rtype: list
         """
         return [{'name': 'Node Id', 'class': dataWgts.DataNodeId(self.mainUi)},
-                {'name': 'Node Output File', 'class': dataWgts.DataOutputFilePlug(self.mainUi)}]
+                {'name': 'Node Output File', 'class': dataWgts.DataOutputFilePlug(self.mainUi)},
+                {'name': 'Node File', 'class': dataWgts.DataNodeFile(self.mainUi)},]
 
     @property
     def dataKeys(self):
@@ -68,7 +78,7 @@ class AssetNode(GraphNode):
         :return: data keys
         :rtype: list
         """
-        return []
+        return ['nodeFile']
 
 
 class MayaNode(GraphNode):
@@ -84,6 +94,9 @@ class MayaNode(GraphNode):
         self.hasInputFilePlug = True
         self.hasInputDataPlug = True
         self.hasOutputFilePlug = True
+        self.hasLaunchCmd = True
+        self.app = self.nodeType.replace('Node', '')
+        self.hasExecCmd = True
         super(MayaNode, self).__init__(**kwargs)
 
     def dataWidgets(self):
@@ -95,7 +108,8 @@ class MayaNode(GraphNode):
         return [{'name': 'Node Id', 'class': dataWgts.DataNodeId(self.mainUi)},
                 {'name': 'Node Input File', 'class': dataWgts.DataInputFilePlug(self.mainUi)},
                 {'name': 'Node Input Data', 'class': dataWgts.DataInputDataPlug(self.mainUi)},
-                {'name': 'Node Output File', 'class': dataWgts.DataOutputFilePlug(self.mainUi)}]
+                {'name': 'Node Output File', 'class': dataWgts.DataOutputFilePlug(self.mainUi)},
+                {'name': 'Node File', 'class': dataWgts.DataNodeFile(self.mainUi)}]
 
     @property
     def dataKeys(self):
@@ -104,7 +118,13 @@ class MayaNode(GraphNode):
         :return: data keys
         :rtype: list
         """
-        return []
+        return ['fileRootPath', 'fileRelPath', 'fileName', 'nodeFile']
+
+    # def launchCmd(self):
+    #     os.system()
+
+    def execCmd(self):
+        print "toto"
 
 
 class DataNode(GraphNode):
@@ -120,6 +140,8 @@ class DataNode(GraphNode):
         self.hasInputFilePlug = False
         self.hasInputDataPlug = False
         self.hasOutputFilePlug = True
+        self.hasLaunchCmd = False
+        self.hasExecCmd = False
         super(DataNode, self).__init__(**kwargs)
         self.externFile = None
 

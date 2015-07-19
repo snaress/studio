@@ -1,4 +1,5 @@
 import os
+from functools import partial
 from PyQt4 import QtGui, QtSvg, QtCore
 from lib.system import procFile as pFile
 
@@ -17,6 +18,7 @@ class GraphZone(QtGui.QGraphicsView):
         self.mainUi = mainUi
         self.log = self.mainUi.log
         self.graphScene = graphScene
+        self.graphPath = None
         self._setupUi()
 
     def _setupUi(self):
@@ -42,6 +44,7 @@ class GraphZone(QtGui.QGraphicsView):
         self.createGraphFromData(graphData)
         self.mainUi.tabGraph.setTabText(self.mainUi.tabGraph.currentIndex(),
                                         graphRelPath.replace('graph', '').replace('.py', ''))
+        self.graphPath = pFile.conformPath(graphRelPath)
 
     def saveGraphAs(self, graphFullPath):
         """
@@ -447,6 +450,9 @@ class GraphScene(QtGui.QGraphicsScene):
             #-- Connect Node To DataZone --#
             elif event.button() == QtCore.Qt.LeftButton and item._type == 'nodeBase':
                 self.mainUi.dataZone.connectNodeData(item)
+            #-- Node Popup Menu --#
+            elif event.button() == QtCore.Qt.RightButton and item._type == 'nodeBase':
+                item._popupMenu()
         #-- Enable Area Selection Or Moving Scene --#
         elif item is None and not self.ctrlKey:
             self.mainUi.currentGraphZone.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
@@ -502,6 +508,29 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         self.defaultBrush = QtGui.QPen()
         self._setupUi()
 
+    @property
+    def _menuFont(self):
+        """
+        Create node popup menu font
+        :return: Menu font
+        :rtype: QtGui.QFont
+        """
+        menuFont = QtGui.QFont()
+        menuFont.setPixelSize(12)
+        menuFont.setBold(True)
+        return menuFont
+
+    @property
+    def _menuItemFont(self):
+        """
+        Create node popup menu item font
+        :return: Menu item font
+        :rtype: QtGui.QFont
+        """
+        menuItemFont = QtGui.QFont()
+        menuItemFont.setPixelSize(11)
+        return menuItemFont
+
     def _setupUi(self):
         """
         Setup svg graph node
@@ -517,6 +546,30 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         self.rf_toolTip()
         self.addLabelNode()
         self.addConnectionPlugs()
+
+    def _popupMenu(self):
+        """
+        Setup graph node popup menu
+        """
+        self.nodeMenu = QtGui.QMenu()
+        self.nodeMenu.setFont(self._menuFont)
+        # noinspection PyArgumentList
+        self.nodeMenu.popup(QtGui.QCursor.pos())
+        #-- Menu Launch --#
+        if self.hasLaunchCmd:
+            self.menuLaunch = QtGui.QMenu('Launch Node')
+            self.menuLaunch.setFont(self._menuItemFont)
+        #-- Menu Exec --#
+        if self.hasExecCmd:
+            self.menuExec = QtGui.QMenu('Exec Node')
+            self.menuExec.setFont(self._menuItemFont)
+            self.miExecLocal = self.menuExec.addAction('Local')
+            self.miExecLocal.triggered.connect(partial(self.on_execNode, 'Local'))
+            self.miExecFarm = self.menuExec.addAction('Farm')
+            self.miExecFarm.triggered.connect(partial(self.on_execNode, 'Farm'))
+            self.nodeMenu.addMenu(self.menuExec)
+        #-- Exec --#
+        self.nodeMenu.exec_()
 
     @property
     def nodeSize(self):
@@ -699,6 +752,19 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         #-- Delete Node --#
         self.log.debug("Deleting node ...")
         self.scene().removeItem(self)
+
+    def on_execNode(self, execMethod='Local'):
+        """
+        Command launched when 'Exec Node' ('Local' or 'Farm') is triggered. Execute node 'execCmd'.
+        :param execMethod: 'Local' or 'Farm'
+        :type execMethod: str
+        """
+        if execMethod == 'Local':
+            self.log.info("Exec node: %s ---> Local" % self.nodeName)
+            self.execCmd()
+        else:
+            self.log.info("Exec node: %s ---> Farm" % self.nodeName)
+            self.execCmd()
 
     def hoverMoveEvent(self, event):
         """
