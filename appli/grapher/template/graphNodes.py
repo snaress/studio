@@ -17,7 +17,7 @@ class AssetCastingNode(GraphNode):
         self.hasInputDataPlug = False
         self.hasOutputFilePlug = True
         self.hasLaunchCmd = False
-        self.hasExecCmd = False
+        self.hasBatchCmd = False
         super(AssetCastingNode, self).__init__(**kwargs)
 
     def dataWidgets(self):
@@ -58,7 +58,7 @@ class AssetNode(GraphNode):
         self.hasInputDataPlug = False
         self.hasOutputFilePlug = True
         self.hasLaunchCmd = False
-        self.hasExecCmd = False
+        self.hasBatchCmd = False
         super(AssetNode, self).__init__(**kwargs)
 
     def dataWidgets(self):
@@ -96,7 +96,7 @@ class MayaNode(GraphNode):
         self.hasOutputFilePlug = True
         self.hasLaunchCmd = True
         self.app = self.nodeType.replace('Node', '')
-        self.hasExecCmd = True
+        self.hasBatchCmd = True
         super(MayaNode, self).__init__(**kwargs)
 
     def dataWidgets(self):
@@ -114,17 +114,51 @@ class MayaNode(GraphNode):
     @property
     def dataKeys(self):
         """
-        Asset casting node data keys
+        Maya node data keys
         :return: data keys
         :rtype: list
         """
         return ['fileRootPath', 'fileRelPath', 'fileName', 'nodeFile']
 
-    # def launchCmd(self):
-    #     os.system()
+    @property
+    def launchCmd(self):
+        """
+        Get maya file launcher command
+        :return: Maya file launcher command
+        :rtype: str
+        """
+        return '"%s" -file' % self.mainUi.studio.maya
 
-    def execCmd(self):
-        print "toto"
+    @property
+    def batchCmd(self):
+        """
+        Get maya batch command
+        :return: Maya batch command
+        :rtype: str
+        """
+        return self.mainUi.studio.mayaBatch
+
+    def launch(self):
+        """
+        Maya file launcher
+        """
+        if hasattr(self, 'nodeFile'):
+            if self.nodeFile is not None:
+                if os.path.exists(os.path.normpath(self.nodeFile)):
+                    cmd = '%s %s' % (self.launchCmd, os.path.normpath(self.nodeFile))
+                    self.log.debug("Launch Command: %s" % self.launchCmd)
+                    self.log.info("Launching Maya file: %s" % self.nodeFile)
+                    os.system(cmd)
+                else:
+                    self.log.warning("Maya file not found: %s" % self.nodeFile)
+            else:
+                self.log.warning("NodeFile data not setted !!!")
+        else:
+            self.log.warning("NodeFile data not setted !!!")
+
+    def batch(self):
+        print 'batch', self.nodeName
+        # ToDo
 
 
 class DataNode(GraphNode):
@@ -141,7 +175,7 @@ class DataNode(GraphNode):
         self.hasInputDataPlug = False
         self.hasOutputFilePlug = True
         self.hasLaunchCmd = False
-        self.hasExecCmd = False
+        self.hasBatchCmd = False
         super(DataNode, self).__init__(**kwargs)
         self.externFile = None
 
@@ -158,7 +192,7 @@ class DataNode(GraphNode):
     @property
     def dataKeys(self):
         """
-        Asset casting node data keys
+        Python node data keys
         :return: data keys
         :rtype: list
         """

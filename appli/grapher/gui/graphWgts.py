@@ -559,8 +559,11 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         if self.hasLaunchCmd:
             self.menuLaunch = QtGui.QMenu('Launch Node')
             self.menuLaunch.setFont(self._menuItemFont)
+            self.miLaunch = self.menuLaunch.addAction('Launch')
+            self.miLaunch.triggered.connect(self.on_launchNode)
+            self.nodeMenu.addMenu(self.menuLaunch)
         #-- Menu Exec --#
-        if self.hasExecCmd:
+        if self.hasLaunchCmd:
             self.menuExec = QtGui.QMenu('Exec Node')
             self.menuExec.setFont(self._menuItemFont)
             self.miExecLocal = self.menuExec.addAction('Local')
@@ -753,18 +756,26 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         self.log.debug("Deleting node ...")
         self.scene().removeItem(self)
 
+    def on_launchNode(self):
+        """
+        Command launched when 'Launch'
+        :return:
+        """
+        self.launch()
+
     def on_execNode(self, execMethod='Local'):
         """
-        Command launched when 'Exec Node' ('Local' or 'Farm') is triggered. Execute node 'execCmd'.
+        Command launched when 'Exec Node' ('Local' or 'Farm') popupMenuItem is triggered.
+        Execute node 'batchCmd'.
         :param execMethod: 'Local' or 'Farm'
         :type execMethod: str
         """
         if execMethod == 'Local':
             self.log.info("Exec node: %s ---> Local" % self.nodeName)
-            self.execCmd()
+            self.batch()
         else:
             self.log.info("Exec node: %s ---> Farm" % self.nodeName)
-            self.execCmd()
+            # ToDo
 
     def hoverMoveEvent(self, event):
         """

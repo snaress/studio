@@ -309,6 +309,7 @@ class DataConnectionItem(QtGui.QWidget, wgDataPlugItemUI.Ui_wgDataPlugItem):
         self.lConnectedNode.setText(self.linkedNode.nodeName)
         self.cbLoadMethod.currentIndexChanged.connect(self.rf_loadMethodVisibility)
         self._addEnableIcon()
+        self.rf_loadMethodVisibility()
 
     # noinspection PyUnresolvedReferences
     def _addEnableIcon(self):
@@ -340,8 +341,13 @@ class DataConnectionItem(QtGui.QWidget, wgDataPlugItemUI.Ui_wgDataPlugItem):
             self.pbEnable.setIcon(self.disableIcon)
 
     def rf_loadMethodVisibility(self):
-        if self.loadMethod == 'Load':
-            pass
+        if self.mainUi.editMode:
+            if self.loadMethod == 'Load':
+                self.qfNamespace.setEnabled(False)
+            else:
+                self.qfNamespace.setEnabled(True)
+        else:
+            self.qfNamespace.setEnabled(False)
 
     def mouseDoubleClickEvent(self, event):
         """
@@ -537,12 +543,16 @@ class DataNodeFile(QtGui.QWidget, wgDataNodeFileUI.Ui_wgDataNodeFile):
         """
         Refresh nodeFile QLineEdit
         """
+        #-- Init --#
+        if not hasattr(self.currentNode, 'fileName'):
+            self.setNodeDatas()
+        #-- Update --#
         if self.rbFullPath.isChecked():
-            self.leNodeFile.setText(self.currentNode.nodeFile)
+            self.leNodeFile.setText(str(self.currentNode.nodeFile))
         elif self.rbRelPath.isChecked():
-            self.leNodeFile.setText(self.currentNode.fileRelPath)
+            self.leNodeFile.setText(str(self.currentNode.fileRelPath))
         elif self.rbFileName.isChecked():
-            self.leNodeFile.setText(self.currentNode.fileName)
+            self.leNodeFile.setText(str(self.currentNode.fileName))
 
     def setDataFromNode(self, node):
         """
@@ -569,14 +579,19 @@ class DataNodeFile(QtGui.QWidget, wgDataNodeFileUI.Ui_wgDataNodeFile):
         :param fileName: File name
         :type fileName: str
         """
-        self.currentNode.fileRelPath = pFile.conformPath(fileRelPath)
+        self.currentNode.fileRootPath = None
+        self.currentNode.fileRelPath = None
+        self.currentNode.nodeFile = None
         self.currentNode.fileName = fileName
-        if fileRootPath is None:
-            self.currentNode.fileRootPath = None
-            self.currentNode.nodeFile = pFile.conformPath(fileRelPath)
-        else:
+        if fileRootPath is not None:
             self.currentNode.fileRootPath = pFile.conformPath(fileRootPath)
+            self.currentNode.fileRelPath = pFile.conformPath(fileRelPath)
             self.currentNode.nodeFile = pFile.conformPath(os.path.join(fileRootPath, fileRelPath))
+        else:
+            if fileRelPath is not None:
+                self.currentNode.fileRootPath = None
+                self.currentNode.fileRelPath = pFile.conformPath(fileRelPath)
+                self.currentNode.nodeFile = pFile.conformPath(fileRelPath)
 
     def on_setFromCasting(self):
         """
