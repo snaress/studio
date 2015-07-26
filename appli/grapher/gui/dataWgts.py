@@ -25,6 +25,7 @@ class DataZone(object):
         self.log.debug("---> Setup DataZone ...")
         self.dataTree = self.mainUi.twNodeData
         self.dataGrpState = {}
+        self.dataNodeFileMode = None
 
     def getDataWidgetFromGroupName(self, groupName):
         """
@@ -93,6 +94,7 @@ class DataZone(object):
             dataItem = grpItem.child(0)._widget
             dataItem.setDataFromNode(node)
         self.restoreDataGrpState()
+        self.restoreDataNodeFileMode()
 
     def restoreDataGrpState(self):
         """
@@ -109,6 +111,20 @@ class DataZone(object):
                         item._widget.pbGrpName.setChecked(True)
                     item._widget.rf_icon()
                     item.setExpanded(self.dataGrpState[item._widget.grpName])
+
+    def restoreDataNodeFileMode(self):
+        """
+        Restore node file active QRadioButton
+        """
+        for grpItem in pQt.getTopItems(self.dataTree):
+            if grpItem._widget.grpName == 'Node File':
+                dataItem = grpItem.child(0)._widget
+                if self.dataNodeFileMode == 'fullPath':
+                    dataItem.rbFullPath.setChecked(True)
+                elif self.dataNodeFileMode == 'relPath':
+                    dataItem.rbRelPath.setChecked(True)
+                elif self.dataNodeFileMode == 'fileName':
+                    dataItem.rbFileName.setChecked(True)
 
     def clearDataZone(self):
         """
@@ -474,13 +490,13 @@ class DataNodeFile(QtGui.QWidget, wgDataNodeFileUI.Ui_wgDataNodeFile):
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """
-        Setup 'Node Id' data category
+        Setup 'Node File' data category
         """
         self.setupUi(self)
         self.rbFullPath.clicked.connect(self.rf_nodeFile)
         self.rbRelPath.clicked.connect(self.rf_nodeFile)
         self.rbFileName.clicked.connect(self.rf_nodeFile)
-        self.pbEnable.clicked.connect(self.rf_enableIcon)
+        self.pbEnable.clicked.connect(self.on_enableIcon)
         self.pbFromCasting.clicked.connect(self.on_setFromCasting)
         self.pbOpen.clicked.connect(self.on_open)
         self.rf_btnsVisibility()
@@ -493,7 +509,7 @@ class DataNodeFile(QtGui.QWidget, wgDataNodeFileUI.Ui_wgDataNodeFile):
         :return: Category params
         :rtype: dict
         """
-        return {'nodeFile': self.leNodeFile}
+        return {'nodeFile': self.leNodeFile, 'nodeFileState': self.pbEnable}
 
     def hasCasting(self):
         """
@@ -539,9 +555,11 @@ class DataNodeFile(QtGui.QWidget, wgDataNodeFileUI.Ui_wgDataNodeFile):
         else:
             self.pbEnable.setIcon(self.disableIcon)
 
-    def rf_nodeFile(self):
+    def rf_nodeFile(self, storeFileMode=True):
         """
-        Refresh nodeFile QLineEdit
+        Refresh nodeFile QLineEdit, store active QRadioButton
+        :param storeFileMode: Store node file checked QRadioButton
+        :type storeFileMode: bool
         """
         #-- Init --#
         if not hasattr(self.currentNode, 'fileName'):
@@ -549,10 +567,16 @@ class DataNodeFile(QtGui.QWidget, wgDataNodeFileUI.Ui_wgDataNodeFile):
         #-- Update --#
         if self.rbFullPath.isChecked():
             self.leNodeFile.setText(str(self.currentNode.nodeFile))
+            if storeFileMode:
+                self.mainUi.dataZone.dataNodeFileMode = 'fullPath'
         elif self.rbRelPath.isChecked():
             self.leNodeFile.setText(str(self.currentNode.fileRelPath))
+            if storeFileMode:
+                self.mainUi.dataZone.dataNodeFileMode = 'relPath'
         elif self.rbFileName.isChecked():
             self.leNodeFile.setText(str(self.currentNode.fileName))
+            if storeFileMode:
+                self.mainUi.dataZone.dataNodeFileMode = 'fileName'
 
     def setDataFromNode(self, node):
         """
@@ -562,12 +586,23 @@ class DataNodeFile(QtGui.QWidget, wgDataNodeFileUI.Ui_wgDataNodeFile):
         """
         self.currentNode = node
         self.rf_btnsVisibility()
-        for k, QWidget in self.params.iteritems():
-            if hasattr(node, k):
-                self.rf_nodeFile()
+        #-- NodeFile --#
+        if hasattr(node, 'nodeFile'):
+            self.rf_nodeFile(storeFileMode=False)
+        else:
+            setattr(node, 'nodeFile', None)
+            self.params['nodeFile'].setText("None")
+        #-- Node File State --#
+        if hasattr(node, 'nodeFileState'):
+            if node.nodeFileState is not None:
+                self.params['nodeFileState'].setChecked(node.nodeFileState)
             else:
-                setattr(node, k, None)
-                QWidget.setText("None")
+                self.params['nodeFileState'].setChecked(False)
+            self.rf_enableIcon()
+        else:
+            setattr(node, 'nodeFileState', None)
+            self.params['nodeFileState'].setChecked(False)
+            self.rf_enableIcon()
 
     def setNodeDatas(self, fileRootPath=None, fileRelPath=None, fileName=None):
         """
@@ -592,6 +627,15 @@ class DataNodeFile(QtGui.QWidget, wgDataNodeFileUI.Ui_wgDataNodeFile):
                 self.currentNode.fileRootPath = None
                 self.currentNode.fileRelPath = pFile.conformPath(fileRelPath)
                 self.currentNode.nodeFile = pFile.conformPath(fileRelPath)
+
+    def on_enableIcon(self):
+        """
+        Command launched when 'Enable' QPushButton is clicked.
+        Edit node file data, refresh enable icon.
+        """
+        if self.currentNode is not None:
+            self.currentNode.nodeFileState = self.pbEnable.isChecked()
+        self.rf_enableIcon()
 
     def on_setFromCasting(self):
         """

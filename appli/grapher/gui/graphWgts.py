@@ -1,4 +1,4 @@
-import os
+import os, pprint
 from functools import partial
 from PyQt4 import QtGui, QtSvg, QtCore
 from lib.system import procFile as pFile
@@ -56,7 +56,7 @@ class GraphZone(QtGui.QGraphicsView):
         sceneDict = self.graphScene.getSceneDict()
         graphTxt = []
         for itemType in ['nodes', 'links']:
-            graphTxt.append("%s = %s" % (itemType, sceneDict[itemType]))
+            graphTxt.append("%s = %s" % (itemType, pprint.pformat(sceneDict[itemType])))
         pFile.writeFile(filePath, '\n'.join(graphTxt))
 
     def createGraphFromData(self, graphData):
@@ -634,7 +634,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
         cDict = {}
         if self.hasInputFilePlug:
             cDict['inputFile'] = {}
-            for n, line  in enumerate(self.inputFilePlug.connections):
+            for n, line in enumerate(self.inputFilePlug.connections):
                 cDict['inputFile'][n] = {}
                 cDict['inputFile'][n]['line'] = line
                 cDict['inputFile'][n]['srcItem'] = line.startItem
@@ -643,7 +643,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
                 cDict['inputFile'][n]['dstNode'] = line.endNode
         if self.hasInputDataPlug:
             cDict['inputData'] = {}
-            for n, line  in enumerate(self.inputDataPlug.connections):
+            for n, line in enumerate(self.inputDataPlug.connections):
                 cDict['inputData'][n] = {}
                 cDict['inputData'][n]['line'] = line
                 cDict['inputData'][n]['srcItem'] = line.startItem
@@ -652,7 +652,7 @@ class GraphNode(QtSvg.QGraphicsSvgItem):
                 cDict['inputData'][n]['dstNode'] = line.endNode
         if self.hasOutputFilePlug:
             cDict['outputFile'] = {}
-            for n, line  in enumerate(self.outputFilePlug.connections):
+            for n, line in enumerate(self.outputFilePlug.connections):
                 cDict['outputFile'][n] = {}
                 cDict['outputFile'][n]['line'] = line
                 cDict['outputFile'][n]['srcItem'] = line.startItem

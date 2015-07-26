@@ -118,7 +118,7 @@ class MayaNode(GraphNode):
         :return: data keys
         :rtype: list
         """
-        return ['fileRootPath', 'fileRelPath', 'fileName', 'nodeFile']
+        return ['fileRootPath', 'fileRelPath', 'fileName', 'nodeFile', 'nodeFileState']
 
     @property
     def launchCmd(self):
@@ -127,7 +127,7 @@ class MayaNode(GraphNode):
         :return: Maya file launcher command
         :rtype: str
         """
-        return '"%s" -file' % self.mainUi.studio.maya
+        return '%s -file' % self.mainUi.studio.maya
 
     @property
     def batchCmd(self):
@@ -148,7 +148,7 @@ class MayaNode(GraphNode):
                     cmd = '%s %s' % (self.launchCmd, os.path.normpath(self.nodeFile))
                     self.log.debug("Launch Command: %s" % self.launchCmd)
                     self.log.info("Launching Maya file: %s" % self.nodeFile)
-                    os.system(cmd)
+                    os.system('start %s' % cmd)
                 else:
                     self.log.warning("Maya file not found: %s" % self.nodeFile)
             else:
@@ -158,7 +158,7 @@ class MayaNode(GraphNode):
 
     def batch(self):
         print 'batch', self.nodeName
-        # ToDo
+
 
 
 class DataNode(GraphNode):
