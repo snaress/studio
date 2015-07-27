@@ -403,7 +403,7 @@ def createNCloth(useNucleus=None, selectExisting=False, createNew=False, worldSp
             if shadConns and not mc.about(batch=True):
                 mc.hyperShade(assign=shadConns[0]) # outMesh should be currently selected
             else:
-                mc.sets(outMesh, add=outMesh)
+                mc.sets(outMesh, add='initialShadingGroup')
             #-- Connect Output --#
             mc.setAttr('%s.quadSplit' % outMesh, 0) # match nCloth quad tessellation
             mc.connectAttr('%s.outputMesh' % nCloth, '%s.inMesh' % outMesh)
