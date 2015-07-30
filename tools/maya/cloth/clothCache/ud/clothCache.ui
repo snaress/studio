@@ -114,6 +114,7 @@
      </property>
     </widget>
     <addaction name="miToolTips"/>
+    <addaction name="miNamespace"/>
     <addaction name="miRefreshUi"/>
     <addaction name="mFilters"/>
    </widget>
@@ -137,6 +138,9 @@
   <action name="miToolTips">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>ToolTips</string>
@@ -165,6 +169,17 @@
   <action name="miXterm">
    <property name="text">
     <string>Xterm</string>
+   </property>
+  </action>
+  <action name="miNamespace">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Namespace</string>
    </property>
   </action>
  </widget>

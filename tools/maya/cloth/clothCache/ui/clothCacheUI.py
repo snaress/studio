@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothCache\ud\clothCache.ui'
 #
-# Created: Mon May 25 21:40:17 2015
+# Created: Thu Jul 30 04:11:00 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -92,6 +92,7 @@ class Ui_mwClothCache(object):
         mwClothCache.setMenuBar(self.menubar)
         self.miToolTips = QtGui.QAction(mwClothCache)
         self.miToolTips.setCheckable(True)
+        self.miToolTips.setChecked(False)
         self.miToolTips.setObjectName(_fromUtf8("miToolTips"))
         self.actionToto = QtGui.QAction(mwClothCache)
         self.actionToto.setObjectName(_fromUtf8("actionToto"))
@@ -103,7 +104,12 @@ class Ui_mwClothCache(object):
         self.miXplorer.setObjectName(_fromUtf8("miXplorer"))
         self.miXterm = QtGui.QAction(mwClothCache)
         self.miXterm.setObjectName(_fromUtf8("miXterm"))
+        self.miNamespace = QtGui.QAction(mwClothCache)
+        self.miNamespace.setCheckable(True)
+        self.miNamespace.setChecked(True)
+        self.miNamespace.setObjectName(_fromUtf8("miNamespace"))
         self.mOptions.addAction(self.miToolTips)
+        self.mOptions.addAction(self.miNamespace)
         self.mOptions.addAction(self.miRefreshUi)
         self.mOptions.addAction(self.mFilters.menuAction())
         self.mOpenRootPath.addAction(self.miXplorer)
@@ -128,4 +134,5 @@ class Ui_mwClothCache(object):
         self.miSetRootPath.setText(_translate("mwClothCache", "Set Root Path", None))
         self.miXplorer.setText(_translate("mwClothCache", "Xplorer", None))
         self.miXterm.setText(_translate("mwClothCache", "Xterm", None))
+        self.miNamespace.setText(_translate("mwClothCache", "Namespace", None))
 

@@ -103,6 +103,26 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
             txt = '\n'.join(tips)
         item.setToolTip(0, txt)
 
+    def rf_namespaces(self):
+        """ Refresh all sceneNodes item namespace """
+        for item in pQt.getAllItems(self.twSceneNodes):
+            self.rf_namespace(item)
+
+    def rf_namespace(self, item):
+        """ Refresh given sceneNode item namespace
+            :param item: SceneNode  item
+            :type item: QtGui.QTreeWidgetItem """
+        if item.clothType == 'nucleus':
+            if self.mainUi.namespaceState:
+                item._widget.lSceneNode.setText(item.clothNode)
+            else:
+                item._widget.lSceneNode.setText(item.clothNode.split(':')[-1])
+        elif item.clothType in ['nCloth', 'nRigid']:
+            if self.mainUi.namespaceState:
+                item._widget.lSceneNode.setText(item.clothMesh)
+            else:
+                item._widget.lSceneNode.setText(item.clothMesh.split(':')[-1])
+
     def add_sceneNode(self, clothNode, parent=None):
         """ Add QTreeWidgetItem to 'SceneNodes' QTreeWidget
             :param clothNode: Cloth Node name
@@ -163,6 +183,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         newItem.attrOrder = self.itemAttrOrder
         newItem._widget = SceneNode(self, newItem)
         self.rf_sceneItemToolTip(newItem)
+        self.rf_namespace(newItem)
         return newItem
 
 

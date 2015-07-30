@@ -25,12 +25,14 @@ class ClothCacheUi(QtGui.QMainWindow, clothCacheUI.Ui_mwClothCache):
         super(ClothCacheUi, self).__init__(parent)
         self._setuipUi()
 
+    # noinspection PyUnresolvedReferences
     def _setuipUi(self):
         """ Setup main ui """
         print "#-- Setup Main Ui --#"
         self.setupUi(self)
         self._initWidgets()
         self.miToolTips.triggered.connect(self.on_miToolTips)
+        self.miNamespace.triggered.connect(self.on_miNamespace)
         self.rf_menuFilters()
 
     def _initWidgets(self):
@@ -50,6 +52,13 @@ class ClothCacheUi(QtGui.QMainWindow, clothCacheUI.Ui_mwClothCache):
             :return: ToolTips state
             :rtype: bool """
         return self.miToolTips.isChecked()
+
+    @property
+    def namespaceState(self):
+        """ Get namespace state
+            :return: Namespace state
+            :rtype: bool """
+        return self.miNamespace.isChecked()
 
     @staticmethod
     def getLabelColor(color):
@@ -93,6 +102,10 @@ class ClothCacheUi(QtGui.QMainWindow, clothCacheUI.Ui_mwClothCache):
         self.wgSceneNodes.rf_widgetToolTips()
         self.wgSceneNodes.rf_sceneItemToolTips()
         self.wgCacheEval.rf_widgetToolTips()
+
+    def on_miNamespace(self):
+        """ Command launched when 'Namespace' menuItem is clicked """
+        self.wgSceneNodes.rf_namespaces()
 
     def on_filter(self, filterItem):
         """ Command launched when 'Filters' menuItem is clicked
