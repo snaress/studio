@@ -8,4 +8,5 @@ toolName = toolPath.split(os.sep)[-1]
 toolPack = __package__
 iconPath = os.path.join(toolPath, 'icon')
 
-pQt.CompileUi2(uiDir=toolPath)
+pQt.CompileUi2(uiDir=os.path.join(toolPath, 'ud'),
+               uiDest=os.path.join(toolPath, 'ui'))
