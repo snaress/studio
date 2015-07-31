@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothBox\ud\wgSimuBox.ui'
 #
-# Created: Sat Jun 06 21:08:19 2015
+# Created: Fri Jul 31 20:49:23 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -109,7 +109,7 @@ class Ui_wgSimuBox(object):
     def retranslateUi(self, wgSimuBox):
         wgSimuBox.setWindowTitle(_translate("wgSimuBox", "Simulation Box", None))
         self.pbClothEditor.setText(_translate("wgSimuBox", "Cloth Editor Ui", None))
-        self.pbClothCache.setText(_translate("wgSimuBox", "Cloth Cache Ui", None))
+        self.pbClothCache.setText(_translate("wgSimuBox", "Dyn Eval", None))
         self.pbExportHi.setText(_translate("wgSimuBox", "Export Hi", None))
         self.pbConnectHi.setText(_translate("wgSimuBox", "Connect Hi", None))
         self.pbBakeSel.setText(_translate("wgSimuBox", "Bake Selected", None))

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothCache\ud\clothCache.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\dynEval\ud\dynEval.ui'
 #
-# Created: Thu Jul 30 04:11:00 2015
+# Created: Fri Jul 31 20:54:09 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -23,11 +23,11 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
-class Ui_mwClothCache(object):
-    def setupUi(self, mwClothCache):
-        mwClothCache.setObjectName(_fromUtf8("mwClothCache"))
-        mwClothCache.resize(500, 500)
-        self.centralwidget = QtGui.QWidget(mwClothCache)
+class Ui_mwDynEval(object):
+    def setupUi(self, mwDynEval):
+        mwDynEval.setObjectName(_fromUtf8("mwDynEval"))
+        mwDynEval.resize(500, 500)
+        self.centralwidget = QtGui.QWidget(mwDynEval)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
         self.gridLayout.setMargin(0)
@@ -76,8 +76,8 @@ class Ui_mwClothCache(object):
         self.vlCacheInfo.setObjectName(_fromUtf8("vlCacheInfo"))
         self.hlDn.addLayout(self.vlCacheInfo)
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
-        mwClothCache.setCentralWidget(self.centralwidget)
-        self.menubar = QtGui.QMenuBar(mwClothCache)
+        mwDynEval.setCentralWidget(self.centralwidget)
+        self.menubar = QtGui.QMenuBar(mwDynEval)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 500, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.mOptions = QtGui.QMenu(self.menubar)
@@ -89,22 +89,22 @@ class Ui_mwClothCache(object):
         self.mFiles.setObjectName(_fromUtf8("mFiles"))
         self.mOpenRootPath = QtGui.QMenu(self.mFiles)
         self.mOpenRootPath.setObjectName(_fromUtf8("mOpenRootPath"))
-        mwClothCache.setMenuBar(self.menubar)
-        self.miToolTips = QtGui.QAction(mwClothCache)
+        mwDynEval.setMenuBar(self.menubar)
+        self.miToolTips = QtGui.QAction(mwDynEval)
         self.miToolTips.setCheckable(True)
         self.miToolTips.setChecked(False)
         self.miToolTips.setObjectName(_fromUtf8("miToolTips"))
-        self.actionToto = QtGui.QAction(mwClothCache)
+        self.actionToto = QtGui.QAction(mwDynEval)
         self.actionToto.setObjectName(_fromUtf8("actionToto"))
-        self.miRefreshUi = QtGui.QAction(mwClothCache)
+        self.miRefreshUi = QtGui.QAction(mwDynEval)
         self.miRefreshUi.setObjectName(_fromUtf8("miRefreshUi"))
-        self.miSetRootPath = QtGui.QAction(mwClothCache)
+        self.miSetRootPath = QtGui.QAction(mwDynEval)
         self.miSetRootPath.setObjectName(_fromUtf8("miSetRootPath"))
-        self.miXplorer = QtGui.QAction(mwClothCache)
+        self.miXplorer = QtGui.QAction(mwDynEval)
         self.miXplorer.setObjectName(_fromUtf8("miXplorer"))
-        self.miXterm = QtGui.QAction(mwClothCache)
+        self.miXterm = QtGui.QAction(mwDynEval)
         self.miXterm.setObjectName(_fromUtf8("miXterm"))
-        self.miNamespace = QtGui.QAction(mwClothCache)
+        self.miNamespace = QtGui.QAction(mwDynEval)
         self.miNamespace.setCheckable(True)
         self.miNamespace.setChecked(True)
         self.miNamespace.setObjectName(_fromUtf8("miNamespace"))
@@ -119,20 +119,20 @@ class Ui_mwClothCache(object):
         self.menubar.addAction(self.mFiles.menuAction())
         self.menubar.addAction(self.mOptions.menuAction())
 
-        self.retranslateUi(mwClothCache)
-        QtCore.QMetaObject.connectSlotsByName(mwClothCache)
+        self.retranslateUi(mwDynEval)
+        QtCore.QMetaObject.connectSlotsByName(mwDynEval)
 
-    def retranslateUi(self, mwClothCache):
-        mwClothCache.setWindowTitle(_translate("mwClothCache", "Cloth Cache", None))
-        self.mOptions.setTitle(_translate("mwClothCache", "Options", None))
-        self.mFilters.setTitle(_translate("mwClothCache", "Filters", None))
-        self.mFiles.setTitle(_translate("mwClothCache", "Files", None))
-        self.mOpenRootPath.setTitle(_translate("mwClothCache", "Open Root Path", None))
-        self.miToolTips.setText(_translate("mwClothCache", "ToolTips", None))
-        self.actionToto.setText(_translate("mwClothCache", "toto", None))
-        self.miRefreshUi.setText(_translate("mwClothCache", "Refresh Ui", None))
-        self.miSetRootPath.setText(_translate("mwClothCache", "Set Root Path", None))
-        self.miXplorer.setText(_translate("mwClothCache", "Xplorer", None))
-        self.miXterm.setText(_translate("mwClothCache", "Xterm", None))
-        self.miNamespace.setText(_translate("mwClothCache", "Namespace", None))
+    def retranslateUi(self, mwDynEval):
+        mwDynEval.setWindowTitle(_translate("mwDynEval", "Dyn Eval", None))
+        self.mOptions.setTitle(_translate("mwDynEval", "Options", None))
+        self.mFilters.setTitle(_translate("mwDynEval", "Filters", None))
+        self.mFiles.setTitle(_translate("mwDynEval", "Files", None))
+        self.mOpenRootPath.setTitle(_translate("mwDynEval", "Open Root Path", None))
+        self.miToolTips.setText(_translate("mwDynEval", "ToolTips", None))
+        self.actionToto.setText(_translate("mwDynEval", "toto", None))
+        self.miRefreshUi.setText(_translate("mwDynEval", "Refresh Ui", None))
+        self.miSetRootPath.setText(_translate("mwDynEval", "Set Root Path", None))
+        self.miXplorer.setText(_translate("mwDynEval", "Xplorer", None))
+        self.miXterm.setText(_translate("mwDynEval", "Xterm", None))
+        self.miNamespace.setText(_translate("mwDynEval", "Namespace", None))
 

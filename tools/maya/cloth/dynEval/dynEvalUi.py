@@ -3,42 +3,48 @@ from PyQt4 import QtGui
 from functools import partial
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pScene
-from tools.maya.cloth import clothCache
-from tools.maya.cloth.clothCache.ui import clothCacheUI
-from tools.maya.cloth.clothCache import clothCacheWgts as ccWgts
+from tools.maya.cloth import dynEval
+from tools.maya.cloth.dynEval.ui import dynEvalUI
+from tools.maya.cloth.dynEval import dynEvalWgts as ccWgts
 try:
     import maya.cmds as mc
 except:
     pass
 
 
-class ClothCacheUi(QtGui.QMainWindow, clothCacheUI.Ui_mwClothCache):
+class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
 
     def __init__(self, parent=None):
-        print "\n########## %s ##########" % clothCache.toolName
-        self.iconPath = clothCache.iconPath
+        print "\n########## %s ##########" % dynEval.toolName
+        self.iconPath = dynEval.iconPath
         self.nucleusIcon = QtGui.QIcon(os.path.join(self.iconPath, 'nucleus.png'))
         self.nClothIcon = QtGui.QIcon(os.path.join(self.iconPath, 'nCloth.png'))
         self.nRigidIcon = QtGui.QIcon(os.path.join(self.iconPath, 'nRigid.png'))
         self.enableIcon = QtGui.QIcon(os.path.join(self.iconPath, 'enable.png'))
         self.disableIcon = QtGui.QIcon(os.path.join(self.iconPath, 'disable.png'))
-        super(ClothCacheUi, self).__init__(parent)
+        super(DynEvalUi, self).__init__(parent)
         self._setuipUi()
 
     # noinspection PyUnresolvedReferences
     def _setuipUi(self):
-        """ Setup main ui """
+        """
+        Setup main ui
+        """
         print "#-- Setup Main Ui --#"
         self.setupUi(self)
         self._initWidgets()
         self.miToolTips.triggered.connect(self.on_miToolTips)
+        self.miToolTips.setShortcut("Ctrl+T")
         self.miNamespace.triggered.connect(self.on_miNamespace)
+        self.miNamespace.setShortcut("Ctrl+N")
         self.rf_menuFilters()
 
     def _initWidgets(self):
-        """ Import main ui widgets """
-        self.wgSceneNodes = ccWgts.SceneNodeUi(self)
-        self.vlSceneNodes.insertWidget(0, self.wgSceneNodes)
+        """
+        Import main ui widgets
+        """
+        self.sceneNodes = ccWgts.SceneNodeUi(self)
+        self.vlSceneNodes.insertWidget(0, self.sceneNodes)
         self.wgCacheEval = ccWgts.CacheEvalUi(self)
         self.vlNodeOptions.insertWidget(0, self.wgCacheEval)
         self.wgCacheList = ccWgts.CacheListUi(self)
@@ -48,25 +54,31 @@ class ClothCacheUi(QtGui.QMainWindow, clothCacheUI.Ui_mwClothCache):
 
     @property
     def toolTipState(self):
-        """ Get toolTips state
-            :return: ToolTips state
-            :rtype: bool """
+        """
+        Get toolTips state
+        :return: ToolTips state
+        :rtype: bool
+        """
         return self.miToolTips.isChecked()
 
     @property
     def namespaceState(self):
-        """ Get namespace state
-            :return: Namespace state
-            :rtype: bool """
+        """
+        Get namespace state
+        :return: Namespace state
+        :rtype: bool
+        """
         return self.miNamespace.isChecked()
 
     @staticmethod
     def getLabelColor(color):
-        """ Get rgb color from given arg
-            :param color: 'green', 'blue', 'yellow'
-            :type color: str
-            :return: Rgb color
-            :rtype: tuple """
+        """
+        Get rgb color from given arg
+        :param color: 'green', 'blue', 'yellow'
+        :type color: str
+        :return: Rgb color
+        :rtype: tuple
+        """
         if color == 'green':
             rgb = (0, 255, 0)
         elif color == 'blue':
@@ -83,10 +95,12 @@ class ClothCacheUi(QtGui.QMainWindow, clothCacheUI.Ui_mwClothCache):
 
     # noinspection PyUnresolvedReferences
     def rf_menuFilters(self):
-        """ Refresh menu 'Filters' """
+        """
+        Refresh menu 'Filters'
+        """
         self.mFilters.clear()
         nsList = []
-        for item in pQt.getAllItems(self.wgSceneNodes.twSceneNodes):
+        for item in pQt.getAllItems(self.sceneNodes.twSceneNodes):
             if item.clothNs is not None:
                 if not item.clothNs in nsList:
                     nsList.append(item.clothNs)
@@ -98,32 +112,40 @@ class ClothCacheUi(QtGui.QMainWindow, clothCacheUI.Ui_mwClothCache):
                     self.mFilters.addAction(menuItem)
 
     def on_miToolTips(self):
-        """ Command launched when 'ToolTips' menuItem is clicked """
-        self.wgSceneNodes.rf_widgetToolTips()
-        self.wgSceneNodes.rf_sceneItemToolTips()
+        """
+        Command launched when 'ToolTips' menuItem is clicked
+        """
+        self.sceneNodes.rf_widgetToolTips()
+        self.sceneNodes.rf_sceneItemToolTips()
         self.wgCacheEval.rf_widgetToolTips()
 
     def on_miNamespace(self):
-        """ Command launched when 'Namespace' menuItem is clicked """
-        self.wgSceneNodes.rf_namespaces()
+        """
+        Command launched when 'Namespace' menuItem is clicked
+        """
+        self.sceneNodes.rf_namespaces()
 
     def on_filter(self, filterItem):
-        """ Command launched when 'Filters' menuItem is clicked
-            :param filterItem: Filters menuItem
-            :type filterItem: QtGui.QAction """
-        for topItem in pQt.getTopItems(self.wgSceneNodes.twSceneNodes):
+        """
+        Command launched when 'Filters' menuItem is clicked
+        :param filterItem: Filters menuItem
+        :type filterItem: QtGui.QAction
+        """
+        for topItem in pQt.getTopItems(self.sceneNodes.twSceneNodes):
             if topItem.clothNs == filterItem.ns:
-                self.wgSceneNodes.twSceneNodes.setItemHidden(topItem, not filterItem.isChecked())
+                self.sceneNodes.twSceneNodes.setItemHidden(topItem, not filterItem.isChecked())
 
 
 def launch():
-    """ Launch ClothCache
-        :return: Launched window
-        :rtype: object """
+    """
+    Launch ClothCache
+    :return: Launched window
+    :rtype: object
+    """
     toolName = 'mwClothCache'
     if mc.window(toolName, q=True, ex=True):
         mc.deleteUI(toolName, wnd=True)
     global window
-    window = ClothCacheUi(parent=pScene.getMayaMainWindow())
+    window = DynEvalUi(parent=pScene.getMayaMainWindow())
     window.show()
     return window

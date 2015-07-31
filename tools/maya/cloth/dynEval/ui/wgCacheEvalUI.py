@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothCache\ud\wgCacheEval.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\dynEval\ud\wgCacheEval.ui'
 #
-# Created: Mon May 25 21:42:16 2015
+# Created: Fri Jul 31 20:45:38 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -57,16 +57,6 @@ class Ui_wgCacheEval(object):
         self.pbAppendCache.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.pbAppendCache.setObjectName(_fromUtf8("pbAppendCache"))
         self.vlEval.addWidget(self.pbAppendCache)
-        self.pbClearCache = QtGui.QToolButton(wgCacheEval)
-        self.pbClearCache.setMinimumSize(QtCore.QSize(0, 0))
-        self.pbClearCache.setMaximumSize(QtCore.QSize(1000, 1000))
-        font = QtGui.QFont()
-        font.setPointSize(7)
-        self.pbClearCache.setFont(font)
-        self.pbClearCache.setIconSize(QtCore.QSize(36, 36))
-        self.pbClearCache.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-        self.pbClearCache.setObjectName(_fromUtf8("pbClearCache"))
-        self.vlEval.addWidget(self.pbClearCache)
         self.pbGeoCache = QtGui.QToolButton(wgCacheEval)
         self.pbGeoCache.setMinimumSize(QtCore.QSize(0, 0))
         self.pbGeoCache.setMaximumSize(QtCore.QSize(1000, 1000))
@@ -77,6 +67,16 @@ class Ui_wgCacheEval(object):
         self.pbGeoCache.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.pbGeoCache.setObjectName(_fromUtf8("pbGeoCache"))
         self.vlEval.addWidget(self.pbGeoCache)
+        self.pbClearCache = QtGui.QToolButton(wgCacheEval)
+        self.pbClearCache.setMinimumSize(QtCore.QSize(0, 0))
+        self.pbClearCache.setMaximumSize(QtCore.QSize(1000, 1000))
+        font = QtGui.QFont()
+        font.setPointSize(7)
+        self.pbClearCache.setFont(font)
+        self.pbClearCache.setIconSize(QtCore.QSize(36, 36))
+        self.pbClearCache.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        self.pbClearCache.setObjectName(_fromUtf8("pbClearCache"))
+        self.vlEval.addWidget(self.pbClearCache)
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.vlEval.addItem(spacerItem)
         self.gridLayout.addLayout(self.vlEval, 0, 2, 3, 1)
@@ -108,8 +108,8 @@ class Ui_wgCacheEval(object):
         wgCacheEval.setWindowTitle(_translate("wgCacheEval", "Cache Eval", None))
         self.pbClothCache.setText(_translate("wgCacheEval", "Create nCloth Cache", None))
         self.pbAppendCache.setText(_translate("wgCacheEval", "Append To Cache", None))
-        self.pbClearCache.setText(_translate("wgCacheEval", "Delete Cache Node", None))
         self.pbGeoCache.setText(_translate("wgCacheEval", "Create Geo Cache", None))
+        self.pbClearCache.setText(_translate("wgCacheEval", "Delete Cache Node", None))
         self.twCommonAttr.headerItem().setText(0, _translate("wgCacheEval", "Common Attributes", None))
         self.twCustomAttr.headerItem().setText(0, _translate("wgCacheEval", "Custom Attributes", None))
 

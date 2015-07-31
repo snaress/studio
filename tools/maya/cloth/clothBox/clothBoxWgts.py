@@ -1,8 +1,6 @@
 import os
 from PyQt4 import QtGui
 from functools import partial
-from tools.maya.cloth.clothCache import clothCacheUi
-from tools.maya.cloth.clothEditor import clothEditorUi
 from tools.maya.cloth.clothBox import clothBoxCmds as cbCmds
 from tools.maya.cloth.clothBox.ui import wgModeBoxUI, wgRiggBoxUI, wgSimuBoxUI
 
@@ -207,7 +205,7 @@ class SimuBoxUi(QtGui.QWidget, wgSimuBoxUI.Ui_wgSimuBox):
         print "\t ---> ModeBoxUi"
         self.mainUi = mainUi
         self.clothEditorIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'clothEditor.png'))
-        self.clothCacheIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'clothCache.png'))
+        self.dynEvalIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'dynEval.png'))
         self.bakeSelectedIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'bakeSelected.png'))
         self.connectHiIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'connectHi.png'))
         self.exportHiIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'exportHi.png'))
@@ -220,8 +218,8 @@ class SimuBoxUi(QtGui.QWidget, wgSimuBoxUI.Ui_wgSimuBox):
         self.setupUi(self)
         self.pbClothEditor.setIcon(self.clothEditorIcon)
         self.pbClothEditor.clicked.connect(self.on_clothEditor)
-        self.pbClothCache.setIcon(self.clothCacheIcon)
-        self.pbClothCache.clicked.connect(self.on_clothCache)
+        self.pbClothCache.setIcon(self.dynEvalIcon)
+        self.pbClothCache.clicked.connect(self.on_dynEval)
         self.pbBakeSel.setIcon(self.bakeSelectedIcon)
         self.pbConnectHi.setIcon(self.connectHiIcon)
         self.pbExportHi.setIcon(self.exportHiIcon)
@@ -229,9 +227,11 @@ class SimuBoxUi(QtGui.QWidget, wgSimuBoxUI.Ui_wgSimuBox):
     @staticmethod
     def on_clothEditor():
         """ Command launched when 'Cloth Editor Ui' is clicked """
+        from tools.maya.cloth.clothEditor import clothEditorUi
         clothEditorUi.launch()
 
     @staticmethod
-    def on_clothCache():
+    def on_dynEval():
         """ Command launched when 'Cloth Cache Ui' is clicked """
-        clothCacheUi.launch()
+        from tools.maya.cloth.dynEval import dynEvalUi
+        dynEvalUi.launch()

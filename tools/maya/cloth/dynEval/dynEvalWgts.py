@@ -2,15 +2,17 @@ import os
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pRigg
-from tools.maya.cloth.clothCache import clothCacheCmds as ccCmds
-from tools.maya.cloth.clothCache.ui import wgSceneNodesUI, wgSceneNodeUI, wgCacheEvalUI, wgCacheListUI,\
+from tools.maya.cloth.dynEval import dynEvalCmds as ccCmds
+from tools.maya.cloth.dynEval.ui import wgSceneNodesUI, wgSceneNodeUI, wgCacheEvalUI, wgCacheListUI,\
                                            wgCacheInfoUI
 
 
 class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
-    """ Widget SceneNodes, child of mainUi
-        :param mainUi: ClothCache mainUi
-        :type mainUi: QtGui.QMainWindow """
+    """
+    Widget SceneNodes, child of mainUi
+    :param mainUi: ClothCache mainUi
+    :type mainUi: QtGui.QMainWindow
+    """
 
     def __init__(self, mainUi):
         print "\t ---> SceneNodeUi"
@@ -20,7 +22,9 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
-        """ Setup widget ui """
+        """
+        Setup widget ui
+        """
         self.setupUi(self)
         # self.twSceneNodes.itemClicked.connect(self.on_sceneNodeSingleClick)
         self.twSceneNodes.itemDoubleClicked.connect(self.on_sceneNodeDoubleClick)
@@ -30,30 +34,38 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
 
     @property
     def itemAttrOrder(self):
-        """ Get SceneNodeItem attribute list
-            :return: Item attributes
-            :rtype: list """
+        """
+        Get SceneNodeItem attribute list
+        :return: Item attributes
+        :rtype: list
+        """
         return ['clothNode', 'clothNs', 'clothName', 'clothType', 'clothParent', 'clothMesh', 'clothShape']
 
     @property
     def selectedClothItem(self):
-        """ Get selected sceneNode item
-            :return: ClothNode item
-            :rtype: QtGui.QTreeWidgetItem """
+        """
+        Get selected sceneNode item
+        :return: ClothNode item
+        :rtype: QtGui.QTreeWidgetItem
+        """
         selItems = self.twSceneNodes.selectedItems()
         if selItems:
             return selItems[0]
 
     @property
     def selectedClothNode(self):
-        """ Get selected clothNode name
-            :return: ClothNode name
-            :rtype: str """
+        """
+        Get selected clothNode name
+        :return: ClothNode name
+        :rtype: str
+        """
         if self.selectedClothItem is not None:
             return self.selectedClothItem.clothNode
 
     def rf_sceneNodes(self):
-        """ Refresh QTreeWidget 'Scene Nodes' """
+        """
+        Refresh QTreeWidget 'Scene Nodes'
+        """
         self.twSceneNodes.clear()
         #-- Populate Nucleus node --#
         for nucleus in ccCmds.getAllNucleus():
@@ -74,7 +86,9 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
                 self.add_sceneNode(node, parent=nucleusItem)
 
     def rf_widgetToolTips(self):
-        """ Refresh all widget toolTip """
+        """
+        Refresh all widget toolTip
+        """
         if self.mainUi.toolTipState:
             self.cbCloth.setToolTip("Show / Hide nCloth items")
             self.cbRigid.setToolTip("Show / Hide nRigid items")
@@ -83,14 +97,18 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
                 widget.setToolTip("")
 
     def rf_sceneItemToolTips(self):
-        """ Refresh all sceneNodes item toolTip """
+        """
+        Refresh all sceneNodes item toolTip
+        """
         for item in pQt.getAllItems(self.twSceneNodes):
             self.rf_sceneItemToolTip(item)
 
     def rf_sceneItemToolTip(self, item):
-        """ Refresh given sceneNode item toolTip
-            :param item: SceneNode  item
-            :type item: QtGui.QTreeWidgetItem """
+        """
+        Refresh given sceneNode item toolTip
+        :param item: SceneNode  item
+        :type item: QtGui.QTreeWidgetItem
+        """
         txt = ""
         if self.mainUi.toolTipState:
             tips = []
@@ -104,14 +122,18 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         item.setToolTip(0, txt)
 
     def rf_namespaces(self):
-        """ Refresh all sceneNodes item namespace """
+        """
+        Refresh all sceneNodes item namespace
+        """
         for item in pQt.getAllItems(self.twSceneNodes):
             self.rf_namespace(item)
 
     def rf_namespace(self, item):
-        """ Refresh given sceneNode item namespace
-            :param item: SceneNode  item
-            :type item: QtGui.QTreeWidgetItem """
+        """
+        Refresh given sceneNode item namespace
+        :param item: SceneNode  item
+        :type item: QtGui.QTreeWidgetItem
+        """
         if item.clothType == 'nucleus':
             if self.mainUi.namespaceState:
                 item._widget.lSceneNode.setText(item.clothNode)
@@ -124,13 +146,15 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
                 item._widget.lSceneNode.setText(item.clothMesh.split(':')[-1])
 
     def add_sceneNode(self, clothNode, parent=None):
-        """ Add QTreeWidgetItem to 'SceneNodes' QTreeWidget
-            :param clothNode: Cloth Node name
-            :type clothNode: str
-            :param parent: Parent item
-            :type parent: QtGui.QTreeWidgetItem
-            :return: New item
-            :rtype: QtGui.QTreeWidgetItem """
+        """
+        Add QTreeWidgetItem to 'SceneNodes' QTreeWidget
+        :param clothNode: Cloth Node name
+        :type clothNode: str
+        :param parent: Parent item
+        :type parent: QtGui.QTreeWidgetItem
+        :return: New item
+        :rtype: QtGui.QTreeWidgetItem
+        """
         newItem = self.new_sceneNodeItem(clothNode)
         if parent is None:
             self.twSceneNodes.addTopLevelItem(newItem)
@@ -140,19 +164,25 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         return newItem
 
     def on_sceneNodeSingleClick(self):
-        """ Command launched when 'SceneNode' QTreeWidgetItem is single clicked """
+        """
+        Command launched when 'SceneNode' QTreeWidgetItem is single clicked
+        """
         # Todo: Cloth node selection
         pass
 
     def on_sceneNodeDoubleClick(self):
-        """ Command launched when 'SceneNode' QTreeWidgetItem is double clicked """
+        """
+        Command launched when 'SceneNode' QTreeWidgetItem is double clicked
+        """
         selItems = self.twSceneNodes.selectedItems()
         if selItems:
             ccCmds.selectModel(selItems[0].clothNode)
 
     def on_showClothType(self):
-        """ Command launched when QCheckBox 'nCloth' or 'nRigid' is clicked,
-            Update QTreeWidget with selected cloth type """
+        """
+        Command launched when QCheckBox 'nCloth' or 'nRigid' is clicked,
+        Update QTreeWidget with selected cloth type
+        """
         for item in pQt.getAllItems(self.twSceneNodes):
             if item.clothType == 'nCloth':
                 self.twSceneNodes.setItemHidden(item, not self.cbCloth.isChecked())
@@ -160,11 +190,13 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
                 self.twSceneNodes.setItemHidden(item, not self.cbRigid.isChecked())
 
     def new_sceneNodeItem(self, clothNode):
-        """ Create new 'clothNode' QTreeWidgetItem
-            :param clothNode: Cloth Node name
-            :type clothNode: str
-            :return: Scene node QTreeWidgetItem
-            :rtype: QtGui.QTreeWidgetItem """
+        """
+        Create new 'clothNode' QTreeWidgetItem
+        :param clothNode: Cloth Node name
+        :type clothNode: str
+        :return: Scene node QTreeWidgetItem
+        :rtype: QtGui.QTreeWidgetItem
+        """
         newItem = QtGui.QTreeWidgetItem()
         #-- Add Attributes --#
         ns, name = ccCmds.getNamespace(clothNode)
@@ -188,11 +220,13 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
 
 
 class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
-    """ Widget SceneNode QTreeWidgetItem, child of SceneNodeUi
-        :param pWidget: Parent Widget
-        :type pWidget: QtGui.QWidget
-        :param pItem: Parent item
-        :type pItem: QtGui.QTreeWidgetItem """
+    """
+    Widget SceneNode QTreeWidgetItem, child of SceneNodeUi
+    :param pWidget: Parent Widget
+    :type pWidget: QtGui.QWidget
+    :param pItem: Parent item
+    :type pItem: QtGui.QTreeWidgetItem
+    """
 
     def __init__(self, pWidget, pItem):
         self.pWidget = pWidget
@@ -203,7 +237,9 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
-        """ Setup widget ui """
+        """
+        Setup widget ui
+        """
         self.setupUi(self)
         self.rf_label()
         self.rf_nodeTypeIcon()
@@ -212,13 +248,17 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
 
     @property
     def enableState(self):
-        """ Get Attr enable state
-            :return: Attr enable state
-            :rtype: bool """
+        """
+        Get Attr enable state
+        :return: Attr enable state
+        :rtype: bool
+        """
         return self.pbEnable.isChecked()
 
     def rf_label(self):
-        """ Refresh label text and color """
+        """
+        Refresh label text and color
+        """
         newFont = QtGui.QFont()
         newFont.setBold(True)
         color = (self.mainUi.getLabelColor('default'))
@@ -236,7 +276,9 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
         self.lSceneNode.setStyleSheet("color: rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
 
     def rf_nodeTypeIcon(self):
-        """ Refresh cloth node type icon """
+        """
+        Refresh cloth node type icon
+        """
         if self.pItem.clothType == 'nucleus':
             self.pbIcon.setIcon(self.mainUi.nucleusIcon)
         elif self.pItem.clothType == 'nCloth':
@@ -245,9 +287,11 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
             self.pbIcon.setIcon(self.mainUi.nRigidIcon)
 
     def rf_nodeEnableIcon(self, rfBtnState=False):
-        """ Refresh state icon
-            :param rfBtnState: Enable btn state refresh
-            :type rfBtnState: bool """
+        """
+        Refresh state icon
+        :param rfBtnState: Enable btn state refresh
+        :type rfBtnState: bool
+        """
         if self.pItem.clothType in ['nCloth', 'nRigid']:
             state = ccCmds.getAttr(self.pItem.clothNode, 'isDynamic')
         else:
@@ -263,8 +307,10 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
         self.pbEnable.setIcon(stateIcon)
 
     def on_stateIcon(self):
-        """ Command launched when 'pbEnable' QPushButton is clicked,
-            Edit enable state (isDynamic state for nCloth and nRigid. """
+        """
+        Command launched when 'pbEnable' QPushButton is clicked,
+        Edit enable state (isDynamic state for nCloth and nRigid.
+        """
         if self.pItem.clothType in ['nCloth', 'nRigid']:
             ccCmds.setAttr(self.pItem.clothNode, 'isDynamic', self.enableState)
         else:
@@ -273,9 +319,11 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
 
 
 class CacheEvalUi(QtGui.QWidget, wgCacheEvalUI.Ui_wgCacheEval):
-    """ Widget CacheEval, child of mainUi
-        :param mainUi: ClothCache mainUi
-        :type mainUi: QtGui.QMainWindow """
+    """
+    Widget CacheEval, child of mainUi
+    :param mainUi: ClothCache mainUi
+    :type mainUi: QtGui.QMainWindow
+    """
 
     def __init__(self, mainUi):
         print "\t ---> CacheEvalUi"
@@ -288,7 +336,9 @@ class CacheEvalUi(QtGui.QWidget, wgCacheEvalUI.Ui_wgCacheEval):
         self._setupUi()
 
     def _setupUi(self):
-        """ Setup widget ui """
+        """
+        Setup widget ui
+        """
         self.setupUi(self)
         self.pbClothCache.setIcon(self.evalClothCacheIcon)
         self.pbAppendCache.setIcon(self.appendToCacheIcon)
@@ -296,7 +346,9 @@ class CacheEvalUi(QtGui.QWidget, wgCacheEvalUI.Ui_wgCacheEval):
         self.pbGeoCache.setIcon(self.evalGeoCacheIcon)
 
     def rf_widgetToolTips(self):
-        """ Refresh all widget toolTip """
+        """
+        Refresh all widget toolTip
+        """
         if self.mainUi.toolTipState:
             self.pbClothCache.setToolTip("Create nCloth cache from selected ui cloth item")
             self.pbAppendCache.setToolTip("Append to cache from selected ui cloth item")
@@ -308,25 +360,47 @@ class CacheEvalUi(QtGui.QWidget, wgCacheEvalUI.Ui_wgCacheEval):
 
 
 class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
-    """ Widget CacheList, child of mainUi
-        :param mainUi: ClothCache mainUi
-        :type mainUi: QtGui.QMainWindow """
+    """
+    Widget CacheList, child of mainUi
+    :param mainUi: ClothCache mainUi
+    :type mainUi: QtGui.QMainWindow
+    """
 
     def __init__(self, mainUi):
         print "\t ---> CacheListUi"
         self.mainUi = mainUi
+        self.cachePath = None
         super(CacheListUi, self).__init__()
         self._setupUi()
 
     def _setupUi(self):
-        """ Setup widget ui """
+        """
+        Setup widget ui
+        """
         self.setupUi(self)
+
+    @property
+    def defaultCachePath(self):
+        """
+        Get default cache path
+        :return: Default cache path
+        :rtype: str
+        """
+        return "D:/rndBin/dynEval"
+
+    def rf_cachePath(self):
+        """
+        Refresh cache root path
+        """
+        self.leCachePath.setText(self.cachePath)
 
 
 class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):
-    """ Widget CacheInfo, child of mainUi
-        :param mainUi: ClothCache mainUi
-        :type mainUi: QtGui.QMainWindow """
+    """
+    Widget CacheInfo, child of mainUi
+    :param mainUi: ClothCache mainUi
+    :type mainUi: QtGui.QMainWindow
+    """
 
     def __init__(self, mainUi):
         print "\t ---> CacheInfoUi"
@@ -335,5 +409,7 @@ class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):
         self._setupUi()
 
     def _setupUi(self):
-        """ Setup widget ui """
+        """
+        Setup widget ui
+        """
         self.setupUi(self)
