@@ -142,3 +142,11 @@ def setAttrLock(nodeFullName, state):
             return False
     print "!!! WARNING: Node not found: %s !!!" % nodeFullName
     return False
+
+def mayaWarning(message):
+    """
+    Display maya warning
+    :param message: Warning to print
+    :type message: str
+    """
+    mc.warning(message)
