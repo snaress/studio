@@ -116,6 +116,17 @@ def getNamespace(nodeName, returnList=False):
             return ':'.join(nodeName.split(':')[:-1]) , nodeName.split(':')[-1]
     return None, nodeName
 
+def getTimeRange():
+    """
+    Get scene time range
+    :return: time range info
+    :rtype: dict
+    """
+    return {'timeSliderStart': mc.playbackOptions(q=True, min=True),
+            'timeSliderStop': mc.playbackOptions(q=True, max=True),
+            'timeRangeStart': mc.playbackOptions(q=True, ast=True),
+            'timeRangeStop': mc.playbackOptions(q=True, aet=True)}
+
 def attrIsLocked(nodeFullName):
     """ Check if given node attribute is locked
         :param nodeFullName: 'nodeName.nodeAttr'
