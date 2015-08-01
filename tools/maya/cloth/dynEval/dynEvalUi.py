@@ -4,8 +4,10 @@ from functools import partial
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pScene
 from tools.maya.cloth import dynEval
+from lib.system import procFile as pFile
 from tools.maya.cloth.dynEval.ui import dynEvalUI
-from tools.maya.cloth.dynEval import dynEvalWgts as ccWgts
+from tools.maya.cloth.dynEval import dynEvalWgts as deWgts
+from tools.maya.cloth.dynEval import dynEvalCmds as deCmds
 try:
     import maya.cmds as mc
 except:
@@ -33,6 +35,12 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         print "#-- Setup Main Ui --#"
         self.setupUi(self)
         self._initWidgets()
+        self.miSetRootPath.triggered.connect(self.on_miSetRootPath)
+        self.miSetRootPath.setShortcut("Ctrl+P")
+        self.miXplorer.triggered.connect(self.on_miXplorer)
+        self.miXplorer.setShortcut("Alt+E")
+        self.miXterm.triggered.connect(self.on_miXterm)
+        self.miXterm.setShortcut("Alt+X")
         self.miToolTips.triggered.connect(self.on_miToolTips)
         self.miToolTips.setShortcut("Ctrl+T")
         self.miNamespace.triggered.connect(self.on_miNamespace)
@@ -43,14 +51,16 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         """
         Import main ui widgets
         """
-        self.sceneNodes = ccWgts.SceneNodeUi(self)
+        self.sceneNodes = deWgts.SceneNodeUi(self)
         self.vlSceneNodes.insertWidget(0, self.sceneNodes)
-        self.wgCacheEval = ccWgts.CacheEvalUi(self)
-        self.vlNodeOptions.insertWidget(0, self.wgCacheEval)
-        self.wgCacheList = ccWgts.CacheListUi(self)
-        self.vlCaches.insertWidget(0, self.wgCacheList)
-        self.wgCacheInfo = ccWgts.CacheInfoUi(self)
-        self.vlCacheInfo.insertWidget(0, self.wgCacheInfo)
+        self.dynEval = deWgts.DynEvalCtrl(self)
+        self.vlNodeOptions.insertWidget(0, self.dynEval)
+        self.cacheList = deWgts.CacheListUi(self)
+        self.vlCaches.insertWidget(0, self.cacheList)
+        self.cacheInfo = deWgts.CacheInfoUi(self)
+        self.vlCacheInfo.insertWidget(0, self.cacheInfo)
+        #-- Set Widget Parent --#
+        self.dynEval.cacheList = self.cacheList
 
     @property
     def toolTipState(self):
@@ -111,13 +121,47 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
                     menuItem.triggered.connect(partial(self.on_filter, menuItem))
                     self.mFilters.addAction(menuItem)
 
+    def on_miSetRootPath(self):
+        """
+        Command launched when 'SetRootPath' menuItem is clicked
+        """
+        if self.cacheList.cachePath is None:
+            self.cacheList.cachePath = self.cacheList.defaultCachePath
+        self.fdRootPath = pQt.fileDialog(fdRoot=self.cacheList.cachePath, fdFileMode='DirectoryOnly',
+                                         fdCmd=self.on_setRootPath)
+        self.fdRootPath.exec_()
+
+    def on_setRootPath(self):
+        """
+        Command launched when 'Choose' QPushButton is clicked
+        """
+        selPath = self.fdRootPath.selectedFiles()
+        if selPath:
+            self.cacheList.cachePath = pFile.conformPath(str(selPath[0]))
+            self.fdRootPath.close()
+            self.cacheList.rf_cachePath()
+
+    def on_miXplorer(self):
+        """ Command launched when 'Xplorer' menuItem is clicked """
+        if self.cacheList.cachePath is None:
+            deCmds.mayaWarning("!!! CacheRootPath is not set !!!")
+            return
+        os.system('explorer %s' % os.path.normpath(self.cacheList.cachePath))
+
+    def on_miXterm(self):
+        """ Command launched when 'Xterm' menuItem is clicked """
+        if self.cacheList.cachePath is None:
+            deCmds.mayaWarning("!!! CacheRootPath is not set !!!")
+            return
+        os.system('start "DynEval Root Path" /d "%s"' % os.path.normpath(self.cacheList.cachePath))
+
     def on_miToolTips(self):
         """
         Command launched when 'ToolTips' menuItem is clicked
         """
         self.sceneNodes.rf_widgetToolTips()
         self.sceneNodes.rf_sceneItemToolTips()
-        self.wgCacheEval.rf_widgetToolTips()
+        self.dynEval.rf_widgetToolTips()
 
     def on_miNamespace(self):
         """

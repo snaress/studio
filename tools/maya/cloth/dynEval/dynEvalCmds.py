@@ -1,6 +1,8 @@
+import os
 from tools.maya.cmds import pScene, pCloth
 try:
     import maya.cmds as mc
+    import maya.mel as ml
 except:
     pass
 
@@ -121,3 +123,68 @@ def selectModel(clothNode):
         model = getModelFromClothNode(clothNode)
     if mc.objExists(model):
         mc.select(model, r=True)
+
+def getNextVersion(path):
+    """
+    Get next available version
+    :param path: Cache path
+    :type path: str
+    :return: Next version
+    :rtype: str
+    """
+    #-- Check Path --#
+    if not os.path.exists(path):
+        return 'v001'
+    #-- Get Versions --#
+    folders = []
+    for fld in os.listdir(path):
+        path = os.path.join(path, fld)
+        if os.path.isdir(path) and fld.startswith('v') and len(fld) == 4:
+            folders.append(fld)
+    #-- Result --#
+    if not folders:
+        return 'v001'
+    return 'v%s' % str(int(max(folders)[1:]) + 1).zfill(3)
+
+def newNCacheFile(cachePath, fileName, clothNode, start, stop, cacheableAttr='positions'):
+    """
+    Create new cache files, attach to new cacheNode, connect new cacheNode
+    :param cachePath: NCloth cache path
+    :type cachePath: str
+    :param fileName: NCloth cache file name
+    :type fileName: str
+    :param clothNode: NCloth shape node name
+    :type clothNode: str
+    :param start: NCloth cache start frame
+    :type start: int
+    :param stop: NCloth cache end frame
+    :type stop: int
+    :param cacheableAttr: NCloth node cacheable attributes ('positions', 'velocities' or 'internalState')
+    :type cacheableAttr: str
+    :return: Naw cacheFile node
+    :rtype: str
+    """
+    #-- Create Cache File --#
+    mc.cacheFile(dir=cachePath, f=fileName, cnd=clothNode, st=start, et=stop, fm='OneFile',
+                 ci="getNClothDescriptionInfo %s" % clothNode)
+    #-- Create Cache Node --#
+    if cacheableAttr == 'positions':
+        inAttr = '%s.positions' % clothNode
+    elif cacheableAttr == 'velocities':
+        inAttr = ['%s.positions' % clothNode, '%s.velocities' % clothNode]
+    elif cacheableAttr == 'internalState':
+        inAttr = ['%s.positions' % clothNode, '%s.velocities' % clothNode, '%s.internalState' % clothNode]
+    else:
+        inAttr = '%s.positions' % clothNode
+    cacheNode = mc.cacheFile(dir=cachePath, f=fileName, ccn=True, cnm=clothNode, ia=inAttr)
+    #-- Connect Cache Node --#
+    mc.connectAttr('%s.inRange' % cacheNode, '%s.playFromCache' % clothNode)
+    return cacheNode
+
+def mayaWarning(message):
+    """
+    Display maya warning
+    :param message: Warning to print
+    :type message: str
+    """
+    pScene.mayaWarning(message)

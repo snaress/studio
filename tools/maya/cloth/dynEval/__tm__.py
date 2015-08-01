@@ -12,10 +12,10 @@ reload(pCloth)
 #-- clothEditor Tool --#
 from tools.maya.cloth import dynEval
 reload(dynEval)
-from tools.maya.cloth.dynEval.ui import wgSceneNodesUI, wgSceneNodeUI, wgCacheEvalUI, wgCacheListUI, wgCacheInfoUI
+from tools.maya.cloth.dynEval.ui import wgSceneNodesUI, wgSceneNodeUI, wgDynEvalUI, wgCacheListUI, wgCacheInfoUI
 reload(wgSceneNodesUI)
 reload(wgSceneNodeUI)
-reload(wgCacheEvalUI)
+reload(wgDynEvalUI)
 reload(wgCacheListUI)
 reload(wgCacheInfoUI)
 from tools.maya.cloth.dynEval.ui import dynEvalUI

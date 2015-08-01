@@ -1,10 +1,12 @@
 import os
 from PyQt4 import QtGui
+from functools import partial
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pRigg
-from tools.maya.cloth.dynEval import dynEvalCmds as ccCmds
-from tools.maya.cloth.dynEval.ui import wgSceneNodesUI, wgSceneNodeUI, wgCacheEvalUI, wgCacheListUI,\
-                                           wgCacheInfoUI
+from lib.system import procFile as pFile
+from tools.maya.cloth.dynEval import dynEvalCmds as deCmds
+from tools.maya.cloth.dynEval.ui import wgSceneNodesUI, wgSceneNodeUI, wgDynEvalUI, wgCacheListUI,\
+                                        wgCacheInfoUI
 
 
 class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
@@ -26,7 +28,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         Setup widget ui
         """
         self.setupUi(self)
-        # self.twSceneNodes.itemClicked.connect(self.on_sceneNodeSingleClick)
+        self.twSceneNodes.itemClicked.connect(self.on_sceneNodeSingleClick)
         self.twSceneNodes.itemDoubleClicked.connect(self.on_sceneNodeDoubleClick)
         self.cbCloth.clicked.connect(self.on_showClothType)
         self.cbRigid.clicked.connect(self.on_showClothType)
@@ -68,13 +70,13 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         """
         self.twSceneNodes.clear()
         #-- Populate Nucleus node --#
-        for nucleus in ccCmds.getAllNucleus():
+        for nucleus in deCmds.getAllNucleus():
             nucleusItem = self.add_sceneNode(nucleus)
             #-- Populate nCloth Node --#
             dynNodes = pRigg.findTypeInHistory(nucleus, ['nCloth', 'nRigid'], future=True, past=True)
             rigidNodes = []
             for node in dynNodes:
-                nodeType = ccCmds.getClothType(node)
+                nodeType = deCmds.getClothType(node)
                 if nodeType is not None:
                     if nodeType == 'nCloth':
                         self.add_sceneNode(node, parent=nucleusItem)
@@ -165,18 +167,19 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
 
     def on_sceneNodeSingleClick(self):
         """
-        Command launched when 'SceneNode' QTreeWidgetItem is single clicked
+        Command launched when 'SceneNode' QTreeWidgetItem is clicked.
         """
-        # Todo: Cloth node selection
-        pass
+        for item in pQt.getAllItems(self.twSceneNodes):
+            item._widget.rf_label()
 
     def on_sceneNodeDoubleClick(self):
         """
-        Command launched when 'SceneNode' QTreeWidgetItem is double clicked
+        Command launched when 'SceneNode' QTreeWidgetItem is double clicked.
+        Select maya cloth node.
         """
         selItems = self.twSceneNodes.selectedItems()
         if selItems:
-            ccCmds.selectModel(selItems[0].clothNode)
+            deCmds.selectModel(selItems[0].clothNode)
 
     def on_showClothType(self):
         """
@@ -199,19 +202,19 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         """
         newItem = QtGui.QTreeWidgetItem()
         #-- Add Attributes --#
-        ns, name = ccCmds.getNamespace(clothNode)
+        ns, name = deCmds.getNamespace(clothNode)
         newItem.clothNode = clothNode
         newItem.clothNs = ns
         newItem.clothName = name
-        newItem.clothType = ccCmds.getClothType(clothNode)
+        newItem.clothType = deCmds.getClothType(clothNode)
         if newItem.clothType == 'nucleus':
             newItem.clothParent = clothNode
             newItem.clothMesh = None
             newItem.clothShape = None
         else:
-            newItem.clothParent = ccCmds.getNodeParent(clothNode)
-            newItem.clothMesh = ccCmds.getModelFromClothNode(clothNode)
-            newItem.clothShape = ccCmds.getNodeShape(newItem.clothMesh)
+            newItem.clothParent = deCmds.getNodeParent(clothNode)
+            newItem.clothMesh = deCmds.getModelFromClothNode(clothNode)
+            newItem.clothShape = deCmds.getNodeShape(newItem.clothMesh)
         newItem.attrOrder = self.itemAttrOrder
         newItem._widget = SceneNode(self, newItem)
         self.rf_sceneItemToolTip(newItem)
@@ -265,13 +268,16 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
         if self.pItem.clothType == 'nucleus':
             newFont.setPointSize(10)
             self.lSceneNode.setText(self.pItem.clothNode)
-            color = self.mainUi.getLabelColor('yellow')
+            if not self.pItem.isSelected():
+                color = self.mainUi.getLabelColor('yellow')
         elif self.pItem.clothType == 'nCloth':
             self.lSceneNode.setText(self.pItem.clothMesh)
-            color = self.mainUi.getLabelColor('green')
+            if not self.pItem.isSelected():
+                color = self.mainUi.getLabelColor('green')
         elif self.pItem.clothType == 'nRigid':
             self.lSceneNode.setText(self.pItem.clothMesh)
-            color = self.mainUi.getLabelColor('blue')
+            if not self.pItem.isSelected():
+                color = self.mainUi.getLabelColor('blue')
         self.lSceneNode.setFont(newFont)
         self.lSceneNode.setStyleSheet("color: rgb(%s, %s, %s)" % (color[0], color[1], color[2]))
 
@@ -293,9 +299,9 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
         :type rfBtnState: bool
         """
         if self.pItem.clothType in ['nCloth', 'nRigid']:
-            state = ccCmds.getAttr(self.pItem.clothNode, 'isDynamic')
+            state = deCmds.getAttr(self.pItem.clothNode, 'isDynamic')
         else:
-            state = ccCmds.getAttr(self.pItem.clothNode, 'enable')
+            state = deCmds.getAttr(self.pItem.clothNode, 'enable')
         if state:
             stateIcon = self.mainUi.enableIcon
             if rfBtnState:
@@ -312,13 +318,13 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
         Edit enable state (isDynamic state for nCloth and nRigid.
         """
         if self.pItem.clothType in ['nCloth', 'nRigid']:
-            ccCmds.setAttr(self.pItem.clothNode, 'isDynamic', self.enableState)
+            deCmds.setAttr(self.pItem.clothNode, 'isDynamic', self.enableState)
         else:
-            ccCmds.setAttr(self.pItem.clothNode, 'enable', self.enableState)
+            deCmds.setAttr(self.pItem.clothNode, 'enable', self.enableState)
         self.rf_nodeEnableIcon()
 
 
-class CacheEvalUi(QtGui.QWidget, wgCacheEvalUI.Ui_wgCacheEval):
+class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
     """
     Widget CacheEval, child of mainUi
     :param mainUi: ClothCache mainUi
@@ -326,24 +332,43 @@ class CacheEvalUi(QtGui.QWidget, wgCacheEvalUI.Ui_wgCacheEval):
     """
 
     def __init__(self, mainUi):
-        print "\t ---> CacheEvalUi"
+        print "\t ---> DynEvalCtrl"
         self.mainUi = mainUi
+        self.sceneNodes = self.mainUi.sceneNodes
+        self.cacheList = None
         self.evalClothCacheIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'evalClothCache.png'))
         self.appendToCacheIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'appendToCache.png'))
         self.deleteCacheIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'deleteCache.png'))
         self.evalGeoCacheIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'evalGeoCache.png'))
-        super(CacheEvalUi, self).__init__()
+        super(DynEvalCtrl, self).__init__()
         self._setupUi()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """
         Setup widget ui
         """
         self.setupUi(self)
         self.pbClothCache.setIcon(self.evalClothCacheIcon)
+        self.pbClothCache.clicked.connect(partial(self.on_createCache, cacheMode='nCloth'))
+        self.pbGeoCache.setIcon(self.evalGeoCacheIcon)
+        self.pbGeoCache.clicked.connect(partial(self.on_createCache, cacheMode='geo'))
         self.pbAppendCache.setIcon(self.appendToCacheIcon)
         self.pbClearCache.setIcon(self.deleteCacheIcon)
-        self.pbGeoCache.setIcon(self.evalGeoCacheIcon)
+
+    @property
+    def cacheableMode(self):
+        """
+        Get Cacheable attributes mode
+        :return: Cache mode ('positions', 'velocities' or 'internalState')
+        :rtype: str
+        """
+        if self.cbCacheAttr.currentIndex() == 0:
+            return 'positions'
+        if self.cbCacheAttr.currentIndex() == 1:
+            return 'velocities'
+        if self.cbCacheAttr.currentIndex() == 2:
+            return 'internalState'
 
     def rf_widgetToolTips(self):
         """
@@ -357,6 +382,59 @@ class CacheEvalUi(QtGui.QWidget, wgCacheEvalUI.Ui_wgCacheEval):
         else:
             for widget in [self.pbClothCache, self.pbAppendCache, self.pbClearCache, self.pbGeoCache]:
                 widget.setToolTip("")
+
+    def on_createCache(self, cacheMode='nCloth'):
+        """
+        Command launched when 'Create nCloth Cache' QPushButton is clicked
+        :param cacheMode: 'nCloth' or 'geo'
+        :type cacheMode: str
+        """
+        print "#===== Create Cache =====#"
+        self._checkCreateCache()
+        clothItem = self.sceneNodes.selectedClothItem
+        cacheFullPath = self._mkCacheDir(cacheMode, clothItem)
+        cacheFileName = clothItem.clothName.split('_')[:-1]
+        if cacheMode == 'nCloth':
+            cacheNode = deCmds.newNCacheFile(cacheFullPath, cacheFileName, clothItem.clothNode, 1, 100,
+                                             cacheableAttr=self.cacheableMode)
+        else:
+            cacheNode = None
+
+    def _checkCreateCache(self):
+        """
+        Check launched before cache creation
+        """
+        print "Checking Cache Args ..."
+        #-- check Cache Root Path --#
+        if self.cacheList.cachePath is None:
+            raise IOError, "!!! CacheRootPath is not set !!!"
+        #-- Check Selected Item --#
+        if self.sceneNodes.selectedClothItem is None:
+            raise IOError, "!!! No ClothItem selected !!!"
+        #-- Check Selected Cloth Type --#
+        if not self.sceneNodes.selectedClothItem.clothType == 'nCloth':
+            mess = "!!! ClothItem should be 'nCloth', got %s" % self.sceneNodes.selectedClothItem.clothType
+            raise IOError, mess
+
+    def _mkCacheDir(self, cacheMode, clothItem):
+        """
+        Make cache folders
+        :param cacheMode: 'nCloth' or 'geo'
+        :type cacheMode: str
+        :param clothItem: Selected sceneNode item
+        :type clothItem: QtGui.QTreeWidgetItem
+        :return: Cache full path
+        :rtype: str
+        """
+        print 'Creating %s Cache Folders ...' % cacheMode
+        cacheRootPath = self.cacheList.cachePath
+        nsFld = clothItem.clothNs
+        objFld = '_'.join(clothItem.clothName.split('_')[:-1])
+        vFld = deCmds.getNextVersion(os.path.join(cacheRootPath, nsFld, objFld))
+        cacheRelPath = pFile.conformPath(os.path.join(nsFld, objFld, vFld))
+        cacheFullPath = pFile.conformPath(os.path.join(cacheRootPath, cacheRelPath))
+        pFile.mkPathFolders(os.path.normpath(cacheRootPath), os.path.normpath(cacheFullPath))
+        return cacheFullPath
 
 
 class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
