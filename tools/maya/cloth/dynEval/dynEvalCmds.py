@@ -1,11 +1,19 @@
-import os
-from tools.maya.cmds import pScene, pCloth
+import os, time
+from lib.system import procFile as pFile
+from tools.maya.cmds import pScene, pCloth, pCache
 try:
     import maya.cmds as mc
-    import maya.mel as ml
 except:
     pass
 
+
+def mayaWarning(message):
+    """
+    Display maya warning
+    :param message: Warning to print
+    :type message: str
+    """
+    pScene.mayaWarning(message)
 
 def getAttr(nodeName, nodeAttr):
     """
@@ -124,9 +132,38 @@ def selectModel(clothNode):
     if mc.objExists(model):
         mc.select(model, r=True)
 
+def getTimeRange():
+    """
+    Get scene time range
+    :return: time range info
+    :rtype: dict
+    """
+    return pScene.getTimeRange()
+
+def getLastVersion(path):
+    """
+    Get last cache version
+    :param path: Cache path
+    :type path: str
+    :return: Last version
+    :rtype: str
+    """
+    #-- Check Path --#
+    if not os.path.exists(path):
+        return None
+    #-- Get Versions --#
+    folders = []
+    for fld in os.listdir(path):
+        vPath = os.path.join(path, fld)
+        if os.path.isdir(vPath) and fld.startswith('v') and len(fld) == 4:
+            folders.append(fld)
+    if not folders:
+        return None
+    return max(folders)
+
 def getNextVersion(path):
     """
-    Get next available version
+    Get next available cache version
     :param path: Cache path
     :type path: str
     :return: Next version
@@ -135,56 +172,80 @@ def getNextVersion(path):
     #-- Check Path --#
     if not os.path.exists(path):
         return 'v001'
-    #-- Get Versions --#
-    folders = []
-    for fld in os.listdir(path):
-        path = os.path.join(path, fld)
-        if os.path.isdir(path) and fld.startswith('v') and len(fld) == 4:
-            folders.append(fld)
     #-- Result --#
-    if not folders:
+    last = getLastVersion(path)
+    if last is None:
         return 'v001'
-    return 'v%s' % str(int(max(folders)[1:]) + 1).zfill(3)
+    return 'v%s' % str(int(last[1:]) + 1).zfill(3)
 
-def newNCacheFile(cachePath, fileName, clothNode, start, stop, cacheableAttr='positions'):
+def getInfoText(nodeName, startFrame, stopFrame, cacheModeIndex, debTime, endTime):
     """
-    Create new cache files, attach to new cacheNode, connect new cacheNode
+    Get info text
+    :param nodeName: node shape name
+    :type nodeName: str
+    :param startFrame: NCloth cache start frame
+    :type startFrame: int
+    :param stopFrame: NCloth cache end frame
+    :type stopFrame: int
+    :param cacheModeIndex: NCloth node cacheable attributes index.
+                           (-1=None, 0=positions, 1=velocities, 2=internalState)
+    :type cacheModeIndex: int
+    :param debTime: Cache file process start time
+    :type debTime: int
+    :param endTime: Cache file process end time
+    :type endTime: int
+    :return: Cache info text
+    :rtype: list
+    """
+    return ['sceneName = "%s"' % mc.file(q=True, sn=True),
+            'UserName = "%s"' % os.environ.get('username'),
+            'DateTime = "%s -- %s"' % (pFile.getDate().replace('_', '/'),
+                                       pFile.getTime().replace('_', ':')),
+            'cacheType = "nCloth"',
+            'nodeName = "%s"' % nodeName,
+            'originalStartFrame = %s' % startFrame,
+            'originalStopFrame = %s' % stopFrame,
+            'cacheModeIndex = %s' % cacheModeIndex,
+            'simulation = "%s"' % pFile.secondsToStr(endTime - debTime),
+            'note = "No Comment !"']
+
+def newNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex):
+    """
+    Create new cache files, attach new cacheNode, connect new cacheNode
     :param cachePath: NCloth cache path
     :type cachePath: str
     :param fileName: NCloth cache file name
     :type fileName: str
     :param clothNode: NCloth shape node name
     :type clothNode: str
-    :param start: NCloth cache start frame
-    :type start: int
-    :param stop: NCloth cache end frame
-    :type stop: int
-    :param cacheableAttr: NCloth node cacheable attributes ('positions', 'velocities' or 'internalState')
-    :type cacheableAttr: str
-    :return: Naw cacheFile node
+    :param startFrame: NCloth cache start frame
+    :type startFrame: int
+    :param stopFrame: NCloth cache end frame
+    :type stopFrame: int
+    :param rfDisplay: Refresh maya display state
+    :type rfDisplay: bool
+    :param cacheModeIndex: NCloth node cacheable attributes index.
+                           (-1=None, 0=positions, 1=velocities, 2=internalState)
+    :type cacheModeIndex: int
+    :return: New cacheFile node
     :rtype: str
     """
-    #-- Create Cache File --#
-    mc.cacheFile(dir=cachePath, f=fileName, cnd=clothNode, st=start, et=stop, fm='OneFile',
-                 ci="getNClothDescriptionInfo %s" % clothNode)
-    #-- Create Cache Node --#
-    if cacheableAttr == 'positions':
-        inAttr = '%s.positions' % clothNode
-    elif cacheableAttr == 'velocities':
-        inAttr = ['%s.positions' % clothNode, '%s.velocities' % clothNode]
-    elif cacheableAttr == 'internalState':
-        inAttr = ['%s.positions' % clothNode, '%s.velocities' % clothNode, '%s.internalState' % clothNode]
-    else:
-        inAttr = '%s.positions' % clothNode
-    cacheNode = mc.cacheFile(dir=cachePath, f=fileName, ccn=True, cnm=clothNode, ia=inAttr)
-    #-- Connect Cache Node --#
-    mc.connectAttr('%s.inRange' % cacheNode, '%s.playFromCache' % clothNode)
+    debTime = time.time()
+    cacheNode = pCache.newNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay,
+                                     cacheModeIndex, newCacheNode=True)
+    endTime = time.time()
+    print "Creating cache file info ..."
+    fileInfo = os.path.normpath(os.path.join(cachePath, '%s.py' % fileName))
+    info = getInfoText(clothNode, startFrame, stopFrame, cacheModeIndex, debTime, endTime)
+    pFile.writeFile(fileInfo, str('\n'.join(info)))
+    if cacheNode is not None:
+        cacheNode = mc.rename(cacheNode, 'dynEval_%s' % fileName.replace('-', '_'))
     return cacheNode
 
-def mayaWarning(message):
+def delCacheNode(node):
     """
-    Display maya warning
-    :param message: Warning to print
-    :type message: str
+    Delected all cacheFile node connected to given node
+    :param node: Maya node
+    :type node: str
     """
-    pScene.mayaWarning(message)
+    pCache.delCacheNode(node)

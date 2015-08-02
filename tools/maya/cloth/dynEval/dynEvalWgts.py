@@ -6,7 +6,7 @@ from tools.maya.cmds import pRigg
 from lib.system import procFile as pFile
 from tools.maya.cloth.dynEval import dynEvalCmds as deCmds
 from tools.maya.cloth.dynEval.ui import wgSceneNodesUI, wgSceneNodeUI, wgDynEvalUI, wgCacheListUI,\
-                                        wgCacheInfoUI
+                                        wgCacheNodeUI, wgCacheInfoUI
 
 
 class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
@@ -63,6 +63,13 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         """
         if self.selectedClothItem is not None:
             return self.selectedClothItem.clothNode
+
+    @staticmethod
+    def getRelativeCachePath(item):
+        nsFld = item.clothNs
+        objFld = '_'.join(item.clothName.split('_')[:-1])
+        cacheRelPath = pFile.conformPath(os.path.join(nsFld, objFld))
+        return cacheRelPath
 
     def rf_sceneNodes(self):
         """
@@ -171,6 +178,9 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         """
         for item in pQt.getAllItems(self.twSceneNodes):
             item._widget.rf_label()
+        self.rf_namespaces()
+        if self.selectedClothItem is not None:
+            self.mainUi.cacheList.rf_cacheList()
 
     def on_sceneNodeDoubleClick(self):
         """
@@ -349,12 +359,45 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         Setup widget ui
         """
         self.setupUi(self)
+        self.pbSet.clicked.connect(self.on_setTimeRange)
+        self.pbFull.clicked.connect(self.on_fullTimeRange)
+        self.pbReplace.clicked.connect(self.rf_overWriteMode)
         self.pbClothCache.setIcon(self.evalClothCacheIcon)
         self.pbClothCache.clicked.connect(partial(self.on_createCache, cacheMode='nCloth'))
         self.pbGeoCache.setIcon(self.evalGeoCacheIcon)
         self.pbGeoCache.clicked.connect(partial(self.on_createCache, cacheMode='geo'))
         self.pbAppendCache.setIcon(self.appendToCacheIcon)
         self.pbClearCache.setIcon(self.deleteCacheIcon)
+        self.pbClearCache.clicked.connect(self.on_delCacheNode)
+        self.on_fullTimeRange()
+        self.rf_overWriteMode()
+
+    @property
+    def startTime(self):
+        """
+        Get scene start time
+        :return: Start time
+        :rtype: int
+        """
+        return int(self.sbStart.value())
+
+    @property
+    def endTime(self):
+        """
+        Get scene stop time
+        :return: Stop time
+        :rtype: int
+        """
+        return int(self.sbStop.value())
+
+    @property
+    def cacheModeIndex(self):
+        """
+        Get Cacheable attributes mode index
+        :return: Cache mode index
+        :rtype: int
+        """
+        return self.cbCacheAttr.currentIndex()
 
     @property
     def cacheableMode(self):
@@ -363,25 +406,69 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         :return: Cache mode ('positions', 'velocities' or 'internalState')
         :rtype: str
         """
-        if self.cbCacheAttr.currentIndex() == 0:
+        if self.cacheModeIndex == 0:
             return 'positions'
-        if self.cbCacheAttr.currentIndex() == 1:
+        if self.cacheModeIndex == 1:
             return 'velocities'
-        if self.cbCacheAttr.currentIndex() == 2:
+        if self.cacheModeIndex == 2:
             return 'internalState'
+
+    @property
+    def overWriteMode(self):
+        """
+        Get cache overWrite mode
+        :return: Cache overWrite state
+        :rtype: bool
+        """
+        return self.pbReplace.isChecked()
 
     def rf_widgetToolTips(self):
         """
         Refresh all widget toolTip
         """
         if self.mainUi.toolTipState:
+            self.sbStart.setToolTip("Simulation start frame")
+            self.sbStop.setToolTip("Simulation end frame")
+            self.pbSet.setToolTip("Init startFrame and stopFrame with time slider values")
+            self.pbFull.setToolTip("Init startFrame and stopFrame with time range values")
+            self.cbCacheAttr.setToolTip("NCloth node cache mode: Edit nClothNode cacheable attributes."
+                                        "\nUse 'InternalState' to allow 'Append Cache'")
+            self.pbReplace.setToolTip("NCloth cache file overWrite mode: 'New' or 'Replace'")
             self.pbClothCache.setToolTip("Create nCloth cache from selected ui cloth item")
             self.pbAppendCache.setToolTip("Append to cache from selected ui cloth item")
             self.pbClearCache.setToolTip("Delete cache node from selected ui cloth item")
             self.pbGeoCache.setToolTip("Create geo cache from selected scene mesh")
         else:
-            for widget in [self.pbClothCache, self.pbAppendCache, self.pbClearCache, self.pbGeoCache]:
+            for widget in [self.sbStart, self.sbStop, self.pbSet, self.pbFull, self.cbCacheAttr, self.pbReplace,
+                           self.pbClothCache, self.pbAppendCache, self.pbGeoCache, self.pbClearCache]:
                 widget.setToolTip("")
+
+    def rf_overWriteMode(self):
+        """
+        Refresh cache overWrite mode
+        """
+        if self.pbReplace.isChecked():
+            self.pbReplace.setText("REPLACE")
+            self.pbReplace.setStyleSheet("background-color: rgb(150, 0, 0)")
+        else:
+            self.pbReplace.setText("NEW")
+            self.pbReplace.setStyleSheet("background-color: rgb(0, 150, 0)")
+
+    def on_setTimeRange(self):
+        """
+        Refresh time range QSpinBox
+        """
+        range = deCmds.getTimeRange()
+        self.sbStart.setValue(int(range['timeSliderStart']))
+        self.sbStop.setValue(int(range['timeSliderStop']))
+
+    def on_fullTimeRange(self):
+        """
+        Refresh time range QSpinBox
+        """
+        range = deCmds.getTimeRange()
+        self.sbStart.setValue(int(range['timeRangeStart']))
+        self.sbStop.setValue(int(range['timeRangeStop']))
 
     def on_createCache(self, cacheMode='nCloth'):
         """
@@ -390,17 +477,25 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         :type cacheMode: str
         """
         print "#===== Create Cache =====#"
-        self._checkCreateCache()
-        clothItem = self.sceneNodes.selectedClothItem
-        cacheFullPath = self._mkCacheDir(cacheMode, clothItem)
-        cacheFileName = clothItem.clothName.split('_')[:-1]
         if cacheMode == 'nCloth':
-            cacheNode = deCmds.newNCacheFile(cacheFullPath, cacheFileName, clothItem.clothNode, 1, 100,
-                                             cacheableAttr=self.cacheableMode)
-        else:
-            cacheNode = None
+            self._checkNClothCache()
+            clothItem = self.sceneNodes.selectedClothItem
+            cacheFullPath = self._mkNClothCacheDir(clothItem)
+            cacheFileName = '%s-%s-%s' % (clothItem.clothNs, '_'.join(clothItem.clothName.split('_')[:-1]),
+                                          cacheFullPath.split('/')[-1])
+            deCmds.delCacheNode(clothItem.clothNode)
+            cacheNode = deCmds.newNCacheFile(cacheFullPath, cacheFileName, clothItem.clothNode, self.startTime,
+                                             self.endTime, self.mainUi.displayState, self.cacheModeIndex)
+            print "New cacheFile node:", cacheNode
 
-    def _checkCreateCache(self):
+    def on_delCacheNode(self):
+        """
+        Command launched when 'Delete Cache Node' QPushButton is clicked
+        """
+        clothItem = self.sceneNodes.selectedClothItem
+        deCmds.delCacheNode(clothItem.clothNode)
+
+    def _checkNClothCache(self):
         """
         Check launched before cache creation
         """
@@ -412,27 +507,30 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         if self.sceneNodes.selectedClothItem is None:
             raise IOError, "!!! No ClothItem selected !!!"
         #-- Check Selected Cloth Type --#
-        if not self.sceneNodes.selectedClothItem.clothType == 'nCloth':
-            mess = "!!! ClothItem should be 'nCloth', got %s" % self.sceneNodes.selectedClothItem.clothType
-            raise IOError, mess
+        clothType = self.sceneNodes.selectedClothItem.clothType
+        if not clothType in ['nCloth', 'nRigid']:
+            raise IOError, "!!! ClothItem should be 'nCloth' or 'nRigid', got %s" % clothType
 
-    def _mkCacheDir(self, cacheMode, clothItem):
+    def _mkNClothCacheDir(self, clothItem):
         """
         Make cache folders
-        :param cacheMode: 'nCloth' or 'geo'
-        :type cacheMode: str
         :param clothItem: Selected sceneNode item
         :type clothItem: QtGui.QTreeWidgetItem
         :return: Cache full path
         :rtype: str
         """
-        print 'Creating %s Cache Folders ...' % cacheMode
+        print 'Creating nCloth Cache Folders ...'
         cacheRootPath = self.cacheList.cachePath
-        nsFld = clothItem.clothNs
-        objFld = '_'.join(clothItem.clothName.split('_')[:-1])
-        vFld = deCmds.getNextVersion(os.path.join(cacheRootPath, nsFld, objFld))
-        cacheRelPath = pFile.conformPath(os.path.join(nsFld, objFld, vFld))
-        cacheFullPath = pFile.conformPath(os.path.join(cacheRootPath, cacheRelPath))
+        cacheRelPath = self.sceneNodes.getRelativeCachePath(clothItem)
+        print '\t ---> OverWrite Mode: %s' % str(self.overWriteMode)
+        if self.overWriteMode:
+            vFld = deCmds.getLastVersion(os.path.join(cacheRootPath, cacheRelPath))
+        else:
+            vFld = deCmds.getNextVersion(os.path.join(cacheRootPath, cacheRelPath))
+        print '\t ---> Version:', vFld
+        if vFld is None:
+            raise IOError, "!!! No version found to replace !!!"
+        cacheFullPath = pFile.conformPath(os.path.join(cacheRootPath, cacheRelPath, vFld))
         pFile.mkPathFolders(os.path.normpath(cacheRootPath), os.path.normpath(cacheFullPath))
         return cacheFullPath
 
@@ -448,6 +546,7 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
         print "\t ---> CacheListUi"
         self.mainUi = mainUi
         self.cachePath = None
+        self.sceneNodes = self.mainUi.sceneNodes
         super(CacheListUi, self).__init__()
         self._setupUi()
 
@@ -456,6 +555,8 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
         Setup widget ui
         """
         self.setupUi(self)
+        self.cachePath = self.defaultCachePath
+        self.rf_cachePath()
 
     @property
     def defaultCachePath(self):
@@ -471,6 +572,106 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
         Refresh cache root path
         """
         self.leCachePath.setText(self.cachePath)
+
+    def rf_cacheList(self):
+        """
+        Refresh QTreeWidget 'Caches'
+        """
+        self.twCaches.clear()
+        clothItem = self.sceneNodes.selectedClothItem
+        if clothItem is not None and self.cachePath is not None:
+            if clothItem.clothType in ['nCloth', 'nRigid']:
+                #-- Get Cloth Item Info --#
+                cacheRootPath = self.cachePath
+                cacheRelPath = self.sceneNodes.getRelativeCachePath(clothItem)
+                cacheFullPath = pFile.conformPath(os.path.join(cacheRootPath, cacheRelPath))
+                #-- Get Cloth Item Versions --#
+                cacheItems = []
+                if os.path.exists(os.path.normpath(cacheFullPath)):
+                    for fld in os.listdir(os.path.normpath(cacheFullPath)):
+                        vPath = os.path.normpath(os.path.join(cacheFullPath, fld))
+                        if os.path.isdir(vPath) and fld.startswith('v') and len(fld) == 4:
+                            cacheFileName = '%s-%s-%s' % (clothItem.clothNs,
+                                                          '_'.join(clothItem.clothName.split('_')[:-1]),
+                                                          fld)
+                            newItem = self.new_cacheItem(cacheRootPath, cacheRelPath, fld, cacheFileName)
+                            cacheItems.append(newItem)
+                #-- Add Cache Versions --#
+                if cacheItems:
+                    for cacheItem in cacheItems:
+                        self.twCaches.addTopLevelItem(cacheItem)
+                        self.twCaches.setItemWidget(cacheItem, 0, cacheItem._widget)
+
+    def new_cacheItem(self, cacheRootPath, cacheRelPath, version, fileName):
+        """
+        Create cache QTreeWidgetItem
+        :param cacheRootPath: Cache root path
+        :type cacheRootPath: str
+        :param cacheRelPath: Cache relative path
+        :type cacheRelPath: str
+        :param version: Cache version folder
+        :type: str
+        :return: New cache item
+        :rtype: QtGui.QTreeWidgetItem
+        """
+        newItem = QtGui.QTreeWidgetItem()
+        newItem.cacheRootPath = cacheRootPath
+        newItem.cacheRelPath = cacheRelPath
+        newItem.cacheVersion = version
+        newItem.cacheFileName = fileName
+        newItem.cacheFullPath = pFile.conformPath(os.path.join(newItem.cacheRootPath, newItem.cacheRelPath,
+                                                               newItem.cacheVersion, '%s.xml' % newItem.cacheFileName))
+        newItem.cacheFileInfo = newItem.cacheFullPath.replace('.xml', '.py')
+        newItem.cacheType = pFile.readPyFile(newItem.cacheFileInfo)['cacheType']
+        newItem.cacheTagAsOk = False
+        newItem._widget = CacheNode(self, newItem)
+        return newItem
+
+
+class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
+    """
+    Widget CacheNode QTreeWidgetItem, child of CacheListUi
+    :param pWidget: Parent Widget
+    :type pWidget: QtGui.QWidget
+    :param pItem: Parent item
+    :type pItem: QtGui.QTreeWidgetItem
+    """
+
+    def __init__(self, pWidget, pItem):
+        self.pWidget = pWidget
+        self.pItem = pItem
+        self.mainUi = self.pWidget.mainUi
+        super(CacheNode, self).__init__()
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """
+        Setup widget ui
+        """
+        self.setupUi(self)
+        self.lCacheFile.setText(self.pItem.cacheFileName)
+        self.rf_pbCacheType()
+
+    def rf_pbCacheType(self):
+        """
+        Refresh cache type QPushButton
+        """
+        #-- Check File Existence --#
+        if not os.path.exists(os.path.normpath(self.pItem.cacheFullPath)):
+            self.pbCacheType.setStyleSheet('background-color: rgb(200, 0, 0)')
+            return False
+        if not os.path.exists(os.path.normpath(self.pItem.cacheFileInfo)):
+            self.pbCacheType.setStyleSheet('background-color: rgb(100, 0, 0)')
+            return False
+        #-- Refresh --#
+        infoDict = pFile.readPyFile(self.pItem.cacheFileInfo)
+        if infoDict['cacheType'] == 'nCloth':
+            self.pbCacheType.setStyleSheet('background-color: rgb(0, 200, 200)')
+        else:
+            self.pbCacheType.setStyleSheet('background-color: rgb(50, 100, 255)')
+        return True
+
 
 
 class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>wgSceneNode</class>
- <widget class="QWidget" name="wgSceneNode">
+ <class>wgCacheNode</class>
+ <widget class="QWidget" name="wgCacheNode">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>477</width>
+    <width>338</width>
     <height>28</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>SceneNode</string>
+   <string>Cache Node</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="margin">
@@ -21,14 +21,14 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <widget class="Line" name="line_3">
+    <widget class="Line" name="line_6">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
    <item row="1" column="0">
-    <layout class="QHBoxLayout" name="hlSceneNode">
+    <layout class="QHBoxLayout" name="hlCacheNode">
      <property name="spacing">
       <number>2</number>
      </property>
@@ -45,35 +45,6 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="Line" name="line_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbIcon">
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -81,7 +52,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lSceneNode">
+      <widget class="QLabel" name="lCacheFile">
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -101,6 +72,26 @@
       </spacer>
      </item>
      <item>
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lCacheAttr">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="Line" name="line_4">
        <property name="maximumSize">
         <size>
@@ -114,7 +105,39 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pbEnable">
+      <widget class="QPushButton" name="pbCacheType">
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Line" name="line_5">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbCacheOk">
        <property name="maximumSize">
         <size>
          <width>20</width>
@@ -139,7 +162,7 @@
       </widget>
      </item>
      <item>
-      <widget class="Line" name="line_5">
+      <widget class="Line" name="line_2">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
@@ -148,7 +171,7 @@
     </layout>
    </item>
    <item row="2" column="0">
-    <widget class="Line" name="line_6">
+    <widget class="Line" name="line_7">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothCache\ud\wgSceneNode.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\dynEval\ud\wgSceneNode.ui'
 #
-# Created: Fri May 22 00:06:31 2015
+# Created: Sat Aug 01 19:01:56 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,11 +26,16 @@ except AttributeError:
 class Ui_wgSceneNode(object):
     def setupUi(self, wgSceneNode):
         wgSceneNode.setObjectName(_fromUtf8("wgSceneNode"))
-        wgSceneNode.resize(477, 22)
+        wgSceneNode.resize(477, 28)
         self.gridLayout = QtGui.QGridLayout(wgSceneNode)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
+        self.line_3 = QtGui.QFrame(wgSceneNode)
+        self.line_3.setFrameShape(QtGui.QFrame.HLine)
+        self.line_3.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_3.setObjectName(_fromUtf8("line_3"))
+        self.gridLayout.addWidget(self.line_3, 0, 0, 1, 1)
         self.hlSceneNode = QtGui.QHBoxLayout()
         self.hlSceneNode.setSpacing(2)
         self.hlSceneNode.setContentsMargins(2, 0, 2, 0)
@@ -76,7 +81,12 @@ class Ui_wgSceneNode(object):
         self.line_5.setFrameShadow(QtGui.QFrame.Sunken)
         self.line_5.setObjectName(_fromUtf8("line_5"))
         self.hlSceneNode.addWidget(self.line_5)
-        self.gridLayout.addLayout(self.hlSceneNode, 0, 0, 1, 1)
+        self.gridLayout.addLayout(self.hlSceneNode, 1, 0, 1, 1)
+        self.line_6 = QtGui.QFrame(wgSceneNode)
+        self.line_6.setFrameShape(QtGui.QFrame.HLine)
+        self.line_6.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_6.setObjectName(_fromUtf8("line_6"))
+        self.gridLayout.addWidget(self.line_6, 2, 0, 1, 1)
 
         self.retranslateUi(wgSceneNode)
         QtCore.QMetaObject.connectSlotsByName(wgSceneNode)

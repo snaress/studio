@@ -15,7 +15,11 @@ except:
 
 
 class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
-
+    """
+    Main window 'Dyn Eval'
+    :param parent: Maya main window
+    :type parent: QtCore.QObject
+    """
     def __init__(self, parent=None):
         print "\n########## %s ##########" % dynEval.toolName
         self.iconPath = dynEval.iconPath
@@ -45,6 +49,9 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         self.miToolTips.setShortcut("Ctrl+T")
         self.miNamespace.triggered.connect(self.on_miNamespace)
         self.miNamespace.setShortcut("Ctrl+N")
+        self.miRfDisplay.setShortcut("Ctrl+R")
+        self.miRefreshUi.triggered.connect(self.on_miRefreshUi)
+        self.miRefreshUi.setShortcut("F5")
         self.rf_menuFilters()
 
     def _initWidgets(self):
@@ -79,6 +86,15 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         :rtype: bool
         """
         return self.miNamespace.isChecked()
+
+    @property
+    def displayState(self):
+        """
+        Get refresh display state
+        :return: Display state
+        :rtype: bool
+        """
+        return self.miRfDisplay.isChecked()
 
     @staticmethod
     def getLabelColor(color):
@@ -169,6 +185,13 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         """
         self.sceneNodes.rf_namespaces()
 
+    def on_miRefreshUi(self):
+        """
+        Command launched when 'Refresh Ui' menuItem is clicked
+        """
+        self.sceneNodes.rf_sceneNodes()
+        self.cacheList.rf_cacheList()
+
     def on_filter(self, filterItem):
         """
         Command launched when 'Filters' menuItem is clicked
@@ -183,13 +206,10 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
 def launch():
     """
     Launch ClothCache
-    :return: Launched window
-    :rtype: object
     """
-    toolName = 'mwClothCache'
+    toolName = 'mwDynEval'
     if mc.window(toolName, q=True, ex=True):
         mc.deleteUI(toolName, wnd=True)
     global window
     window = DynEvalUi(parent=pScene.getMayaMainWindow())
     window.show()
-    return window
