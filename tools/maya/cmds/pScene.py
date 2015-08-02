@@ -9,7 +9,8 @@ except:
 
 def getMayaMainWindow():
     """ Get maya main window
-        :return: (object) : Maya main window """
+        :return: Maya main window
+        :rtype: QtCore.QObject """
     return sip.wrapinstance(long(mOpen.MQtUtil.mainWindow()), QtCore.QObject)
 
 def loadScene(sceneName, force=True):

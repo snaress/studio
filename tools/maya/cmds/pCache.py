@@ -42,10 +42,11 @@ def delCacheNode(node):
     for cacheNode in cacheNodes:
         if mc.objectType(node) in ['nCloth', 'nRigid']:
             print "Deleting cacheNode: %s ..." % cacheNode
-            mc.setAttr('%s.enable', False)
+            mc.setAttr('%s.enable' % cacheNode, False)
             mc.delete(cacheNode)
 
-def newNCacheFile(cachePath, fileName, clothNode, start, stop, rfDisplay, cacheModeIndex, newCacheNode=False):
+def newNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex,
+                  newCacheNode=False):
     """
     Create new cache files, attach to new cacheNode, connect new cacheNode
     :param cachePath: NCloth cache path
@@ -54,10 +55,10 @@ def newNCacheFile(cachePath, fileName, clothNode, start, stop, rfDisplay, cacheM
     :type fileName: str
     :param clothNode: NCloth shape node name
     :type clothNode: str
-    :param start: NCloth cache start frame
-    :type start: int
-    :param stop: NCloth cache end frame
-    :type stop: int
+    :param startFrame: NCloth cache start frame
+    :type startFrame: int
+    :param stopFrame: NCloth cache end frame
+    :type stopFrame: int
     :param rfDisplay: Refresh maya display state
     :type rfDisplay: bool
     :param cacheModeIndex: NCloth node cacheable attributes index.
@@ -69,21 +70,23 @@ def newNCacheFile(cachePath, fileName, clothNode, start, stop, rfDisplay, cacheM
     :rtype: str
     """
     #-- Print Cache Info --#
-    infos = ["#-- Cache Infos --#",
+    infos = ["#" * 60, "#-- Cache Infos --#",
              "Cache Path = %s" % cachePath,
              "File Name = %s" % fileName,
              "Cloth Node = %s" % clothNode,
-             "Start Frame = %s" % start,
-             "End Frame = %s" % stop,
+             "Start Frame = %s" % startFrame,
+             "End Frame = %s" % stopFrame,
              "Refresh Maya Display = %s" % rfDisplay,
-             "Cache Mode Index = %s | (0=positions, 1=velocities, 2=internalState)" % cacheModeIndex]
+             "Cache Mode Index = %s" % cacheModeIndex,
+             "New Cache Node = %s" % str(newCacheNode), "#" * 60]
     print '\n'.join(infos)
     #-- Init Cache Mode --#
     print "\t Init cache mode ..."
     mc.setAttr('%s.cacheableAttributes' % clothNode, cacheModeIndex)
+    mc.playbackOptions(ps=0)
     #-- Create Cache File --#
     print "\t Create cache files ..."
-    mc.cacheFile(dir=cachePath, f=fileName, cnd=clothNode, st=start, et=stop, fm='OneFile', r=rfDisplay,
+    mc.cacheFile(dir=cachePath, f=fileName, cnd=clothNode, st=startFrame, et=stopFrame, fm='OneFile', r=rfDisplay,
                  ci="getNClothDescriptionInfo %s" % clothNode)
     #-- Create Cache Node --#
     if newCacheNode:
