@@ -31,4 +31,4 @@ reload(dynEvalUi)
 
 
 #-- Launch Ui --#
-dynEvalUi.launch()
+_dynEvalUi = dynEvalUi.launch()

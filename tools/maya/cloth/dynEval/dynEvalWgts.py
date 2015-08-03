@@ -1,6 +1,6 @@
 import os
-from PyQt4 import QtGui
 from functools import partial
+from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from tools.maya.cmds import pRigg
 from lib.system import procFile as pFile
@@ -66,6 +66,13 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
 
     @staticmethod
     def getRelativeCachePath(item):
+        """
+        Get cache file relative path
+        :param item: ClothNode item
+        :type item: QtGui.QTreeWidgetItem
+        :return: Cache file relative path
+        :rtype: str
+        """
         nsFld = item.clothNs
         objFld = '_'.join(item.clothName.split('_')[:-1])
         cacheRelPath = pFile.conformPath(os.path.join(nsFld, objFld))
@@ -181,6 +188,8 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         self.rf_namespaces()
         if self.selectedClothItem is not None:
             self.mainUi.cacheList.rf_cacheList()
+            self.mainUi.cacheList.ud_cacheAssigned()
+        self.mainUi.cacheInfo.clearInfos()
 
     def on_sceneNodeDoubleClick(self):
         """
@@ -268,12 +277,20 @@ class SceneNode(QtGui.QWidget, wgSceneNodeUI.Ui_wgSceneNode):
         """
         return self.pbEnable.isChecked()
 
+    def getConnectedCacheFileNodes(self):
+        """
+        Get connected cacheFile nodes
+        :return: Connected cacheFileNodes
+        :rtype: list
+        """
+        return deCmds.getCacheNodes(self.pItem.clothNode)
+
     def rf_label(self):
         """
         Refresh label text and color
         """
         newFont = QtGui.QFont()
-        newFont.setBold(True)
+        # newFont.setBold(True)
         color = (self.mainUi.getLabelColor('default'))
         if self.pItem.clothType == 'nucleus':
             newFont.setPointSize(10)
@@ -367,6 +384,7 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         self.pbGeoCache.setIcon(self.evalGeoCacheIcon)
         self.pbGeoCache.clicked.connect(partial(self.on_createCache, cacheMode='geo'))
         self.pbAppendCache.setIcon(self.appendToCacheIcon)
+        self.pbAppendCache.clicked.connect(self.on_appendToCache)
         self.pbClearCache.setIcon(self.deleteCacheIcon)
         self.pbClearCache.clicked.connect(self.on_delCacheNode)
         self.on_fullTimeRange()
@@ -476,9 +494,9 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         :param cacheMode: 'nCloth' or 'geo'
         :type cacheMode: str
         """
-        print "#===== Create Cache =====#"
+        print "\n#===== Create Cache =====#"
+        self._checkCache(cacheMode)
         if cacheMode == 'nCloth':
-            self._checkNClothCache()
             clothItem = self.sceneNodes.selectedClothItem
             cacheFullPath = self._mkNClothCacheDir(clothItem)
             cacheFileName = '%s-%s-%s' % (clothItem.clothNs, '_'.join(clothItem.clothName.split('_')[:-1]),
@@ -486,7 +504,37 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
             deCmds.delCacheNode(clothItem.clothNode)
             cacheNode = deCmds.newNCacheFile(cacheFullPath, cacheFileName, clothItem.clothNode, self.startTime,
                                              self.endTime, self.mainUi.displayState, self.cacheModeIndex)
-            print "New cacheFile node:", cacheNode
+            print "// Result: New cacheFile node ---> %s" % cacheNode
+        elif cacheMode == 'geo':
+            #ToDo
+            print 'create geo cache not yet ready'
+        self.cacheList.rf_cacheList()
+        self.cacheList.ud_cacheAssigned()
+
+    def on_appendToCache(self):
+        """
+        Command launched when 'Append To Cache' QPushButton is clicked
+        """
+        assigned = self.cacheList.assignedVersionItem
+        last = self.cacheList.lastVersionItem
+        if assigned is not None and last is not None:
+            #-- Check assigned and last version --#
+            if not assigned.cacheFileName == last.cacheFileName:
+                mess = "!!! Assigned version %r doesn't match with last version %r !!!" % (assigned.cacheVersion,
+                                                                                           last.cacheVersion)
+                raise ValueError, mess
+            #-- Append To Cache --#
+            print "\n#===== Append To Cache =====#"
+            cacheItem = assigned
+            infoDict = cacheItem._widget.infoDict
+            cachePath = os.path.dirname(os.path.normpath(cacheItem.cacheFullPath))
+            cacheFile = os.path.basename(os.path.normpath(cacheItem.cacheFullPath)).split('.')[0]
+            if infoDict['cacheType'] == 'nCloth':
+                deCmds.appendToNCacheFile(cachePath, cacheFile, cacheItem.cacheNodeName, deCmds.getCurrentFrame(),
+                                          self.endTime, self.mainUi.displayState, infoDict['cacheModeIndex'])
+            elif infoDict['cacheType'] == 'geo':
+                #ToDo
+                print "not ready"
 
     def on_delCacheNode(self):
         """
@@ -495,9 +543,11 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         clothItem = self.sceneNodes.selectedClothItem
         deCmds.delCacheNode(clothItem.clothNode)
 
-    def _checkNClothCache(self):
+    def _checkCache(self, cacheMode):
         """
         Check launched before cache creation
+        :param cacheMode: 'nCloth' or 'geo'
+        :type cacheMode: str
         """
         print "Checking Cache Args ..."
         #-- check Cache Root Path --#
@@ -506,10 +556,11 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         #-- Check Selected Item --#
         if self.sceneNodes.selectedClothItem is None:
             raise IOError, "!!! No ClothItem selected !!!"
-        #-- Check Selected Cloth Type --#
-        clothType = self.sceneNodes.selectedClothItem.clothType
-        if not clothType in ['nCloth', 'nRigid']:
-            raise IOError, "!!! ClothItem should be 'nCloth' or 'nRigid', got %s" % clothType
+        if cacheMode == 'nCloth':
+            #-- Check Selected Cloth Type --#
+            clothType = self.sceneNodes.selectedClothItem.clothType
+            if not clothType in ['nCloth', 'nRigid']:
+                raise IOError, "!!! ClothItem should be 'nCloth' or 'nRigid', got %s" % clothType
 
     def _mkNClothCacheDir(self, clothItem):
         """
@@ -547,15 +598,22 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
         self.mainUi = mainUi
         self.cachePath = None
         self.sceneNodes = self.mainUi.sceneNodes
+        self.cacheInfo = None
+        self.assignedIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'assigned.png'))
+        self.tagOkIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'tagOk.png'))
         super(CacheListUi, self).__init__()
         self._setupUi()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """
         Setup widget ui
         """
         self.setupUi(self)
         self.cachePath = self.defaultCachePath
+        self.twCaches.itemClicked.connect(self.on_cacheNodeSingleClick)
+        self.twCaches.itemDoubleClicked.connect(self.on_cacheNodeDoubleClick)
+        self.cbVersionOnly.clicked.connect(self.rf_fileVersions)
         self.rf_cachePath()
 
     @property
@@ -566,6 +624,48 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
         :rtype: str
         """
         return "D:/rndBin/dynEval"
+
+    @property
+    def versionOnly(self):
+        """
+        Get version only state
+        :return: Version only state
+        :rtype: bool
+        """
+        return self.cbVersionOnly.isChecked()
+
+    @property
+    def lastVersionItem(self):
+        """
+        Get last cache version item
+        :return: Last version item
+        :rtype: QtGui.QTreeWidgetItem
+        """
+        allItems = pQt.getTopItems(self.twCaches)
+        if allItems:
+            return allItems[0]
+
+    @property
+    def assignedVersionItem(self):
+        """
+        Get assigned cache version item
+        :return: Assigned version item
+        :rtype: QtGui.QTreeWidgetItem
+        """
+        for item in pQt.getTopItems(self.twCaches):
+            if item._widget.isAssigned():
+                return item
+
+    def rf_widgetToolTips(self):
+        """
+        Refresh all widget toolTip
+        """
+        if self.mainUi.toolTipState:
+            self.leCachePath.setToolTip("Dyn Eval cache root path")
+            self.cbVersionOnly.setToolTip("Show version number instead of cache file name")
+        else:
+            for widget in [self.leCachePath, self.cbVersionOnly]:
+                widget.setToolTip("")
 
     def rf_cachePath(self):
         """
@@ -594,15 +694,82 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
                             cacheFileName = '%s-%s-%s' % (clothItem.clothNs,
                                                           '_'.join(clothItem.clothName.split('_')[:-1]),
                                                           fld)
-                            newItem = self.new_cacheItem(cacheRootPath, cacheRelPath, fld, cacheFileName)
+                            newItem = self.new_cacheItem(cacheRootPath, cacheRelPath, fld, cacheFileName,
+                                                         clothItem.clothNode)
                             cacheItems.append(newItem)
                 #-- Add Cache Versions --#
                 if cacheItems:
+                    cacheItems.reverse()
                     for cacheItem in cacheItems:
                         self.twCaches.addTopLevelItem(cacheItem)
                         self.twCaches.setItemWidget(cacheItem, 0, cacheItem._widget)
 
-    def new_cacheItem(self, cacheRootPath, cacheRelPath, version, fileName):
+    def rf_fileVersions(self):
+        """
+        Update all cache file name label
+        """
+        for item in pQt.getTopItems(self.twCaches):
+            self.rf_fileVersion(item)
+
+    def rf_fileVersion(self, item):
+        """
+        Update given item cache file name label
+        :param item: Cache version item
+        :type item: QtGui.QTreeWidgetItem
+        """
+        if self.versionOnly:
+            item._widget.lCacheFile.setText(item.cacheFileName.split('-')[-1])
+        else:
+            item._widget.lCacheFile.setText(item.cacheFileName)
+
+    def ud_cacheAssigned(self):
+        """
+        Update cache assigned from maya scene
+        """
+        clothItem = self.sceneNodes.selectedClothItem
+        if clothItem is not None:
+            if clothItem.clothType in ['nCloth', 'nRigid']:
+                cacheFileNodes = clothItem._widget.getConnectedCacheFileNodes()
+                if cacheFileNodes:
+                    cacheItem = None
+                    for item in pQt.getTopItems(self.twCaches):
+                        if item.cacheFileName.replace('-', '_') == cacheFileNodes[0].replace('dynEval_', ''):
+                            cacheItem = item
+                            break
+                    if cacheItem is not None:
+                        cacheItem._widget.pbAssign.setChecked(True)
+                        cacheItem._widget.rf_cacheAssigned()
+
+    def clearAssigned(self):
+        """
+        Uncheck all 'Cache Assigned' QPushButton
+        """
+        for item in pQt.getTopItems(self.twCaches):
+            item._widget.pbAssign.setChecked(False)
+            item._widget.rf_cacheAssigned()
+
+    def on_cacheNodeSingleClick(self):
+        """
+        Command launched when 'CacheNode' QTreeWidgetItem is single clicked.
+        Refresh cache file info.
+        """
+        selCacheItems = self.twCaches.selectedItems()
+        if len(selCacheItems) == 1:
+            if selCacheItems[0]._widget.infoDict is not None:
+                notes = selCacheItems[0]._widget.infoDict['note']
+                self.cacheInfo.cacheItem = selCacheItems[0]
+                self.cacheInfo.teNotes.setText(notes)
+
+    def on_cacheNodeDoubleClick(self):
+        """
+        Command launched when 'CacheNode' QTreeWidgetItem is double clicked.
+        Assign selected cache file..
+        """
+        selCacheItems = self.twCaches.selectedItems()
+        if len(selCacheItems) == 1:
+            selCacheItems[0]._widget.on_cacheAssigned()
+
+    def new_cacheItem(self, cacheRootPath, cacheRelPath, version, fileName, nodeName):
         """
         Create cache QTreeWidgetItem
         :param cacheRootPath: Cache root path
@@ -611,6 +778,10 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
         :type cacheRelPath: str
         :param version: Cache version folder
         :type: str
+        :param fileName: Cache file name
+        :type fileName: str
+        :param nodeName: Node name attached to cacheNode
+        :type nodeName: str
         :return: New cache item
         :rtype: QtGui.QTreeWidgetItem
         """
@@ -619,10 +790,10 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
         newItem.cacheRelPath = cacheRelPath
         newItem.cacheVersion = version
         newItem.cacheFileName = fileName
+        newItem.cacheNodeName = nodeName
         newItem.cacheFullPath = pFile.conformPath(os.path.join(newItem.cacheRootPath, newItem.cacheRelPath,
                                                                newItem.cacheVersion, '%s.xml' % newItem.cacheFileName))
         newItem.cacheFileInfo = newItem.cacheFullPath.replace('.xml', '.py')
-        newItem.cacheType = pFile.readPyFile(newItem.cacheFileInfo)['cacheType']
         newItem.cacheTagAsOk = False
         newItem._widget = CacheNode(self, newItem)
         return newItem
@@ -641,6 +812,7 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         self.pWidget = pWidget
         self.pItem = pItem
         self.mainUi = self.pWidget.mainUi
+        self.infoDict = None
         super(CacheNode, self).__init__()
         self._setupUi()
 
@@ -650,28 +822,140 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         Setup widget ui
         """
         self.setupUi(self)
-        self.lCacheFile.setText(self.pItem.cacheFileName)
+        if self.pWidget.versionOnly:
+            self.lCacheFile.setText(self.pItem.cacheFileName.split('-')[-1])
+        else:
+            self.lCacheFile.setText(self.pItem.cacheFileName)
+        self.pbAssign.clicked.connect(self.on_cacheAssigned)
+        self.loadInfoDict()
         self.rf_pbCacheType()
+        self.rf_cacheMode()
+
+    def _popupMenu(self):
+        self.cacheNodeMenu = QtGui.QMenu()
+        # noinspection PyArgumentList
+        self.cacheNodeMenu.popup(QtGui.QCursor.pos())
+        #-- Add Menu Item --#
+        self.miDuplicate = self.cacheNodeMenu.addAction('Duplicate')
+        self.miDuplicate.triggered.connect(self.on_duplicateCacheFile)
+        self.cacheNodeMenu.addSeparator()
+        self.miMaterialized = self.cacheNodeMenu.addAction('Materialize')
+        self.cacheNodeMenu.addSeparator()
+        self.miDelete = self.cacheNodeMenu.addAction('Delete')
+        #-- Exec Menu --#
+        self.rf_popupMenuVisibility()
+        self.cacheNodeMenu.exec_()
+
+    def loadInfoDict(self):
+        """
+        Load cache info file
+        """
+        if not os.path.exists(os.path.normpath(self.pItem.cacheFullPath)):
+            self.pbCacheType.setStyleSheet('background-color: rgb(200, 0, 0)')
+        if not os.path.exists(os.path.normpath(self.pItem.cacheFileInfo)):
+            self.pbCacheType.setStyleSheet('background-color: rgb(100, 0, 0)')
+        else:
+            self.infoDict = pFile.readPyFile(self.pItem.cacheFileInfo)
+
+    def isAssigned(self):
+        """
+        Get cacheNode assigned state
+        :return: Assigned state
+        :rtype: bool
+        """
+        return self.pbAssign.isChecked()
 
     def rf_pbCacheType(self):
         """
         Refresh cache type QPushButton
         """
-        #-- Check File Existence --#
-        if not os.path.exists(os.path.normpath(self.pItem.cacheFullPath)):
-            self.pbCacheType.setStyleSheet('background-color: rgb(200, 0, 0)')
-            return False
-        if not os.path.exists(os.path.normpath(self.pItem.cacheFileInfo)):
-            self.pbCacheType.setStyleSheet('background-color: rgb(100, 0, 0)')
-            return False
-        #-- Refresh --#
-        infoDict = pFile.readPyFile(self.pItem.cacheFileInfo)
-        if infoDict['cacheType'] == 'nCloth':
-            self.pbCacheType.setStyleSheet('background-color: rgb(0, 200, 200)')
-        else:
-            self.pbCacheType.setStyleSheet('background-color: rgb(50, 100, 255)')
-        return True
+        if self.infoDict is not None:
+            if self.infoDict['cacheType'] == 'nCloth':
+                self.pbCacheType.setStyleSheet('background-color: rgb(0, 200, 200)')
+            else:
+                self.pbCacheType.setStyleSheet('background-color: rgb(50, 100, 255)')
 
+    def rf_cacheMode(self):
+        """
+        Refresh cache mode QLabel
+        """
+        if self.infoDict is not None:
+            cMode = self.infoDict['cacheModeIndex']
+            if cMode == 0:
+                self.lCacheAttr.setText('P')
+            elif cMode == 1:
+                self.lCacheAttr.setText('V')
+            elif cMode == 2:
+                self.lCacheAttr.setText('IS')
+
+    def rf_cacheAssigned(self):
+        """
+        Refresh cache file assigned state icon
+        """
+        if self.pbAssign.isChecked():
+            self.pbAssign.setIcon(self.pWidget.assignedIcon)
+        else:
+            self.pbAssign.setIcon(QtGui.QIcon())
+
+    def rf_popupMenuVisibility(self):
+        """
+        Refresh popup menu item visibility
+        """
+        selItems = self.pWidget.twCaches.selectedItems()
+        if not selItems:
+            self.miDuplicate.setEnabled(False)
+            self.miMaterialized.setEnabled(False)
+            self.miDelete.setEnabled(False)
+        else:
+            if len(selItems) == 1:
+                self.miDuplicate.setEnabled(True)
+                self.miMaterialized.setEnabled(True)
+                self.miDelete.setEnabled(True)
+            else:
+                self.miDuplicate.setEnabled(False)
+                self.miMaterialized.setEnabled(False)
+                self.miDelete.setEnabled(True)
+
+    def on_cacheAssigned(self):
+        """
+        Command launched when 'Assigned' QPushButton is clicked.
+        Assign cache version
+        """
+        print "Assigning %r to %r ..." % (self.pItem.cacheFileName, self.pItem.cacheNodeName)
+        self.pWidget.clearAssigned()
+        cachePath = pFile.conformPath(os.path.join(self.pItem.cacheRootPath, self.pItem.cacheRelPath,
+                                                   self.pItem.cacheVersion))
+        cacheNode = deCmds.assignNCacheFile(cachePath, self.pItem.cacheFileName, self.pItem.cacheNodeName,
+                                            self.pItem._widget.infoDict['cacheModeIndex'])
+        self.pbAssign.setChecked(True)
+        self.rf_cacheAssigned()
+        print "// Result: New cacheFile node ---> %s" % cacheNode
+
+    def on_duplicateCacheFile(self):
+        """
+        Command launched when 'Duplicate' QMenuItem is triggered.
+        Duplicate cache version
+        """
+        if not os.path.exists(os.path.normpath(self.pItem.cacheFullPath)):
+            raise IOError, "!!! Cache file not found: %s !!!" % self.pItem.cacheFullPath
+        #-- Duplicate --#
+        print "\n#===== Duplicate Cache File =====#"
+        print 'duplicate %s' % self.pItem.cacheFileName
+        cachePath = '/'.join(self.pItem.cacheFullPath.split('/')[:-2])
+        cacheVersion = self.pItem.cacheFullPath.split('/')[-2]
+        deCmds.duplicateCacheVersion(cachePath, cacheVersion)
+        #-- Refresh Ui --#
+        self.pWidget.rf_cacheList()
+        lastItem = pQt.getTopItems(self.pWidget.twCaches)[0]
+        lastItem._widget.on_cacheAssigned()
+
+    def mouseReleaseEvent(self, event):
+        """
+        Add mouse press options: 'Right' = Popup cacheNode menu
+        """
+        if event.button() == QtCore.Qt.RightButton:
+            self._popupMenu()
+        super(CacheNode, self).mousePressEvent(event)
 
 
 class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):
@@ -684,11 +968,63 @@ class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):
     def __init__(self, mainUi):
         print "\t ---> CacheInfoUi"
         self.mainUi = mainUi
+        self.cacheItem = None
+        self.textEditIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'textEdit.png'))
         super(CacheInfoUi, self).__init__()
         self._setupUi()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """
         Setup widget ui
         """
         self.setupUi(self)
+        self.pbEditNotes.setIcon(self.textEditIcon)
+        self.pbEditNotes.clicked.connect(self.on_editNotes)
+
+    def clearInfos(self):
+        """
+        Clear widget info
+        """
+        self.cacheItem = None
+        self.teNotes.clear()
+
+    def rf_widgetToolTips(self):
+        """
+        Refresh all widget toolTip
+        """
+        if self.mainUi.toolTipState:
+            self.pbEditNotes.setToolTip("Save comment to cache file info")
+        else:
+            for widget in [self.pbEditNotes]:
+                widget.setToolTip("")
+
+    def on_editNotes(self):
+        """
+        Command launched when 'Edit Notes' QPushButton is clicked.
+        Update cache file info notes
+        """
+        if self.cacheItem is not None:
+            infoDict = self.cacheItem._widget.infoDict
+            if infoDict is not None:
+                fileInfo = self.cacheItem.cacheFileInfo
+                #-- Check file info --#
+                if not os.path.exists(os.path.normpath(fileInfo)):
+                    raise IOError, "!!! File info not found for text edition !!!"
+                #-- Update tmp file info --#
+                print "Editing cache notes ..."
+                infoDict['note'] = str(self.teNotes.toPlainText())
+                txt = []
+                for k, v in infoDict.iteritems():
+                    if isinstance(v, str):
+                        txt.append('%s = "%s"' % (k, v))
+                    else:
+                        txt.append('%s = %s' % (k, v))
+                #-- Write file info --#
+                try:
+                    print "Writing file info ..."
+                    pFile.writeFile(os.path.normpath(fileInfo), str('\n'.join(txt)))
+                except:
+                    raise IOError, "!!! Can not write file info: %s !!!" % fileInfo
+                #-- Reload cache file info --#
+                self.cacheItem._widget.loadInfoDict()

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\dynEval\ud\dynEval.ui'
 #
-# Created: Sat Aug 01 22:59:44 2015
+# Created: Sun Aug 02 22:01:07 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_mwDynEval(object):
     def setupUi(self, mwDynEval):
         mwDynEval.setObjectName(_fromUtf8("mwDynEval"))
-        mwDynEval.resize(500, 500)
+        mwDynEval.resize(500, 560)
         self.centralwidget = QtGui.QWidget(mwDynEval)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
@@ -39,30 +39,30 @@ class Ui_mwDynEval(object):
         self.splitter_2 = QtGui.QSplitter(self.splitter_3)
         self.splitter_2.setOrientation(QtCore.Qt.Horizontal)
         self.splitter_2.setObjectName(_fromUtf8("splitter_2"))
-        self.widget = QtGui.QWidget(self.splitter_2)
-        self.widget.setObjectName(_fromUtf8("widget"))
-        self.vlSceneNodes = QtGui.QVBoxLayout(self.widget)
+        self.layoutWidget = QtGui.QWidget(self.splitter_2)
+        self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
+        self.vlSceneNodes = QtGui.QVBoxLayout(self.layoutWidget)
         self.vlSceneNodes.setSpacing(0)
         self.vlSceneNodes.setMargin(0)
         self.vlSceneNodes.setObjectName(_fromUtf8("vlSceneNodes"))
-        self.widget1 = QtGui.QWidget(self.splitter_2)
-        self.widget1.setObjectName(_fromUtf8("widget1"))
-        self.vlNodeOptions = QtGui.QVBoxLayout(self.widget1)
+        self.layoutWidget1 = QtGui.QWidget(self.splitter_2)
+        self.layoutWidget1.setObjectName(_fromUtf8("layoutWidget1"))
+        self.vlNodeOptions = QtGui.QVBoxLayout(self.layoutWidget1)
         self.vlNodeOptions.setSpacing(0)
         self.vlNodeOptions.setMargin(0)
         self.vlNodeOptions.setObjectName(_fromUtf8("vlNodeOptions"))
         self.splitter = QtGui.QSplitter(self.splitter_3)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName(_fromUtf8("splitter"))
-        self.widget2 = QtGui.QWidget(self.splitter)
-        self.widget2.setObjectName(_fromUtf8("widget2"))
-        self.vlCaches = QtGui.QVBoxLayout(self.widget2)
+        self.layoutWidget2 = QtGui.QWidget(self.splitter)
+        self.layoutWidget2.setObjectName(_fromUtf8("layoutWidget2"))
+        self.vlCaches = QtGui.QVBoxLayout(self.layoutWidget2)
         self.vlCaches.setSpacing(0)
         self.vlCaches.setMargin(0)
         self.vlCaches.setObjectName(_fromUtf8("vlCaches"))
-        self.widget3 = QtGui.QWidget(self.splitter)
-        self.widget3.setObjectName(_fromUtf8("widget3"))
-        self.vlCacheInfo = QtGui.QVBoxLayout(self.widget3)
+        self.layoutWidget3 = QtGui.QWidget(self.splitter)
+        self.layoutWidget3.setObjectName(_fromUtf8("layoutWidget3"))
+        self.vlCacheInfo = QtGui.QVBoxLayout(self.layoutWidget3)
         self.vlCacheInfo.setSpacing(0)
         self.vlCacheInfo.setMargin(0)
         self.vlCacheInfo.setObjectName(_fromUtf8("vlCacheInfo"))
@@ -97,7 +97,7 @@ class Ui_mwDynEval(object):
         self.miXterm.setObjectName(_fromUtf8("miXterm"))
         self.miNamespace = QtGui.QAction(mwDynEval)
         self.miNamespace.setCheckable(True)
-        self.miNamespace.setChecked(True)
+        self.miNamespace.setChecked(False)
         self.miNamespace.setObjectName(_fromUtf8("miNamespace"))
         self.miRfDisplay = QtGui.QAction(mwDynEval)
         self.miRfDisplay.setCheckable(True)

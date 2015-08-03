@@ -68,6 +68,7 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         self.vlCacheInfo.insertWidget(0, self.cacheInfo)
         #-- Set Widget Parent --#
         self.dynEval.cacheList = self.cacheList
+        self.cacheList.cacheInfo = self.cacheInfo
 
     @property
     def toolTipState(self):
@@ -178,6 +179,8 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         self.sceneNodes.rf_widgetToolTips()
         self.sceneNodes.rf_sceneItemToolTips()
         self.dynEval.rf_widgetToolTips()
+        self.cacheList.rf_widgetToolTips()
+        self.cacheInfo.rf_widgetToolTips()
 
     def on_miNamespace(self):
         """
@@ -191,6 +194,7 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         """
         self.sceneNodes.rf_sceneNodes()
         self.cacheList.rf_cacheList()
+        self.cacheInfo.clearInfos()
 
     def on_filter(self, filterItem):
         """
@@ -213,3 +217,4 @@ def launch():
     global window
     window = DynEvalUi(parent=pScene.getMayaMainWindow())
     window.show()
+    return window

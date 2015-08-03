@@ -1,4 +1,4 @@
-import os, time
+import os, time, shutil
 from lib.system import procFile as pFile
 from tools.maya.cmds import pScene, pCloth, pCache
 try:
@@ -132,6 +132,14 @@ def selectModel(clothNode):
     if mc.objExists(model):
         mc.select(model, r=True)
 
+def getCurrentFrame():
+    """
+    Get current frame
+    :return: Current frame
+    :rtype: int
+    """
+    return int(mc.currentTime(q=True))
+
 def getTimeRange():
     """
     Get scene time range
@@ -188,7 +196,7 @@ def getInfoText(nodeName, startFrame, stopFrame, cacheModeIndex, debTime, endTim
     :param stopFrame: NCloth cache end frame
     :type stopFrame: int
     :param cacheModeIndex: NCloth node cacheable attributes index.
-                           (-1=None, 0=positions, 1=velocities, 2=internalState)
+                           (0=positions, 1=velocities, 2=internalState)
     :type cacheModeIndex: int
     :param debTime: Cache file process start time
     :type debTime: int
@@ -225,15 +233,16 @@ def newNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDispl
     :param rfDisplay: Refresh maya display state
     :type rfDisplay: bool
     :param cacheModeIndex: NCloth node cacheable attributes index.
-                           (-1=None, 0=positions, 1=velocities, 2=internalState)
+                           (0=positions, 1=velocities, 2=internalState)
     :type cacheModeIndex: int
     :return: New cacheFile node
     :rtype: str
     """
     debTime = time.time()
-    cacheNode = pCache.newNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay,
-                                     cacheModeIndex, newCacheNode=True)
+    cacheNode = pCache.nCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay,
+                                  cacheModeIndex, newCacheNode=True)
     endTime = time.time()
+    print "Simulation Duration: %s" % pFile.secondsToStr(endTime - debTime)
     print "Creating cache file info ..."
     fileInfo = os.path.normpath(os.path.join(cachePath, '%s.py' % fileName))
     info = getInfoText(clothNode, startFrame, stopFrame, cacheModeIndex, debTime, endTime)
@@ -242,6 +251,62 @@ def newNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDispl
         cacheNode = mc.rename(cacheNode, 'dynEval_%s' % fileName.replace('-', '_'))
     return cacheNode
 
+def appendToNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex):
+    """
+    Append to cache files
+    :param cachePath: NCloth cache path
+    :type cachePath: str
+    :param fileName: NCloth cache file name
+    :type fileName: str
+    :param clothNode: NCloth shape node name
+    :type clothNode: str
+    :param startFrame: NCloth cache start frame
+    :type startFrame: int
+    :param stopFrame: NCloth cache end frame
+    :type stopFrame: int
+    :param rfDisplay: Refresh maya display state
+    :type rfDisplay: bool
+    :param cacheModeIndex: NCloth node cacheable attributes index.
+                           (0=positions, 1=velocities, 2=internalState)
+    :type cacheModeIndex: int
+    """
+    debTime = time.time()
+    pCache.nCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex,
+                      modeAppend=True)
+    endTime = time.time()
+    print "Simulation Duration: %s" % pFile.secondsToStr(endTime - debTime)
+
+def assignNCacheFile(cachePath, fileName, clothNode, cacheModeIndex):
+    """
+    Assign given cache file to given nCloth node
+    :param cachePath: NCloth cache path
+    :type cachePath: str
+    :param fileName: NCloth cache file name
+    :type fileName: str
+    :param clothNode: NCloth shape node name
+    :type clothNode: str
+    :param cacheModeIndex: NCloth node cacheable attributes index.
+                           (0=positions, 1=velocities, 2=internalState)
+    :type cacheModeIndex: int
+    :return: New cacheFile node
+    :rtype: str
+    """
+    delCacheNode(clothNode)
+    cacheNode = pCache.newNCacheNode(cachePath, fileName, clothNode, cacheModeIndex)
+    if cacheNode is not None:
+        cacheNode = mc.rename(cacheNode, 'dynEval_%s' % fileName.replace('-', '_'))
+    return cacheNode
+
+def getCacheNodes(node):
+    """
+    Get cacheFile nodes connected to given node name
+    :param node: Maya node
+    :type node: str
+    :return: CacheFile nodes
+    :rtype: list
+    """
+    return pCache.getCacheNodes(node)
+
 def delCacheNode(node):
     """
     Delected all cacheFile node connected to given node
@@ -249,3 +314,39 @@ def delCacheNode(node):
     :type node: str
     """
     pCache.delCacheNode(node)
+
+def duplicateCacheVersion(cachePath, cacheVersion):
+    """
+    Duplicate given cache file version to next avalaible version
+    :param cachePath: Cache file path (without version)
+    :type cachePath: str
+    :param cacheVersion: Cache version to duplicate
+    :type cacheVersion: str
+    :return: New cache version
+    :rtype: str
+    """
+    #-- Get Info --#
+    newVersion = getNextVersion(os.path.normpath(cachePath))
+    print "Cache Path:", cachePath
+    print "Cache Version:", cacheVersion
+    print "Next Version:", newVersion
+    #-- Create Version Folder --#
+    dst = os.path.normpath(os.path.join(cachePath, newVersion))
+    if os.path.exists(dst):
+        raise IOError, "!!! New cache path already exists: %s !!!" % dst
+    try:
+        print "Creating new version folder: %s ..." % newVersion
+        os.mkdir(dst)
+    except:
+        raise IOError, "!!! Can not make directory: %s !!!" % dst
+    #-- Copy Cache Files --#
+    src = os.path.normpath(os.path.join(cachePath, cacheVersion))
+    cacheFiles = os.listdir(os.path.normpath(os.path.join(cachePath, cacheVersion)))
+    for cacheFile in cacheFiles:
+        if '-%s.' % cacheVersion in cacheFile:
+            newCacheFile = cacheFile.replace(cacheVersion, newVersion)
+            print "Copying %s ---> %s" % (cacheFile, newCacheFile)
+            srcFile = os.path.join(src, cacheFile)
+            dstFile = os.path.join(dst, newCacheFile)
+            shutil.copy(srcFile, dstFile)
+    return newVersion

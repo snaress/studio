@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\dynEval\ud\wgCacheNode.ui'
 #
-# Created: Sun Aug 02 02:22:57 2015
+# Created: Sun Aug 02 18:04:51 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgCacheNode(object):
     def setupUi(self, wgCacheNode):
         wgCacheNode.setObjectName(_fromUtf8("wgCacheNode"))
-        wgCacheNode.resize(338, 28)
+        wgCacheNode.resize(338, 31)
         self.gridLayout = QtGui.QGridLayout(wgCacheNode)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
@@ -57,8 +57,8 @@ class Ui_wgCacheNode(object):
         self.hlCacheNode.addWidget(self.line_3)
         self.lCacheAttr = QtGui.QLabel(wgCacheNode)
         font = QtGui.QFont()
-        font.setBold(True)
-        font.setWeight(75)
+        font.setBold(False)
+        font.setWeight(50)
         self.lCacheAttr.setFont(font)
         self.lCacheAttr.setText(_fromUtf8(""))
         self.lCacheAttr.setObjectName(_fromUtf8("lCacheAttr"))
@@ -77,6 +77,19 @@ class Ui_wgCacheNode(object):
         self.pbCacheType.setFlat(False)
         self.pbCacheType.setObjectName(_fromUtf8("pbCacheType"))
         self.hlCacheNode.addWidget(self.pbCacheType)
+        self.line_8 = QtGui.QFrame(wgCacheNode)
+        self.line_8.setFrameShape(QtGui.QFrame.VLine)
+        self.line_8.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_8.setObjectName(_fromUtf8("line_8"))
+        self.hlCacheNode.addWidget(self.line_8)
+        self.pbAssign = QtGui.QPushButton(wgCacheNode)
+        self.pbAssign.setMaximumSize(QtCore.QSize(20, 20))
+        self.pbAssign.setText(_fromUtf8(""))
+        self.pbAssign.setIconSize(QtCore.QSize(20, 20))
+        self.pbAssign.setCheckable(True)
+        self.pbAssign.setFlat(True)
+        self.pbAssign.setObjectName(_fromUtf8("pbAssign"))
+        self.hlCacheNode.addWidget(self.pbAssign)
         self.line_5 = QtGui.QFrame(wgCacheNode)
         self.line_5.setFrameShape(QtGui.QFrame.VLine)
         self.line_5.setFrameShadow(QtGui.QFrame.Sunken)
@@ -85,7 +98,7 @@ class Ui_wgCacheNode(object):
         self.pbCacheOk = QtGui.QPushButton(wgCacheNode)
         self.pbCacheOk.setMaximumSize(QtCore.QSize(20, 20))
         self.pbCacheOk.setText(_fromUtf8(""))
-        self.pbCacheOk.setIconSize(QtCore.QSize(18, 18))
+        self.pbCacheOk.setIconSize(QtCore.QSize(20, 20))
         self.pbCacheOk.setCheckable(True)
         self.pbCacheOk.setFlat(True)
         self.pbCacheOk.setObjectName(_fromUtf8("pbCacheOk"))
