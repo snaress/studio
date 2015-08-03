@@ -28,9 +28,19 @@ def newNCacheNode(cachePath, fileName, clothNode, cacheModeIndex):
         inAttr = '%s.positions' % clothNode
     cacheNode = mc.cacheFile(dir=cachePath, f=fileName, ccn=True, ia=inAttr)
     #-- Connect Cache Node --#
-    print "\t Connect cache node ..."
+    print "\t Connecting cache node ..."
     mc.connectAttr('%s.inRange' % cacheNode, '%s.playFromCache' % clothNode)
     return cacheNode
+
+def getCacheNodes(node):
+    """
+    Get cacheFile nodes connected to given node name
+    :param node: Maya node
+    :type node: str
+    :return: CacheFile nodes
+    :rtype: list
+    """
+    return pRigg.findTypeInHistory(node, 'cacheFile', past=True, future=True) or []
 
 def delCacheNode(node):
     """
@@ -38,15 +48,15 @@ def delCacheNode(node):
     :param node: Maya node
     :type node: str
     """
-    cacheNodes = pRigg.findTypeInHistory(node, 'cacheFile', past=True, future=True) or []
+    cacheNodes = getCacheNodes(node)
     for cacheNode in cacheNodes:
         if mc.objectType(node) in ['nCloth', 'nRigid']:
             print "Deleting cacheNode: %s ..." % cacheNode
             mc.setAttr('%s.enable' % cacheNode, False)
             mc.delete(cacheNode)
 
-def newNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex,
-                  newCacheNode=False):
+def nCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex,
+               newCacheNode=False, modeAppend=False):
     """
     Create new cache files, attach to new cacheNode, connect new cacheNode
     :param cachePath: NCloth cache path
@@ -84,14 +94,20 @@ def newNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDispl
     print "\t Init cache mode ..."
     mc.setAttr('%s.cacheableAttributes' % clothNode, cacheModeIndex)
     mc.playbackOptions(ps=0)
-    #-- Create Cache File --#
-    print "\t Create cache files ..."
-    mc.cacheFile(dir=cachePath, f=fileName, cnd=clothNode, st=startFrame, et=stopFrame, fm='OneFile', r=rfDisplay,
-                 ci="getNClothDescriptionInfo %s" % clothNode)
-    #-- Create Cache Node --#
-    if newCacheNode:
-        print "\t Create cache node ..."
-        cacheNode = newNCacheNode(cachePath, fileName, clothNode, cacheModeIndex)
+    #-- Launch Simulation --#
+    if not modeAppend:
+        print "\t Create cache files ..."
+        mc.cacheFile(dir=cachePath, f=fileName, cnd=clothNode, st=startFrame, et=stopFrame, fm='OneFile', r=rfDisplay,
+                     ci="getNClothDescriptionInfo %s" % clothNode)
     else:
-        cacheNode = None
-    return cacheNode
+        print "\t Append to cache files ..."
+        mc.cacheFile(dir=cachePath, f=fileName, cnd=clothNode, apf=True, st=startFrame, et=stopFrame, fm='OneFile',
+                     r=rfDisplay, ci="getNClothDescriptionInfo %s" % clothNode)
+    #-- Create Cache Node --#
+    if not modeAppend:
+        if newCacheNode:
+            print "\t Create cache node ..."
+            cacheNode = newNCacheNode(cachePath, fileName, clothNode, cacheModeIndex)
+        else:
+            cacheNode = None
+        return cacheNode
