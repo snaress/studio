@@ -1,9 +1,27 @@
 from tools.maya.cmds import pRigg
 try:
     import maya.cmds as mc
+    import maya.mel as ml
 except:
     pass
 
+
+def newGeoCacheNode(cachePath, fileName, mesh):
+    """
+    Assign given cache file to given mesh
+    :param cachePath: NCloth cache path
+    :type cachePath: str
+    :param fileName: NCloth cache file name
+    :type fileName: str
+    :param mesh: mesh shape node name
+    :type mesh: str
+    :return: New cacheFile node
+    :rtype: str
+    """
+    hSwitch = ml.eval('createHistorySwitch("%s", false)' % mesh)
+    cacheNode = mc.cacheFile(dir=cachePath, f=fileName, cnm=mesh, af=True, ia="%s.inp[0]" % hSwitch)
+    mc.setAttr("%s.playFromCache" % hSwitch, 1)
+    return cacheNode
 
 def newNCacheNode(cachePath, fileName, clothNode, cacheModeIndex):
     """
@@ -17,7 +35,7 @@ def newNCacheNode(cachePath, fileName, clothNode, cacheModeIndex):
     :return:New cacheFile node
     :rtype: str
     """
-    #-- Create Cache Node --#
+    #-- Get inAttr --#
     if cacheModeIndex == 0:
         inAttr = '%s.positions' % clothNode
     elif cacheModeIndex == 1:
@@ -26,9 +44,8 @@ def newNCacheNode(cachePath, fileName, clothNode, cacheModeIndex):
         inAttr = ['%s.positions' % clothNode, '%s.velocities' % clothNode, '%s.internalState' % clothNode]
     else:
         inAttr = '%s.positions' % clothNode
+    #-- Create Cache Node --#
     cacheNode = mc.cacheFile(dir=cachePath, f=fileName, ccn=True, ia=inAttr)
-    #-- Connect Cache Node --#
-    print "\t Connecting cache node ..."
     mc.connectAttr('%s.inRange' % cacheNode, '%s.playFromCache' % clothNode)
     return cacheNode
 
