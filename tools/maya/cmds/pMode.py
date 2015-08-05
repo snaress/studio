@@ -169,12 +169,12 @@ def duplicateSelected(selObjects=None, name=None, worldParent=True):
         else:
             cpName = name
         cpObject = mc.duplicate(obj, n=cpName)
-        newName = cpObject[0]
+        newName = cpObject
         #-- Parent To World --#
         if worldParent:
             if mc.listRelatives(cpObject[0], p=True) is not None:
                 newName = mc.parent(cpObject[0], w=True)
-        cpList.append(newName)
+        cpList.append(newName[0])
     return cpList
 
 def connectOutMesh(srcMesh=None, outMesh=None, force=True):
