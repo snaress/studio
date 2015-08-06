@@ -4,8 +4,9 @@ reload(pQt)
 
 
 #-- Maya Proc --#
-from tools.maya.cmds import pScene, pRigg, pCloth, pCache
+from tools.maya.cmds import pScene, pMode, pRigg, pCloth, pCache
 reload(pScene)
+reload(pMode)
 reload(pRigg)
 reload(pCloth)
 reload(pCache)

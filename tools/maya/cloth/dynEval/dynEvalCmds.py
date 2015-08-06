@@ -1,8 +1,9 @@
 import os, time, shutil
 from lib.system import procFile as pFile
-from tools.maya.cmds import pScene, pCloth, pCache
+from tools.maya.cmds import pScene, pMode, pCloth, pCache
 try:
     import maya.cmds as mc
+    import maya.mel as ml
 except:
     pass
 
@@ -186,6 +187,24 @@ def getNextVersion(path):
         return 'v001'
     return 'v%s' % str(int(last[1:]) + 1).zfill(3)
 
+def getCacheNodes(node):
+    """
+    Get cacheFile nodes connected to given node name
+    :param node: Maya node
+    :type node: str
+    :return: CacheFile nodes
+    :rtype: list
+    """
+    return pCache.getCacheNodes(node)
+
+def delCacheNode(node):
+    """
+    Delected all cacheFile node connected to given node
+    :param node: Maya node
+    :type node: str
+    """
+    pCache.delCacheNode(node)
+
 def getInfoText(nodeName, startFrame, stopFrame, cacheModeIndex, debTime, endTime):
     """
     Get info text
@@ -297,23 +316,19 @@ def assignNCacheFile(cachePath, fileName, clothNode, cacheModeIndex):
         cacheNode = mc.rename(cacheNode, 'dynEval_%s' % fileName.replace('-', '_'))
     return cacheNode
 
-def getCacheNodes(node):
+def assignGeoCacheFile(cachePath, fileName, mesh):
     """
-    Get cacheFile nodes connected to given node name
-    :param node: Maya node
-    :type node: str
-    :return: CacheFile nodes
-    :rtype: list
+    Assign given cache file to given mesh node
+    :param cachePath: NCloth cache path
+    :type cachePath: str
+    :param fileName: NCloth cache file name
+    :type fileName: str
+    :param mesh: mesh shape node name
+    :type mesh: str
+    :return: New cacheFile node
+    :rtype: str
     """
-    return pCache.getCacheNodes(node)
-
-def delCacheNode(node):
-    """
-    Delected all cacheFile node connected to given node
-    :param node: Maya node
-    :type node: str
-    """
-    pCache.delCacheNode(node)
+    return pCache.newGeoCacheNode(cachePath, fileName, mesh)
 
 def duplicateCacheVersion(cachePath, cacheVersion):
     """
@@ -350,3 +365,26 @@ def duplicateCacheVersion(cachePath, cacheVersion):
             dstFile = os.path.join(dst, newCacheFile)
             shutil.copy(srcFile, dstFile)
     return newVersion
+
+def materializeCacheVersion(cachePath, fileName, mesh):
+    """
+    Materialize given cache version
+    :param cachePath: NCloth cache path
+    :type cachePath: str
+    :param fileName: NCloth cache file name
+    :type fileName: str
+    :param mesh: mesh shape node name
+    :type mesh: str
+    """
+    cacheVersion = cachePath.split('/')[-1]
+    print "Cache Path:", cachePath
+    print "Cache Version:", cacheVersion
+    print "Cache File:", fileName
+    print "Mesh Name:", mesh
+    if not mc.objExists(mesh):
+        raise IOError, "!!! Mesh not found: %s !!!" % mesh
+    newMesh = pMode.duplicateSelected(selObjects=str(mesh), name='%s_%s_##' % (mesh, cacheVersion))
+    shapes = mc.listRelatives(newMesh[0], s=True, ni=True, f=True)
+    newShape = mc.rename(shapes[0], '%s_OutShape'  % newMesh[0])
+    cacheNode = assignGeoCacheFile(cachePath, fileName, newShape)
+    return cacheNode

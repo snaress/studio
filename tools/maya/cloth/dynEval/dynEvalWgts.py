@@ -836,10 +836,13 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         # noinspection PyArgumentList
         self.cacheNodeMenu.popup(QtGui.QCursor.pos())
         #-- Add Menu Item --#
-        self.miDuplicate = self.cacheNodeMenu.addAction('Duplicate')
-        self.miDuplicate.triggered.connect(self.on_duplicateCacheFile)
-        self.cacheNodeMenu.addSeparator()
         self.miMaterialized = self.cacheNodeMenu.addAction('Materialize')
+        self.miMaterialized.triggered.connect(self.on_miMaterializeCache)
+        self.cacheNodeMenu.addSeparator()
+        self.miDuplicate = self.cacheNodeMenu.addAction('Duplicate')
+        self.miDuplicate.triggered.connect(self.on_miDuplicateCache)
+        self.cacheNodeMenu.addSeparator()
+        self.miAssignToSel = self.cacheNodeMenu.addAction('Assign To Selected')
         self.cacheNodeMenu.addSeparator()
         self.miDelete = self.cacheNodeMenu.addAction('Delete')
         #-- Exec Menu --#
@@ -905,15 +908,18 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         if not selItems:
             self.miDuplicate.setEnabled(False)
             self.miMaterialized.setEnabled(False)
+            self.miAssignToSel.setEnabled(False)
             self.miDelete.setEnabled(False)
         else:
             if len(selItems) == 1:
                 self.miDuplicate.setEnabled(True)
                 self.miMaterialized.setEnabled(True)
+                self.miAssignToSel.setEnabled(True)
                 self.miDelete.setEnabled(True)
             else:
                 self.miDuplicate.setEnabled(False)
                 self.miMaterialized.setEnabled(False)
+                self.miAssignToSel.setEnabled(False)
                 self.miDelete.setEnabled(True)
 
     def on_cacheAssigned(self):
@@ -931,23 +937,40 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         self.rf_cacheAssigned()
         print "// Result: New cacheFile node ---> %s" % cacheNode
 
-    def on_duplicateCacheFile(self):
+    def on_miMaterializeCache(self):
+        """
+        Command launched when 'Materialize' QMenuItem is triggered.
+        Materialize cache version
+        """
+        #-- Check --#
+        if not os.path.exists(os.path.normpath(self.pItem.cacheFullPath)):
+            raise IOError, "!!! Cache file not found: %s !!!" % self.pItem.cacheFullPath
+        #-- Materialize Version --#
+        print "\n#===== Materialize Cache File =====#"
+        print 'Materialize %s' % self.pItem.cacheFileName
+        clothItem = self.pWidget.sceneNodes.selectedClothItem
+        cachePath = '/'.join(self.pItem.cacheFullPath.split('/')[:-1])
+        cacheFile = self.pItem.cacheFullPath.split('/')[-1]
+        cacheNode = deCmds.materializeCacheVersion(cachePath, cacheFile, clothItem.clothMesh)
+        print "// Result: New cacheFile node ---> %s" % cacheNode
+
+    def on_miDuplicateCache(self):
         """
         Command launched when 'Duplicate' QMenuItem is triggered.
         Duplicate cache version
         """
+        #-- Check --#
         if not os.path.exists(os.path.normpath(self.pItem.cacheFullPath)):
             raise IOError, "!!! Cache file not found: %s !!!" % self.pItem.cacheFullPath
-        #-- Duplicate --#
+        #-- Duplicate Version --#
         print "\n#===== Duplicate Cache File =====#"
-        print 'duplicate %s' % self.pItem.cacheFileName
+        print 'Duplicate %s' % self.pItem.cacheFileName
         cachePath = '/'.join(self.pItem.cacheFullPath.split('/')[:-2])
         cacheVersion = self.pItem.cacheFullPath.split('/')[-2]
         deCmds.duplicateCacheVersion(cachePath, cacheVersion)
         #-- Refresh Ui --#
         self.pWidget.rf_cacheList()
-        lastItem = pQt.getTopItems(self.pWidget.twCaches)[0]
-        lastItem._widget.on_cacheAssigned()
+        self.pWidget.lastVersionItem._widget.on_cacheAssigned()
 
     def mouseReleaseEvent(self, event):
         """
