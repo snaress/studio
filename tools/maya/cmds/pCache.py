@@ -67,10 +67,9 @@ def delCacheNode(node):
     """
     cacheNodes = getCacheNodes(node)
     for cacheNode in cacheNodes:
-        if mc.objectType(node) in ['nCloth', 'nRigid']:
-            print "Deleting cacheNode: %s ..." % cacheNode
-            mc.setAttr('%s.enable' % cacheNode, False)
-            mc.delete(cacheNode)
+        print "Deleting cacheNode: %s ..." % cacheNode
+        mc.setAttr('%s.enable' % cacheNode, False)
+        mc.delete(cacheNode)
 
 def nCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex,
                newCacheNode=False, modeAppend=False):
