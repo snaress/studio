@@ -197,7 +197,7 @@ def getCacheNodes(node):
     """
     return pCache.getCacheNodes(node)
 
-def delCacheNode(node):
+def deleteCacheNode(node):
     """
     Delected all cacheFile node connected to given node
     :param node: Maya node
@@ -310,7 +310,7 @@ def assignNCacheFile(cachePath, fileName, clothNode, cacheModeIndex):
     :return: New cacheFile node
     :rtype: str
     """
-    delCacheNode(clothNode)
+    deleteCacheNode(clothNode)
     cacheNode = pCache.newNCacheNode(cachePath, fileName, clothNode, cacheModeIndex)
     if cacheNode is not None:
         cacheNode = mc.rename(cacheNode, 'dynEval_%s' % fileName.replace('-', '_'))
@@ -329,6 +329,34 @@ def assignGeoCacheFile(cachePath, fileName, mesh):
     :rtype: str
     """
     return pCache.newGeoCacheNode(cachePath, fileName, mesh)
+
+def materializeCacheVersion(cachePath, fileName, mesh):
+    """
+    Materialize given cache version
+    :param cachePath: NCloth cache path
+    :type cachePath: str
+    :param fileName: NCloth cache file name
+    :type fileName: str
+    :param mesh: mesh shape node name
+    :type mesh: str
+    :return: New cache file node
+    :rtype: str
+    """
+    #-- Get Info --#
+    cacheVersion = cachePath.split('/')[-1]
+    print "Cache Path:", cachePath
+    print "Cache Version:", cacheVersion
+    print "Cache File:", fileName
+    print "Mesh Name:", mesh
+    if not mc.objExists(mesh):
+        raise IOError, "!!! Mesh not found: %s !!!" % mesh
+    #-- Materialize Cache Version --#
+    newMesh = pMode.duplicateSelected(selObjects=str(mesh), name='%s_%s_##' % (mesh, cacheVersion))
+    shapes = mc.listRelatives(newMesh[0], s=True, ni=True, f=True)
+    newShape = mc.rename(shapes[0], '%s_OutShape'  % newMesh[0])
+    cacheNode = assignGeoCacheFile(cachePath, fileName, newShape)
+    #-- Result --#
+    return cacheNode
 
 def duplicateCacheVersion(cachePath, cacheVersion):
     """
@@ -364,27 +392,70 @@ def duplicateCacheVersion(cachePath, cacheVersion):
             srcFile = os.path.join(src, cacheFile)
             dstFile = os.path.join(dst, newCacheFile)
             shutil.copy(srcFile, dstFile)
+    #-- Result --#
     return newVersion
 
-def materializeCacheVersion(cachePath, fileName, mesh):
+def assignCacheFileToSel(cachePath, fileName):
     """
-    Materialize given cache version
+    Assign given cache verion to selected mesh
     :param cachePath: NCloth cache path
     :type cachePath: str
     :param fileName: NCloth cache file name
     :type fileName: str
-    :param mesh: mesh shape node name
-    :type mesh: str
+    :return: New cache file node
+    :rtype: str
     """
+    #-- Get Info --#
+    print "Cache Path:", cachePath
+    print "Cache File:", fileName
+    sel = mc.ls(sl=True)
+    if not len(sel) == 1:
+        raise ValueError, "!!! Select only one node !!!"
+    #-- Assign Cache Version --#
+    shapes = mc.listRelatives(sel[0], s=True, ni=True, f=True)
+    deleteCacheNode(shapes[0])
+    cacheNode = assignGeoCacheFile(cachePath, fileName, shapes[0])
+    #-- Result --#
+    return  cacheNode
+
+def deleteCacheVersion(cachePath):
+    """
+    Delete cache files
+    :param cachePath: NCloth cache path
+    :type cachePath: str
+    """
+    #-- Get Info --#
+    rootPath = '/'.join(cachePath.split('/')[:-1])
     cacheVersion = cachePath.split('/')[-1]
     print "Cache Path:", cachePath
+    print "Cache Root Path:", rootPath
     print "Cache Version:", cacheVersion
-    print "Cache File:", fileName
-    print "Mesh Name:", mesh
-    if not mc.objExists(mesh):
-        raise IOError, "!!! Mesh not found: %s !!!" % mesh
-    newMesh = pMode.duplicateSelected(selObjects=str(mesh), name='%s_%s_##' % (mesh, cacheVersion))
-    shapes = mc.listRelatives(newMesh[0], s=True, ni=True, f=True)
-    newShape = mc.rename(shapes[0], '%s_OutShape'  % newMesh[0])
-    cacheNode = assignGeoCacheFile(cachePath, fileName, newShape)
-    return cacheNode
+    if not os.path.exists(cachePath):
+        raise IOError, "!!! Cache path not found: %s !!!" % cachePath
+    #-- Delete Cache Node --#
+    cacheNodes = mc.ls(type='cacheFile') or []
+    for cNode in cacheNodes:
+        if mc.getAttr('%s.cachePath' % cNode) == cachePath:
+            deleteCacheNode(cNode)
+    #-- Get Cache Files To Delete --#
+    cacheFiles = os.listdir(cachePath) or []
+    delList = []
+    for cFile in cacheFiles:
+        cFilePath = os.path.normpath(os.path.join(cachePath, cFile))
+        if os.path.isfile(cFilePath):
+            delList.append(cFilePath)
+        elif os.path.isdir(cFilePath):
+            raise IOError, "!!! Folder found in varsion path, can not clean!!!"
+    #-- Delete Cache Files --#
+    for delFile in delList:
+        try:
+            print "Deleting file %s ..." % delFile
+            os.remove(delFile)
+        except:
+            raise IOError, "!!! Can not delete file: %s !!!" % delFile
+    #-- Delete Cache Folder --#
+    try:
+        print "Deleting folder %s ..." % cacheVersion
+        os.removedirs(cachePath)
+    except:
+        raise IOError, "!!! Can not delete folder: %s !!!" % cacheVersion

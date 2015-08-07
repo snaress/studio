@@ -501,7 +501,7 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
             cacheFullPath = self._mkNClothCacheDir(clothItem)
             cacheFileName = '%s-%s-%s' % (clothItem.clothNs, '_'.join(clothItem.clothName.split('_')[:-1]),
                                           cacheFullPath.split('/')[-1])
-            deCmds.delCacheNode(clothItem.clothNode)
+            deCmds.deleteCacheNode(clothItem.clothNode)
             cacheNode = deCmds.newNCacheFile(cacheFullPath, cacheFileName, clothItem.clothNode, self.startTime,
                                              self.endTime, self.mainUi.displayState, self.cacheModeIndex)
             print "// Result: New cacheFile node ---> %s" % cacheNode
@@ -541,7 +541,7 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         Command launched when 'Delete Cache Node' QPushButton is clicked
         """
         clothItem = self.sceneNodes.selectedClothItem
-        deCmds.delCacheNode(clothItem.clothNode)
+        deCmds.deleteCacheNode(clothItem.clothNode)
 
     def _checkCache(self, cacheMode):
         """
@@ -832,6 +832,9 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         self.rf_cacheMode()
 
     def _popupMenu(self):
+        """
+        Setup popupMenu
+        """
         self.cacheNodeMenu = QtGui.QMenu()
         # noinspection PyArgumentList
         self.cacheNodeMenu.popup(QtGui.QCursor.pos())
@@ -843,8 +846,10 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         self.miDuplicate.triggered.connect(self.on_miDuplicateCache)
         self.cacheNodeMenu.addSeparator()
         self.miAssignToSel = self.cacheNodeMenu.addAction('Assign To Selected')
+        self.miAssignToSel.triggered.connect(self.on_miAssignToSel)
         self.cacheNodeMenu.addSeparator()
         self.miDelete = self.cacheNodeMenu.addAction('Delete')
+        self.miDelete.triggered.connect(self.on_miDeleteCache)
         #-- Exec Menu --#
         self.rf_popupMenuVisibility()
         self.cacheNodeMenu.exec_()
@@ -971,6 +976,40 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         #-- Refresh Ui --#
         self.pWidget.rf_cacheList()
         self.pWidget.lastVersionItem._widget.on_cacheAssigned()
+
+    def on_miAssignToSel(self):
+        """
+        Command launched when 'AssignToSel' QMenuItem is triggered.
+        Assign cache version to selected mesh
+        """
+        #-- Check --#
+        if not os.path.exists(os.path.normpath(self.pItem.cacheFullPath)):
+            raise IOError, "!!! Cache file not found: %s !!!" % self.pItem.cacheFullPath
+        #-- Assign Version --#
+        print "\n#===== Assign Cache File =====#"
+        print 'Assign %s' % self.pItem.cacheFileName
+        cachePath = '/'.join(self.pItem.cacheFullPath.split('/')[:-1])
+        cacheFile = self.pItem.cacheFullPath.split('/')[-1]
+        cacheNode = deCmds.assignCacheFileToSel(cachePath, cacheFile)
+        print "// Result: New cacheFile node ---> %s" % cacheNode
+
+    def on_miDeleteCache(self):
+        """
+        Command launched when 'Delete' QMenuItem is triggered.
+        Delete cache files version
+        """
+        #-- Get Selected Versions --#
+        print "\n#===== Delete Cache File =====#"
+        selItems = self.pWidget.twCaches.selectedItems()
+        for item in selItems:
+            cachePath = os.path.dirname(item.cacheFullPath)
+            #-- Check --#
+            if not os.path.exists(os.path.normpath(cachePath)):
+                raise IOError, "!!! Cache version not found: %s !!!" % item.cacheFileName
+            #-- Delete Version --#
+            print 'Delete %s' % item.cacheFileName
+            deCmds.deleteCacheVersion(cachePath)
+        self.pWidget.rf_cacheList()
 
     def mouseReleaseEvent(self, event):
         """
