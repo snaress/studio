@@ -716,6 +716,7 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
                         self.twCaches.addTopLevelItem(cacheItem)
                         self.twCaches.setItemWidget(cacheItem, 0, cacheItem._widget)
                     self.ud_cacheAssigned()
+                    self.ud_cacheTagged()
 
     def rf_fileVersions(self):
         """
@@ -753,6 +754,26 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
                         cacheItem._widget.pbAssign.setChecked(True)
                         cacheItem._widget.rf_cacheAssigned()
 
+    def ud_cacheTagged(self):
+        """
+        Update cache tagged from tagFile
+        """
+        vItems = pQt.getTopItems(self.twCaches)
+        if vItems:
+            tagVersion = None
+            cacheFile = None
+            cachePath = pFile.conformPath(os.path.join(vItems[0].cacheRootPath, vItems[0].cacheRelPath))
+            tagFile =  pFile.conformPath(os.path.join(cachePath, '_tagFile.py'))
+            if os.path.exists(tagFile):
+                tagInfo = pFile.readPyFile(tagFile)
+                tagVersion = tagInfo['currentTag']['cacheVersion']
+                cacheFile = tagInfo['currentTag']['cacheFile']
+            if tagVersion is not None and cacheFile is not None:
+                for item in vItems:
+                    if item.cacheVersion == tagVersion:
+                        item._widget.pbCacheOk.setChecked(True)
+                        item._widget.rf_tagOk()
+
     def clearAssigned(self):
         """
         Uncheck all 'Cache Assigned' QPushButton
@@ -760,6 +781,14 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
         for item in pQt.getTopItems(self.twCaches):
             item._widget.pbAssign.setChecked(False)
             item._widget.rf_cacheAssigned()
+
+    def clearTagOk(self):
+        """
+        Uncheck all 'Tag Ok' QPushButton
+        """
+        for item in pQt.getTopItems(self.twCaches):
+            item._widget.pbCacheOk.setChecked(False)
+            item._widget.rf_tagOk()
 
     def on_cacheNodeSingleClick(self):
         """
@@ -840,6 +869,7 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         else:
             self.lCacheFile.setText(self.pItem.cacheFileName)
         self.pbAssign.clicked.connect(self.on_cacheAssigned)
+        self.pbCacheOk.clicked.connect(self.on_tagAsOk)
         self.loadInfoDict()
         self.rf_pbCacheType()
         self.rf_cacheMode()
@@ -918,6 +948,15 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         else:
             self.pbAssign.setIcon(QtGui.QIcon())
 
+    def rf_tagOk(self):
+        """
+        Refresh cache file tag state icon
+        """
+        if self.pbCacheOk.isChecked():
+            self.pbCacheOk.setIcon(self.pWidget.tagOkIcon)
+        else:
+            self.pbCacheOk.setIcon(QtGui.QIcon())
+
     def rf_popupMenuVisibility(self):
         """
         Refresh popup menu item visibility
@@ -954,6 +993,19 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         self.pbAssign.setChecked(True)
         self.rf_cacheAssigned()
         print "// Result: New cacheFile node ---> %s" % cacheNode
+
+    def on_tagAsOk(self):
+        """
+        Command launched when 'Tag' QPushButton is clicked.
+        Tag cache version as Ok
+        """
+        print "Tagging %r as Ok ..." % self.pItem.cacheFileName
+        self.pWidget.clearTagOk()
+        cachePath = pFile.conformPath(os.path.join(self.pItem.cacheRootPath, self.pItem.cacheRelPath))
+        tagFile =  pFile.conformPath(os.path.join(cachePath, '_tagFile.py'))
+        deCmds.updateTagFile(tagFile, self.pItem.cacheVersion, self.pItem.cacheFileName)
+        self.pbCacheOk.setChecked(True)
+        self.rf_tagOk()
 
     def on_miMaterializeCache(self):
         """

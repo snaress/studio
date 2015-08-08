@@ -1,4 +1,4 @@
-import os, time, shutil
+import os, time, shutil, pprint
 from lib.system import procFile as pFile
 from tools.maya.cmds import pScene, pMode, pCloth, pCache
 try:
@@ -513,3 +513,33 @@ def deleteCacheVersion(cachePath):
         os.removedirs(cachePath)
     except:
         raise IOError, "!!! Can not delete folder: %s !!!" % cacheVersion
+
+def updateTagFile(tagFile, cacheVersion, cacheFile):
+    """
+    Update tag file info with current cache tagged
+    :param tagFile: Tag fil info fullPath
+    :typetagFile: str
+    :param cacheVersion: Tagged cache version
+    :type cacheVersion: str
+    :param cacheFile: Tagged cache file
+    :type cacheFile: str
+    """
+    #-- Get Tag Info --#
+    dateTime = "%s--%s" % (pFile.getDate(), pFile.getTime())
+    if not os.path.exists(os.path.normpath(tagFile)):
+        tagInfo = dict(currentTag={}, tagHistory={})
+    else:
+        tagInfo = pFile.readPyFile(tagFile)
+    tagInfo['currentTag'] = {'cacheVersion': cacheVersion, 'cacheFile': cacheFile}
+    tagInfo['tagHistory'][dateTime] = tagInfo['currentTag']
+    #-- Get Tag Text --#
+    tabText = []
+    for k, v in sorted(tagInfo.iteritems()):
+        tabText.append('%s = %s' % (k, pprint.pformat(v)))
+    print str('\n'.join(tabText))
+    #-- Update Tag File --#
+    try:
+        print "Updating tag file info ..."
+        pFile.writeFile(tagFile, str('\n'.join(tabText)))
+    except:
+        raise IOError, "!!! Can not update tag file info: %s !!!" % tagFile
