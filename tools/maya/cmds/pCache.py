@@ -1,4 +1,6 @@
+import os, pprint
 from tools.maya.cmds import pRigg
+from lib.system import procFile as pFile
 try:
     import maya.cmds as mc
     import maya.mel as ml
@@ -173,3 +175,137 @@ def nCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay,
         else:
             cacheNode = None
         return cacheNode
+
+
+class CacheFileParser(object):
+
+    __extraLineIn = '  <extra>'
+    __extraLineOut = '</extra>'
+    __channelsStart = '  <Channels>'
+    __channelsEnd = '  </Channels>'
+    __channelLineIn = '    <channel'
+    __channelLineOut = '/>'
+    __nClothAttrKey = 'NCloth Info for'
+
+    def __init__(self, cacheFile=None):
+        #-- Init Parser --#
+        self._cacheFile = None
+        self._cacheLines = None
+        self._headers = {}
+        self._extraLines = {}
+        self._channels = {}
+        self._signaturs = {}
+        #-- Load Given CacheFile --#
+        if cacheFile is not None:
+            self._cacheFile = cacheFile
+            self.loadFile()
+
+    @property
+    def cacheFile(self):
+        """
+        Get cacheFile value
+        :return: CacheFile full path
+        :rtype: str
+        """
+        return self._cacheFile
+
+    @cacheFile.setter
+    def cacheFile(self, value):
+        """
+        Set cacheFile Value
+        :param value: CacheFile full path
+        :type value: str
+        """
+        if value is None:
+            self._cacheFile = None
+        else:
+            if os.path.exists(os.path.normpath(value)):
+                self._cacheFile = pFile.conformPath(value)
+            else:
+                print "!!! WARNING: Given cacheFile path not found: %s !!!" % pFile.conformPath(value)
+
+    def loadFile(self):
+        """
+        Parse cache file
+        """
+        print "#-- Load Cache File --#"
+        if self.cacheFile is not None:
+            print "Loading %s" % self.cacheFile
+            self._cacheLines = pFile.readFile(self.cacheFile)
+            #-- Store Extra Lines and Channels --#
+            for n, line in enumerate(self._cacheLines):
+                line = line.strip('\n')
+                #-- Store Extra Lines --#
+                if line.startswith(self.__extraLineIn):
+                    self._extraLines[n+1] = str(line.split('>')[1].split('<')[0])
+                #-- Store Channels --#
+                if line.startswith(self.__channelLineIn):
+                    channelLine = line.split('<')[1].split('/')[0]
+                    chanParams = channelLine.split(' ')
+                    self._channels[n+1] = {}
+                    self._channels[n+1][chanParams[0]] = {}
+                    #-- Store Channels Params --#
+                    for i, p in enumerate(chanParams):
+                        if i:
+                            k = p.split('=')[0]
+                            v = p.split('=')[1]
+                            self._channels[n+1][chanParams[0]][k] = v
+            #-- Store Headers --#
+            firstExtraLine = self._extraLines.keys()[0]
+            headers = self._cacheLines[:firstExtraLine-1]
+            for n, header in enumerate(headers):
+                self._headers[n+1] = header.strip('\n')
+            #-- Store Signaturs --#
+            lastChannelLine = self._channels.keys()[-1]
+            signaturs = self._cacheLines[lastChannelLine+1:]
+            for n, signatur in enumerate(signaturs):
+                nLine = (self._channels.keys()[-1] + 1) + (n + 1)
+                self._signaturs[nLine] = signatur.strip('\n')
+
+    def hasNClothParams(self):
+        """
+        Check if cache file has nCloth params
+        :return: Has nCloth params
+        :rtype: bool
+        """
+        if self._extraLines is not None:
+            for k, v in sorted(self._extraLines.iteritems()):
+                if self.__nClothAttrKey in v:
+                    return True
+
+    def extractNClothParams(self):
+        """
+        Translate extraLines to nCloth params if any exists
+        :return: nCloth params
+        :rtype: dict
+        """
+        if self.hasNClothParams():
+            clothDict = {'connected': {}, 'attributes': {}}
+            for k, v in sorted(self._extraLines.iteritems()):
+                #-- Get Connected Nodes --#
+                if ':  ' in v:
+                    key = v.split(':  ')[0]
+                    val = v.split(':  ')[1]
+                    clothDict['connected'][key] = val
+                #-- Get Nodes Params --#
+                elif '.' in v and '=' in v:
+                    obj = v.split('.')[0]
+                    attr = v.split('.')[1].split('=')[0]
+                    val = v.split('=')[-1]
+                    if not obj in clothDict['attributes'].keys():
+                        clothDict['attributes'][obj] = {}
+                    clothDict['attributes'][obj][attr] = val
+            #-- Result --#
+            return clothDict
+
+
+if __name__ == '__main__':
+    geoCachePath = 'D:/rndBin/dynEval/asterix/shirt_loS/v021/asterix-shirt_loS-v021.xml'
+    nCachePath = 'D:/rndBin/dynEval/asterix/shirt_loS/v020/asterix-shirt_loS-v020.xml'
+    cache = CacheFileParser(cacheFile=nCachePath)
+    clothDict = cache.extractNClothParams()
+    pprint.pprint(clothDict)
+    pprint.pprint(cache._headers)
+    pprint.pprint(cache._extraLines)
+    pprint.pprint(cache._channels)
+    pprint.pprint(cache._signaturs)
