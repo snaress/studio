@@ -92,6 +92,7 @@
     <addaction name="miToolTips"/>
     <addaction name="miNamespace"/>
     <addaction name="miRfDisplay"/>
+    <addaction name="miBackup"/>
     <addaction name="miRefreshUi"/>
     <addaction name="mFilters"/>
    </widget>
@@ -165,6 +166,14 @@
    </property>
    <property name="text">
     <string>Refresh Display</string>
+   </property>
+  </action>
+  <action name="miBackup">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Backup When Append</string>
    </property>
   </action>
  </widget>

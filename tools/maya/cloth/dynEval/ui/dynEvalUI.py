@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\dynEval\ud\dynEval.ui'
 #
-# Created: Sun Aug 02 22:01:07 2015
+# Created: Sat Aug 08 15:48:57 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -102,9 +102,13 @@ class Ui_mwDynEval(object):
         self.miRfDisplay = QtGui.QAction(mwDynEval)
         self.miRfDisplay.setCheckable(True)
         self.miRfDisplay.setObjectName(_fromUtf8("miRfDisplay"))
+        self.miBackup = QtGui.QAction(mwDynEval)
+        self.miBackup.setCheckable(True)
+        self.miBackup.setObjectName(_fromUtf8("miBackup"))
         self.mOptions.addAction(self.miToolTips)
         self.mOptions.addAction(self.miNamespace)
         self.mOptions.addAction(self.miRfDisplay)
+        self.mOptions.addAction(self.miBackup)
         self.mOptions.addAction(self.miRefreshUi)
         self.mOptions.addAction(self.mFilters.menuAction())
         self.mOpenRootPath.addAction(self.miXplorer)
@@ -131,4 +135,5 @@ class Ui_mwDynEval(object):
         self.miXterm.setText(_translate("mwDynEval", "Xterm", None))
         self.miNamespace.setText(_translate("mwDynEval", "Namespace", None))
         self.miRfDisplay.setText(_translate("mwDynEval", "Refresh Display", None))
+        self.miBackup.setText(_translate("mwDynEval", "Backup When Append", None))
 

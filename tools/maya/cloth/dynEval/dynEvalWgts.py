@@ -496,18 +496,21 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         """
         print "\n#===== Create Cache =====#"
         self._checkCache(cacheMode)
+        sceneItem = self.sceneNodes.selectedClothItem
+        cacheFullPath = self._mkNClothCacheDir(sceneItem)
+        cacheFileName = '%s-%s-%s' % (sceneItem.clothNs, '_'.join(sceneItem.clothName.split('_')[:-1]),
+                                      cacheFullPath.split('/')[-1])
         if cacheMode == 'nCloth':
-            clothItem = self.sceneNodes.selectedClothItem
-            cacheFullPath = self._mkNClothCacheDir(clothItem)
-            cacheFileName = '%s-%s-%s' % (clothItem.clothNs, '_'.join(clothItem.clothName.split('_')[:-1]),
-                                          cacheFullPath.split('/')[-1])
-            deCmds.deleteCacheNode(clothItem.clothNode)
-            cacheNode = deCmds.newNCacheFile(cacheFullPath, cacheFileName, clothItem.clothNode, self.startTime,
+            deCmds.deleteCacheNode(sceneItem.clothNode)
+            cacheNode = deCmds.newNCacheFile(cacheFullPath, cacheFileName, sceneItem.clothNode, self.startTime,
                                              self.endTime, self.mainUi.displayState, self.cacheModeIndex)
-            print "// Result: New cacheFile node ---> %s" % cacheNode
         elif cacheMode == 'geo':
-            #ToDo
-            print 'create geo cache not yet ready'
+            shapeName = deCmds.getNodeShape(deCmds.getSelectedNodes()[0])
+            cacheNode = deCmds.newGeoCacheFile(cacheFullPath, cacheFileName, shapeName, self.startTime,
+                                               self.endTime, self.mainUi.displayState)
+        else:
+            cacheNode = None
+        print "// Result: New cacheFile node ---> %s" % cacheNode
         self.cacheList.rf_cacheList()
         self.cacheList.ud_cacheAssigned()
 
@@ -518,7 +521,7 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
         assigned = self.cacheList.assignedVersionItem
         last = self.cacheList.lastVersionItem
         if assigned is not None and last is not None:
-            #-- Check assigned and last version --#
+            #-- Check assigned chached is last version --#
             if not assigned.cacheFileName == last.cacheFileName:
                 mess = "!!! Assigned version %r doesn't match with last version %r !!!" % (assigned.cacheVersion,
                                                                                            last.cacheVersion)
@@ -531,10 +534,10 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
             cacheFile = os.path.basename(os.path.normpath(cacheItem.cacheFullPath)).split('.')[0]
             if infoDict['cacheType'] == 'nCloth':
                 deCmds.appendToNCacheFile(cachePath, cacheFile, cacheItem.cacheNodeName, deCmds.getCurrentFrame(),
-                                          self.endTime, self.mainUi.displayState, infoDict['cacheModeIndex'])
-            elif infoDict['cacheType'] == 'geo':
-                #ToDo
-                print "not ready"
+                                          self.endTime, self.mainUi.displayState, infoDict['cacheModeIndex'],
+                                          backup=self.mainUi.backupState)
+            else:
+                raise AttributeError, "!!! Append To Cache works only with clothNodes !!!"
 
     def on_delCacheNode(self):
         """
@@ -561,6 +564,15 @@ class DynEvalCtrl(QtGui.QWidget, wgDynEvalUI.Ui_wgDynEval):
             clothType = self.sceneNodes.selectedClothItem.clothType
             if not clothType in ['nCloth', 'nRigid']:
                 raise IOError, "!!! ClothItem should be 'nCloth' or 'nRigid', got %s" % clothType
+        elif cacheMode == 'geo':
+            #-- Check Selected Mesh --#
+            sel = deCmds.getSelectedNodes()
+            if not len(sel) == 1:
+                raise ValueError, "!!! Select only one mesh !!!"
+            #-- Check Shape --#
+            shapeName = deCmds.getNodeShape(sel[0])
+            if shapeName is None:
+                raise AttributeError, "!!! Invalid shape for %s !!!" % sel[0]
 
     def _mkNClothCacheDir(self, clothItem):
         """
@@ -703,6 +715,7 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
                     for cacheItem in cacheItems:
                         self.twCaches.addTopLevelItem(cacheItem)
                         self.twCaches.setItemWidget(cacheItem, 0, cacheItem._widget)
+                    self.ud_cacheAssigned()
 
     def rf_fileVersions(self):
         """

@@ -16,6 +16,14 @@ def mayaWarning(message):
     """
     pScene.mayaWarning(message)
 
+def mayaError(message):
+    """
+    Display maya error
+    :param message: Error to print
+    :type message: str
+    """
+    pScene.mayaError(message)
+
 def getAttr(nodeName, nodeAttr):
     """
     Get given nodeAttr value
@@ -81,6 +89,14 @@ def getNodeParent(nodeName):
         print "!!! WARNING: Parent not found for %s" % nodeName
     else:
         print "!!! WARNING: ClothNode not found for %s" % nodeName
+
+def getSelectedNodes():
+    """
+    Get maya selected nodes
+    :return: Maya selection
+    :rtype: list
+    """
+    return mc.ls(sl=True, l=True)
 
 def getNodeShape(nodeName):
     """
@@ -205,9 +221,15 @@ def deleteCacheNode(node):
     """
     pCache.delCacheNode(node)
 
-def getInfoText(nodeName, startFrame, stopFrame, cacheModeIndex, debTime, endTime):
+def writeInfoFile(cachePath, fileName, cacheType, nodeName, startFrame, stopFrame, cacheModeIndex, debTime, endTime):
     """
-    Get info text
+    Write cache info file
+    :param cachePath: Geo cache path
+    :type cachePath: str
+    :param fileName: Geo cache file name
+    :type fileName: str
+    :param cacheType: Cache file type ('nCloth' or 'geo')
+    :type cacheType: str
     :param nodeName: node shape name
     :type nodeName: str
     :param startFrame: NCloth cache start frame
@@ -221,20 +243,21 @@ def getInfoText(nodeName, startFrame, stopFrame, cacheModeIndex, debTime, endTim
     :type debTime: int
     :param endTime: Cache file process end time
     :type endTime: int
-    :return: Cache info text
-    :rtype: list
     """
-    return ['sceneName = "%s"' % mc.file(q=True, sn=True),
+    print "Creating cache file info ..."
+    info =  ['sceneName = "%s"' % mc.file(q=True, sn=True),
             'UserName = "%s"' % os.environ.get('username'),
             'DateTime = "%s -- %s"' % (pFile.getDate().replace('_', '/'),
                                        pFile.getTime().replace('_', ':')),
-            'cacheType = "nCloth"',
+            'cacheType = "%s"' % cacheType,
             'nodeName = "%s"' % nodeName,
             'originalStartFrame = %s' % startFrame,
             'originalStopFrame = %s' % stopFrame,
             'cacheModeIndex = %s' % cacheModeIndex,
             'simulation = "%s"' % pFile.secondsToStr(endTime - debTime),
             'note = "No Comment !"']
+    fileInfo = os.path.normpath(os.path.join(cachePath, '%s.py' % fileName))
+    pFile.writeFile(fileInfo, str('\n'.join(info)))
 
 def newNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex):
     """
@@ -262,15 +285,40 @@ def newNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDispl
                                   cacheModeIndex, newCacheNode=True)
     endTime = time.time()
     print "Simulation Duration: %s" % pFile.secondsToStr(endTime - debTime)
-    print "Creating cache file info ..."
-    fileInfo = os.path.normpath(os.path.join(cachePath, '%s.py' % fileName))
-    info = getInfoText(clothNode, startFrame, stopFrame, cacheModeIndex, debTime, endTime)
-    pFile.writeFile(fileInfo, str('\n'.join(info)))
+    writeInfoFile(cachePath, fileName, 'nCloth', clothNode, startFrame, stopFrame, cacheModeIndex, debTime, endTime)
     if cacheNode is not None:
         cacheNode = mc.rename(cacheNode, 'dynEval_%s' % fileName.replace('-', '_'))
     return cacheNode
 
-def appendToNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex):
+def newGeoCacheFile(cachePath, fileName, shapeName, startFrame, stopFrame, rfDisplay):
+    """
+    Create new cache files, attach new cacheNode, connect new cacheNode
+    :param cachePath: Geo cache path
+    :type cachePath: str
+    :param fileName: Geo cache file name
+    :type fileName: str
+    :param shapeName: Selected shape name
+    :type shapeName: str
+    :param startFrame: Geo cache start frame
+    :type startFrame: int
+    :param stopFrame: Geo cache end frame
+    :type stopFrame: int
+    :param rfDisplay: Refresh maya display state
+    :type rfDisplay: bool
+    :return: New cacheFile node
+    :rtype: str
+    """
+    debTime = time.time()
+    cacheNode = pCache.geoCacheFile(cachePath, fileName, shapeName, startFrame, stopFrame, rfDisplay,
+                                    newCacheNode=True)
+    endTime = time.time()
+    print "Caching Duration: %s" % pFile.secondsToStr(endTime - debTime)
+    writeInfoFile(cachePath, fileName, 'geo', shapeName, startFrame, stopFrame, 0, debTime, endTime)
+    if cacheNode is not None:
+        cacheNode = mc.rename(cacheNode, 'geoCache_%s' % fileName.replace('-', '_'))
+    return cacheNode
+
+def appendToNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex, backup=False):
     """
     Append to cache files
     :param cachePath: NCloth cache path
@@ -288,10 +336,12 @@ def appendToNCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rf
     :param cacheModeIndex: NCloth node cacheable attributes index.
                            (0=positions, 1=velocities, 2=internalState)
     :type cacheModeIndex: int
+    :param backup: Enable cache file backup
+    :type backup: bool
     """
     debTime = time.time()
     pCache.nCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex,
-                      modeAppend=True)
+                      modeAppend=True, noBackup=not backup)
     endTime = time.time()
     print "Simulation Duration: %s" % pFile.secondsToStr(endTime - debTime)
 
@@ -328,7 +378,11 @@ def assignGeoCacheFile(cachePath, fileName, mesh):
     :return: New cacheFile node
     :rtype: str
     """
-    return pCache.newGeoCacheNode(cachePath, fileName, mesh)
+    deleteCacheNode(mesh)
+    cacheNode = pCache.newGeoCacheNode(cachePath, fileName, mesh)
+    if cacheNode is not None:
+        cacheNode = mc.rename(cacheNode, 'geoCache_%s' % fileName.replace('-', '_'))
+    return cacheNode
 
 def materializeCacheVersion(cachePath, fileName, mesh):
     """

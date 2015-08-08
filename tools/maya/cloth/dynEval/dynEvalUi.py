@@ -50,6 +50,7 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         self.miNamespace.triggered.connect(self.on_miNamespace)
         self.miNamespace.setShortcut("Ctrl+N")
         self.miRfDisplay.setShortcut("Ctrl+R")
+        self.miBackup.setShortcut("Ctrl+B")
         self.miRefreshUi.triggered.connect(self.on_miRefreshUi)
         self.miRefreshUi.setShortcut("F5")
         self.rf_menuFilters()
@@ -96,6 +97,15 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         :rtype: bool
         """
         return self.miRfDisplay.isChecked()
+
+    @property
+    def backupState(self):
+        """
+        Get backup state
+        :return: Backup state
+        :rtype: bool
+        """
+        return self.miBackup.isChecked()
 
     @staticmethod
     def getLabelColor(color):
