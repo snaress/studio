@@ -162,3 +162,11 @@ def mayaWarning(message):
     :type message: str
     """
     mc.warning(message)
+
+def mayaError(message):
+    """
+    Display maya error
+    :param message: Error to print
+    :type message: str
+    """
+    mc.error(message)

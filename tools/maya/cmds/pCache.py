@@ -71,8 +71,51 @@ def delCacheNode(node):
         mc.setAttr('%s.enable' % cacheNode, False)
         mc.delete(cacheNode)
 
+def geoCacheFile(cachePath, fileName, shapeName, startFrame, stopFrame, rfDisplay, newCacheNode):
+    """
+    Create new cache files, attach to new cacheNode, connect new cacheNode
+    :param cachePath: NCloth cache path
+    :type cachePath: str
+    :param fileName: NCloth cache file name
+    :type fileName: str
+    :param shapeName: Shape name
+    :type shapeName: str
+    :param startFrame: NCloth cache start frame
+    :type startFrame: int
+    :param stopFrame: NCloth cache end frame
+    :type stopFrame: int
+    :param rfDisplay: Refresh maya display state
+    :type rfDisplay: bool
+    :param newCacheNode: Create new cache node
+    :type newCacheNode: bool
+    :return: New cacheFile node
+    :rtype: str
+    """
+    #-- Print Cache Info --#
+    infos = ["#" * 60, "#-- Cache Infos --#",
+             "Cache Path = %s" % cachePath,
+             "File Name = %s" % fileName,
+             "Shape Node = %s" % shapeName,
+             "Start Frame = %s" % startFrame,
+             "End Frame = %s" % stopFrame,
+             "Refresh Maya Display = %s" % rfDisplay,
+             "New Cache Node = %s" % str(newCacheNode), "#" * 60]
+    print '\n'.join(infos)
+    #-- Launch Cache Creation --#
+    print "\t Create cache files ..."
+    mc.playbackOptions(ps=0)
+    mc.cacheFile(dir=cachePath, f=fileName, pts=shapeName, st=startFrame, et=stopFrame, fm='OneFile',
+                 r=rfDisplay,  ws=True)
+    #-- Create Cache Node --#
+    if newCacheNode:
+        print "\t Create cache node ..."
+        cacheNode = newGeoCacheNode(cachePath, fileName, shapeName)
+    else:
+        cacheNode = None
+    return cacheNode
+
 def nCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay, cacheModeIndex,
-               newCacheNode=False, modeAppend=False):
+               newCacheNode=False, modeAppend=False, noBackup=False):
     """
     Create new cache files, attach to new cacheNode, connect new cacheNode
     :param cachePath: NCloth cache path
@@ -92,6 +135,9 @@ def nCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay,
     :type cacheModeIndex: int
     :param newCacheNode: Create new cache node
     :type newCacheNode: bool
+    :param noBackup: Specifies that backup files should not be created
+                     for any files that may be over-written during append
+    :type noBackup: bool
     :return: New cacheFile node
     :rtype: str
     """
@@ -118,7 +164,7 @@ def nCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay,
     else:
         print "\t Append to cache files ..."
         mc.cacheFile(dir=cachePath, f=fileName, cnd=clothNode, apf=True, st=startFrame, et=stopFrame, fm='OneFile',
-                     r=rfDisplay, ci="getNClothDescriptionInfo %s" % clothNode)
+                     r=rfDisplay, ci="getNClothDescriptionInfo %s" % clothNode, nb=noBackup)
     #-- Create Cache Node --#
     if not modeAppend:
         if newCacheNode:
