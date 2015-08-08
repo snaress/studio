@@ -1,4 +1,4 @@
-import os, pprint
+import os
 from tools.maya.cmds import pRigg
 from lib.system import procFile as pFile
 try:
@@ -228,9 +228,7 @@ class CacheFileParser(object):
         """
         Parse cache file
         """
-        print "#-- Load Cache File --#"
         if self.cacheFile is not None:
-            print "Loading %s" % self.cacheFile
             self._cacheLines = pFile.readFile(self.cacheFile)
             #-- Store Extra Lines and Channels --#
             for n, line in enumerate(self._cacheLines):
@@ -286,7 +284,9 @@ class CacheFileParser(object):
                 if ':  ' in v:
                     key = v.split(':  ')[0]
                     val = v.split(':  ')[1]
-                    clothDict['connected'][key] = val
+                    if not key in clothDict['connected'].keys():
+                        clothDict['connected'][key] = []
+                    clothDict['connected'][key].append(val)
                 #-- Get Nodes Params --#
                 elif '.' in v and '=' in v:
                     obj = v.split('.')[0]
@@ -297,15 +297,3 @@ class CacheFileParser(object):
                     clothDict['attributes'][obj][attr] = val
             #-- Result --#
             return clothDict
-
-
-if __name__ == '__main__':
-    geoCachePath = 'D:/rndBin/dynEval/asterix/shirt_loS/v021/asterix-shirt_loS-v021.xml'
-    nCachePath = 'D:/rndBin/dynEval/asterix/shirt_loS/v020/asterix-shirt_loS-v020.xml'
-    cache = CacheFileParser(cacheFile=nCachePath)
-    clothDict = cache.extractNClothParams()
-    pprint.pprint(clothDict)
-    pprint.pprint(cache._headers)
-    pprint.pprint(cache._extraLines)
-    pprint.pprint(cache._channels)
-    pprint.pprint(cache._signaturs)
