@@ -41,10 +41,13 @@ def makeDir(directory, verbose=False):
         try:
             os.mkdir(path)
             if verbose:
-                print "\t Create folder '%s' in '%s'" % (directory.split(os.sep)[-1],
-                                                         conformPath(os.sep.join(directory.split(os.sep)[:-1])))
+                print "\t Create folder '%s' in '%s'" % (path.split(os.sep)[-1],
+                                                         conformPath(os.sep.join(path.split(os.sep)[:-1])))
         except(IOError, os.error) as log:
             raise IOError, log
+    else:
+        if verbose:
+            print "\t Skip folder creation, directory already exists: %s !!!" % path
 
 def mkPathFolders(rootPath, absPath, sep=None):
     """
