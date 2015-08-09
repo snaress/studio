@@ -32,6 +32,8 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         self.twSceneNodes.itemDoubleClicked.connect(self.on_sceneNodeDoubleClick)
         self.cbCloth.clicked.connect(self.on_showClothType)
         self.cbRigid.clicked.connect(self.on_showClothType)
+        self.pbAllOn.clicked.connect(partial(self.on_editAll, state=True))
+        self.pbAllOff.clicked.connect(partial(self.on_editAll, state=False))
         self.rf_sceneNodes()
 
     @property
@@ -108,8 +110,10 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         if self.mainUi.toolTipState:
             self.cbCloth.setToolTip("Show / Hide nCloth items")
             self.cbRigid.setToolTip("Show / Hide nRigid items")
+            self.pbAllOn.setToolTip("Enable all items")
+            self.pbAllOff.setToolTip("Disable all items")
         else:
-            for widget in [self.cbCloth, self.cbRigid]:
+            for widget in [self.cbCloth, self.cbRigid, self.pbAllOn, self.pbAllOff.setToolTip]:
                 widget.setToolTip("")
 
     def rf_sceneItemToolTips(self):
@@ -210,6 +214,17 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
                 self.twSceneNodes.setItemHidden(item, not self.cbCloth.isChecked())
             elif item.clothType == 'nRigid':
                 self.twSceneNodes.setItemHidden(item, not self.cbRigid.isChecked())
+
+    def on_editAll(self, state=True):
+        """
+        Command launched when 'All ('ON' or 'OFF')' QPushButton is clicked.
+        Enable or disable all sceneNode items
+        :param state: State value
+        :type state: bool
+        """
+        for item in pQt.getAllItems(self.twSceneNodes):
+            item._widget.pbEnable.setChecked(state)
+            item._widget.on_stateIcon()
 
     def new_sceneNodeItem(self, clothNode):
         """
@@ -914,6 +929,9 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         self.miAssignToSel = self.cacheNodeMenu.addAction('Assign To Selected')
         self.miAssignToSel.triggered.connect(self.on_miAssignToSel)
         self.cacheNodeMenu.addSeparator()
+        self.miArchive = self.cacheNodeMenu.addAction('Archive')
+        self.miArchive.triggered.connect(self.on_miArchiveCache)
+        self.cacheNodeMenu.addSeparator()
         self.miDelete = self.cacheNodeMenu.addAction('Delete')
         self.miDelete.triggered.connect(self.on_miDeleteCache)
         #-- Exec Menu --#
@@ -989,18 +1007,19 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
             self.miDuplicate.setEnabled(False)
             self.miMaterialized.setEnabled(False)
             self.miAssignToSel.setEnabled(False)
+            self.miArchive.setEnabled(False)
             self.miDelete.setEnabled(False)
         else:
             if len(selItems) == 1:
                 self.miDuplicate.setEnabled(True)
                 self.miMaterialized.setEnabled(True)
                 self.miAssignToSel.setEnabled(True)
-                self.miDelete.setEnabled(True)
             else:
                 self.miDuplicate.setEnabled(False)
                 self.miMaterialized.setEnabled(False)
                 self.miAssignToSel.setEnabled(False)
-                self.miDelete.setEnabled(True)
+            self.miArchive.setEnabled(True)
+            self.miDelete.setEnabled(True)
 
     def on_cacheAssigned(self):
         """
@@ -1076,6 +1095,14 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         cacheNode = deCmds.assignCacheFileToSel(cachePath, cacheFile)
         print "// Result: New cacheFile node ---> %s" % cacheNode
 
+    def on_miArchiveCache(self):
+        """
+        Command launched when 'Archive' QMenuItem is triggered.
+        Launch confirm dialog
+        """
+        self.cdArchive = pQt.ConfirmDialog("Archive seelcted cache versions ?", ['Archive'], [self.archiveCache])
+        self.cdArchive.exec_()
+
     def on_miDeleteCache(self):
         """
         Command launched when 'Delete' QMenuItem is triggered.
@@ -1083,6 +1110,34 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
         """
         self.cdDelCache = pQt.ConfirmDialog("Delete selected versions ?", ['Ok'], [self.deleteCache])
         self.cdDelCache.exec_()
+
+    def tagCacheVersion(self):
+        """
+        Tag cache version as Ok
+        """
+        self.cdTagCache.close()
+        print "Tagging %r as Ok ..." % self.pItem.cacheFileName
+        self.pWidget.clearTagOk()
+        cachePath = pFile.conformPath(os.path.join(self.pItem.cacheRootPath, self.pItem.cacheRelPath))
+        tagFile =  pFile.conformPath(os.path.join(cachePath, '_tagFile.py'))
+        deCmds.updateTagFile(tagFile, self.pItem.cacheVersion, self.pItem.cacheFileName)
+        deCmds.archiveCacheVersion(cachePath, [self.pItem.cacheVersion])
+        self.pbCacheOk.setChecked(True)
+        self.rf_tagOk()
+
+    def archiveCache(self):
+        """
+        Archive cache version
+        """
+        self.cdArchive.close()
+        #-- Collecte Versions --#
+        versions = []
+        for item in self.pWidget.twCaches.selectedItems():
+            versions.append(item.cacheVersion)
+        #-- Archive Files --#
+        print "Archiving %s ..." % versions
+        cachePath = pFile.conformPath(os.path.join(self.pItem.cacheRootPath, self.pItem.cacheRelPath))
+        deCmds.archiveCacheVersion(cachePath, versions)
 
     def deleteCache(self):
         """
@@ -1101,19 +1156,6 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
             print 'Delete %s' % item.cacheFileName
             deCmds.deleteCacheVersion(cachePath)
         self.pWidget.rf_cacheList()
-
-    def tagCacheVersion(self):
-        """
-        Tag cache version as Ok
-        """
-        self.cdTagCache.close()
-        print "Tagging %r as Ok ..." % self.pItem.cacheFileName
-        self.pWidget.clearTagOk()
-        cachePath = pFile.conformPath(os.path.join(self.pItem.cacheRootPath, self.pItem.cacheRelPath))
-        tagFile =  pFile.conformPath(os.path.join(cachePath, '_tagFile.py'))
-        deCmds.updateTagFile(tagFile, self.pItem.cacheVersion, self.pItem.cacheFileName)
-        self.pbCacheOk.setChecked(True)
-        self.rf_tagOk()
 
     def mouseReleaseEvent(self, event):
         """
@@ -1169,7 +1211,7 @@ class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):
         else:
             return 'connected'
 
-    def getItemFullName(self, fullName):
+    def getItemByFullName(self, fullName):
         """
         Get item considering given attribute name and value
         :param fullName: Full name
@@ -1196,8 +1238,10 @@ class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):
         """
         if self.mainUi.toolTipState:
             self.pbEditNotes.setToolTip("Save comment to cache file info")
+            self.rbAttrs.setToolTip("List atributes and values")
+            self.rbConns.setToolTip("List connected nodes")
         else:
-            for widget in [self.pbEditNotes]:
+            for widget in [self.pbEditNotes, self.rbAttrs, self.rbConns]:
                 widget.setToolTip("")
 
     def rf_widget(self):
@@ -1280,13 +1324,13 @@ class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):
                 ns = 'custom'
                 name = node
             #-- Add Namespace --#
-            nsItem = self.getItemFullName(ns)
+            nsItem = self.getItemByFullName(ns)
             if nsItem is None:
                 nsItem = self.new_paramItem('ns', namespace=ns)
                 self.twParams.addTopLevelItem(nsItem)
                 self.twParams.setItemWidget(nsItem, 0, nsItem._widget)
             #-- Add NodeName --#
-            nnItem = self.getItemFullName('%s:%s' % (ns, name))
+            nnItem = self.getItemByFullName('%s:%s' % (ns, name))
             if nnItem is None:
                 nnItem = self.new_paramItem('name', namespace=ns, name=name)
                 nsItem.addChild(nnItem)

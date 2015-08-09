@@ -149,6 +149,16 @@ def getTimeRange():
     """
     return pScene.getTimeRange()
 
+def makeDir(directory, verbose=True):
+    """
+    Create given directory
+    :param directory: Full directory path
+    :type directory: str
+    :param verbose: Enable verbose
+    :type verbose: bool
+    """
+    pFile.makeDir(os.path.normpath(directory), verbose=verbose)
+
 def getLastVersion(path):
     """
     Get last cache version
@@ -372,19 +382,21 @@ def updateTagFile(tagFile, cacheVersion, cacheFile):
     """
     Update tag file info with current cache tagged
     :param tagFile: Tag fil info fullPath
-    :typetagFile: str
+    :type tagFile: str
     :param cacheVersion: Tagged cache version
     :type cacheVersion: str
     :param cacheFile: Tagged cache file
     :type cacheFile: str
     """
-    #-- Get Tag Info --#
+    #-- Collecte Tag Info --#
     dateTime = "%s--%s" % (pFile.getDate(), pFile.getTime())
     if not os.path.exists(os.path.normpath(tagFile)):
         tagInfo = dict(currentTag={}, tagHistory={})
     else:
         tagInfo = pFile.readPyFile(tagFile)
-    tagInfo['currentTag'] = {'cacheVersion': cacheVersion, 'cacheFile': cacheFile}
+    tagInfo['currentTag'] = {'cacheVersion': cacheVersion,
+                             'cacheFile': cacheFile,
+                             'taggedBy': os.environ.get('user')}
     tagInfo['tagHistory'][dateTime] = tagInfo['currentTag']
     #-- Get Tag Text --#
     tabText = []
@@ -394,8 +406,8 @@ def updateTagFile(tagFile, cacheVersion, cacheFile):
     try:
         print "Updating tag file info ..."
         pFile.writeFile(tagFile, str('\n'.join(tabText)))
-    except:
-        raise IOError, "!!! Can not update tag file info: %s !!!" % tagFile
+    except(IOError, os.error) as log:
+        raise IOError, log
 
 def materializeCacheVersion(cachePath, fileName, mesh):
     """
@@ -485,13 +497,98 @@ def assignCacheFileToSel(cachePath, fileName):
     #-- Result --#
     return  cacheNode
 
+def updateArchiveInfo(infoFile, archiveFolder, cacheVersions):
+    """
+    Update archive file info with given cache versions
+    :param infoFile: Archive fil info fullPath
+    :type infoFile: str
+    :param archiveFolder: Archive folder name
+    :type archiveFolder: str
+    :param cacheVersions: Archived cache versions
+    :type cacheVersions: list
+    """
+    if not os.path.exists(os.path.normpath(infoFile)):
+        archInfo = dict()
+        n = 1
+    else:
+        archInfo = pFile.readPyFile(os.path.normpath(infoFile))
+        n = (len(archInfo.keys()) + 1)
+    archInfo['archive_%s' % n] = dict()
+    archInfo['archive_%s' % n][archiveFolder] = {'date': archiveFolder.split('--')[0].replace('_', '/'),
+                                                 'time': archiveFolder.split('--')[1].replace('_', ':'),
+                                                 'versions': cacheVersions,
+                                                 'archivedBy': os.environ.get('user')}
+    #-- Get Archive Text --#
+    archText = []
+    for k, v in sorted(archInfo.iteritems()):
+        archText.append('%s = %s' % (k, v))
+    #-- Update Archive File Info --#
+    try:
+        print "Updating archive file info ..."
+        pFile.writeFile(infoFile, str('\n'.join(archText)))
+    except(IOError, os.error) as log:
+        raise IOError, log
+
+def archiveCacheVersion(cachePath, cacheVersions, _date=None, _time=None):
+    """
+    Archive cache version
+    :param cachePath: Cache file path (without version)
+    :type cachePath: str
+    :param cacheVersions: Cache versions to archivate
+    :type cacheVersions: list
+    :param _date: Archive creation date
+    :type _date: str
+    :param _time: Archive creation date
+    :type _time: str
+    :return: Result ('success', 'failed')
+    :rtype: dict
+    """
+    #-- Init Kwargs --#
+    if _date is None:
+        _date = pFile.getDate()
+    if _time is None:
+        _time = pFile.getTime()
+    #-- Create Folder '_archive' --#
+    archPath = pFile.conformPath(os.path.join(cachePath, '_archive'))
+    archFld = '%s--%s' % (_date, _time)
+    makeDir(archPath)
+    #-- Create Archive Folder --#
+    archFullPath = pFile.conformPath(os.path.join(archPath, archFld))
+    makeDir(archFullPath)
+    #-- Create Version Folder --#
+    for cacheVersion in cacheVersions:
+        archVPath = pFile.conformPath(os.path.join(archFullPath, cacheVersion))
+        makeDir(archVPath)
+    #-- Copy Cache Files --#
+    print "\t Copying cache files ..."
+    result = dict(success=[], failed=[])
+    for cacheVersion in cacheVersions:
+        archVPath = pFile.conformPath(os.path.join(archFullPath, cacheVersion))
+        srcPath = os.path.normpath(os.path.join(cachePath, cacheVersion))
+        dstPath = os.path.normpath(archVPath)
+        for cacheFile in os.listdir(srcPath):
+            cacheFilePath = os.path.normpath(os.path.join(srcPath, cacheFile))
+            try:
+                shutil.copy2(cacheFilePath, dstPath)
+                result['success'].append(cacheFilePath)
+                print "\t %s --->\n\t ---> %s" % (cacheFilePath, dstPath)
+            except(IOError, os.error) as log:
+                result['failed'].append(cacheFilePath)
+                raise IOError, log
+    #-- Update Archive File Info --#
+    infoFile = pFile.conformPath(os.path.join(archPath, '_archFile.py'))
+    updateArchiveInfo(infoFile, archFld, cacheVersions)
+    #-- Result --#
+    print "Archive Done."
+    return result
+
 def deleteCacheVersion(cachePath):
     """
     Delete cache files
     :param cachePath: NCloth cache path
     :type cachePath: str
     """
-    #-- Get Info --#
+    #-- Collecte Info --#
     rootPath = '/'.join(cachePath.split('/')[:-1])
     cacheVersion = cachePath.split('/')[-1]
     print "Cache Path:", cachePath

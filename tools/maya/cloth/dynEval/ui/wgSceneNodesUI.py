@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\clothCache\ud\wgSceneNodes.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\dynEval\ud\wgSceneNodes.ui'
 #
-# Created: Sat May 23 15:20:48 2015
+# Created: Sun Aug 09 05:43:17 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -31,16 +31,8 @@ class Ui_wgSceneNodes(object):
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
-        self.twSceneNodes = QtGui.QTreeWidget(wgSceneNodes)
-        self.twSceneNodes.setIndentation(20)
-        self.twSceneNodes.setExpandsOnDoubleClick(False)
-        self.twSceneNodes.setColumnCount(1)
-        self.twSceneNodes.setObjectName(_fromUtf8("twSceneNodes"))
-        self.twSceneNodes.headerItem().setText(0, _fromUtf8("1"))
-        self.twSceneNodes.header().setVisible(False)
-        self.gridLayout.addWidget(self.twSceneNodes, 0, 0, 1, 1)
         self.hlOptions = QtGui.QHBoxLayout()
-        self.hlOptions.setSpacing(12)
+        self.hlOptions.setSpacing(2)
         self.hlOptions.setObjectName(_fromUtf8("hlOptions"))
         self.lClothType = QtGui.QLabel(wgSceneNodes)
         self.lClothType.setMinimumSize(QtCore.QSize(0, 20))
@@ -66,7 +58,40 @@ class Ui_wgSceneNodes(object):
         self.hlOptions.addWidget(self.cbRigid)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hlOptions.addItem(spacerItem)
-        self.gridLayout.addLayout(self.hlOptions, 1, 0, 1, 1)
+        self.pbAllOn = QtGui.QPushButton(wgSceneNodes)
+        self.pbAllOn.setMaximumSize(QtCore.QSize(50, 20))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        font.setKerning(True)
+        self.pbAllOn.setFont(font)
+        self.pbAllOn.setFlat(False)
+        self.pbAllOn.setObjectName(_fromUtf8("pbAllOn"))
+        self.hlOptions.addWidget(self.pbAllOn)
+        self.pbAllOff = QtGui.QPushButton(wgSceneNodes)
+        self.pbAllOff.setMaximumSize(QtCore.QSize(50, 20))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        font.setKerning(True)
+        self.pbAllOff.setFont(font)
+        self.pbAllOff.setFlat(False)
+        self.pbAllOff.setObjectName(_fromUtf8("pbAllOff"))
+        self.hlOptions.addWidget(self.pbAllOff)
+        self.gridLayout.addLayout(self.hlOptions, 2, 0, 1, 1)
+        self.twSceneNodes = QtGui.QTreeWidget(wgSceneNodes)
+        self.twSceneNodes.setIndentation(20)
+        self.twSceneNodes.setExpandsOnDoubleClick(False)
+        self.twSceneNodes.setColumnCount(1)
+        self.twSceneNodes.setObjectName(_fromUtf8("twSceneNodes"))
+        self.twSceneNodes.headerItem().setText(0, _fromUtf8("1"))
+        self.twSceneNodes.header().setVisible(False)
+        self.gridLayout.addWidget(self.twSceneNodes, 0, 0, 1, 1)
+        self.line = QtGui.QFrame(wgSceneNodes)
+        self.line.setFrameShape(QtGui.QFrame.HLine)
+        self.line.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line.setObjectName(_fromUtf8("line"))
+        self.gridLayout.addWidget(self.line, 1, 0, 1, 1)
 
         self.retranslateUi(wgSceneNodes)
         QtCore.QMetaObject.connectSlotsByName(wgSceneNodes)
@@ -76,4 +101,6 @@ class Ui_wgSceneNodes(object):
         self.lClothType.setText(_translate("wgSceneNodes", "Show: ", None))
         self.cbCloth.setText(_translate("wgSceneNodes", "nCloth", None))
         self.cbRigid.setText(_translate("wgSceneNodes", "nRigid", None))
+        self.pbAllOn.setText(_translate("wgSceneNodes", "All ON", None))
+        self.pbAllOff.setText(_translate("wgSceneNodes", "All OFF", None))
 
