@@ -110,7 +110,14 @@
     <addaction name="miSetRootPath"/>
     <addaction name="mOpenRootPath"/>
    </widget>
+   <widget class="QMenu" name="mSimu">
+    <property name="title">
+     <string>Simu</string>
+    </property>
+    <addaction name="miLaunchNCloth"/>
+   </widget>
    <addaction name="mFiles"/>
+   <addaction name="mSimu"/>
    <addaction name="mOptions"/>
   </widget>
   <action name="miToolTips">
@@ -174,6 +181,21 @@
    </property>
    <property name="text">
     <string>Backup When Append</string>
+   </property>
+  </action>
+  <action name="miEnableAll">
+   <property name="text">
+    <string>Enable All</string>
+   </property>
+  </action>
+  <action name="miDisableAll">
+   <property name="text">
+    <string>Disable All</string>
+   </property>
+  </action>
+  <action name="miLaunchNCloth">
+   <property name="text">
+    <string>Launch Active nCloth</string>
    </property>
   </action>
  </widget>

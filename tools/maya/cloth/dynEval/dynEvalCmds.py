@@ -8,22 +8,6 @@ except:
     pass
 
 
-def mayaWarning(message):
-    """
-    Display maya warning
-    :param message: Warning to print
-    :type message: str
-    """
-    pScene.mayaWarning(message)
-
-def mayaError(message):
-    """
-    Display maya error
-    :param message: Error to print
-    :type message: str
-    """
-    pScene.mayaError(message)
-
 def getAttr(nodeName, nodeAttr):
     """
     Get given nodeAttr value
@@ -384,6 +368,35 @@ def assignGeoCacheFile(cachePath, fileName, mesh):
         cacheNode = mc.rename(cacheNode, 'geoCache_%s' % fileName.replace('-', '_'))
     return cacheNode
 
+def updateTagFile(tagFile, cacheVersion, cacheFile):
+    """
+    Update tag file info with current cache tagged
+    :param tagFile: Tag fil info fullPath
+    :typetagFile: str
+    :param cacheVersion: Tagged cache version
+    :type cacheVersion: str
+    :param cacheFile: Tagged cache file
+    :type cacheFile: str
+    """
+    #-- Get Tag Info --#
+    dateTime = "%s--%s" % (pFile.getDate(), pFile.getTime())
+    if not os.path.exists(os.path.normpath(tagFile)):
+        tagInfo = dict(currentTag={}, tagHistory={})
+    else:
+        tagInfo = pFile.readPyFile(tagFile)
+    tagInfo['currentTag'] = {'cacheVersion': cacheVersion, 'cacheFile': cacheFile}
+    tagInfo['tagHistory'][dateTime] = tagInfo['currentTag']
+    #-- Get Tag Text --#
+    tabText = []
+    for k, v in sorted(tagInfo.iteritems()):
+        tabText.append('%s = %s' % (k, pprint.pformat(v)))
+    #-- Update Tag File --#
+    try:
+        print "Updating tag file info ..."
+        pFile.writeFile(tagFile, str('\n'.join(tabText)))
+    except:
+        raise IOError, "!!! Can not update tag file info: %s !!!" % tagFile
+
 def materializeCacheVersion(cachePath, fileName, mesh):
     """
     Materialize given cache version
@@ -514,32 +527,35 @@ def deleteCacheVersion(cachePath):
     except:
         raise IOError, "!!! Can not delete folder: %s !!!" % cacheVersion
 
-def updateTagFile(tagFile, cacheVersion, cacheFile):
+def cacheFileParser(cacheFile):
     """
-    Update tag file info with current cache tagged
-    :param tagFile: Tag fil info fullPath
-    :typetagFile: str
-    :param cacheVersion: Tagged cache version
-    :type cacheVersion: str
-    :param cacheFile: Tagged cache file
+    Maya geo cache file parser (xml)
+    :param cacheFile: Geo cache file full path
     :type cacheFile: str
+    :return: Parser object
+    :rtype: pCache.CacheFileParser
     """
-    #-- Get Tag Info --#
-    dateTime = "%s--%s" % (pFile.getDate(), pFile.getTime())
-    if not os.path.exists(os.path.normpath(tagFile)):
-        tagInfo = dict(currentTag={}, tagHistory={})
-    else:
-        tagInfo = pFile.readPyFile(tagFile)
-    tagInfo['currentTag'] = {'cacheVersion': cacheVersion, 'cacheFile': cacheFile}
-    tagInfo['tagHistory'][dateTime] = tagInfo['currentTag']
-    #-- Get Tag Text --#
-    tabText = []
-    for k, v in sorted(tagInfo.iteritems()):
-        tabText.append('%s = %s' % (k, pprint.pformat(v)))
-    print str('\n'.join(tabText))
-    #-- Update Tag File --#
-    try:
-        print "Updating tag file info ..."
-        pFile.writeFile(tagFile, str('\n'.join(tabText)))
-    except:
-        raise IOError, "!!! Can not update tag file info: %s !!!" % tagFile
+    return pCache.CacheFileParser(cacheFile)
+
+def restoreParams(**kwargs):
+    """
+    Restore given params
+    :param kwargs: Params to restore
+    :type kwargs: dict
+    :return: Result ['success', 'failed')
+    :rtype: dict
+    """
+    result = dict(success={}, failed={})
+    for k, v in kwargs.iteritems():
+        if mc.objExists(k):
+            if mc.listConnections(k) is None:
+                try:
+                    mc.setAttr(k, v)
+                    result['success'][k] = v
+                except:
+                    result['failed'][k] = v
+            else:
+                result['failed'][k] = v
+        else:
+            result['failed'][k] = v
+    return result

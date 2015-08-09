@@ -171,14 +171,14 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
     def on_miXplorer(self):
         """ Command launched when 'Xplorer' menuItem is clicked """
         if self.cacheList.cachePath is None:
-            deCmds.mayaWarning("!!! CacheRootPath is not set !!!")
+            print "!!! WARNING: CacheRootPath is not set !!!"
             return
         os.system('explorer %s' % os.path.normpath(self.cacheList.cachePath))
 
     def on_miXterm(self):
         """ Command launched when 'Xterm' menuItem is clicked """
         if self.cacheList.cachePath is None:
-            deCmds.mayaWarning("!!! CacheRootPath is not set !!!")
+            print "!!! WARNING: CacheRootPath is not set !!!"
             return
         os.system('start "DynEval Root Path" /d "%s"' % os.path.normpath(self.cacheList.cachePath))
 
@@ -190,6 +190,7 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         self.sceneNodes.rf_sceneItemToolTips()
         self.dynEval.rf_widgetToolTips()
         self.cacheList.rf_widgetToolTips()
+        self.cacheList.rf_widgetItemToolTips()
         self.cacheInfo.rf_widgetToolTips()
 
     def on_miNamespace(self):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\dynEval\ud\wgCacheInfo.ui'
 #
-# Created: Sun Aug 02 21:23:12 2015
+# Created: Sun Aug 09 01:04:36 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,6 +66,40 @@ class Ui_wgCacheInfo(object):
         self.teInfos.setObjectName(_fromUtf8("teInfos"))
         self.gridLayout_3.addWidget(self.teInfos, 0, 0, 1, 1)
         self.tabInfo.addTab(self.tabInfos, _fromUtf8(""))
+        self.tabParams = QtGui.QWidget()
+        self.tabParams.setObjectName(_fromUtf8("tabParams"))
+        self.gridLayout_4 = QtGui.QGridLayout(self.tabParams)
+        self.gridLayout_4.setMargin(0)
+        self.gridLayout_4.setSpacing(0)
+        self.gridLayout_4.setObjectName(_fromUtf8("gridLayout_4"))
+        self.twParams = QtGui.QTreeWidget(self.tabParams)
+        self.twParams.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
+        self.twParams.setExpandsOnDoubleClick(False)
+        self.twParams.setObjectName(_fromUtf8("twParams"))
+        self.twParams.headerItem().setText(0, _fromUtf8("1"))
+        self.twParams.header().setVisible(False)
+        self.gridLayout_4.addWidget(self.twParams, 1, 0, 1, 1)
+        self.hlParamsType = QtGui.QHBoxLayout()
+        self.hlParamsType.setContentsMargins(2, 0, 2, 0)
+        self.hlParamsType.setObjectName(_fromUtf8("hlParamsType"))
+        self.lParamsType = QtGui.QLabel(self.tabParams)
+        self.lParamsType.setObjectName(_fromUtf8("lParamsType"))
+        self.hlParamsType.addWidget(self.lParamsType)
+        self.rbAttrs = QtGui.QRadioButton(self.tabParams)
+        self.rbAttrs.setChecked(True)
+        self.rbAttrs.setObjectName(_fromUtf8("rbAttrs"))
+        self.bgParamsType = QtGui.QButtonGroup(wgCacheInfo)
+        self.bgParamsType.setObjectName(_fromUtf8("bgParamsType"))
+        self.bgParamsType.addButton(self.rbAttrs)
+        self.hlParamsType.addWidget(self.rbAttrs)
+        self.rbConns = QtGui.QRadioButton(self.tabParams)
+        self.rbConns.setObjectName(_fromUtf8("rbConns"))
+        self.bgParamsType.addButton(self.rbConns)
+        self.hlParamsType.addWidget(self.rbConns)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.hlParamsType.addItem(spacerItem1)
+        self.gridLayout_4.addLayout(self.hlParamsType, 0, 0, 1, 1)
+        self.tabInfo.addTab(self.tabParams, _fromUtf8(""))
         self.gridLayout.addWidget(self.tabInfo, 0, 0, 1, 1)
 
         self.retranslateUi(wgCacheInfo)
@@ -77,4 +111,8 @@ class Ui_wgCacheInfo(object):
         self.pbEditNotes.setText(_translate("wgCacheInfo", "Edit Notes", None))
         self.tabInfo.setTabText(self.tabInfo.indexOf(self.tabNotes), _translate("wgCacheInfo", "Notes", None))
         self.tabInfo.setTabText(self.tabInfo.indexOf(self.tabInfos), _translate("wgCacheInfo", "Infos", None))
+        self.lParamsType.setText(_translate("wgCacheInfo", "Params Type: ", None))
+        self.rbAttrs.setText(_translate("wgCacheInfo", "Attributes", None))
+        self.rbConns.setText(_translate("wgCacheInfo", "Connected", None))
+        self.tabInfo.setTabText(self.tabInfo.indexOf(self.tabParams), _translate("wgCacheInfo", "Params", None))
 

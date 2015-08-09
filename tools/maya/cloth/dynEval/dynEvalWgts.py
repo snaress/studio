@@ -6,7 +6,7 @@ from tools.maya.cmds import pRigg
 from lib.system import procFile as pFile
 from tools.maya.cloth.dynEval import dynEvalCmds as deCmds
 from tools.maya.cloth.dynEval.ui import wgSceneNodesUI, wgSceneNodeUI, wgDynEvalUI, wgCacheListUI,\
-                                        wgCacheNodeUI, wgCacheInfoUI
+                                        wgCacheNodeUI, wgCacheInfoUI, wgInfoNodeUI
 
 
 class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
@@ -189,7 +189,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         if self.selectedClothItem is not None:
             self.mainUi.cacheList.rf_cacheList()
             self.mainUi.cacheList.ud_cacheAssigned()
-        self.mainUi.cacheInfo.clearInfos()
+        self.mainUi.cacheInfo.clearAll()
 
     def on_sceneNodeDoubleClick(self):
         """
@@ -679,6 +679,28 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
             for widget in [self.leCachePath, self.cbVersionOnly]:
                 widget.setToolTip("")
 
+    def rf_widgetItemToolTips(self):
+        """
+        Refresh all cacheVersion items toolTip
+        """
+        for item in pQt.getAllItems(self.twCaches):
+            self.rf_widgetItemToolTip(item)
+
+    def rf_widgetItemToolTip(self, item):
+        """
+        Refresh given cacheVersion item toolTip
+        """
+        if self.mainUi.toolTipState:
+            item._widget.lCacheFile.setToolTip("Cache file version")
+            item._widget.lCacheAttr.setToolTip("Cache File attributes ('Positions', 'Velocities' or 'InternalState')")
+            item._widget.pbCacheType.setToolTip("Cache type ('nCloth' or 'geo')")
+            item._widget.pbAssign.setToolTip("Cache version Assigned")
+            item._widget.pbCacheOk.setToolTip("Cache Version tagged")
+        else:
+            for widget in [item._widget.lCacheFile, item._widget.lCacheAttr, item._widget.pbCacheType,
+                           item._widget.pbAssign, item._widget.pbCacheOk]:
+                widget.setToolTip("")
+
     def rf_cachePath(self):
         """
         Refresh cache root path
@@ -717,6 +739,7 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
                         self.twCaches.setItemWidget(cacheItem, 0, cacheItem._widget)
                     self.ud_cacheAssigned()
                     self.ud_cacheTagged()
+                    self.rf_widgetItemToolTips()
 
     def rf_fileVersions(self):
         """
@@ -798,9 +821,9 @@ class CacheListUi(QtGui.QWidget, wgCacheListUI.Ui_wgCacheList):
         selCacheItems = self.twCaches.selectedItems()
         if len(selCacheItems) == 1:
             if selCacheItems[0]._widget.infoDict is not None:
-                notes = selCacheItems[0]._widget.infoDict['note']
                 self.cacheInfo.cacheItem = selCacheItems[0]
-                self.cacheInfo.teNotes.setText(notes)
+                self.cacheInfo.clearAll()
+                self.cacheInfo.rf_widget()
 
     def on_cacheNodeDoubleClick(self):
         """
@@ -997,15 +1020,10 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
     def on_tagAsOk(self):
         """
         Command launched when 'Tag' QPushButton is clicked.
-        Tag cache version as Ok
+        Launch confirm dialog
         """
-        print "Tagging %r as Ok ..." % self.pItem.cacheFileName
-        self.pWidget.clearTagOk()
-        cachePath = pFile.conformPath(os.path.join(self.pItem.cacheRootPath, self.pItem.cacheRelPath))
-        tagFile =  pFile.conformPath(os.path.join(cachePath, '_tagFile.py'))
-        deCmds.updateTagFile(tagFile, self.pItem.cacheVersion, self.pItem.cacheFileName)
-        self.pbCacheOk.setChecked(True)
-        self.rf_tagOk()
+        self.cdTagCache = pQt.ConfirmDialog("Tag selected version as 'Ok' ?", ['Tag As Ok'], [self.tagCacheVersion])
+        self.cdTagCache.exec_()
 
     def on_miMaterializeCache(self):
         """
@@ -1061,8 +1079,16 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
     def on_miDeleteCache(self):
         """
         Command launched when 'Delete' QMenuItem is triggered.
-        Delete cache files version
+        Launch confirm dialog
         """
+        self.cdDelCache = pQt.ConfirmDialog("Delete selected versions ?", ['Ok'], [self.deleteCache])
+        self.cdDelCache.exec_()
+
+    def deleteCache(self):
+        """
+        Delete cache files versions
+        """
+        self.cdDelCache.close()
         #-- Get Selected Versions --#
         print "\n#===== Delete Cache File =====#"
         selItems = self.pWidget.twCaches.selectedItems()
@@ -1075,6 +1101,19 @@ class CacheNode(QtGui.QWidget, wgCacheNodeUI.Ui_wgCacheNode):
             print 'Delete %s' % item.cacheFileName
             deCmds.deleteCacheVersion(cachePath)
         self.pWidget.rf_cacheList()
+
+    def tagCacheVersion(self):
+        """
+        Tag cache version as Ok
+        """
+        self.cdTagCache.close()
+        print "Tagging %r as Ok ..." % self.pItem.cacheFileName
+        self.pWidget.clearTagOk()
+        cachePath = pFile.conformPath(os.path.join(self.pItem.cacheRootPath, self.pItem.cacheRelPath))
+        tagFile =  pFile.conformPath(os.path.join(cachePath, '_tagFile.py'))
+        deCmds.updateTagFile(tagFile, self.pItem.cacheVersion, self.pItem.cacheFileName)
+        self.pbCacheOk.setChecked(True)
+        self.rf_tagOk()
 
     def mouseReleaseEvent(self, event):
         """
@@ -1108,13 +1147,48 @@ class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):
         self.setupUi(self)
         self.pbEditNotes.setIcon(self.textEditIcon)
         self.pbEditNotes.clicked.connect(self.on_editNotes)
+        self.rbAttrs.clicked.connect(self.rf_params)
+        self.rbConns.clicked.connect(self.rf_params)
 
-    def clearInfos(self):
+    @property
+    def currentTab(self):
+        """
+        Get current info tab index
+        :return: Current tab index
+        :rtype: int
+        """
+        return self.tabInfo.currentIndex()
+
+    @property
+    def paramsType(self):
+        """
+        Get current params type
+        """
+        if self.rbAttrs.isChecked():
+            return 'attributes'
+        else:
+            return 'connected'
+
+    def getItemFullName(self, fullName):
+        """
+        Get item considering given attribute name and value
+        :param fullName: Full name
+        :type fullName: str
+        :return: Param item
+        :rtype: QtGui.QTreeWidgetItem
+        """
+        for item in pQt.getAllItems(self.twParams):
+            if hasattr(item, 'fullName'):
+                if item.fullName == fullName:
+                    return item
+
+    def clearAll(self):
         """
         Clear widget info
         """
-        self.cacheItem = None
         self.teNotes.clear()
+        self.teInfos.clear()
+        self.twParams.clear()
 
     def rf_widgetToolTips(self):
         """
@@ -1125,6 +1199,103 @@ class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):
         else:
             for widget in [self.pbEditNotes]:
                 widget.setToolTip("")
+
+    def rf_widget(self):
+        """
+        Refresh all info tabs
+        """
+        self.rf_notes()
+        self.rf_infos()
+        if self.currentTab == 2:
+            self.rf_params()
+
+    def rf_notes(self):
+        """
+        Refresh notes
+        """
+        self.teNotes.clear()
+        if self.cacheItem is not None:
+            notes = self.cacheItem._widget.infoDict['note']
+            self.teNotes.setText(notes)
+
+    def rf_infos(self):
+        """
+        Refresh infos
+        """
+        self.teInfos.clear()
+        if self.cacheItem is not None:
+            infos = self.cacheItem._widget.infoDict
+            infoTxt = []
+            for k, v in sorted(infos.iteritems()):
+                if not k == 'note':
+                    infoTxt.append("%s = %s" % (k, v))
+            self.teInfos.setText(str('\n'.join(infoTxt)))
+
+    def rf_params(self):
+        """
+        Refresh params
+        """
+        self.twParams.clear()
+        if self.cacheItem is not None:
+            #-- Get Params --#
+            cacheFile = self.cacheItem.cacheFullPath
+            cache = deCmds.cacheFileParser(cacheFile)
+            params = cache.extractNClothParams()
+            if params is not None:
+                if self.paramsType == 'connected':
+                    self.rf_connected(params)
+                elif self.paramsType == 'attributes':
+                    self.rf_attributes(params)
+
+    def rf_connected(self, params):
+        """
+        Refresh connected nodes
+        :param params: NCloth params
+        :type params: dict
+        """
+        #-- Add Category --#
+        for cat, conns in params['connected'].iteritems():
+            newCat = QtGui.QTreeWidgetItem()
+            newCat.setText(0, cat)
+            self.twParams.addTopLevelItem(newCat)
+            #-- Add Connected Nodes --#
+            for conn in conns:
+                newItem = QtGui.QTreeWidgetItem()
+                newItem.setText(0, conn)
+                newCat.addChild(newItem)
+
+    def rf_attributes(self, params):
+        """
+        Refresh cloth attributes
+        :param params: NCloth params
+        :type params: dict
+        """
+        #-- Add Nodes --#
+        for node in params['attributes'].keys():
+            #-- Get Ns and Name --#
+            if ':' in node:
+                ns = ':'.join(node.split(':')[:-1])
+                name = node.split(':')[-1]
+            else:
+                ns = 'custom'
+                name = node
+            #-- Add Namespace --#
+            nsItem = self.getItemFullName(ns)
+            if nsItem is None:
+                nsItem = self.new_paramItem('ns', namespace=ns)
+                self.twParams.addTopLevelItem(nsItem)
+                self.twParams.setItemWidget(nsItem, 0, nsItem._widget)
+            #-- Add NodeName --#
+            nnItem = self.getItemFullName('%s:%s' % (ns, name))
+            if nnItem is None:
+                nnItem = self.new_paramItem('name', namespace=ns, name=name)
+                nsItem.addChild(nnItem)
+                self.twParams.setItemWidget(nnItem, 0, nnItem._widget)
+            #-- Add Params --#
+            for k, v in sorted(params['attributes'][node].iteritems()):
+                attrItem = self.new_paramItem('attr', namespace=ns, name=name, attrName=k, attrVal=v)
+                nnItem.addChild(attrItem)
+                self.twParams.setItemWidget(attrItem, 0, attrItem._widget)
 
     def on_editNotes(self):
         """
@@ -1155,3 +1326,140 @@ class CacheInfoUi(QtGui.QWidget, wgCacheInfoUI.Ui_wgCacheInfo):
                     raise IOError, "!!! Can not write file info: %s !!!" % fileInfo
                 #-- Reload cache file info --#
                 self.cacheItem._widget.loadInfoDict()
+
+    def new_paramItem(self, itemType, **kwargs):
+        """
+        Create new param tre item
+        :param itemType: New item type ('ns', 'name' or 'attr')
+        :type itemType: str
+        :param kwargs: New item attributes
+        :type kwargs: dict
+        :return: New tree item
+        :rtype: QtGui.QTreeWidgetItem
+        """
+        newItem = QtGui.QTreeWidgetItem()
+        newItem._type = itemType
+        #-- Namespace --#
+        if itemType == 'ns':
+            newItem.namespace = kwargs['namespace']
+            newItem.fullName = kwargs['namespace']
+        #-- Namme --#
+        elif itemType == 'name':
+            newItem.namespace = kwargs['namespace']
+            if newItem.namespace == 'custom':
+                newItem.fullName = kwargs['name']
+            else:
+                newItem.fullName = '%s:%s' % (kwargs['namespace'], kwargs['name'])
+        #-- Attribute --#
+        elif itemType == 'attr':
+            newItem.attr = kwargs['attrName']
+            newItem.value = kwargs['attrVal']
+            if kwargs['namespace'] == 'custom':
+                newItem.namespace = None
+                newItem.fullName = '%s.%s' % (kwargs['name'], newItem.attr)
+            else:
+                newItem.namespace = kwargs['namespace']
+                newItem.fullName = '%s:%s.%s' % (newItem.namespace, kwargs['name'], newItem.attr)
+        #-- Result --#
+        newItem._widget = CacheInfoNode(self, newItem)
+        return newItem
+
+
+class CacheInfoNode(QtGui.QWidget, wgInfoNodeUI.Ui_wgInfoNode):
+    """
+    Widget InfoNode QTreeWidgetItem, child of CacheInfoUi
+    :param pWidget: Parent Widget
+    :type pWidget: QtGui.QWidget
+    :param pItem: Parent item
+    :type pItem: QtGui.QTreeWidgetItem
+    """
+
+    def __init__(self, pWidget, pItem):
+        self.pWidget = pWidget
+        self.pItem = pItem
+        self.pDict = dict()
+        super(CacheInfoNode, self).__init__()
+        self._setupUi()
+
+    def _setupUi(self):
+        """
+        Setup widget ui
+        """
+        self.setupUi(self)
+        if self.pItem._type == 'attr':
+            self.label.setText('%s = %s' % (self.pItem.attr, self.pItem.value))
+        else:
+            self.label.setText(self.pItem.fullName)
+
+    def _popupMenu(self):
+        """
+        Setup popupMenu
+        """
+        self.infoNodeMenu = QtGui.QMenu()
+        # noinspection PyArgumentList
+        self.infoNodeMenu.popup(QtGui.QCursor.pos())
+        #-- Add Menu Item --#
+        self.miRestore = self.infoNodeMenu.addAction('Restore Selected Params')
+        self.miRestore.triggered.connect(self.on_miRestore)
+        #-- Exec Menu --#
+        self.infoNodeMenu.exec_()
+
+    def getAllChilds(self):
+        """
+        Get all children
+        :return: Children items
+        :rtype: list
+        """
+        if self.pItem._type == 'attr':
+            return []
+        elif self.pItem._type == 'name':
+            return pQt.getAllChildren(self.pItem)
+
+    def storeItemParam(self, item):
+        """
+        Store given info item params
+        :param item: Info item
+        :type item: QtGui.QTreeWidgetItem
+        """
+        if item._type == 'attr':
+            if not item.fullName in self.pDict.keys():
+                if '.' in item.value:
+                    self.pDict[item.fullName] = float(item.value)
+                else:
+                    self.pDict[item.fullName] = int(item.value)
+
+    def on_miRestore(self):
+        """
+        Command launched when 'Restore Selected Params' QMenuItem is triggered.
+        Launch confirm dialog
+        """
+        self.cdRestore = pQt.ConfirmDialog("Restore selected params ?", ['Restore'], [self.restore])
+        self.cdRestore.exec_()
+
+    def restore(self):
+        """
+        Restore maya nodes with selected params
+        """
+        self.cdRestore.close()
+        self.pDict = dict()
+        #-- Store Params --#
+        selItems = self.pWidget.twParams.selectedItems()
+        if selItems:
+            for item in selItems:
+                if item._type in ['ns', 'name']:
+                    for child in pQt.getAllChildren(item):
+                        if child._type == 'attr':
+                            self.storeItemParam(child)
+                elif item._type == 'attr':
+                    self.storeItemParam(item)
+        #-- Restore Params --#
+        if self.pDict.keys():
+            deCmds.restoreParams(**self.pDict)
+
+    def mouseReleaseEvent(self, event):
+        """
+        Add mouse press options: 'Right' = Popup infoNode menu
+        """
+        if event.button() == QtCore.Qt.RightButton:
+            self._popupMenu()
+        super(CacheInfoNode, self).mousePressEvent(event)

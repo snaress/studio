@@ -16,13 +16,14 @@ reload(pCache)
 from tools.maya.cloth import dynEval
 reload(dynEval)
 from tools.maya.cloth.dynEval.ui import wgSceneNodesUI, wgSceneNodeUI, wgDynEvalUI, wgCacheListUI,\
-                                        wgCacheNodeUI, wgCacheInfoUI
+                                        wgCacheNodeUI, wgCacheInfoUI, wgInfoNodeUI
 reload(wgSceneNodesUI)
 reload(wgSceneNodeUI)
 reload(wgDynEvalUI)
 reload(wgCacheListUI)
 reload(wgCacheNodeUI)
 reload(wgCacheInfoUI)
+reload(wgInfoNodeUI)
 from tools.maya.cloth.dynEval.ui import dynEvalUI
 reload(dynEvalUI)
 from tools.maya.cloth.dynEval import dynEvalCmds, dynEvalWgts, dynEvalUi
