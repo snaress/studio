@@ -171,10 +171,17 @@ def createClothLoToHi(clothMesh, mesh):
     return loToHiMesh
 
 def createClothHiMesh(driver, loToHiMesh):
-    print driver
+    """
+    Create hiMesh for export
+    :param driver: Driver hi mesh
+    :type driver: str
+    :param loToHiMesh: LoToHiMesh name
+    :type loToHiMesh: str
+    :return: Hi mesh for export
+    :rtype: str
+    """
     hiName = driver.split(':')[-1]
-    print hiName
-    hiMesh = duplicateSelected(selObjects=str(driver), name=hiName)[0][0]
+    hiMesh = duplicateSelected(selObjects=str(driver), name=hiName)[0]
     print hiMesh, loToHiMesh
     baseName, wrapNode = pRigg.createWrap(loToHiMesh, hiMesh)
     mc.parent(hiMesh, "|ALL|SIMU|EXPORT|hiMesh")
