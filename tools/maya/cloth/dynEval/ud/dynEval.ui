@@ -114,7 +114,15 @@
     <property name="title">
      <string>Simu</string>
     </property>
-    <addaction name="miLaunchNCloth"/>
+    <widget class="QMenu" name="mLaunchNCloth">
+     <property name="title">
+      <string>Launch Active nCloth</string>
+     </property>
+     <addaction name="miInScene"/>
+     <addaction name="miLocal"/>
+     <addaction name="miFarm"/>
+    </widget>
+    <addaction name="mLaunchNCloth"/>
    </widget>
    <addaction name="mFiles"/>
    <addaction name="mSimu"/>
@@ -171,6 +179,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Refresh Display</string>
    </property>
@@ -193,9 +204,19 @@
     <string>Disable All</string>
    </property>
   </action>
-  <action name="miLaunchNCloth">
+  <action name="miInScene">
    <property name="text">
-    <string>Launch Active nCloth</string>
+    <string>In Scene</string>
+   </property>
+  </action>
+  <action name="miLocal">
+   <property name="text">
+    <string>Local</string>
+   </property>
+  </action>
+  <action name="miFarm">
+   <property name="text">
+    <string>Farm</string>
    </property>
   </action>
  </widget>

@@ -33,7 +33,9 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
         self.cbCloth.clicked.connect(self.on_showClothType)
         self.cbRigid.clicked.connect(self.on_showClothType)
         self.pbAllOn.clicked.connect(partial(self.on_editAll, state=True))
+        self.pbAllOn.setStyleSheet("color: rgb(125, 255, 125)")
         self.pbAllOff.clicked.connect(partial(self.on_editAll, state=False))
+        self.pbAllOff.setStyleSheet("color: rgb(255, 125, 125)")
         self.rf_sceneNodes()
 
     @property
@@ -113,7 +115,7 @@ class SceneNodeUi(QtGui.QWidget, wgSceneNodesUI.Ui_wgSceneNodes):
             self.pbAllOn.setToolTip("Enable all items")
             self.pbAllOff.setToolTip("Disable all items")
         else:
-            for widget in [self.cbCloth, self.cbRigid, self.pbAllOn, self.pbAllOff.setToolTip]:
+            for widget in [self.cbCloth, self.cbRigid, self.pbAllOn, self.pbAllOff]:
                 widget.setToolTip("")
 
     def rf_sceneItemToolTips(self):

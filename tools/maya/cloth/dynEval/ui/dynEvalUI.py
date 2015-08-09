@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\tools\maya\cloth\dynEval\ud\dynEval.ui'
 #
-# Created: Sun Aug 09 01:04:36 2015
+# Created: Sun Aug 09 20:18:49 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -82,6 +82,8 @@ class Ui_mwDynEval(object):
         self.mOpenRootPath.setObjectName(_fromUtf8("mOpenRootPath"))
         self.mSimu = QtGui.QMenu(self.menubar)
         self.mSimu.setObjectName(_fromUtf8("mSimu"))
+        self.mLaunchNCloth = QtGui.QMenu(self.mSimu)
+        self.mLaunchNCloth.setObjectName(_fromUtf8("mLaunchNCloth"))
         mwDynEval.setMenuBar(self.menubar)
         self.miToolTips = QtGui.QAction(mwDynEval)
         self.miToolTips.setCheckable(True)
@@ -103,6 +105,7 @@ class Ui_mwDynEval(object):
         self.miNamespace.setObjectName(_fromUtf8("miNamespace"))
         self.miRfDisplay = QtGui.QAction(mwDynEval)
         self.miRfDisplay.setCheckable(True)
+        self.miRfDisplay.setChecked(True)
         self.miRfDisplay.setObjectName(_fromUtf8("miRfDisplay"))
         self.miBackup = QtGui.QAction(mwDynEval)
         self.miBackup.setCheckable(True)
@@ -111,8 +114,12 @@ class Ui_mwDynEval(object):
         self.miEnableAll.setObjectName(_fromUtf8("miEnableAll"))
         self.miDisableAll = QtGui.QAction(mwDynEval)
         self.miDisableAll.setObjectName(_fromUtf8("miDisableAll"))
-        self.miLaunchNCloth = QtGui.QAction(mwDynEval)
-        self.miLaunchNCloth.setObjectName(_fromUtf8("miLaunchNCloth"))
+        self.miInScene = QtGui.QAction(mwDynEval)
+        self.miInScene.setObjectName(_fromUtf8("miInScene"))
+        self.miLocal = QtGui.QAction(mwDynEval)
+        self.miLocal.setObjectName(_fromUtf8("miLocal"))
+        self.miFarm = QtGui.QAction(mwDynEval)
+        self.miFarm.setObjectName(_fromUtf8("miFarm"))
         self.mOptions.addAction(self.miToolTips)
         self.mOptions.addAction(self.miNamespace)
         self.mOptions.addAction(self.miRfDisplay)
@@ -123,7 +130,10 @@ class Ui_mwDynEval(object):
         self.mOpenRootPath.addAction(self.miXterm)
         self.mFiles.addAction(self.miSetRootPath)
         self.mFiles.addAction(self.mOpenRootPath.menuAction())
-        self.mSimu.addAction(self.miLaunchNCloth)
+        self.mLaunchNCloth.addAction(self.miInScene)
+        self.mLaunchNCloth.addAction(self.miLocal)
+        self.mLaunchNCloth.addAction(self.miFarm)
+        self.mSimu.addAction(self.mLaunchNCloth.menuAction())
         self.menubar.addAction(self.mFiles.menuAction())
         self.menubar.addAction(self.mSimu.menuAction())
         self.menubar.addAction(self.mOptions.menuAction())
@@ -138,6 +148,7 @@ class Ui_mwDynEval(object):
         self.mFiles.setTitle(_translate("mwDynEval", "Files", None))
         self.mOpenRootPath.setTitle(_translate("mwDynEval", "Open Root Path", None))
         self.mSimu.setTitle(_translate("mwDynEval", "Simu", None))
+        self.mLaunchNCloth.setTitle(_translate("mwDynEval", "Launch Active nCloth", None))
         self.miToolTips.setText(_translate("mwDynEval", "ToolTips", None))
         self.actionToto.setText(_translate("mwDynEval", "toto", None))
         self.miRefreshUi.setText(_translate("mwDynEval", "Refresh Ui", None))
@@ -149,5 +160,7 @@ class Ui_mwDynEval(object):
         self.miBackup.setText(_translate("mwDynEval", "Backup When Append", None))
         self.miEnableAll.setText(_translate("mwDynEval", "Enable All", None))
         self.miDisableAll.setText(_translate("mwDynEval", "Disable All", None))
-        self.miLaunchNCloth.setText(_translate("mwDynEval", "Launch Active nCloth", None))
+        self.miInScene.setText(_translate("mwDynEval", "In Scene", None))
+        self.miLocal.setText(_translate("mwDynEval", "Local", None))
+        self.miFarm.setText(_translate("mwDynEval", "Farm", None))
 

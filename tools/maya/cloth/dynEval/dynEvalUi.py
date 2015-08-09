@@ -42,9 +42,15 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
         self.miSetRootPath.triggered.connect(self.on_miSetRootPath)
         self.miSetRootPath.setShortcut("Ctrl+P")
         self.miXplorer.triggered.connect(self.on_miXplorer)
-        self.miXplorer.setShortcut("Alt+E")
+        self.miXplorer.setShortcut("Ctrl+X")
         self.miXterm.triggered.connect(self.on_miXterm)
         self.miXterm.setShortcut("Alt+X")
+        self.miInScene.triggered.connect(partial(self.on_miLaunchNCloth, _mode='inScene'))
+        self.miInScene.setShortcut("Ctrl+E")
+        self.miLocal.triggered.connect(partial(self.on_miLaunchNCloth, _mode='local'))
+        self.miLocal.setShortcut("Alt+E")
+        self.miFarm.triggered.connect(partial(self.on_miLaunchNCloth, _mode='farm'))
+        self.miFarm.setShortcut("Shift+E")
         self.miToolTips.triggered.connect(self.on_miToolTips)
         self.miToolTips.setShortcut("Ctrl+T")
         self.miNamespace.triggered.connect(self.on_miNamespace)
@@ -169,18 +175,33 @@ class DynEvalUi(QtGui.QMainWindow, dynEvalUI.Ui_mwDynEval):
             self.cacheList.rf_cachePath()
 
     def on_miXplorer(self):
-        """ Command launched when 'Xplorer' menuItem is clicked """
+        """
+        Command launched when 'Xplorer' menuItem is clicked
+        """
         if self.cacheList.cachePath is None:
             print "!!! WARNING: CacheRootPath is not set !!!"
             return
         os.system('explorer %s' % os.path.normpath(self.cacheList.cachePath))
 
     def on_miXterm(self):
-        """ Command launched when 'Xterm' menuItem is clicked """
+        """
+        Command launched when 'Xterm' menuItem is clicked
+        """
         if self.cacheList.cachePath is None:
             print "!!! WARNING: CacheRootPath is not set !!!"
             return
         os.system('start "DynEval Root Path" /d "%s"' % os.path.normpath(self.cacheList.cachePath))
+
+    def on_miLaunchNCloth(self, _mode='inScene'):
+        """
+        Command launched when 'Launch Active nCloth' menuItem is clicked
+        :param _mode: 'inScene', 'local' or 'farm'
+        :type _mode: str
+        """
+        print '\n########## Eval all active nCloth nodes (%s) ##########' % _mode
+        if self.cacheList.cachePath is not None:
+            if _mode == 'inScene':
+                deCmds.dynEvalAllActiveNCloth(self.cacheList.cachePath)
 
     def on_miToolTips(self):
         """

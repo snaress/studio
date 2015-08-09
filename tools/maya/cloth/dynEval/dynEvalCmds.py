@@ -1,6 +1,6 @@
 import os, time, shutil, pprint
 from lib.system import procFile as pFile
-from tools.maya.cmds import pScene, pMode, pCloth, pCache
+from tools.maya.cmds import pScene, pMode, pRigg, pCloth, pCache
 try:
     import maya.cmds as mc
     import maya.mel as ml
@@ -656,3 +656,143 @@ def restoreParams(**kwargs):
         else:
             result['failed'][k] = v
     return result
+
+def dynEvalAllActiveNCloth(cacheRootPath):
+    se = SceneEval(cacheRootPath=cacheRootPath)
+    print se.cacheRootPath
+    se.cacheScene()
+
+
+class SceneEval(object):
+
+    def __init__(self, cacheRootPath=None):
+        print "\n##### Scene Eval #####"
+        #-- Init Variables --#
+        self._cacheRootPath = None
+        self._sceneDict = dict()
+        #- Init Cache Root Path --#
+        if cacheRootPath is None:
+            raise ValueError, "!!! Cache root path can not be None !!!"
+        if not os.path.exists(os.path.normpath(cacheRootPath)):
+            raise ValueError, "!!! Cache root path not found: %s !!!" % cacheRootPath
+        self.cacheRootPath = cacheRootPath
+
+    @property
+    def cacheRootPath(self):
+        """
+        Get cache root path
+        :return: Cache root path
+        :rtype: str
+        """
+        return self._cacheRootPath
+
+    @cacheRootPath.setter
+    def cacheRootPath(self, value):
+        """
+        Set conformed cache root path from given value
+        :param value: Cache root path
+        :type value: str
+        """
+        if os.path.exists(os.path.normpath(value)):
+            setattr(self, '_cacheRootPath', pFile.conformPath(value))
+        else:
+            raise IOError, "!!! Given cache root path not found: %s" % value
+
+    @property
+    def sceneDict(self):
+        """
+        Get scene eval dict
+        :return: Active nBase nodes
+        :rtype: dict
+        """
+        return self._sceneDict
+
+    def cacheScene(self):
+        """
+        Launch scene caching
+        """
+        self.initFromScene()
+        self.makeTmpDirectories()
+
+    def initFromScene(self):
+        """
+        Init class from current maya scene
+        """
+        print "#-- Init From Scene --#"
+        self.resetSceneDict()
+        self.storeActiveNucleus()
+        self.storeActiveClothNodes()
+
+    def resetSceneDict(self):
+        """
+        Reset class '_sceneDict'
+        """
+        print "\t Reset '_sceneDict' ..."
+        self._sceneDict = dict()
+
+    def storeActiveNucleus(self):
+        """
+        Store active nucleus
+        """
+        print "\t Store Active Nucleus ..."
+        #-- Get All Nucleus --#
+        allNucleus = mc.ls(type='nucleus') or []
+        if not allNucleus:
+            raise ValueError, "!!! WARNING: No nucleus found in scene !!!"
+        #-- Get Active Nucleus --#
+        for nucleus in allNucleus:
+            if mc.getAttr('%s.enable' % nucleus):
+                #-- Update Scene Dict --#
+                self._sceneDict[nucleus] = list()
+
+    def storeActiveClothNodes(self):
+        """
+        Store active cloth nodes
+        """
+        print "\t Store Active Cloth Nodes ..."
+        if self._sceneDict.keys():
+            #-- Get All Cloth Nodes --#
+            for nucleus in self._sceneDict.keys():
+                clothNodeList = pRigg.findTypeInHistory(nucleus, 'nCloth', past=True, future=True)
+                if clothNodeList is not None:
+                    #-- Get Active Cloth Nodes --#
+                    for clothNode in clothNodeList:
+                        if mc.getAttr('%s.isDynamic' % clothNode):
+                            #-- Update Scene Dict --#
+                            clothMesh = pCloth.getModelFromClothNode(clothNode)
+                            self._sceneDict[nucleus].append({'clothNode': clothNode, 'clothMesh': clothMesh,
+                                                             'clothName': '_'.join(clothMesh.split('_')[:-1])})
+
+    def getActiveClothNodes(self):
+        """
+        Get active cloth nodes
+        :return: Active cloth nodes
+        :rtype: list
+        """
+        clothNodes = []
+        if self._sceneDict.keys():
+            for nucleus in self._sceneDict.keys():
+                for nodeDict in self._sceneDict[nucleus]:
+                    clothNodes.append(nodeDict['clothNode'])
+        return clothNodes
+
+    def makeTmpDirectories(self):
+        """
+        Create tmp directories
+        """
+        #-- Collecte Path --#
+        self.tmpPath = pFile.conformPath(os.path.join(self.cacheRootPath, '_tmp'))
+        self.userPath = pFile.conformPath(os.path.join(self.tmpPath, os.environ.get('user')))
+        self.dateTimePath = pFile.conformPath(os.path.join(self.userPath, '%s--%s' % (pFile.getDate(),
+                                                                                      pFile.getTime())))
+        self.scenePath = pFile.conformPath(os.path.join(self.dateTimePath, 'scenes'))
+        self.cachePath = pFile.conformPath(os.path.join(self.dateTimePath, 'caches'))
+        self.scriptPath = pFile.conformPath(os.path.join(self.dateTimePath, 'scripts'))
+        #-- Create Path --#
+        print "#-- Create Temp Folders --#"
+        for path in [self.tmpPath, self.userPath, self.dateTimePath, self.scenePath,
+                     self.cachePath, self.scriptPath]:
+            pFile.makeDir(path, verbose=True)
+
+
+
