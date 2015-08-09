@@ -191,6 +191,7 @@ def popupMenu(menuDict):
         :rtype: QtGui.QMenu """
     pmMenu = QtGui.QMenu()
     pmMenu.items = []
+    # noinspection PyArgumentList
     pmMenu.popup(QtGui.QCursor.pos())
     for ind in sorted(menuDict.keys()):
         qAction = pmMenu.addAction(menuDict[ind][0])
@@ -263,7 +264,7 @@ def getTopItems(QTreeWidget):
 def getAllChildren(QTreeWidgetItem, depth=-1):
     """ Get all children of given QTreeWidgetItem
         :param QTreeWidgetItem: Recusion start QTreeWidgetItem
-        :type QTreeWidgetItem: QTreeWidgetItem
+        :type QTreeWidgetItem: QtGui.QTreeWidgetItem
         :param depth: Number of recursion (-1 = infinite)
         :type depth: int
         :return: QTreeWigdetItem list
