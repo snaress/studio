@@ -3,19 +3,23 @@ from lib.env import studio
 
 
 def conformPath(path):
-    """ Comform path separator with '/'
-        :param path: Path to conform
-        :type path: str
-        :return: Conformed path
-        :rtype: str """
+    """
+    Comform path separator with '/'
+    :param path: Path to conform
+    :type path: str
+    :return: Conformed path
+    :rtype: str
+    """
     return path.replace('\\', '/')
 
 def pathToDict(path):
-    """ Translate directory contents to dict
-        :param path: Absolut path
-        :type path: str
-        :return: Path contents
-        :rtype: dict """
+    """
+    Translate directory contents to dict
+    :param path: Absolut path
+    :type path: str
+    :return: Path contents
+    :rtype: dict
+    """
     if not os.path.exists(path):
         raise IOError, "!!! ERROR: Path not found!!!\n%s" % path
     pathDict = {'_order': []}
@@ -24,14 +28,34 @@ def pathToDict(path):
         pathDict[root] = {'folders': flds, 'files': files}
     return pathDict
 
+def makeDir(directory, verbose=False):
+    """
+    Create given directory
+    :param directory: Full directory path
+    :type directory: str
+    :param verbose: Enable verbose
+    :type verbose: bool
+    """
+    path = os.path.normpath(directory)
+    if not os.path.exists(path):
+        try:
+            os.mkdir(path)
+            if verbose:
+                print "\t Create folder '%s' in '%s'" % (directory.split(os.sep)[-1],
+                                                         conformPath(os.sep.join(directory.split(os.sep)[:-1])))
+        except(IOError, os.error) as log:
+            raise IOError, log
+
 def mkPathFolders(rootPath, absPath, sep=None):
-    """ Create absPath folders not in rootPath
-        :param rootPath: Root path
-        :type rootPath: str
-        :param absPath: Absolut Path
-        :type absPath: str
-        :param sep: Os separator
-        :type sep: str """
+    """
+    Create absPath folders not in rootPath
+    :param rootPath: Root path
+    :type rootPath: str
+    :param absPath: Absolut Path
+    :type absPath: str
+    :param sep: Os separator
+    :type sep: str
+    """
     if not os.path.exists(rootPath):
         raise IOError, "!!! ERROR: rootPath not found !!!"
     if sep is None:
@@ -44,15 +68,17 @@ def mkPathFolders(rootPath, absPath, sep=None):
             print "[sysInfo] : Create folder %s in %s" % (fld, sep.join(checkPath.split(sep)[:-1]))
             try:
                 os.mkdir(checkPath)
-            except:
-                raise IOError, "!!! ERROR: Can not create %s !!!" % checkPath
+            except(IOError, os.error) as log:
+                raise IOError, log
 
 def readFile(filePath):
-    """ Get text from file
-        :param filePath: File absolut path
-        :type filePath: str
-        :return: Text line by line
-        :rtype: list """
+    """
+    Get text from file
+    :param filePath: File absolut path
+    :type filePath: str
+    :return: Text line by line
+    :rtype: list
+    """
     if not os.path.exists(filePath):
         raise IOError, "!!! Error: Can't read, file doesn't exists !!!"
     fileId = open(filePath, 'r')
@@ -61,13 +87,15 @@ def readFile(filePath):
     return getText
 
 def readPyFile(filePath, keepBuiltin=False):
-    """ Get text from pyFile
-        :param filePath: Python file absolut path
-        :type filePath: str
-        :param keepBuiltin: Keep builtins key
-        :type keepBuiltin: bool
-        :return: File dict
-        :rtype: dict """
+    """
+    Get text from pyFile
+    :param filePath: Python file absolut path
+    :type filePath: str
+    :param keepBuiltin: Keep builtins key
+    :type keepBuiltin: bool
+    :return: File dict
+    :rtype: dict
+    """
     if not os.path.exists(filePath):
         raise IOError, "!!! Error: Can't read, file doesn't exists !!!"
     params = {}
@@ -80,13 +108,15 @@ def readPyFile(filePath, keepBuiltin=False):
             return params
 
 def writeFile(filePath, textToWrite, add=False):
-    """ Create and edit text file. If file already exists, it is overwritten
-        :param filePath: File absolut path
-        :type filePath: str
-        :param textToWrite: Text to edit in file
-        :type textToWrite: str | list
-        :param add: Add text to existing one in file
-        :type add: bool """
+    """
+    Create and edit text file. If file already exists, it is overwritten
+    :param filePath: File absolut path
+    :type filePath: str
+    :param textToWrite: Text to edit in file
+    :type textToWrite: str | list
+    :param add: Add text to existing one in file
+    :type add: bool
+    """
     oldTxt = ""
     if add:
         oldTxt = ''.join(readFile(filePath))
@@ -102,13 +132,15 @@ def writeFile(filePath, textToWrite, add=False):
     fileId.close()
 
 def fileSizeFormat(_bytes, precision=2):
-    """ Returns a humanized string for a given amount of bytes
-        :param _bytes: File size in bytes
-        :type _bytes: int
-        :param precision: Precision after coma
-        :type precision: int
-        :return: Humanized string
-        :rtype: str """
+    """
+    Returns a humanized string for a given amount of bytes
+    :param _bytes: File size in bytes
+    :type _bytes: int
+    :param precision: Precision after coma
+    :type precision: int
+    :return: Humanized string
+    :rtype: str
+    """
     _bytes = int(_bytes)
     if _bytes is 0:
         return '0 b'
@@ -117,11 +149,13 @@ def fileSizeFormat(_bytes, precision=2):
                        ['b', 'kb', 'mb', 'gb', 'tb','pb', 'eb', 'zb', 'yb'][int(log)])
 
 def secondsToStr(seconds):
-    """ Convert number of seconds into humanized string
-        :param seconds: Number of seconds
-        :type seconds: int
-        :return: Humanized string
-        :rtype: str """
+    """
+    Convert number of seconds into humanized string
+    :param seconds: Number of seconds
+    :type seconds: int
+    :return: Humanized string
+    :rtype: str
+    """
     S = int(seconds)
     hours = S / 3600
     S -= hours * 3600
@@ -130,24 +164,30 @@ def secondsToStr(seconds):
     return "%s:%s:%s" % (hours, minutes, seconds)
 
 def getDate():
-    """ Get current date
-        :return: yyyy_mm_dd
-        :rtype: str """
+    """
+    Get current date
+    :return: yyyy_mm_dd
+    :rtype: str
+    """
     return time.strftime("%Y_%m_%d")
 
 def getTime():
-    """ Get current time
-        :return: hh_mm_ss
-        :rtype: str """
+    """
+    Get current time
+    :return: hh_mm_ss
+    :rtype: str
+    """
     return time.strftime("%H_%M_%S")
 
 
 class Logger(object):
-    """ Print given message using log levels
-        :param title: Log title
-        :type title: str
-        :param level: Log level ('critical', 'error', 'warning', 'info', 'debug')
-        :type level: str """
+    """
+    Print given message using log levels
+    :param title: Log title
+    :type title: str
+    :param level: Log level ('critical', 'error', 'warning', 'info', 'debug')
+    :type level: str
+    """
 
     def __init__(self, title='LOG', level='info'):
         self.levels = ['critical', 'error', 'warning', 'info', 'debug']
@@ -156,65 +196,75 @@ class Logger(object):
         self.lvlIndex = self.levels.index(self.level)
 
     def critical(self, message, newLinesBefor=0, newLinesAfter=0):
-        """ Print given message with critical level
-            :param message: Message to print
-            :type message: str
-            :param newLinesBefor: New lines to insert befor message
-            :type newLinesBefor: int
-            :param newLinesAfter: New lines to insert after message
-            :type newLinesAfter: int """
+        """
+        Print given message with critical level
+        :param message: Message to print
+        :type message: str
+        :param newLinesBefor: New lines to insert befor message
+        :type newLinesBefor: int
+        :param newLinesAfter: New lines to insert after message
+        :type newLinesAfter: int
+        """
         if self.lvlIndex >= 0:
             self._addNewLines(newLinesBefor)
             print "[%s] | CRITICAL | %s" % (self.title, message)
             self._addNewLines(newLinesAfter)
 
     def error(self, message, newLinesBefor=0, newLinesAfter=0):
-        """ Print given message with error level
-            :param message: Message to print
-            :type message: str
-            :param newLinesBefor: New lines to insert befor message
-            :type newLinesBefor: int
-            :param newLinesAfter: New lines to insert after message
-            :type newLinesAfter: int """
+        """
+        Print given message with error level
+        :param message: Message to print
+        :type message: str
+        :param newLinesBefor: New lines to insert befor message
+        :type newLinesBefor: int
+        :param newLinesAfter: New lines to insert after message
+        :type newLinesAfter: int
+        """
         if self.lvlIndex >= 1:
             self._addNewLines(newLinesBefor)
             print "[%s] | ERROR | %s" % (self.title, message)
             self._addNewLines(newLinesAfter)
 
     def warning(self, message, newLinesBefor=0, newLinesAfter=0):
-        """ Print given message with warning level
-            :param message: Message to print
-            :type message: str
-            :param newLinesBefor: New lines to insert befor message
-            :type newLinesBefor: int
-            :param newLinesAfter: New lines to insert after message
-            :type newLinesAfter: int """
+        """
+        Print given message with warning level
+        :param message: Message to print
+        :type message: str
+        :param newLinesBefor: New lines to insert befor message
+        :type newLinesBefor: int
+        :param newLinesAfter: New lines to insert after message
+        :type newLinesAfter: int
+        """
         if self.lvlIndex >= 2:
             self._addNewLines(newLinesBefor)
             print "[%s] | WARNING | %s" % (self.title, message)
             self._addNewLines(newLinesAfter)
 
     def info(self, message, newLinesBefor=0, newLinesAfter=0):
-        """ Print given message with info level
-            :param message: Message to print
-            :type message: str
-            :param newLinesBefor: New lines to insert befor message
-            :type newLinesBefor: int
-            :param newLinesAfter: New lines to insert after message
-            :type newLinesAfter: int """
+        """
+        Print given message with info level
+        :param message: Message to print
+        :type message: str
+        :param newLinesBefor: New lines to insert befor message
+        :type newLinesBefor: int
+        :param newLinesAfter: New lines to insert after message
+        :type newLinesAfter: int
+        """
         if self.lvlIndex >= 3:
             self._addNewLines(newLinesBefor)
             print "[%s] | INFO | %s" % (self.title, message)
             self._addNewLines(newLinesAfter)
 
     def debug(self, message, newLinesBefor=0, newLinesAfter=0):
-        """ Print given message with debug level
-            :param message: Message to print
-            :type message: str
-            :param newLinesBefor: New lines to insert befor message
-            :type newLinesBefor: int
-            :param newLinesAfter: New lines to insert after message
-            :type newLinesAfter: int """
+        """
+        Print given message with debug level
+        :param message: Message to print
+        :type message: str
+        :param newLinesBefor: New lines to insert befor message
+        :type newLinesBefor: int
+        :param newLinesAfter: New lines to insert after message
+        :type newLinesAfter: int
+        """
         if self.lvlIndex >= 4:
             self._addNewLines(newLinesBefor)
             print "[%s] | DEBUG | %s" % (self.title, message)
@@ -222,9 +272,11 @@ class Logger(object):
 
     @staticmethod
     def _addNewLines(newLines):
-        """ Print new empty lines
-            :param newLines: Number of new lines to print
-            :type newLines: int """
+        """
+        Print new empty lines
+        :param newLines: Number of new lines to print
+        :type newLines: int
+        """
         if newLines > 0:
             if newLines == 1:
                 print ""
