@@ -178,6 +178,11 @@ def nCacheFile(cachePath, fileName, clothNode, startFrame, stopFrame, rfDisplay,
 
 
 class CacheFileParser(object):
+    """
+    Maya geo cache file parser (xml)
+    :param cacheFile: Geo cache file full path
+    :type cacheFile: str
+    """
 
     __extraLineIn = '  <extra>'
     __extraLineOut = '</extra>'
@@ -290,7 +295,7 @@ class CacheFileParser(object):
                 #-- Get Nodes Params --#
                 elif '.' in v and '=' in v:
                     obj = v.split('.')[0]
-                    attr = v.split('.')[1].split('=')[0]
+                    attr = '.'.join(v.split('.')[1:]).split('=')[0]
                     val = v.split('=')[-1]
                     if not obj in clothDict['attributes'].keys():
                         clothDict['attributes'][obj] = {}
