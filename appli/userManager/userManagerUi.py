@@ -9,7 +9,7 @@ from appli.userManager.ui import userManagerUI, userEditorUI
 
 class UserManagerUi(QtGui.QMainWindow, userManagerUI.Ui_userManager, pQt.Style):
     """ UserManagerUi MainWindow
-        @param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug') """
+        @param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug', 'detail') """
 
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="UM-ui", level=logLvl)

@@ -14,7 +14,7 @@ from appli.grapher.gui import projectWgts, toolsWgts, dataWgts, graphWgts
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
     """
     Grapher appli main class
-    :param logLvl: Log level ('critical', 'error', 'warning', 'info', 'debug')
+    :param logLvl: Log level ('critical', 'error', 'warning', 'info', 'debug', 'detail')
     :type logLvl: str
     """
 

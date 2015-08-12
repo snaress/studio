@@ -188,12 +188,12 @@ class Logger(object):
     Print given message using log levels
     :param title: Log title
     :type title: str
-    :param level: Log level ('critical', 'error', 'warning', 'info', 'debug')
+    :param level: Log level ('critical', 'error', 'warning', 'info', 'debug', 'detail')
     :type level: str
     """
 
     def __init__(self, title='LOG', level='info'):
-        self.levels = ['critical', 'error', 'warning', 'info', 'debug']
+        self.levels = ['critical', 'error', 'warning', 'info', 'debug', 'detail']
         self.title = title
         self.level = level
         self.lvlIndex = self.levels.index(self.level)
@@ -210,7 +210,7 @@ class Logger(object):
         """
         if self.lvlIndex >= 0:
             self._addNewLines(newLinesBefor)
-            print "[%s] | CRITICAL | %s" % (self.title, message)
+            print "| %s | Critical | %s" % (self.title, message)
             self._addNewLines(newLinesAfter)
 
     def error(self, message, newLinesBefor=0, newLinesAfter=0):
@@ -225,7 +225,7 @@ class Logger(object):
         """
         if self.lvlIndex >= 1:
             self._addNewLines(newLinesBefor)
-            print "[%s] | ERROR | %s" % (self.title, message)
+            print "| %s | Error | %s" % (self.title, message)
             self._addNewLines(newLinesAfter)
 
     def warning(self, message, newLinesBefor=0, newLinesAfter=0):
@@ -240,7 +240,7 @@ class Logger(object):
         """
         if self.lvlIndex >= 2:
             self._addNewLines(newLinesBefor)
-            print "[%s] | WARNING | %s" % (self.title, message)
+            print "| %s | Warning | %s" % (self.title, message)
             self._addNewLines(newLinesAfter)
 
     def info(self, message, newLinesBefor=0, newLinesAfter=0):
@@ -255,7 +255,7 @@ class Logger(object):
         """
         if self.lvlIndex >= 3:
             self._addNewLines(newLinesBefor)
-            print "[%s] | INFO | %s" % (self.title, message)
+            print "| %s | Info | %s" % (self.title, message)
             self._addNewLines(newLinesAfter)
 
     def debug(self, message, newLinesBefor=0, newLinesAfter=0):
@@ -270,7 +270,22 @@ class Logger(object):
         """
         if self.lvlIndex >= 4:
             self._addNewLines(newLinesBefor)
-            print "[%s] | DEBUG | %s" % (self.title, message)
+            print "| %s | Debug | %s" % (self.title, message)
+            self._addNewLines(newLinesAfter)
+
+    def detail(self, message, newLinesBefor=0, newLinesAfter=0):
+        """
+        Print given message with detail level
+        :param message: Message to print
+        :type message: str
+        :param newLinesBefor: New lines to insert befor message
+        :type newLinesBefor: int
+        :param newLinesAfter: New lines to insert after message
+        :type newLinesAfter: int
+        """
+        if self.lvlIndex >= 5:
+            self._addNewLines(newLinesBefor)
+            print "| %s | Debug | %s" % (self.title, message)
             self._addNewLines(newLinesAfter)
 
     @staticmethod

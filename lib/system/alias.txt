@@ -33,6 +33,9 @@ umg = python F:\rnd\workspace\studio\appli\userManager\__exe__.py $*
 grapher = python F:\rnd\workspace\studio\appli\grapher\__exe__.py $*
 gp = python F:\rnd\workspace\studio\appli\grapher\__exe__.py $*
 
+fondation =  python F:\rnd\workspace\studio\appli\fondation\__exe__.py $*
+fdt = python F:\rnd\workspace\studio\appli\fondation\__exe__.py $*
+
 aliasSync = python F:\rnd\workspace\studio\lib\system\aliasSync.py
 factory = python F:\rnd\workspace\studio\appli\factory\__exe__.py
 

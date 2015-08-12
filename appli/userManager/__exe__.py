@@ -5,8 +5,8 @@ import optparse
 usage = "userManager -v [Verbose Index]"
 parser = optparse.OptionParser(usage=usage)
 parser.add_option('-v', '--verbose', type='choice', default='info',
-                  choices=['critical', 'error', 'warning', 'info', 'debug'],
-                  help=''.join(["[choice=('critical', 'error', 'warning', 'info', 'debug')] ",
+                  choices=['critical', 'error', 'warning', 'info', 'debug', 'detail'],
+                  help=''.join(["[choice=('critical', 'error', 'warning', 'info', 'debug', 'detail')] ",
                                 "Log level (default='info')"]))
 
 

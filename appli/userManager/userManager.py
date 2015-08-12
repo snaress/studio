@@ -6,7 +6,7 @@ from lib.system import procFile as pFile
 
 class UserManager(object):
     """ UserManager class object
-        @param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug') """
+        @param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug', 'detail') """
 
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="UM", level=logLvl)

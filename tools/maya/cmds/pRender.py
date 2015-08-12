@@ -152,7 +152,7 @@ class ParamRender(object):
         """ Set render params with given renderer
             :param renderer: (str) : 'mentalRay', 'turtle
             :param options: (dict) : Render options
-            :param logLvl: (str) : 'critical', 'error', 'warning', 'info', 'debug' """
+            :param logLvl: (str) : 'critical', 'error', 'warning', 'info', 'debug', 'detail' """
         self.log = pFile.Logger(title="ParamRender", level=logLvl)
         self.log.info("#========== PARAM RENDER: %s ==========#" % renderer)
         self.drg = "defaultRenderGlobals"

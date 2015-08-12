@@ -11,7 +11,7 @@ from appli.factory.ui import factoryUI, wgtThumbnailUI, dialTransfertUI
 
 class FactoryUi(QtGui.QMainWindow, factoryUI.Ui_factory, pQt.Style):
     """ FactoryUi MainWindow
-        :param logLvl: (str) : ('critical', 'error', 'warning', 'info', 'debug') """
+        :param logLvl: (str) : ('critical', 'error', 'warning', 'info', 'debug', 'detail') """
 
     def __init__(self, parent=None, logLvl='info'):
         self.log = pFile.Logger(title="Factory-UI", level=logLvl)
@@ -513,7 +513,7 @@ class Transfert(QtGui.QDialog, dialTransfertUI.Ui_transfert, pQt.Style):
 
 def launch(logLvl='info'):
     """ Factory launcher
-        :param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug') """
+        :param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug', 'detail') """
     app = QtGui.QApplication(sys.argv)
     window = FactoryUi(logLvl=logLvl)
     window.show()

@@ -5,7 +5,7 @@ from lib.system import procFile as pFile
 
 class Factory(object):
     """ Factory main class
-        :param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug') """
+        :param logLvl: (str) : Log level ('critical', 'error', 'warning', 'info', 'debug', 'detail') """
 
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="Factory", level=logLvl)
