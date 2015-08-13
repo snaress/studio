@@ -169,36 +169,32 @@ class TabUtil(ToolsTab):
         """
         Add tools to tab
         """
-        self.newTool('PyData', cmd=self.pyDataNode, iconFile=os.path.join(self.mainUi.iconPath, 'pyData.png'))
-        self.newTool('CmdData', cmd=self.cmdDataNode, iconFile=os.path.join(self.mainUi.iconPath, 'cmdData.png'))
-        self.newTool('SysData', cmd=self.sysDataNode, iconFile=os.path.join(self.mainUi.iconPath, 'sysData.png'))
-        self.newTool('Modul', cmd=self.modulNode, iconFile=os.path.join(self.mainUi.iconPath, 'modul.png'))
+        iconPath = self.mainUi.iconPath
+        self.newTool('PyData', cmd=self.pyDataNode, iconFile=os.path.join(iconPath, 'pyData.png'))
+        self.newTool('CmdData', cmd=self.cmdDataNode, iconFile=os.path.join(iconPath, 'cmdData.png'))
+        self.newTool('SysData', cmd=self.sysDataNode, iconFile=os.path.join(iconPath, 'sysData.png'))
+        self.newTool('Modul', cmd=self.modulNode, iconFile=os.path.join(iconPath, 'modul.png'))
 
     def modulNode(self):
         """
         Add tool: Create Modul Node
         """
-        self.mainUi.log.info("#-- Creating Modul Node: %s --#")
         self.mainUi.graphTree.add_graphNode(nodeType='modul')
 
     def sysDataNode(self):
         """
         Add tool: Create SysData Node
         """
-        self.mainUi.log.info("#-- Creating SysData Node: %s --#")
         self.mainUi.graphTree.add_graphNode(nodeType='sysData')
 
     def cmdDataNode(self):
         """
         Add tool: Create CmdData Node
         """
-        self.mainUi.log.info("#-- Creating CmdData Node: %s --#")
         self.mainUi.graphTree.add_graphNode(nodeType='cmdData')
 
     def pyDataNode(self):
         """
         Add tool: Create PyData Node
         """
-        self.mainUi.log.info("#-- Creating PyData Node: %s --#")
         self.mainUi.graphTree.add_graphNode(nodeType='pyData')
-

@@ -62,7 +62,29 @@
      <addaction name="miLoop"/>
      <addaction name="miWait"/>
     </widget>
+    <widget class="QMenu" name="mFoldUnfold">
+     <property name="title">
+      <string>Fold / Unfold</string>
+     </property>
+     <addaction name="miExpandSel"/>
+     <addaction name="miExpandAll"/>
+     <addaction name="miCollapseSel"/>
+     <addaction name="miCollapseAll"/>
+    </widget>
+    <widget class="QMenu" name="mHideUnhide">
+     <property name="title">
+      <string>Hide / Unhide</string>
+     </property>
+     <addaction name="miHideSel"/>
+     <addaction name="miHideAll"/>
+     <addaction name="miUnhideSel"/>
+     <addaction name="miUnhideAll"/>
+    </widget>
     <addaction name="mCreateNode"/>
+    <addaction name="separator"/>
+    <addaction name="mFoldUnfold"/>
+    <addaction name="mHideUnhide"/>
+    <addaction name="separator"/>
     <addaction name="miUnselectAll"/>
    </widget>
    <widget class="QMenu" name="mFiles">
@@ -90,6 +112,7 @@
      <addaction name="miTabWest"/>
      <addaction name="miTabEast"/>
     </widget>
+    <addaction name="miToolsVisibility"/>
     <addaction name="mToolsBarOrient"/>
     <addaction name="mToolsTabOrient"/>
     <addaction name="miToolsIconOnly"/>
@@ -98,7 +121,6 @@
     <property name="title">
      <string>Pref</string>
     </property>
-    <addaction name="miToolsVisibility"/>
    </widget>
    <addaction name="mFiles"/>
    <addaction name="mGraph"/>
@@ -213,6 +235,46 @@
    </property>
    <property name="text">
     <string>Tools Visibility</string>
+   </property>
+  </action>
+  <action name="miExpandAll">
+   <property name="text">
+    <string>Expand All</string>
+   </property>
+  </action>
+  <action name="miCollapseAll">
+   <property name="text">
+    <string>Collapse All</string>
+   </property>
+  </action>
+  <action name="miExpandSel">
+   <property name="text">
+    <string>Expand Sel</string>
+   </property>
+  </action>
+  <action name="miCollapseSel">
+   <property name="text">
+    <string>Collapse Sel</string>
+   </property>
+  </action>
+  <action name="miHideSel">
+   <property name="text">
+    <string>Hide Sel</string>
+   </property>
+  </action>
+  <action name="miHideAll">
+   <property name="text">
+    <string>Hide All</string>
+   </property>
+  </action>
+  <action name="miUnhideSel">
+   <property name="text">
+    <string>Unhide Sel</string>
+   </property>
+  </action>
+  <action name="miUnhideAll">
+   <property name="text">
+    <string>Unhide All</string>
    </property>
   </action>
  </widget>

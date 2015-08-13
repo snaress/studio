@@ -54,26 +54,59 @@ class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mwFondation):
         """
         Init ui menu
         """
-        #-- Menu Graph --#
+        self._menuGraph()
+        self._menuDisplay()
+
+    # noinspection PyUnresolvedReferences
+    def _menuGraph(self):
+        """
+        Init menu 'Graph'
+        """
+        #-- SubMenu 'Create Node' --#
         self.miNewNode.triggered.connect(partial(self.on_miNewNode, 'modul'))
         self.miNewNode.setShortcut("N")
         self.miModul.triggered.connect(partial(self.on_miNewNode, 'modul'))
         self.miSysData.triggered.connect(partial(self.on_miNewNode, 'sysData'))
         self.miCmdData.triggered.connect(partial(self.on_miNewNode, 'cmdData'))
         self.miPyData.triggered.connect(partial(self.on_miNewNode, 'pyData'))
+        #-- SubMenu 'Fold / Unfold' --#
+        self.miExpandSel.triggered.connect(partial(self.on_foldUnfold, expand=True, _mode='sel'))
+        self.miExpandSel.setShortcut("F")
+        self.miExpandAll.triggered.connect(partial(self.on_foldUnfold, expand=True, _mode='all'))
+        self.miExpandAll.setShortcut("Alt+F")
+        self.miCollapseSel.triggered.connect(partial(self.on_foldUnfold, expand=False, _mode='sel'))
+        self.miCollapseAll.triggered.connect(partial(self.on_foldUnfold, expand=False, _mode='all'))
+        self.miCollapseAll.setShortcut("Ctrl+F")
+        #-- SubMenu 'Hide / Unhide' --#
+        self.miHideSel.triggered.connect(partial(self.on_hideUnhide, hidden=True, _mode='sel'))
+        self.miHideSel.setShortcut("H")
+        self.miHideAll.triggered.connect(partial(self.on_hideUnhide, hidden=True, _mode='all'))
+        self.miHideAll.setShortcut("Alt+H")
+        self.miUnhideSel.triggered.connect(partial(self.on_hideUnhide, hidden=False, _mode='sel'))
+        self.miUnhideAll.triggered.connect(partial(self.on_hideUnhide, hidden=False, _mode='all'))
+        self.miUnhideAll.setShortcut("Ctrl+H")
+        #-- Others --#
         self.miUnselectAll.triggered.connect(self.on_unselectAll)
         self.miUnselectAll.setShortcut("Esc")
-        #-- Menu Display --#
+
+    # noinspection PyUnresolvedReferences
+    def _menuDisplay(self):
+        """
+        Init menu 'Display'
+        """
+        #-- SubMenu 'Tools Bar Orient' --#
         self.miBarHorizontal.triggered.connect(partial(self.on_toolsOrientChanged, orient='horizontal', force=True))
         self.miBarVertical.triggered.connect(partial(self.on_toolsOrientChanged, orient='vertical', force=True))
+        #-- SubMenu 'Tools Tab Orient' --#
         self.miTabNorth.triggered.connect(partial(self.graphTools.tabOrientation, 'North'))
         self.miTabSouth.triggered.connect(partial(self.graphTools.tabOrientation, 'South'))
         self.miTabWest.triggered.connect(partial(self.graphTools.tabOrientation, 'West'))
         self.miTabEast.triggered.connect(partial(self.graphTools.tabOrientation, 'East'))
-        self.miToolsIconOnly.triggered.connect(self.graphTools.toolsAspect)
-        #-- Menu Pref --#
+        #-- Others --#
         self.miToolsVisibility.triggered.connect(self.on_toolsVisibility)
         self.miToolsVisibility.setShortcut("T")
+        self.miToolsIconOnly.triggered.connect(self.graphTools.toolsAspect)
+        self.miToolsIconOnly.setShortcut("Ctrl+T")
 
     @property
     def toolsIconOnly(self):
@@ -87,6 +120,19 @@ class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mwFondation):
         :type nodeType: str
         """
         self.graphTree.add_graphNode(nodeType=nodeType)
+
+    def on_foldUnfold(self, expand=True, _mode='sel'):
+        """
+        Manage graphNodes folding and unfolding
+        :param _expand: Expand state
+        :type _expand: bool
+        :param _mode: 'sel' or 'all'
+        :type _mode: str
+        """
+        self.graphTree.foldUnfold(expand=expand, _mode=_mode)
+
+    def on_hideUnhide(self, hidden=False, _mode='sel'):
+        self.graphTree.hideUnhide(hidden=hidden, _mode=_mode)
 
     def on_unselectAll(self):
         """

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\src\graphNode.ui'
 #
-# Created: Thu Aug 13 02:46:45 2015
+# Created: Thu Aug 13 22:11:38 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -107,6 +107,14 @@ class Ui_wgGraphNode(object):
         self.pbExpand.setFlat(False)
         self.pbExpand.setObjectName(_fromUtf8("pbExpand"))
         self.hlNode.addWidget(self.pbExpand)
+        self.line_3 = QtGui.QFrame(wgGraphNode)
+        self.line_3.setFrameShape(QtGui.QFrame.VLine)
+        self.line_3.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_3.setObjectName(_fromUtf8("line_3"))
+        self.hlNode.addWidget(self.line_3)
+        self.lChild = QtGui.QLabel(wgGraphNode)
+        self.lChild.setObjectName(_fromUtf8("lChild"))
+        self.hlNode.addWidget(self.lChild)
         self.line_2 = QtGui.QFrame(wgGraphNode)
         self.line_2.setFrameShape(QtGui.QFrame.VLine)
         self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
@@ -120,4 +128,5 @@ class Ui_wgGraphNode(object):
     def retranslateUi(self, wgGraphNode):
         wgGraphNode.setWindowTitle(_translate("wgGraphNode", "Graph Node", None))
         self.lNodeName.setText(_translate("wgGraphNode", "None", None))
+        self.lChild.setText(_translate("wgGraphNode", " ", None))
 

@@ -1,4 +1,3 @@
-from pprint import pprint
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
 from appli.fondation.gui.ui import graphNodeUI
@@ -97,6 +96,7 @@ class GraphTree(QtGui.QTreeWidget):
         if nodeName is None:
             nodeName = '%s_1' % nodeType
         newNodeName = self._checkNodeName(nodeName)
+        self.mainUi.log.info("#-- Creating %s Node: %s --#" % (nodeType, newNodeName))
         newItem = GraphItem(self.mainUi, nodeType, newNodeName)
         selItems = self.selectedItems()
         if len(selItems) == 1:
@@ -105,6 +105,43 @@ class GraphTree(QtGui.QTreeWidget):
             selItems[0].addChild(newItem)
         else:
             self.addTopLevelItem(newItem)
+
+    def foldUnfold(self, expand=True, _mode='sel'):
+        """
+        Manage graphNodes folding and unfolding command
+        :param expand: Expand state
+        :type expand: bool
+        :param _mode: 'sel' or 'all'
+        :type _mode: str
+        """
+        if _mode == 'sel':
+            for item in self.selectedItems() or []:
+                item._widget.pbExpand.setChecked(not item._widget.pbExpand.isChecked())
+                item._widget.on_expandNode()
+        else:
+            for item in pQt.getAllItems(self):
+                item._widget.pbExpand.setChecked(expand)
+                item._widget.on_expandNode()
+
+    def hideUnhide(self, hidden=True, _mode='sel'):
+        """
+        Manage graphNodes visibility command
+        :param hidden: Visibility state
+        :type hidden: bool
+        :param _mode: 'sel' or 'all'
+        :type _mode: str
+        """
+        if _mode == 'sel':
+            items = self.selectedItems() or []
+            for item in items:
+                if not item._index == 0:
+                    item.setHidden(not item.isHidden())
+                    # item.rf_childVisibility(hidden=item.isHidden())
+        else:
+            items = pQt.getAllItems(self)
+            for item in items:
+                if not item._index == 0:
+                    item.setHidden(hidden)
 
     def selectionChanged(self, event, options):
         """
@@ -168,6 +205,17 @@ class GraphItem(QtGui.QTreeWidgetItem):
         else:
             self._widget = self.mainUi._graphNodes.Modul(pItem=self)
 
+    def rf_childVisibility(self, hidden=None):
+        """
+        Refresh children graphNode visibility
+        """
+        for child in pQt.getAllChildren(self):
+            if not child.nodeName == self.nodeName:
+                if hidden is None:
+                    child.setHidden(not child.isHidden())
+                else:
+                    child.setHidden(hidden)
+
     def addChild(self, QTreeWidgetItem):
         """
         Add options: Insert widget, rf columns
@@ -189,6 +237,11 @@ class GraphItem(QtGui.QTreeWidgetItem):
 
 
 class GraphNode(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
+    """
+    GraphTreeItem widget, child of FondationUi.GraphTree.GraphItem
+    :param kwargs: GraphNode internal params
+    :type kwargs: dict
+    """
 
     def __init__(self, **kwargs):
         super(GraphNode, self).__init__()
@@ -225,6 +278,15 @@ class GraphNode(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         :rtype: bool
         """
         return self.pbExpand.isChecked()
+
+    @property
+    def _isHidden(self):
+        """
+        Get node visibility state
+        :return: Node visibility state
+        :rtype: bool
+        """
+        return self._pItem.isHidden()
 
     def rf_nodeName(self):
         """
@@ -278,6 +340,15 @@ class GraphNode(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
             self.pbExpand.setIcon(self._pItem.mainUi.collapseIcon)
         else:
             self.pbExpand.setIcon(self._pItem.mainUi.expandIcon)
+        self.rf_childInfo()
+
+    def rf_childInfo(self):
+        self.lChild.setText(" ")
+        if self.isExpanded:
+            for child in pQt.getAllChildren(self._pItem, depth=1):
+                if child._widget._isHidden:
+                    self.lChild.setText("H")
+                    break
 
     def on_enableNode(self):
         """
