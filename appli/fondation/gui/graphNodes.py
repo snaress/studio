@@ -1,4 +1,4 @@
-from appli.fondation.gui.graphWgts import GraphNode
+from appli.fondation.gui.graphTree import GraphNode
 
 
 class Modul(GraphNode):

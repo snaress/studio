@@ -5,7 +5,7 @@ from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from appli.fondation.gui.ui import fondationUI
-from appli.fondation.gui import graphWgts, graphNodes, toolsWgts, nodeEditor
+from appli.fondation.gui import graphTree, graphView, graphNodes, toolsWgts, nodeEditor
 
 
 class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mwFondation):
@@ -37,8 +37,11 @@ class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mwFondation):
     def _initWidgets(self):
         self.log.info("#-- Init Widgets --#")
         #-- Graph Zone --#
-        self.graphTree = graphWgts.GraphTree(self)
+        self.graphTree = graphTree.GraphTree(self)
+        self.graphScene = graphView.GraphScene(self)
+        self.graphView = graphView.GraphView(self, self.graphScene)
         self.vlGraphScene.insertWidget(0, self.graphTree)
+        self.vlGraphScene.insertWidget(0, self.graphView)
         #-- GraphTools --#
         self.graphTools = toolsWgts.GraphTools(self)
         self.tbTools.addWidget(self.graphTools)
