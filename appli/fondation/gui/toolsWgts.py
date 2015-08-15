@@ -21,9 +21,6 @@ class GraphTools(QtGui.QTabWidget):
         self._setupWidget()
 
     def _setupWidget(self):
-        """
-        Setup widget
-        """
         self.log.debug("\t ---> Setup GraphTools Widget.")
         self.addTabs()
         self.tabOrientation('West')
@@ -88,14 +85,12 @@ class ToolsTab(QtGui.QWidget, toolsTabUI.Ui_wgToolsTab):
         self.mainUi = mainUi
         self.log = self.mainUi.log
         self.log.debug("\t Init GraphTools TabWidget.")
+        self.iconPath = self.mainUi.iconPath
         self.tabWidget = tabWidget
         self.log = self.mainUi.log
         self._setupWidget()
 
     def _setupWidget(self):
-        """
-        Setup widget
-        """
         self.log.debug("\t ---> Setup GraphTools TabWidget.")
         self.setupUi(self)
 
@@ -163,17 +158,18 @@ class TabUtil(ToolsTab):
         self.mainUi = mainUi
         self.log = self.mainUi.log
         self.log.debug("\t Init GraphTools UtilTab.")
-        self._addTools()
+        self._setupTab()
 
-    def _addTools(self):
-        """
-        Add tools to tab
-        """
-        iconPath = self.mainUi.iconPath
-        self.newTool('PyData', cmd=self.pyDataNode, iconFile=os.path.join(iconPath, 'pyData.png'))
-        self.newTool('CmdData', cmd=self.cmdDataNode, iconFile=os.path.join(iconPath, 'cmdData.png'))
-        self.newTool('SysData', cmd=self.sysDataNode, iconFile=os.path.join(iconPath, 'sysData.png'))
-        self.newTool('Modul', cmd=self.modulNode, iconFile=os.path.join(iconPath, 'modul.png'))
+    def _setupTab(self):
+        self.log.debug("\t ---> Setup 'Util' Tab.")
+        self.log.detail("\t\t ---> Add tool 'PyData'.")
+        self.newTool('PyData', cmd=self.pyDataNode, iconFile=os.path.join(self.iconPath, 'pyData.png'))
+        self.log.detail("\t\t ---> Add tool 'CmdData'.")
+        self.newTool('CmdData', cmd=self.cmdDataNode, iconFile=os.path.join(self.iconPath, 'cmdData.png'))
+        self.log.detail("\t\t ---> Add tool 'SysData'.")
+        self.newTool('SysData', cmd=self.sysDataNode, iconFile=os.path.join(self.iconPath, 'sysData.png'))
+        self.log.detail("\t\t ---> Add tool 'Modul'.")
+        self.newTool('Modul', cmd=self.modulNode, iconFile=os.path.join(self.iconPath, 'modul.png'))
 
     def modulNode(self):
         """

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>714</width>
-    <height>600</height>
+    <width>1001</width>
+    <height>773</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,18 +16,36 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QFrame" name="vfGraphScene">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
-      <layout class="QVBoxLayout" name="vlGraphScene">
-       <property name="spacing">
-        <number>0</number>
+      <widget class="QFrame" name="vfGraphScene">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
        </property>
-       <property name="margin">
-        <number>0</number>
+       <layout class="QVBoxLayout" name="vlGraphScene">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
+      <widget class="QFrame" name="vfNodeEditor">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
        </property>
-      </layout>
+       <layout class="QVBoxLayout" name="vlNodeEditor">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -37,7 +55,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>714</width>
+     <width>1001</width>
      <height>21</height>
     </rect>
    </property>
@@ -47,7 +65,7 @@
     </property>
     <widget class="QMenu" name="mCreateNode">
      <property name="tearOffEnabled">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="title">
       <string>Create Node</string>
@@ -60,7 +78,7 @@
      <addaction name="miPyData"/>
      <addaction name="separator"/>
      <addaction name="miLoop"/>
-     <addaction name="miWait"/>
+     <addaction name="miCondition"/>
     </widget>
     <widget class="QMenu" name="mFoldUnfold">
      <property name="title">
@@ -68,24 +86,26 @@
      </property>
      <addaction name="miExpandSel"/>
      <addaction name="miExpandAll"/>
+     <addaction name="separator"/>
      <addaction name="miCollapseSel"/>
      <addaction name="miCollapseAll"/>
     </widget>
-    <widget class="QMenu" name="mHideUnhide">
-     <property name="title">
-      <string>Hide / Unhide</string>
-     </property>
-     <addaction name="miHideSel"/>
-     <addaction name="miHideAll"/>
-     <addaction name="miUnhideSel"/>
-     <addaction name="miUnhideAll"/>
-    </widget>
-    <addaction name="mCreateNode"/>
+    <addaction name="miRefresh"/>
     <addaction name="separator"/>
+    <addaction name="mCreateNode"/>
     <addaction name="mFoldUnfold"/>
-    <addaction name="mHideUnhide"/>
     <addaction name="separator"/>
     <addaction name="miUnselectAll"/>
+    <addaction name="separator"/>
+    <addaction name="miCopyNodes"/>
+    <addaction name="miCopyBranch"/>
+    <addaction name="miCutBranch"/>
+    <addaction name="miPaste"/>
+    <addaction name="separator"/>
+    <addaction name="miMoveUp"/>
+    <addaction name="miMoveDn"/>
+    <addaction name="separator"/>
+    <addaction name="miDelSel"/>
    </widget>
    <widget class="QMenu" name="mFiles">
     <property name="title">
@@ -112,20 +132,23 @@
      <addaction name="miTabWest"/>
      <addaction name="miTabEast"/>
     </widget>
+    <addaction name="miNodeEditor"/>
+    <addaction name="separator"/>
     <addaction name="miToolsVisibility"/>
     <addaction name="mToolsBarOrient"/>
     <addaction name="mToolsTabOrient"/>
     <addaction name="miToolsIconOnly"/>
    </widget>
-   <widget class="QMenu" name="mPref">
+   <widget class="QMenu" name="mHelp">
     <property name="title">
-     <string>Pref</string>
+     <string>Help</string>
     </property>
+    <addaction name="miTreeDict"/>
    </widget>
    <addaction name="mFiles"/>
    <addaction name="mGraph"/>
    <addaction name="mDisplay"/>
-   <addaction name="mPref"/>
+   <addaction name="mHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="tbTools">
@@ -175,9 +198,9 @@
     <string>PyData</string>
    </property>
   </action>
-  <action name="miWait">
+  <action name="miCondition">
    <property name="text">
-    <string>Confition</string>
+    <string>Condition</string>
    </property>
   </action>
   <action name="miUnselectAll">
@@ -257,24 +280,57 @@
     <string>Collapse Sel</string>
    </property>
   </action>
-  <action name="miHideSel">
+  <action name="miDelSel">
    <property name="text">
-    <string>Hide Sel</string>
+    <string>Delete Selected</string>
    </property>
   </action>
-  <action name="miHideAll">
+  <action name="miTreeDict">
    <property name="text">
-    <string>Hide All</string>
+    <string>Print Tree Dict</string>
    </property>
   </action>
-  <action name="miUnhideSel">
+  <action name="miRefresh">
    <property name="text">
-    <string>Unhide Sel</string>
+    <string>Refresh</string>
    </property>
   </action>
-  <action name="miUnhideAll">
+  <action name="miMoveUp">
    <property name="text">
-    <string>Unhide All</string>
+    <string>Move Up</string>
+   </property>
+  </action>
+  <action name="miMoveDn">
+   <property name="text">
+    <string>Move Down</string>
+   </property>
+  </action>
+  <action name="miNodeEditor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Node Editor</string>
+   </property>
+  </action>
+  <action name="miCopyNodes">
+   <property name="text">
+    <string>Copy Nodes</string>
+   </property>
+  </action>
+  <action name="miCopyBranch">
+   <property name="text">
+    <string>Copy Branch</string>
+   </property>
+  </action>
+  <action name="miPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="miCutBranch">
+   <property name="text">
+    <string>Cut Branch</string>
    </property>
   </action>
  </widget>

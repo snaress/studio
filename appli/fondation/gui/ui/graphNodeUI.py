@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\src\graphNode.ui'
 #
-# Created: Thu Aug 13 22:11:38 2015
+# Created: Sat Aug 15 00:04:06 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,6 +27,7 @@ class Ui_wgGraphNode(object):
     def setupUi(self, wgGraphNode):
         wgGraphNode.setObjectName(_fromUtf8("wgGraphNode"))
         wgGraphNode.resize(212, 28)
+        wgGraphNode.setMinimumSize(QtCore.QSize(150, 0))
         self.gridLayout = QtGui.QGridLayout(wgGraphNode)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
@@ -42,7 +43,7 @@ class Ui_wgGraphNode(object):
         self.line_6.setObjectName(_fromUtf8("line_6"))
         self.gridLayout.addWidget(self.line_6, 2, 0, 1, 1)
         self.hlNode = QtGui.QHBoxLayout()
-        self.hlNode.setSpacing(0)
+        self.hlNode.setSpacing(1)
         self.hlNode.setObjectName(_fromUtf8("hlNode"))
         self.line = QtGui.QFrame(wgGraphNode)
         self.line.setFrameShape(QtGui.QFrame.VLine)
@@ -64,8 +65,8 @@ class Ui_wgGraphNode(object):
         self.line_7.setObjectName(_fromUtf8("line_7"))
         self.hlNode.addWidget(self.line_7)
         self.label = QtGui.QLabel(wgGraphNode)
-        self.label.setMinimumSize(QtCore.QSize(0, 20))
-        self.label.setMaximumSize(QtCore.QSize(16777215, 20))
+        self.label.setMinimumSize(QtCore.QSize(10, 20))
+        self.label.setMaximumSize(QtCore.QSize(10, 20))
         self.label.setText(_fromUtf8(""))
         self.label.setObjectName(_fromUtf8("label"))
         self.hlNode.addWidget(self.label)
@@ -88,8 +89,8 @@ class Ui_wgGraphNode(object):
         self.lNodeName.setObjectName(_fromUtf8("lNodeName"))
         self.hlNode.addWidget(self.lNodeName)
         self.label_2 = QtGui.QLabel(wgGraphNode)
-        self.label_2.setMinimumSize(QtCore.QSize(0, 20))
-        self.label_2.setMaximumSize(QtCore.QSize(16777215, 20))
+        self.label_2.setMinimumSize(QtCore.QSize(10, 20))
+        self.label_2.setMaximumSize(QtCore.QSize(10, 20))
         self.label_2.setText(_fromUtf8(""))
         self.label_2.setObjectName(_fromUtf8("label_2"))
         self.hlNode.addWidget(self.label_2)
@@ -112,14 +113,6 @@ class Ui_wgGraphNode(object):
         self.line_3.setFrameShadow(QtGui.QFrame.Sunken)
         self.line_3.setObjectName(_fromUtf8("line_3"))
         self.hlNode.addWidget(self.line_3)
-        self.lChild = QtGui.QLabel(wgGraphNode)
-        self.lChild.setObjectName(_fromUtf8("lChild"))
-        self.hlNode.addWidget(self.lChild)
-        self.line_2 = QtGui.QFrame(wgGraphNode)
-        self.line_2.setFrameShape(QtGui.QFrame.VLine)
-        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
-        self.line_2.setObjectName(_fromUtf8("line_2"))
-        self.hlNode.addWidget(self.line_2)
         self.gridLayout.addLayout(self.hlNode, 1, 0, 1, 1)
 
         self.retranslateUi(wgGraphNode)
@@ -128,5 +121,4 @@ class Ui_wgGraphNode(object):
     def retranslateUi(self, wgGraphNode):
         wgGraphNode.setWindowTitle(_translate("wgGraphNode", "Graph Node", None))
         self.lNodeName.setText(_translate("wgGraphNode", "None", None))
-        self.lChild.setText(_translate("wgGraphNode", " ", None))
 
