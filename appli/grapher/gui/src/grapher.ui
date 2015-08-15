@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>mwFondation</class>
- <widget class="QMainWindow" name="mwFondation">
+ <class>mwGrapher</class>
+ <widget class="QMainWindow" name="mwGrapher">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Fondation</string>
+   <string>Grapher</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -20,11 +20,11 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QFrame" name="vfGraphScene">
+      <widget class="QFrame" name="vfGraphZone">
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
        </property>
-       <layout class="QVBoxLayout" name="vlGraphScene">
+       <layout class="QVBoxLayout" name="vlGraphZone">
         <property name="spacing">
          <number>0</number>
         </property>

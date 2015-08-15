@@ -15,5 +15,5 @@ if __name__ == '__main__':
     options, args = parser.parse_args()
     options = eval(str(options))
 
-    from appli.fondation import fondationUi
-    fondationUi.launch(logLvl=options['verbose'])
+    from appli.grapher import grapherUi
+    grapherUi.launch(logLvl=options['verbose'])

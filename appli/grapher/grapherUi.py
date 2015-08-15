@@ -1,28 +1,28 @@
 import os, sys
-from appli import fondation
+from appli import grapher
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.fondation.gui.ui import fondationUI
-from appli.fondation.gui import graphTree, graphView, graphNodes, toolsWgts, nodeEditor
+from appli.grapher.gui.ui import grapherUI
+from appli.grapher.gui import graphTree, graphView, graphNodes, toolsWgts, nodeEditor
 
 
-class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mwFondation):
+class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
 
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="FondationUI", level=logLvl)
         self.log.info("########## Launching Fondation Ui ##########")
-        self.user = fondation.user
-        self.station = fondation.station
-        self.binPath = fondation.binPath
-        self.iconPath = fondation.iconPath
+        self.user = grapher.user
+        self.station = grapher.station
+        self.binPath = grapher.binPath
+        self.iconPath = grapher.iconPath
         self.enabledIcon = QtGui.QIcon(os.path.join(self.iconPath, 'enabled.png'))
         self.disabledIcon = QtGui.QIcon(os.path.join(self.iconPath, 'disabled.png'))
         self.expandIcon = QtGui.QIcon(os.path.join(self.iconPath, 'expand.png'))
         self.collapseIcon = QtGui.QIcon(os.path.join(self.iconPath, 'collapse.png'))
         self._graphNodes = graphNodes
-        super(FondationUi, self).__init__()
+        super(GrapherUi, self).__init__()
         self._setupUi()
 
     def _setupUi(self):
@@ -40,8 +40,8 @@ class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mwFondation):
         self.graphTree = graphTree.GraphTree(self)
         self.graphScene = graphView.GraphScene(self)
         self.graphView = graphView.GraphView(self, self.graphScene)
-        self.vlGraphScene.insertWidget(0, self.graphTree)
-        self.vlGraphScene.insertWidget(0, self.graphView)
+        self.vlGraphZone.insertWidget(0, self.graphTree)
+        self.vlGraphZone.insertWidget(0, self.graphView)
         #-- GraphTools --#
         self.graphTools = toolsWgts.GraphTools(self)
         self.tbTools.addWidget(self.graphTools)
@@ -295,7 +295,7 @@ def launch(logLvl='info'):
     :type logLvl: str
     """
     app = QtGui.QApplication(sys.argv)
-    window = FondationUi(logLvl=logLvl)
+    window = GrapherUi(logLvl=logLvl)
     window.show()
     sys.exit(app.exec_())
 

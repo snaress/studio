@@ -1,4 +1,4 @@
-from appli.fondation.gui.graphTree import GraphNode
+from appli.grapher.gui.graphTree import GraphNode
 
 
 class Modul(GraphNode):

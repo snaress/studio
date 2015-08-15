@@ -1,7 +1,7 @@
 import pprint
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
-from appli.fondation.gui.ui import graphNodeUI
+from appli.grapher.gui.ui import graphNodeUI
 
 
 class GraphTree(QtGui.QTreeWidget):

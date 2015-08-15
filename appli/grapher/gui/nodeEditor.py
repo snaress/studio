@@ -1,5 +1,5 @@
 from PyQt4 import QtGui
-from appli.fondation.gui.ui import nodeEditorUI
+from appli.grapher.gui.ui import nodeEditorUI
 
 
 class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):

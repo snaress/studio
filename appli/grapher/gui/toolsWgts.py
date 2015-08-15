@@ -1,6 +1,6 @@
 import os
 from PyQt4 import QtGui, QtCore
-from appli.fondation.gui.ui import toolsTabUI
+from appli.grapher.gui.ui import toolsTabUI
 
 
 class GraphTools(QtGui.QTabWidget):
