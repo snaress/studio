@@ -5,8 +5,8 @@ from functools import partial
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from lib.qt.scriptEditor import ScriptZone
-from appli.grapher.core import grapher as gpCore
-from appli.grapher.gui.ui import wgDataGroupUI, wgDataNodeConnUI, wgDataPlugItemUI, wgDataNodeIdUI,\
+from appli.grapherDev.core import grapher as gpCore
+from appli.grapherDev.gui.ui import wgDataGroupUI, wgDataNodeConnUI, wgDataPlugItemUI, wgDataNodeIdUI,\
                                  wgDataNodeFileUI, wgDataAssetCastingUI, wgDataNodeScriptUI
 
 

@@ -15,5 +15,5 @@ if __name__ == '__main__':
     options, args = parser.parse_args()
     options = eval(str(options))
 
-    from appli.grapher import grapherUi
+    from appli.grapherDev import grapherUi
     grapherUi.launch(project=options['project'], logLvl=options['verbose'])

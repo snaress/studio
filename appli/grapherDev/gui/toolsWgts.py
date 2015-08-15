@@ -1,7 +1,7 @@
 import random, time
 from PyQt4 import QtGui, QtCore
-from appli.grapher.gui.ui import wgToolsTabUI
-from appli.grapher.template import graphNodes
+from appli.grapherDev.gui.ui import wgToolsTabUI
+from appli.grapherDev.template import graphNodes
 
 
 class ToolsBar(QtGui.QTabWidget):

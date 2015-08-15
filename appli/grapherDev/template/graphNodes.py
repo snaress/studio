@@ -1,6 +1,6 @@
 import os
-from appli.grapher.gui.graphWgts import GraphNode
-from appli.grapher.gui import dataWgts
+from appli.grapherDev.gui.graphWgts import GraphNode
+from appli.grapherDev.gui import dataWgts
 
 
 class AssetCastingNode(GraphNode):

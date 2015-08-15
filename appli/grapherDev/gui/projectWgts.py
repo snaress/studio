@@ -3,8 +3,8 @@ from PyQt4 import QtGui
 from functools import partial
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.grapher.core import grapher as gpCore
-from appli.grapher.gui.ui import wgProjectLoadUI, wgProjectEditUI, wgTreeItemUI
+from appli.grapherDev.core import grapher as gpCore
+from appli.grapherDev.gui.ui import wgProjectLoadUI, wgProjectEditUI, wgTreeItemUI
 
 
 class LoadProject(QtGui.QDialog, wgProjectLoadUI.Ui_wgLoadProject):

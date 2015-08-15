@@ -1,14 +1,14 @@
 import os, sys
 from pprint import pprint
-from appli import grapher
+from appli import grapherDev
 from lib.env import studio
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.grapher.gui.ui import grapherUI
-from appli.grapher.core import grapher as gpCore
-from appli.grapher.gui import projectWgts, toolsWgts, dataWgts, graphWgts
+from appli.grapherDev.gui.ui import grapherUI
+from appli.grapherDev.core import grapher as gpCore
+from appli.grapherDev.gui import projectWgts, toolsWgts, dataWgts, graphWgts
 
 
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
@@ -22,9 +22,9 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher, pQt.Style):
         self.log = pFile.Logger(title="Grapher-UI", level=logLvl)
         self.log.info("#-- Launching Grapher Ui --#")
         self.studio = studio
-        self.userName = grapher.user
-        self.grapherRootPath = grapher.grapherRootPath
-        self.prodsRootPath = grapher.prodsRootPath
+        self.userName = grapherDev.user
+        self.grapherRootPath = grapherDev.grapherRootPath
+        self.prodsRootPath = grapherDev.prodsRootPath
         self._checkUser()
         super(GrapherUi, self).__init__()
         self.projectPath = None
