@@ -84,26 +84,43 @@
      <property name="title">
       <string>Fold / Unfold</string>
      </property>
+     <addaction name="miFoldUnfold"/>
+     <addaction name="separator"/>
      <addaction name="miExpandSel"/>
+     <addaction name="miExpandBranch"/>
+     <addaction name="miExpandAllEnable"/>
      <addaction name="miExpandAll"/>
      <addaction name="separator"/>
      <addaction name="miCollapseSel"/>
+     <addaction name="miCollapseBranch"/>
+     <addaction name="miCollapseAllEnabled"/>
      <addaction name="miCollapseAll"/>
     </widget>
+    <widget class="QMenu" name="mCopyPaste">
+     <property name="title">
+      <string>Copy / Paste</string>
+     </property>
+     <addaction name="miCopyNodes"/>
+     <addaction name="miCopyBranch"/>
+     <addaction name="separator"/>
+     <addaction name="miCutBranch"/>
+     <addaction name="separator"/>
+     <addaction name="miPaste"/>
+    </widget>
+    <widget class="QMenu" name="mMoveUpDown">
+     <property name="title">
+      <string>Move Up / Down</string>
+     </property>
+     <addaction name="miMoveUp"/>
+     <addaction name="miMoveDn"/>
+    </widget>
     <addaction name="miRefresh"/>
+    <addaction name="miUnselectAll"/>
     <addaction name="separator"/>
     <addaction name="mCreateNode"/>
     <addaction name="mFoldUnfold"/>
-    <addaction name="separator"/>
-    <addaction name="miUnselectAll"/>
-    <addaction name="separator"/>
-    <addaction name="miCopyNodes"/>
-    <addaction name="miCopyBranch"/>
-    <addaction name="miCutBranch"/>
-    <addaction name="miPaste"/>
-    <addaction name="separator"/>
-    <addaction name="miMoveUp"/>
-    <addaction name="miMoveDn"/>
+    <addaction name="mCopyPaste"/>
+    <addaction name="mMoveUpDown"/>
     <addaction name="separator"/>
     <addaction name="miDelSel"/>
    </widget>
@@ -133,6 +150,7 @@
      <addaction name="miTabEast"/>
     </widget>
     <addaction name="miNodeEditor"/>
+    <addaction name="miGraphView"/>
     <addaction name="separator"/>
     <addaction name="miToolsVisibility"/>
     <addaction name="mToolsBarOrient"/>
@@ -270,14 +288,14 @@
     <string>Collapse All</string>
    </property>
   </action>
-  <action name="miExpandSel">
+  <action name="miExpandBranch">
    <property name="text">
-    <string>Expand Sel</string>
+    <string>Expand Branch</string>
    </property>
   </action>
-  <action name="miCollapseSel">
+  <action name="miCollapseBranch">
    <property name="text">
-    <string>Collapse Sel</string>
+    <string>Collapse Branch</string>
    </property>
   </action>
   <action name="miDelSel">
@@ -331,6 +349,49 @@
   <action name="miCutBranch">
    <property name="text">
     <string>Cut Branch</string>
+   </property>
+  </action>
+  <action name="miGraphView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Graph View</string>
+   </property>
+  </action>
+  <action name="miFoldUnfold">
+   <property name="text">
+    <string>Fold / Unfold</string>
+   </property>
+  </action>
+  <action name="miExpandAllEnable">
+   <property name="text">
+    <string>Expand All Enabled</string>
+   </property>
+  </action>
+  <action name="miExpandAllDisabled">
+   <property name="text">
+    <string>Expand All Disabled</string>
+   </property>
+  </action>
+  <action name="miCollapseAllEnabled">
+   <property name="text">
+    <string>Collapse All Enabled</string>
+   </property>
+  </action>
+  <action name="miCollapseAllDisabled">
+   <property name="text">
+    <string>Collapse All Disabled</string>
+   </property>
+  </action>
+  <action name="miExpandSel">
+   <property name="text">
+    <string>Expand Selected</string>
+   </property>
+  </action>
+  <action name="miCollapseSel">
+   <property name="text">
+    <string>Collapse Selected</string>
    </property>
   </action>
  </widget>

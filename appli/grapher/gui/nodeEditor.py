@@ -4,9 +4,9 @@ from appli.grapher.gui.ui import nodeEditorUI
 
 class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
 
-    def __init__(self, mainUi):
-        self.mainUi = mainUi
-        self.log = self.mainUi.log
+    def __init__(self, _mainUi):
+        self._mainUi = _mainUi
+        self.log = self._mainUi.log
         self.log.info("#-- Init Node Editor --#")
         self.node = None
         super(NodeEditor, self).__init__()

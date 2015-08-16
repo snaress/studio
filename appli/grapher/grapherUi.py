@@ -11,16 +11,16 @@ from appli.grapher.gui import graphTree, graphView, graphNodes, toolsWgts, nodeE
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
 
     def __init__(self, logLvl='info'):
-        self.log = pFile.Logger(title="FondationUI", level=logLvl)
-        self.log.info("########## Launching Fondation Ui ##########")
+        self.log = pFile.Logger(title="GrapherUi", level=logLvl)
+        self.log.info("########## Launching Grapher Ui ##########")
         self.user = grapher.user
         self.station = grapher.station
         self.binPath = grapher.binPath
         self.iconPath = grapher.iconPath
-        self.enabledIcon = QtGui.QIcon(os.path.join(self.iconPath, 'enabled.png'))
-        self.disabledIcon = QtGui.QIcon(os.path.join(self.iconPath, 'disabled.png'))
-        self.expandIcon = QtGui.QIcon(os.path.join(self.iconPath, 'expand.png'))
-        self.collapseIcon = QtGui.QIcon(os.path.join(self.iconPath, 'collapse.png'))
+        self.enabledIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'enabled.png'))
+        self.disabledIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'disabled.png'))
+        self.expandIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'expand.png'))
+        self.collapseIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'collapse.png'))
         self._graphNodes = graphNodes
         super(GrapherUi, self).__init__()
         self._setupUi()
@@ -61,6 +61,10 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     # noinspection PyUnresolvedReferences
     def _menuGraph(self):
         self.log.debug("\t ---> Menu Graph ...")
+        self.miRefresh.triggered.connect(self.on_miRefresh)
+        self.miRefresh.setShortcut("F5")
+        self.miUnselectAll.triggered.connect(self.on_miUnselectAll)
+        self.miUnselectAll.setShortcut("Esc")
         #-- SubMenu 'Create Node' --#
         self.miNewNode.triggered.connect(partial(self.on_miNewNode, 'modul'))
         self.miNewNode.setShortcut("N")
@@ -69,14 +73,25 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miCmdData.triggered.connect(partial(self.on_miNewNode, 'cmdData'))
         self.miPyData.triggered.connect(partial(self.on_miNewNode, 'pyData'))
         #-- SubMenu 'Fold / Unfold' --#
+        self.miFoldUnfold.triggered.connect(partial(self.on_miFoldUnfold, _mode='branch', toggle=True))
+        self.miFoldUnfold.setShortcut("G")
         self.miExpandSel.triggered.connect(partial(self.on_miFoldUnfold, expand=True, _mode='sel'))
-        self.miExpandSel.setShortcut("F")
+        self.miExpandSel.setShortcut("Right")
+        self.miExpandBranch.triggered.connect(partial(self.on_miFoldUnfold, expand=True, _mode='branch'))
+        self.miExpandBranch.setShortcut("Ctrl+Right")
+        self.miExpandAllEnable.triggered.connect(partial(self.on_miFoldUnfold, expand=True, _mode='active'))
+        self.miExpandAllEnable.setShortcut("Shift+Right")
         self.miExpandAll.triggered.connect(partial(self.on_miFoldUnfold, expand=True, _mode='all'))
-        self.miExpandAll.setShortcut("Alt+F")
+        self.miExpandAll.setShortcut("Alt+Right")
         self.miCollapseSel.triggered.connect(partial(self.on_miFoldUnfold, expand=False, _mode='sel'))
+        self.miCollapseSel.setShortcut("Left")
+        self.miCollapseBranch.triggered.connect(partial(self.on_miFoldUnfold, expand=False, _mode='branch'))
+        self.miCollapseBranch.setShortcut("Ctrl+Left")
+        self.miCollapseAllEnabled.triggered.connect(partial(self.on_miFoldUnfold, expand=False, _mode='active'))
+        self.miCollapseAllEnabled.setShortcut("Shift+Left")
         self.miCollapseAll.triggered.connect(partial(self.on_miFoldUnfold, expand=False, _mode='all'))
-        self.miCollapseAll.setShortcut("Ctrl+F")
-        #-- Copy Nodes / Branch --#
+        self.miCollapseAll.setShortcut("Alt+Left")
+        #-- SubMenu 'Copy / Paste' --#
         self.miCopyNodes.triggered.connect(partial(self.on_miCopy, _mode='nodes', rm=False))
         self.miCopyNodes.setShortcut("Ctrl+C")
         self.miCopyBranch.triggered.connect(partial(self.on_miCopy, _mode='branch', rm=False))
@@ -85,20 +100,25 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miCutBranch.setShortcut("Ctrl+X")
         self.miPaste.triggered.connect(self.on_miPasteNodes)
         self.miPaste.setShortcut("Ctrl+V")
-        #-- Move Up / Down --#
+        #-- SubMenu 'Move Up / Down' --#
+        self.miMoveUp.triggered.connect(partial(self.on_moveNodes, side='up'))
         self.miMoveUp.setShortcut("Ctrl+Up")
+        self.miMoveDn.triggered.connect(partial(self.on_moveNodes, side='down'))
         self.miMoveDn.setShortcut("Ctrl+Down")
         #-- Others --#
-        self.miRefresh.triggered.connect(self.on_miRefresh)
-        self.miRefresh.setShortcut("F5")
-        self.miUnselectAll.triggered.connect(self.on_miUnselectAll)
-        self.miUnselectAll.setShortcut("Esc")
         self.miDelSel.triggered.connect(self.on_miDeleteSelected)
         self.miDelSel.setShortcut("Del")
 
     # noinspection PyUnresolvedReferences
     def _menuDisplay(self):
         self.log.debug("\t ---> Menu Display ...")
+        #-- Widgets Visibility --#
+        self.miNodeEditor.triggered.connect(self.on_miNodeEditor)
+        self.miNodeEditor.setShortcut("E")
+        self.miGraphView.triggered.connect(self.on_miGraphView)
+        self.miGraphView.setShortcut("Tab")
+        self.miToolsVisibility.triggered.connect(self.on_miToolsVisibility)
+        self.miToolsVisibility.setShortcut("T")
         #-- SubMenu 'Tools Bar Orient' --#
         self.miBarHorizontal.triggered.connect(partial(self.on_miToolsOrientChanged, orient='horizontal', force=True))
         self.miBarVertical.triggered.connect(partial(self.on_miToolsOrientChanged, orient='vertical', force=True))
@@ -107,11 +127,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miTabSouth.triggered.connect(partial(self.on_miTabOrientChanged, 'South'))
         self.miTabWest.triggered.connect(partial(self.on_miTabOrientChanged, 'West'))
         self.miTabEast.triggered.connect(partial(self.on_miTabOrientChanged, 'East'))
-        #-- Others --#
-        self.miNodeEditor.triggered.connect(self.on_miNodeEditor)
-        self.miNodeEditor.setShortcut("E")
-        self.miToolsVisibility.triggered.connect(self.on_miToolsVisibility)
-        self.miToolsVisibility.setShortcut("T")
+        #-- Tools Options --#
         self.miToolsIconOnly.triggered.connect(self.on_miToolsIconOnly)
         self.miToolsIconOnly.setShortcut("Ctrl+T")
 
@@ -119,6 +135,29 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def _menuHelp(self):
         self.log.debug("\t ---> Menu Help ...")
         self.miTreeDict.triggered.connect(self.on_printTreeDict)
+
+    @property
+    def currentGraphMode(self):
+        """
+        Get GraphZone mode
+        :return: GraphZone mode ('tree' or 'view')
+        :rtype: str
+        """
+        if self.miGraphView.isChecked():
+            return 'view'
+        else:
+            return 'tree'
+
+    def currentGraph(self):
+        """
+        Get current GraphZone widget
+        :return: GraphZone widget ('self.graphTree' or 'self.graphView')
+        :rtype: GrapherUi.graphTree | GrapherUi.graphView
+        """
+        if self.currentGraphMode == 'tree':
+            return self.graphTree
+        elif self.currentGraphMode == 'view':
+            return self.graphView
 
     @property
     def toolsIconOnly(self):
@@ -150,9 +189,12 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Refresh graph tree
         """
         self.log.detail(">>> Launch menuItem 'Refresh' ...")
-        graphDict = self.graphTree.__repr__()
-        self.graphTree.clear()
-        self.graphTree.buildGraph(graphDict)
+        if self.currentGraphMode == 'tree':
+            graphDict = self.graphTree.__repr__()
+            self.graphTree.clear()
+            self.graphTree.buildGraph(graphDict)
+        else:
+            self.log.detail("\t\t >>> Not yet implemented !!!")
 
     def on_miNewNode(self, nodeType):
         """
@@ -162,18 +204,26 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         :type nodeType: str
         """
         self.log.detail(">>> Launch menuItem 'New Node' ...")
-        self.graphTree.add_graphNode(nodeType=nodeType)
+        if self.currentGraphMode == 'tree':
+            self.graphTree.add_graphNode(nodeType=nodeType)
+        else:
+            self.log.detail("\t\t >>> Not yet implemented !!!")
 
-    def on_miFoldUnfold(self, expand=True, _mode='sel'):
+    def on_miFoldUnfold(self, expand=True, _mode='sel', toggle=False):
         """
         Manage graphNodes folding and unfolding
         :param expand: Expand state
         :type expand: bool
-        :param _mode: 'sel' or 'all'
+        :param _mode: 'sel', 'branch', 'active', or 'all'
         :type _mode: str
+        :param toggle: Enable automatic switch
+        :type toggle: bool
         """
         self.log.detail(">>> Launch menuItem 'Fold / Unfold' ...")
-        self.graphTree.foldUnfold(expand=expand, _mode=_mode)
+        if self.currentGraphMode == 'tree':
+            self.graphTree.foldUnfold(expand=expand, _mode=_mode, toggle=toggle)
+        else:
+            self.log.detail("\t\t >>> Not yet implemented !!!")
 
     def on_miUnselectAll(self):
         """
@@ -181,7 +231,10 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Unselect all graph nodes
         """
         self.log.detail(">>> Launch menuItem 'Unselect All' ...")
-        self.graphTree.clearSelection()
+        if self.currentGraphMode == 'tree':
+            self.graphTree.clearSelection()
+        else:
+            self.log.detail("\t\t >>> Not yet implemented !!!")
 
     def on_miCopy(self, _mode='nodes', rm=False):
         """
@@ -192,18 +245,38 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         :param rm: Remove selected nodes (cut)
         :type rm: bool
         """
-        if not rm:
-            self.log.detail(">>> Launch menuItem 'Copy %s' ..." % _mode)
+        if self.currentGraphMode == 'tree':
+            if not rm:
+                self.log.detail(">>> Launch menuItem 'Copy %s' ..." % _mode)
+            else:
+                self.log.detail(">>> Launch menuItem 'Cut Nodes' ...")
+            self.graphTree.copyNodes(_mode=_mode, rm=rm)
         else:
-            self.log.detail(">>> Launch menuItem 'Cut Nodes' ...")
-        self.graphTree.copyNodes(_mode=_mode, rm=rm)
+            self.log.detail("\t\t >>> Not yet implemented !!!")
 
     def on_miPasteNodes(self):
         """
         Command launched when 'Paste' QMenuItem is triggered.
         Paste stored nodes
         """
-        self.graphTree.pasteNodes()
+        self.log.detail(">>> Launch menuItem 'Paste Nodes' ...")
+        if self.currentGraphMode == 'tree':
+            self.graphTree.pasteNodes()
+        else:
+            self.log.detail("\t\t >>> Not yet implemented !!!")
+
+    def on_moveNodes(self, side='up'):
+        """
+        Command launched when 'Move Up / Down' QMenuItem is triggered.
+        Move up or down selected nodes
+        :param side: 'up' or 'down'
+        :type side: str
+        """
+        self.log.detail(">>> Launch menuItem 'Move Nodes' ...")
+        if self.currentGraphMode == 'tree':
+            self.graphTree.moveNodes(side=side)
+        else:
+            self.log.detail("\t\t >>> Not yet implemented !!!")
 
     def on_miDeleteSelected(self):
         """
@@ -211,9 +284,12 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Launch deletion confirm dialog
         """
         self.log.detail(">>> Launch menuItem 'Delete Selected' ...")
-        self.fdDelNode = pQt.ConfirmDialog("Delete selected nodes and children ?", ['Delete'],
-                                           [self.deleteSelected])
-        self.fdDelNode.exec_()
+        if self.currentGraphMode == 'tree':
+            self.fdDelNode = pQt.ConfirmDialog("Delete selected nodes and children ?", ['Delete'],
+                                               [self.deleteSelected])
+            self.fdDelNode.exec_()
+        else:
+            self.log.detail("\t\t >>> Not yet implemented !!!")
 
     def deleteSelected(self):
         """
@@ -230,6 +306,15 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail(">>> Launch menuItem 'Node Editor' ...")
         self.vfNodeEditor.setVisible(self.miNodeEditor.isChecked())
+
+    def on_miGraphView(self):
+        """
+        Command launched when 'Graph View' QMenuItem is triggered
+        Show / Hide Graph View
+        """
+        self.log.detail(">>> Launch menuItem 'Switch Graph Mode' ...")
+        self.graphTree.setVisible(not self.miGraphView.isChecked())
+        self.graphView.setVisible(self.miGraphView.isChecked())
 
     def on_miToolsOrientChanged(self, orient=False, force=False):
         """
