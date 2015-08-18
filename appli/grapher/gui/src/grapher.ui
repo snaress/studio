@@ -70,8 +70,6 @@
      <property name="title">
       <string>Create Node</string>
      </property>
-     <addaction name="miNewNode"/>
-     <addaction name="separator"/>
      <addaction name="miModul"/>
      <addaction name="miSysData"/>
      <addaction name="miCmdData"/>
@@ -123,6 +121,9 @@
     <addaction name="mMoveUpDown"/>
     <addaction name="separator"/>
     <addaction name="miDelSel"/>
+    <addaction name="separator"/>
+    <addaction name="miFitInScene"/>
+    <addaction name="miFitInSel"/>
    </widget>
    <widget class="QMenu" name="mFiles">
     <property name="title">
@@ -392,6 +393,16 @@
   <action name="miCollapseSel">
    <property name="text">
     <string>Collapse Selected</string>
+   </property>
+  </action>
+  <action name="miFitInScene">
+   <property name="text">
+    <string>Fit In Scene</string>
+   </property>
+  </action>
+  <action name="miFitInSel">
+   <property name="text">
+    <string>Fit In Selected</string>
    </property>
   </action>
  </widget>

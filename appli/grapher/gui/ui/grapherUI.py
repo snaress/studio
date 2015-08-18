@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Sat Aug 15 21:30:16 2015
+# Created: Mon Aug 17 23:09:37 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -165,8 +165,10 @@ class Ui_mwGrapher(object):
         self.miExpandSel.setObjectName(_fromUtf8("miExpandSel"))
         self.miCollapseSel = QtGui.QAction(mwGrapher)
         self.miCollapseSel.setObjectName(_fromUtf8("miCollapseSel"))
-        self.mCreateNode.addAction(self.miNewNode)
-        self.mCreateNode.addSeparator()
+        self.miFitInScene = QtGui.QAction(mwGrapher)
+        self.miFitInScene.setObjectName(_fromUtf8("miFitInScene"))
+        self.miFitInSel = QtGui.QAction(mwGrapher)
+        self.miFitInSel.setObjectName(_fromUtf8("miFitInSel"))
         self.mCreateNode.addAction(self.miModul)
         self.mCreateNode.addAction(self.miSysData)
         self.mCreateNode.addAction(self.miCmdData)
@@ -202,6 +204,9 @@ class Ui_mwGrapher(object):
         self.mGraph.addAction(self.mMoveUpDown.menuAction())
         self.mGraph.addSeparator()
         self.mGraph.addAction(self.miDelSel)
+        self.mGraph.addSeparator()
+        self.mGraph.addAction(self.miFitInScene)
+        self.mGraph.addAction(self.miFitInSel)
         self.mToolsBarOrient.addAction(self.miBarHorizontal)
         self.mToolsBarOrient.addAction(self.miBarVertical)
         self.mToolsTabOrient.addAction(self.miTabNorth)
@@ -275,4 +280,6 @@ class Ui_mwGrapher(object):
         self.miCollapseAllDisabled.setText(_translate("mwGrapher", "Collapse All Disabled", None))
         self.miExpandSel.setText(_translate("mwGrapher", "Expand Selected", None))
         self.miCollapseSel.setText(_translate("mwGrapher", "Collapse Selected", None))
+        self.miFitInScene.setText(_translate("mwGrapher", "Fit In Scene", None))
+        self.miFitInSel.setText(_translate("mwGrapher", "Fit In Selected", None))
 

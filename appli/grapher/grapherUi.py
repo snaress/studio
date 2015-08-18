@@ -26,7 +26,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self._setupUi()
 
     def _setupUi(self):
-        self.log.info("#-- Setup Main Ui --#")
+        self.log.info("#-- Setup Main Ui --#", newLinesBefor=1)
         self.setupUi(self)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
@@ -35,12 +35,13 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
 
     # noinspection PyUnresolvedReferences
     def _initWidgets(self):
-        self.log.info("#-- Init Widgets --#")
+        self.log.info("#-- Init Widgets --#", newLinesBefor=1)
         #-- Graph Zone --#
         self.graphTree = graphTree.GraphTree(self)
+        self.treeView = graphTree.TreeView(self, self.graphTree)
+        self.vlGraphZone.insertWidget(0, self.graphTree)
         self.graphScene = graphView.GraphScene(self)
         self.graphView = graphView.GraphView(self, self.graphScene)
-        self.vlGraphZone.insertWidget(0, self.graphTree)
         self.vlGraphZone.insertWidget(0, self.graphView)
         #-- GraphTools --#
         self.graphTools = toolsWgts.GraphTools(self)
@@ -52,10 +53,11 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
 
     # noinspection PyUnresolvedReferences
     def _initMenu(self):
-        self.log.info("#-- Init Menus --#")
+        self.log.info("#-- Init Menus --#", newLinesBefor=1)
         self._menuGraph()
         self._menuDisplay()
         self._menuHelp()
+        self.log.info("// ===> Grapher Ui Ready !!!", newLinesBefor=1, newLinesAfter=1)
         self.on_miNodeEditor()
 
     # noinspection PyUnresolvedReferences
@@ -66,12 +68,14 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miUnselectAll.triggered.connect(self.on_miUnselectAll)
         self.miUnselectAll.setShortcut("Esc")
         #-- SubMenu 'Create Node' --#
-        self.miNewNode.triggered.connect(partial(self.on_miNewNode, 'modul'))
-        self.miNewNode.setShortcut("N")
         self.miModul.triggered.connect(partial(self.on_miNewNode, 'modul'))
+        self.miModul.setShortcut("1")
         self.miSysData.triggered.connect(partial(self.on_miNewNode, 'sysData'))
+        self.miSysData.setShortcut("2")
         self.miCmdData.triggered.connect(partial(self.on_miNewNode, 'cmdData'))
+        self.miCmdData.setShortcut("3")
         self.miPyData.triggered.connect(partial(self.on_miNewNode, 'pyData'))
+        self.miPyData.setShortcut("4")
         #-- SubMenu 'Fold / Unfold' --#
         self.miFoldUnfold.triggered.connect(partial(self.on_miFoldUnfold, _mode='branch', toggle=True))
         self.miFoldUnfold.setShortcut("G")
@@ -105,6 +109,11 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miMoveUp.setShortcut("Ctrl+Up")
         self.miMoveDn.triggered.connect(partial(self.on_moveNodes, side='down'))
         self.miMoveDn.setShortcut("Ctrl+Down")
+        #-- Fit In Options --#
+        self.miFitInScene.triggered.connect(self.on_miFitInScene)
+        self.miFitInScene.setShortcut("H")
+        self.miFitInSel.triggered.connect(self.on_miFitInSelected)
+        self.miFitInSel.setShortcut("F")
         #-- Others --#
         self.miDelSel.triggered.connect(self.on_miDeleteSelected)
         self.miDelSel.setShortcut("Del")
@@ -136,18 +145,72 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log.debug("\t ---> Menu Help ...")
         self.miTreeDict.triggered.connect(self.on_printTreeDict)
 
+    @staticmethod
+    def _checkNodeName(nodeName, items):
+        """
+        Check new nodeName and return a unique name
+        :param nodeName: New nodeName
+        :type nodeName: str
+        :param items: Items to compare with
+        :type: list
+        :return: New valide node name
+        :rtype: str
+        """
+        rejected = [' ', '-', ',', ';', ':', '.', '/', '!', '?', '*', '$', '=', '+', '\'', '\\', '"', '&']
+        #-- Check Rejected --#
+        for r in rejected:
+            if r in nodeName:
+                nodeName.replace(r, '')
+        #-- Check CamelCase --#
+        if '_' in nodeName:
+            if not nodeName.split('_')[-1].isdigit():
+                nodeName.replace('_', '')
+        #-- Check Index --#
+        if not '_' in nodeName:
+            nodeName = '%s_1' % nodeName
+        #-- Find Same Base Name --#
+        founds = []
+        for item in items:
+            if nodeName == item.nodeName:
+                if not item.nodeName in founds:
+                    founds.append(item.nodeName)
+            elif item.nodeName.startswith(nodeName.split('_')[0]):
+                if not item.nodeName in founds:
+                    founds.append(item.nodeName)
+        #-- Result: Name Is Unique --#
+        if not founds or not nodeName in founds:
+            return nodeName
+        #-- Result: Generate Unique Name --#
+        iList = []
+        for f in founds:
+            iList.append(int(f.split('_')[-1]))
+        return '%s_%s' % (nodeName.split('_')[0], (max(iList) + 1))
+
     @property
     def currentGraphMode(self):
         """
         Get GraphZone mode
-        :return: GraphZone mode ('tree' or 'view')
+        :return: GraphZone mode ('tree' or 'scene')
         :rtype: str
         """
         if self.miGraphView.isChecked():
-            return 'view'
+            return 'scene'
         else:
             return 'tree'
 
+    @property
+    def currentView(self):
+        """
+        Get current GraphZone widget
+        :return: GraphZone widget ('self.graphTree' or 'self.graphView')
+        :rtype: GrapherUi.treeView | GrapherUi.graphView
+        """
+        if self.currentGraphMode == 'tree':
+            return self.treeView
+        elif self.currentGraphMode == 'scene':
+            return self.graphView
+
+    @property
     def currentGraph(self):
         """
         Get current GraphZone widget
@@ -156,8 +219,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         if self.currentGraphMode == 'tree':
             return self.graphTree
-        elif self.currentGraphMode == 'view':
-            return self.graphView
+        elif self.currentGraphMode == 'scene':
+            return self.graphScene
 
     @property
     def toolsIconOnly(self):
@@ -191,6 +254,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log.detail(">>> Launch menuItem 'Refresh' ...")
         if self.currentGraphMode == 'tree':
             graphDict = self.graphTree.__repr__()
+            self.graphTree.clearSelection()
             self.graphTree.clear()
             self.graphTree.buildGraph(graphDict)
         else:
@@ -204,10 +268,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         :type nodeType: str
         """
         self.log.detail(">>> Launch menuItem 'New Node' ...")
-        if self.currentGraphMode == 'tree':
-            self.graphTree.add_graphNode(nodeType=nodeType)
-        else:
-            self.log.detail("\t\t >>> Not yet implemented !!!")
+        self.currentGraph.createGraphNode(nodeType=nodeType)
 
     def on_miFoldUnfold(self, expand=True, _mode='sel', toggle=False):
         """
@@ -221,7 +282,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail(">>> Launch menuItem 'Fold / Unfold' ...")
         if self.currentGraphMode == 'tree':
-            self.graphTree.foldUnfold(expand=expand, _mode=_mode, toggle=toggle)
+            self.currentView.foldUnfold(expand=expand, _mode=_mode, toggle=toggle)
         else:
             self.log.detail("\t\t >>> Not yet implemented !!!")
 
@@ -250,7 +311,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
                 self.log.detail(">>> Launch menuItem 'Copy %s' ..." % _mode)
             else:
                 self.log.detail(">>> Launch menuItem 'Cut Nodes' ...")
-            self.graphTree.copyNodes(_mode=_mode, rm=rm)
+            self.treeView.copyNodes(_mode=_mode, rm=rm)
         else:
             self.log.detail("\t\t >>> Not yet implemented !!!")
 
@@ -261,7 +322,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail(">>> Launch menuItem 'Paste Nodes' ...")
         if self.currentGraphMode == 'tree':
-            self.graphTree.pasteNodes()
+            self.treeView.pasteNodes()
         else:
             self.log.detail("\t\t >>> Not yet implemented !!!")
 
@@ -274,7 +335,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail(">>> Launch menuItem 'Move Nodes' ...")
         if self.currentGraphMode == 'tree':
-            self.graphTree.moveNodes(side=side)
+            self.treeView.moveNodes(side=side)
         else:
             self.log.detail("\t\t >>> Not yet implemented !!!")
 
@@ -297,7 +358,32 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail("\t ---> Deletion confirmed.")
         self.fdDelNode.close()
-        self.graphTree.deleteSelectedNodes()
+        if self.currentGraphMode == 'tree':
+            self.treeView.deleteSelectedNodes()
+        else:
+            self.log.detail("\t\t >>> Not yet implemented !!!")
+
+    def on_miFitInScene(self):
+        """
+        Command launched when 'Fit In Scene' QMenuItem is triggered.
+        Fit GraphView to scene
+        """
+        self.log.detail(">>> Launch menuItem 'Fit In Scene' ...")
+        if self.currentGraphMode == 'tree':
+            self.log.detail("\t\t >>> Not available for 'tree' mode !!!")
+        else:
+            self.graphView.fitInScene()
+
+    def on_miFitInSelected(self):
+        """
+        Command launched when 'Fit In Selected' QMenuItem is triggered.
+        Fit GraphView to scene selection
+        """
+        self.log.detail(">>> Launch menuItem 'Fit In Selected' ...")
+        if self.currentGraphMode == 'tree':
+            self.log.detail("\t\t >>> Not available for 'tree' mode !!!")
+        else:
+            self.graphView.fitInSelected()
 
     def on_miNodeEditor(self):
         """
