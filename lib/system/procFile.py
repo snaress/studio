@@ -210,7 +210,7 @@ class Logger(object):
         """
         if self.lvlIndex >= 0:
             self._addNewLines(newLinesBefor)
-            print "| %s | Critical | %s" % (self.title, message)
+            print "| %s | Critical | %s | %s" % (self.title, self.currentTime, message)
             self._addNewLines(newLinesAfter)
 
     def error(self, message, newLinesBefor=0, newLinesAfter=0):
@@ -225,7 +225,7 @@ class Logger(object):
         """
         if self.lvlIndex >= 1:
             self._addNewLines(newLinesBefor)
-            print "| %s | Error | %s" % (self.title, message)
+            print "| %s | Error | %s | %s" % (self.title, self.currentTime, message)
             self._addNewLines(newLinesAfter)
 
     def warning(self, message, newLinesBefor=0, newLinesAfter=0):
@@ -240,7 +240,7 @@ class Logger(object):
         """
         if self.lvlIndex >= 2:
             self._addNewLines(newLinesBefor)
-            print "| %s | Warning | %s" % (self.title, message)
+            print "| %s | Warning | %s | %s" % (self.title, self.currentTime, message)
             self._addNewLines(newLinesAfter)
 
     def info(self, message, newLinesBefor=0, newLinesAfter=0):
@@ -255,7 +255,7 @@ class Logger(object):
         """
         if self.lvlIndex >= 3:
             self._addNewLines(newLinesBefor)
-            print "| %s | Info | %s" % (self.title, message)
+            print "| %s | Info | %s | %s" % (self.title, self.currentTime, message)
             self._addNewLines(newLinesAfter)
 
     def debug(self, message, newLinesBefor=0, newLinesAfter=0):
@@ -270,7 +270,7 @@ class Logger(object):
         """
         if self.lvlIndex >= 4:
             self._addNewLines(newLinesBefor)
-            print "| %s | Debug | %s" % (self.title, message)
+            print "| %s | Debug | %s | %s" % (self.title, self.currentTime, message)
             self._addNewLines(newLinesAfter)
 
     def detail(self, message, newLinesBefor=0, newLinesAfter=0):
@@ -285,8 +285,17 @@ class Logger(object):
         """
         if self.lvlIndex >= 5:
             self._addNewLines(newLinesBefor)
-            print "| %s | Debug | %s" % (self.title, message)
+            print "| %s | Detail | %s | %s" % (self.title, self.currentTime, message)
             self._addNewLines(newLinesAfter)
+
+    @property
+    def currentTime(self):
+        """
+        Get current time
+        :return: Current time
+        :rtype: str
+        """
+        return getTime().replace('_', ':')
 
     @staticmethod
     def _addNewLines(newLines):
