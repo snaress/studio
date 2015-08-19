@@ -50,6 +50,15 @@ class GraphView(QtGui.QGraphicsView):
         if len(self.scene().selectedItems()) == 1:
             self.fitInView(self.scene().selectedItems()[0], QtCore.Qt.KeepAspectRatio)
 
+    def deleteSelectedNodes(self):
+        """
+        Delete selected graphNodes
+        """
+        selItems = self.scene().getSelectedNodes()
+        if selItems:
+            for item in selItems:
+                item.delete()
+
     # noinspection PyArgumentList,PyCallByClass,PyTypeChecker
     def mouseMoveEvent(self, event):
         """
@@ -136,6 +145,18 @@ class GraphScene(QtGui.QGraphicsScene):
                 items.append(item)
         return items
 
+    def getSelectedNodes(self):
+        """
+        Get selected nodes with 'nodeBase' _type
+        :return: Selected 'nodeBase' items
+        :rtype: list
+        """
+        items = []
+        for item in self.selectedItems():
+            if item._type == 'nodeBase':
+                items.append(item)
+        return items
+
     def createGraphNode(self, nodeType='modul', nodeName=None, nodeParent=None, index=None):
         """
         Add new graphNode to scene
@@ -179,6 +200,13 @@ class GraphScene(QtGui.QGraphicsScene):
         return newItem
 
     def addGraphWidget(self, QGraphicsSvgItem, isRoot=False):
+        """
+        Add graphNode widget to given item
+        :param QGraphicsSvgItem: Item widget parent
+        :type QGraphicsSvgItem: QtSvg.QGraphicsSvgItem
+        :param isRoot: GraphNode is top level item
+        :type isRoot: bool
+        """
         self.log.detail("\t ---> Adding item widget ...")
         if isRoot:
             allItems = self.getAllTopLevelNodes()
@@ -221,7 +249,11 @@ class GraphScene(QtGui.QGraphicsScene):
                 if hasattr(startItems[0], '_type') and hasattr(endItems[0], '_type'):
                     if startItems[0]._type == 'nodePlug' and endItems[0]._type == 'nodePlug':
                         if not startItems[0].isInputConnection and endItems[0].isInputConnection:
-                            self.createLine(startItems[0], endItems[0])
+                            if not endItems[0].connections:
+                                self.createLine(startItems[0], endItems[0])
+                            else:
+                                log = "\t\t >>> %s is already connected !!!" % endItems[0].parentItem().nodeName
+                                self.log.detail(log)
         self.line = None
 
     def createLine(self, startItem, endItem):
@@ -328,13 +360,13 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
         :rtype: Modul | SysData | CmdData | PyData
         """
         if self._nodeType == 'modul':
-            return graphNodes.Modul()
+            return graphNodes.Modul(self.nodeName)
         elif self._nodeType == 'sysData':
-            return graphNodes.SysData()
+            return graphNodes.SysData(self.nodeName)
         elif self._nodeType == 'cmdData':
-            return graphNodes.CmdData()
+            return graphNodes.CmdData(self.nodeName)
         elif self._nodeType == 'pyData':
-            return graphNodes.PyData()
+            return graphNodes.PyData(self.nodeName)
 
     def _setupItem(self):
         self.setFlags(QtGui.QGraphicsItem.ItemIsSelectable|
@@ -373,6 +405,13 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
         :rtype: int
         """
         return self.nodeSize[1]
+
+    def delete(self):
+        """
+        Delete node and links
+        """
+        self.log.debug("#-- - Deleting %s Node - : %s --#" % (self._nodeType, self.nodeName), newLinesBefor=1)
+
 
 
 class GraphPlug(QtSvg.QGraphicsSvgItem):
@@ -553,10 +592,10 @@ class GraphLink(QtGui.QGraphicsPathItem):
         self._setupItem()
 
     def _setupItem(self):
-        self.lineColor = QtCore.Qt.cyan
+        self.lineColor = QtCore.Qt.gray
         self.setZValue(-1.0)
         self.setFlags(QtGui.QGraphicsPathItem.ItemIsSelectable|QtGui.QGraphicsPathItem.ItemIsFocusable)
-        self.setPen(QtGui.QPen(self.lineColor, 1.5, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        self.setPen(QtGui.QPen(self.lineColor, 4, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
 
     @property
     def startNode(self):

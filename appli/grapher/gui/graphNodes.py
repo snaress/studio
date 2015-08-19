@@ -1,121 +1,87 @@
 import pprint
 
 
+class Node(object):
 
-class Common(object):
-
-    def __init__(self):
+    def __init__(self, nodeName=None):
+        self.nodeName = nodeName
         self.nodeVersion  = 0
         self.nodeVersions = {0: "Default Version"}
 
+    def __repr__(self):
+        """
+        GraphNode representation as dict
+        :return: Node contents
+        :rtype: dict
+        """
+        nodeDict = dict()
+        for k, v in sorted(self.__dict__.iteritems()):
+            if k.startswith('node'):
+                nodeDict[k] = v
+        return nodeDict
 
-class Modul(Common):
+    def __str__(self):
+        """
+        GraphNode representation as string
+        :return: Node contents
+        :rtype: str
+        """
+        return pprint.pformat(self.__repr__())
 
-    def __init__(self):
-        super(Modul, self).__init__()
+    def listAttrs(self):
+        """
+        List all attributes
+        :return: Attributes
+        :rtype: list
+        """
+        attrs = []
+        for attr in self.__repr__().keys():
+            attrs.append(attr)
+        return sorted(attrs)
+
+
+class Modul(Node):
+
+    def __init__(self, nodeName=None):
+        super(Modul, self).__init__(nodeName)
+        self.nodeType = 'modul'
         self._nodeColor = (200, 200, 200, 255)
-        self._nodeIcon = "modul.svg"
-
-    def __repr__(self):
-        """
-        GraphNode representation as dict
-        :return: Node contents
-        :rtype: dict
-        """
-        nodeDict = dict()
-        for k, v in self.__dict__.iteritems():
-            if k.startswith('node'):
-                nodeDict[k] = v
-        return nodeDict
-
-    def __str__(self):
-        """
-        GraphNode representation as str
-        :return: Node contents
-        :rtype: str
-        """
-        return pprint.pformat(self.__repr__())
+        self._nodeIcon = "%s.svg" % self.nodeType
 
 
-class SysData(Common):
+class SysData(Node):
 
-    def __init__(self):
-        super(SysData, self).__init__()
+    def __init__(self, nodeName=None):
+        super(SysData, self).__init__(nodeName)
+        self.nodeType = 'sysData'
         self._nodeColor = (100, 255, 255, 255)
-        self._nodeIcon = "sysData.svg"
-
-    def __repr__(self):
-        """
-        GraphNode representation as dict
-        :return: Node contents
-        :rtype: dict
-        """
-        nodeDict = dict()
-        for k, v in self.__dict__.iteritems():
-            if k.startswith('node'):
-                nodeDict[k] = v
-        return nodeDict
-
-    def __str__(self):
-        """
-        GraphNode representation as str
-        :return: Node contents
-        :rtype: str
-        """
-        return pprint.pformat(self.__repr__())
+        self._nodeIcon = "%s.svg" % self.nodeType
+        self.nodeScript = ""
 
 
-class CmdData(Common):
+class CmdData(Node):
 
-    def __init__(self):
-        super(CmdData, self).__init__()
+    def __init__(self, nodeName=None):
+        super(CmdData, self).__init__(nodeName)
+        self.nodeType = 'cmdData'
         self._nodeColor = (60, 135, 255, 255)
-        self._nodeIcon = "cmdData.svg"
-
-    def __repr__(self):
-        """
-        GraphNode representation as dict
-        :return: Node contents
-        :rtype: dict
-        """
-        nodeDict = dict()
-        for k, v in self.__dict__.iteritems():
-            if k.startswith('node'):
-                nodeDict[k] = v
-        return nodeDict
-
-    def __str__(self):
-        """
-        GraphNode representation as str
-        :return: Node contents
-        :rtype: str
-        """
-        return pprint.pformat(self.__repr__())
+        self._nodeIcon = "%s.svg" % self.nodeType
+        self.nodeScript = ""
 
 
-class PyData(Common):
+class PyData(Node):
 
-    def __init__(self):
-        super(PyData, self).__init__()
+    def __init__(self, nodeName=None):
+        super(PyData, self).__init__(nodeName)
+        self.nodeType = 'pyData'
         self._nodeColor = (0, 125, 0, 255)
-        self._nodeIcon = "pyData.svg"
+        self._nodeIcon = "%s.svg" % self.nodeType
+        self.nodeScript = ""
 
-    def __repr__(self):
-        """
-        GraphNode representation as dict
-        :return: Node contents
-        :rtype: dict
-        """
-        nodeDict = dict()
-        for k, v in self.__dict__.iteritems():
-            if k.startswith('node'):
-                nodeDict[k] = v
-        return nodeDict
 
-    def __str__(self):
-        """
-        GraphNode representation as str
-        :return: Node contents
-        :rtype: str
-        """
-        return pprint.pformat(self.__repr__())
+
+if __name__ == '__main__':
+
+    tt = PyData('test')
+    print tt.__repr__()
+    print tt.listAttrs()

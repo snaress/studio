@@ -171,12 +171,12 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         #-- Find Same Base Name --#
         founds = []
         for item in items:
-            if nodeName == item.nodeName:
-                if not item.nodeName in founds:
-                    founds.append(item.nodeName)
-            elif item.nodeName.startswith(nodeName.split('_')[0]):
-                if not item.nodeName in founds:
-                    founds.append(item.nodeName)
+            if nodeName == item._datas.nodeName:
+                if not item._datas.nodeName in founds:
+                    founds.append(item._datas.nodeName)
+            elif item._datas.nodeName.startswith(nodeName.split('_')[0]):
+                if not item._datas.nodeName in founds:
+                    founds.append(item._datas.nodeName)
         #-- Result: Name Is Unique --#
         if not founds or not nodeName in founds:
             return nodeName
@@ -243,7 +243,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         :rtype: dict
         """
         for n in sorted(treeDict.keys()):
-            if treeDict[n]['_nodeName'] == nodeName:
+            if treeDict[n]['nodeName'] == nodeName:
                 return treeDict[n]
 
     def on_miRefresh(self):
@@ -253,7 +253,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail(">>> Launch menuItem 'Refresh' ...")
         if self.currentGraphMode == 'tree':
-            graphDict = self.graphTree.__repr__()
+            graphDict = self.treeView.__repr__()
             self.graphTree.clearSelection()
             self.graphTree.clear()
             self.graphTree.buildGraph(graphDict)
@@ -456,7 +456,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Print graph tree repr
         """
         self.log.detail(">>> Launch menuItem 'Print Tree Dict' ...")
-        print self.graphTree.__str__()
+        print self.treeView.__str__()
 
 
 def launch(logLvl='info'):

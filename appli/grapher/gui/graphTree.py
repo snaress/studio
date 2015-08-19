@@ -20,6 +20,32 @@ class TreeView(object):
         self.tree.view = self
         self.buffer = None
 
+    def __repr__(self):
+        """
+        GraphTree representation as dict
+        :return: Tree contents
+        :rtype: dict
+        """
+        treeDict = dict()
+        for n, item in enumerate(pQt.getAllItems(self.tree)):
+            nodeDatas = item._datas.__repr__()
+            nodeDatas['isEnabled'] = item._widget.isEnabled
+            nodeDatas['isExpanded'] = item._widget.isExpanded
+            if item.parent() is None:
+                nodeDatas['parent'] = None
+            else:
+                nodeDatas['parent'] = item.parent()._datas.nodeName
+            treeDict[n] = nodeDatas
+        return treeDict
+
+    def __str__(self):
+        """
+        GraphTree representation as string
+        :return: Tree contents
+        :rtype: str
+        """
+        return pprint.pformat(self.__repr__())
+
     def _insertIndex(self, item, pItem, side):
         """
         Get new insertion index
@@ -82,7 +108,7 @@ class TreeView(object):
                     if _mode == 'branch':
                         if item.childCount():
                             for cItem in pQt.getAllChildren(item):
-                                if not cItem.nodeName == item.nodeName:
+                                if not cItem._datas.nodeName == item._datas.nodeName:
                                     cItem._widget.setExpanded(expand)
         elif _mode in ['active', 'all']:
             for item in pQt.getAllItems(self.tree):
@@ -115,19 +141,19 @@ class TreeView(object):
                 selItems = []
             else:
                 selItems = items
-        treeDict = self.tree.__repr__()
+        treeDict = self.__repr__()
         if selItems:
             self.log.debug("Storing selected nodes ...")
             #-- Store Selected Nodes --#
             for n, item in enumerate(selItems):
-                nodeDict = self.mainUi.getNodeDictFromNodeName(treeDict, item.nodeName)
-                self.buffer[n] = dict(nodeName=item.nodeName, nodeChildren={}, nodeDict=nodeDict)
+                nodeDict = self.mainUi.getNodeDictFromNodeName(treeDict, item._datas.nodeName)
+                self.buffer[n] = dict(nodeName=item._datas.nodeName, nodeChildren={}, nodeDict=nodeDict)
                 if _mode == 'branch':
                     if item.childCount():
                         #-- Store Children --#
                         for c, child in enumerate(pQt.getAllChildren(item)):
-                            if not child.nodeName == item.nodeName:
-                                childDict = self.mainUi.getNodeDictFromNodeName(treeDict, child.nodeName)
+                            if not child._datas.nodeName == item._datas.nodeName:
+                                childDict = self.mainUi.getNodeDictFromNodeName(treeDict, child._datas.nodeName)
                                 self.buffer[n]['nodeChildren'][c] = childDict
             #-- Delete For cut --#
             if rm:
@@ -159,13 +185,14 @@ class TreeView(object):
                 #-- Parent To World --#
                 if len(selItems) == 0:
                     self.log.detail("\t ---> Paste Node to world ...")
-                    newItem = self.tree.createGraphNode(nodeType=nodeDict['nodeDict']['_nodeType'],
+                    newItem = self.tree.createGraphNode(nodeType=nodeDict['nodeDict']['nodeType'],
                                                         nodeName=newNodeName, index=index)
                 #-- Parent To Node --#
                 elif len(selItems) == 1:
-                    self.log.detail("\t ---> Paste Node to %s ..." % selItems[0].nodeName)
-                    newItem = self.tree.createGraphNode(nodeType=nodeDict['nodeDict']['_nodeType'],
-                                                        nodeName=newNodeName, nodeParent=selItems[0].nodeName,
+                    self.log.detail("\t ---> Paste Node to %s ..." % selItems[0]._datas.nodeName)
+                    newItem = self.tree.createGraphNode(nodeType=nodeDict['nodeDict']['nodeType'],
+                                                        nodeName=newNodeName,
+                                                        nodeParent=selItems[0]._datas.nodeName,
                                                         index=index)
                 #-- Parent Child Node --#
                 if newItem is not None:
@@ -173,8 +200,8 @@ class TreeView(object):
                     if nodeDict['nodeChildren'].keys():
                         #-- Check First Parent --#
                         for c in sorted(nodeDict['nodeChildren'].keys()):
-                            if nodeDict['nodeChildren'][c]['_nodeParent'] == self.buffer[n]['nodeName']:
-                                nodeDict['nodeChildren'][c]['_nodeParent'] = newNodeName
+                            if nodeDict['nodeChildren'][c]['parent'] == self.buffer[n]['nodeName']:
+                                nodeDict['nodeChildren'][c]['parent'] = newNodeName
                         #-- Build Child Branch --#
                         self.tree.buildGraph(nodeDict['nodeChildren'])
             #-- Edit Nodes --#
@@ -235,28 +262,6 @@ class GraphTree(QtGui.QTreeWidget):
         self.view = None
         self._setupWidget()
 
-    def __repr__(self):
-        """
-        GraphTree representation as dict
-        :return: Tree contents
-        :rtype: dict
-        """
-        treeDict = dict()
-        #-- Collecte Nodes Dict --#
-        for n, item in enumerate(pQt.getAllItems(self)):
-            treeDict[n] = item._widget.__repr__()
-            item._widget.__repr__()
-        #-- Result --#
-        return treeDict
-
-    def __str__(self):
-        """
-        GraphTree representation as str
-        :return: Tree contents
-        :rtype: str
-        """
-        return pprint.pformat(self.__repr__())
-
     def _setupWidget(self):
         self.log.debug("\t ---> Setup GraphTree Widget.")
         self.setStyleSheet("background-color: rgb(35, 35, 35)")
@@ -276,7 +281,7 @@ class GraphTree(QtGui.QTreeWidget):
         """
         nodes = []
         for item in self.selectedItems() or []:
-            nodes.append(item.nodeName)
+            nodes.append(item._datas.nodeName)
         return nodes
 
     def getItemFromNodeName(self, nodeName):
@@ -288,7 +293,7 @@ class GraphTree(QtGui.QTreeWidget):
         :rtype: QtGui.QTreeWidgetItem
         """
         for item in pQt.getAllItems(self):
-            if item.nodeName == nodeName:
+            if item._datas.nodeName == nodeName:
                 return item
 
     def rf_graphColumns(self):
@@ -307,10 +312,15 @@ class GraphTree(QtGui.QTreeWidget):
         self.log.debug("#-- Build Graph --#" , newLinesBefor=1)
         #-- Create Nodes --#
         self.log.debug("Creating Nodes ...")
+        items = dict()
         for n in sorted(treeDict.keys()):
-            newItem = self.createGraphNode(nodeType=treeDict[n]['_nodeType'], nodeName=treeDict[n]['_nodeName'],
-                                           nodeParent=treeDict[n]['_nodeParent'])
+            newItem = self.createGraphNode(nodeType=treeDict[n]['nodeType'], nodeName=treeDict[n]['nodeName'],
+                                           nodeParent=treeDict[n]['parent'])
             newItem._widget.update(**treeDict[n])
+            items[newItem] = treeDict[n]['isExpanded']
+        #-- Update Expanded State --# // Trouver autre chose (kwargs) !!!
+        for k, v in items.iteritems():
+            k._widget.setExpanded(v)
 
     def createGraphNode(self, nodeType='modul', nodeName=None, nodeParent=None, index=None):
         """
@@ -330,9 +340,8 @@ class GraphTree(QtGui.QTreeWidget):
         if nodeName is None:
             nodeName = '%s_1' % nodeType
         newNodeName = self.mainUi._checkNodeName(nodeName, pQt.getAllItems(self))
-        self.mainUi.log.debug("#-- + Creating %s Node + : %s --#" % (nodeType, newNodeName),
-                              newLinesBefor=1)
-        newItem = GraphItem(self.mainUi, nodeType, newNodeName)
+        self.mainUi.log.debug("#-- + Creating %s Node + : %s --#" % (nodeType, newNodeName), newLinesBefor=1)
+        newItem = self.newGraphItem(nodeType, newNodeName)
         #-- Use Given Parent --#
         if nodeParent is not None:
             self.log.detail("\t ---> Use given parent: %s" % nodeParent)
@@ -343,17 +352,40 @@ class GraphTree(QtGui.QTreeWidget):
             selItems = self.selectedItems()
             #-- Parent To Selected Node --#
             if len(selItems) == 1:
-                self.log.detail("\t ---> Parent to selected node: %s" % selItems[0].nodeName)
+                self.log.detail("\t ---> Parent to selected node: %s" % selItems[0]._datas.nodeName)
                 self.addGraphNode(selItems[0], newItem, index=index)
             #-- Parent To World --#
             else:
                 if index is None:
-                    self.log.detail("\t ---> Adding graph item '%s' to world ..." % newItem.nodeName)
+                    self.log.detail("\t ---> Adding graph item '%s' to world ..." % newItem._datas.nodeName)
                     self.addTopLevelItem(newItem)
                 else:
-                    self.log.detail("\t ---> Inserting graph item '%s' to world ..." % newItem.nodeName)
+                    self.log.detail("\t ---> Inserting graph item '%s' to world ..." % newItem._datas.nodeName)
                     self.insertTopLevelItem(index, newItem)
         #-- Result --#
+        return newItem
+
+    def newGraphItem(self, nodeType, nodeName):
+        """
+        Create new graphItem and graphNode
+        :param nodeType: Graph node type ('modul', 'sysData', 'cmdData', 'pyData', 'loop', 'condition')
+        :type nodeType: str
+        :param nodeName: Graph node name
+        :type nodeName: str
+        :return: New graphNode
+        :rtype: QtGui.QTreeWidgetItem
+        """
+        if nodeType == 'modul':
+            newItem = GraphItem(self.mainUi, graphNodes.Modul(nodeName))
+        elif nodeType == 'sysData':
+            newItem = GraphItem(self.mainUi, graphNodes.SysData(nodeName))
+        elif nodeType == 'cmdData':
+            newItem =  GraphItem(self.mainUi, graphNodes.CmdData(nodeName))
+        elif nodeType == 'pyData':
+            newItem = GraphItem(self.mainUi, graphNodes.PyData(nodeName))
+        else:
+            newItem = GraphItem(self.mainUi, graphNodes.Modul(nodeName))
+        newItem._widget = GraphNode(newItem)
         return newItem
 
     def addGraphNode(self, item, newItem, index=None):
@@ -367,12 +399,12 @@ class GraphTree(QtGui.QTreeWidget):
         item._widget.pbExpand.setChecked(True)
         item._widget.on_expandNode()
         if index is None:
-            self.log.detail("\t ---> Adding graph item '%s', child of '%s' ..." % (newItem.nodeName,
-                                                                                   item.nodeName))
+            self.log.detail("\t ---> Adding graph item '%s', child of '%s' ..." % (newItem._datas.nodeName,
+                                                                                   item._datas.nodeName))
             item.addChild(newItem)
         else:
-            self.log.detail("\t ---> Inserting graph item '%s', child of '%s', index %s ..." % (newItem.nodeName,
-                                                                                                item.nodeName,
+            self.log.detail("\t ---> Inserting graph item '%s', child of '%s', index %s ..." % (newItem._datas.nodeName,
+                                                                                                item._datas.nodeName,
                                                                                                 index))
             item.insertChild(index, newItem)
         item._widget.rf_expandVis()
@@ -399,13 +431,13 @@ class GraphTree(QtGui.QTreeWidget):
         selItems.reverse()
         #-- Deleting Nodes --#
         for item in selItems:
-            self.mainUi.log.debug("#-- - Deleting %s Node - : %s --#" % (item._nodeType, item.nodeName),
+            self.mainUi.log.debug("#-- - Deleting %s Node - : %s --#" % (item._datas.nodeType, item._datas.nodeName),
                                   newLinesBefor=1)
             if not item._column == 0:
                 for n in range(item.parent().childCount()):
                     if item.parent() is not None:
                         parentItem = item.parent()
-                        if item.nodeName == parentItem.child(n).nodeName:
+                        if item._datas.nodeName == parentItem.child(n)._datas.nodeName:
                             parentItem.removeChild(item)
                             #-- Refresh --#
                             parentItem._widget.rf_expandVis()
@@ -463,31 +495,16 @@ class GraphItem(QtGui.QTreeWidgetItem):
     GraphTree item, child of GrapherUi.GraphTree
     :param mainUi: Fondation main window
     :type mainUi: QtGui.QMainWindow
-    :param nodeType: Graph node type ('modul', 'sysData', 'cmdData', 'pyData', 'loop', 'condition')
-    :type nodeType: str
-    :param nodeName: Graph node name
-    :type nodeName: str
+    :param nodeObject: Data node object
+    :type nodeObject: Modul | SysData | CmdData | PyData
     """
 
-    def __init__(self, mainUi, nodeType, nodeName):
+    def __init__(self, mainUi, nodeObject):
         super(GraphItem, self).__init__()
         self.mainUi = mainUi
-        self._nodeType = nodeType
-        self.nodeName = nodeName
+        self._datas = nodeObject
+        self._widget = None
         self._column = None
-        self._setupItem()
-
-    def _setupItem(self):
-        if self._nodeType == 'modul':
-            self._widget = GraphNode(pItem=self, _datas=graphNodes.Modul())
-        elif self._nodeType == 'sysData':
-            self._widget = GraphNode(pItem=self, _datas=graphNodes.SysData())
-        elif self._nodeType == 'cmdData':
-            self._widget = GraphNode(pItem=self, _datas=graphNodes.CmdData())
-        elif self._nodeType == 'pyData':
-            self._widget = GraphNode(pItem=self, _datas=graphNodes.PyData())
-        else:
-            self._widget = GraphNode(pItem=self, _datas=graphNodes.Modul())
 
     def addChild(self, QTreeWidgetItem):
         """
@@ -531,45 +548,15 @@ class GraphItem(QtGui.QTreeWidgetItem):
 class GraphNode(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
     """
     GraphTreeItem widget, child of GrapherUi.GraphTree.GraphItem
-    :param kwargs: GraphNode internal params
-    :type kwargs: dict
+    :param pItem: Parent item
+    :type pItem: QtGui.QTreeWidgetItem
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, pItem):
         super(GraphNode, self).__init__()
-        self.pItem = kwargs['pItem']
-        self._datas = kwargs['_datas']
+        self.pItem = pItem
         self.pWidget = self.pItem.treeWidget()
         self._setupWidget()
-
-    def __repr__(self):
-        """
-        Node params representation as dict
-        :return: Node params
-        :rtype: dict
-        """
-        #-- Get Parent Node Name --#
-        if self.pItem.parent() is None:
-            nodeParent = None
-        else:
-            nodeParent = self.pItem.parent().nodeName
-        #-- Fill Internal --#
-        nodeDict = dict(_nodeName=self.pItem.nodeName, _nodeType=self.pItem._nodeType, _nodeParent=nodeParent,
-                        _nodeIsEnabled=self.isEnable, _nodeIsExpanded=self.isExpanded)
-        #-- Fill Node Params --#
-        for k, v in self._datas.__repr__().iteritems():
-            if k.startswith('node'):
-                nodeDict[k] = v
-        #-- Result --#
-        return nodeDict
-
-    def __str__(self):
-        """
-        Node params representation as str
-        :return: Node params
-        :rtype: str
-        """
-        return pprint.pformat(self.__repr__())
 
     # noinspection PyUnresolvedReferences
     def _setupWidget(self):
@@ -582,7 +569,7 @@ class GraphNode(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         self.rf_nodeExpandIcon()
 
     @property
-    def isEnable(self):
+    def isEnabled(self):
         """
         Get node enable state
         :return: Node enable state
@@ -623,7 +610,7 @@ class GraphNode(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         """
         Refresh graphNode label
         """
-        self.lNodeName.setText(self.pItem.nodeName)
+        self.lNodeName.setText(self.pItem._datas.nodeName)
 
     def rf_nodeColor(self, rgba=None):
         """
@@ -632,14 +619,14 @@ class GraphNode(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         :type rgba: tuple
         """
         if rgba is None:
-            rgba = self._datas._nodeColor
+            rgba = self.pItem._datas._nodeColor
         self.setStyleSheet("background-color: rgba(%s, %s, %s, %s)" % (rgba[0], rgba[1], rgba[2], rgba[3]))
 
     def rf_nodeEnableIcon(self):
         """
         Refresh enable state icon
         """
-        if self.isEnable:
+        if self.isEnabled:
             self.pbEnable.setIcon(self.pItem.mainUi.enabledIcon)
         else:
             self.pbEnable.setIcon(self.pItem.mainUi.disabledIcon)
@@ -649,12 +636,12 @@ class GraphNode(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         Refresh children enable state icon
         """
         for child in pQt.getAllChildren(self.pItem):
-            if not child.nodeName == self.pItem.nodeName:
+            if not child._datas.nodeName == self.pItem._datas.nodeName:
                 #-- Edit Child Node --#
                 if child.parent()._widget.lNodeName.isEnabled():
-                    child._widget.pbEnable.setEnabled(self.isEnable)
-                    if child._widget.isEnable:
-                        child._widget.lNodeName.setEnabled(self.isEnable)
+                    child._widget.pbEnable.setEnabled(self.isEnabled)
+                    if child._widget.isEnabled:
+                        child._widget.lNodeName.setEnabled(self.isEnabled)
                     else:
                         child._widget.lNodeName.setEnabled(False)
                 else:
@@ -686,7 +673,7 @@ class GraphNode(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         Command launched when 'Enable' QPushButton is clicked.
         Refresh graphNodes enable state
         """
-        self.setEnabled(self.isEnable)
+        self.setEnabled(self.isEnabled)
         self.rf_childEnableIcon()
 
     def on_expandNode(self):
@@ -703,6 +690,6 @@ class GraphNode(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         :type kwargs: dict
         """
         #-- Update Internal --#
-        self.setEnabled(kwargs['_nodeIsEnabled'])
-        self.setExpanded(kwargs['_nodeIsExpanded'])
+        self.setEnabled(kwargs['isEnabled'])
+        self.setExpanded(kwargs['isExpanded'])
         #-- Update Datas --#
