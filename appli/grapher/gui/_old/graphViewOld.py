@@ -1,7 +1,7 @@
 import os, pprint
 from PyQt4 import QtGui, QtSvg, QtCore
 from appli.grapher.core import graphNodes
-from appli.grapher.gui import graphWgts
+from appli.grapher.gui import graphWgtsOld
 
 
 class GraphView(QtGui.QGraphicsView):
@@ -388,7 +388,7 @@ class GraphScene(QtGui.QGraphicsScene):
         """
         self.log.debug("Creating line: %s ---> %s ..." % (startItem.parentItem()._datas.nodeName,
                                                           endItem.parentItem()._datas.nodeName))
-        connectionLine = graphWgts.GraphLink(self.mainUi, startItem, endItem)
+        connectionLine = graphWgtsOld.GraphLink(self.mainUi, startItem, endItem)
         startItem.connections.append(connectionLine)
         endItem.connections.append(connectionLine)
         self.addItem(connectionLine)
@@ -478,9 +478,9 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
                       QtGui.QGraphicsItem.ItemIsFocusable)
         self.setCachingEnabled(False)
         self._widget = GraphNode(parent=self)
-        self._label = graphWgts.GraphText('label', self._datas.nodeName, parent=self)
-        self._plugIn = graphWgts.GraphPlug(mainUi=self.mainUi, isInput=True, parent=self)
-        self._plugOut = graphWgts.GraphPlug(mainUi=self.mainUi, isInput=False, parent=self)
+        self._label = graphWgtsOld.GraphText('label', self._datas.nodeName, parent=self)
+        self._plugIn = graphWgtsOld.GraphPlug(mainUi=self.mainUi, isInput=True, parent=self)
+        self._plugOut = graphWgtsOld.GraphPlug(mainUi=self.mainUi, isInput=False, parent=self)
 
     @property
     def nodeSize(self):

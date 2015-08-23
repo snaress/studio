@@ -2,11 +2,12 @@ import os, sys
 from appli import grapher
 from functools import partial
 from PyQt4 import QtGui, QtCore
+from appli.grapher.gui._old import graphViewOld
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from appli.grapher.core import graphNodes
 from appli.grapher.gui.ui import grapherUI
-from appli.grapher.gui import graphTree, graphView, toolsWgts, nodeEditor
+from appli.grapher.gui import graphTreeOld, toolsWgts, nodeEditor
 
 
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
@@ -38,11 +39,11 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def _initWidgets(self):
         self.log.info("#-- Init Widgets --#", newLinesBefor=1)
         #-- Graph Zone --#
-        self.graphTree = graphTree.GraphTree(self)
-        self.treeView = graphTree.TreeView(self, self.graphTree)
+        self.graphTree = graphTreeOld.GraphTree(self)
+        self.treeView = graphTreeOld.TreeView(self, self.graphTree)
         self.vlGraphZone.insertWidget(0, self.graphTree)
-        self.graphScene = graphView.GraphScene(self)
-        self.graphView = graphView.GraphView(self, self.graphScene)
+        self.graphScene = graphViewOld.GraphScene(self)
+        self.graphView = graphViewOld.GraphView(self, self.graphScene)
         self.vlGraphZone.insertWidget(0, self.graphView)
         #-- GraphTools --#
         self.graphTools = toolsWgts.GraphTools(self)

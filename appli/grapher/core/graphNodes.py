@@ -5,6 +5,8 @@ class Node(object):
 
     def __init__(self, nodeName=None):
         self.nodeName = nodeName
+        self.nodeIsEnabled = True
+        self.nodeIsExpanded = False
         self.nodeVersion  = 0
         self.nodeVersions = {0: "Default Version"}
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1001</width>
-    <height>773</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -55,127 +55,51 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1001</width>
+     <width>800</width>
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="mGraph">
-    <property name="title">
-     <string>Graph</string>
-    </property>
-    <widget class="QMenu" name="mCreateNode">
-     <property name="tearOffEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="title">
-      <string>Create Node</string>
-     </property>
-     <addaction name="miModul"/>
-     <addaction name="miSysData"/>
-     <addaction name="miCmdData"/>
-     <addaction name="miPyData"/>
-     <addaction name="separator"/>
-     <addaction name="miLoop"/>
-     <addaction name="miCondition"/>
-    </widget>
-    <widget class="QMenu" name="mFoldUnfold">
-     <property name="title">
-      <string>Fold / Unfold</string>
-     </property>
-     <addaction name="miFoldUnfold"/>
-     <addaction name="separator"/>
-     <addaction name="miExpandSel"/>
-     <addaction name="miExpandBranch"/>
-     <addaction name="miExpandAllEnable"/>
-     <addaction name="miExpandAll"/>
-     <addaction name="separator"/>
-     <addaction name="miCollapseSel"/>
-     <addaction name="miCollapseBranch"/>
-     <addaction name="miCollapseAllEnabled"/>
-     <addaction name="miCollapseAll"/>
-    </widget>
-    <widget class="QMenu" name="mCopyPaste">
-     <property name="title">
-      <string>Copy / Paste</string>
-     </property>
-     <addaction name="miCopyNodes"/>
-     <addaction name="miCopyBranch"/>
-     <addaction name="separator"/>
-     <addaction name="miCutBranch"/>
-     <addaction name="separator"/>
-     <addaction name="miPaste"/>
-    </widget>
-    <widget class="QMenu" name="mMoveUpDown">
-     <property name="title">
-      <string>Move Up / Down</string>
-     </property>
-     <addaction name="miMoveUp"/>
-     <addaction name="miMoveDn"/>
-    </widget>
-    <addaction name="miRefresh"/>
-    <addaction name="miUnselectAll"/>
-    <addaction name="separator"/>
-    <addaction name="mCreateNode"/>
-    <addaction name="mFoldUnfold"/>
-    <addaction name="mCopyPaste"/>
-    <addaction name="mMoveUpDown"/>
-    <addaction name="separator"/>
-    <addaction name="miDelSel"/>
-    <addaction name="separator"/>
-    <addaction name="miFitInScene"/>
-    <addaction name="miFitInSel"/>
-   </widget>
-   <widget class="QMenu" name="mFiles">
-    <property name="title">
-     <string>Files</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="mDisplay">
+   <widget class="QMenu" name="menuDisplay">
     <property name="title">
      <string>Display</string>
     </property>
-    <widget class="QMenu" name="mToolsBarOrient">
+    <widget class="QMenu" name="menuToolBarOptions">
      <property name="title">
-      <string>Tools Bar Orient</string>
+      <string>Tool Bar Options</string>
      </property>
-     <addaction name="miBarHorizontal"/>
-     <addaction name="miBarVertical"/>
+     <widget class="QMenu" name="menuToolBarOrient">
+      <property name="title">
+       <string>Tool Bar Orient</string>
+      </property>
+      <addaction name="miBarHorizontal"/>
+      <addaction name="miBarVertical"/>
+     </widget>
+     <widget class="QMenu" name="menuToolTabOrient">
+      <property name="title">
+       <string>Tool Tab Orient</string>
+      </property>
+      <addaction name="miTabNorth"/>
+      <addaction name="miTabSouth"/>
+      <addaction name="miTabWest"/>
+      <addaction name="miTabEast"/>
+     </widget>
+     <addaction name="menuToolBarOrient"/>
+     <addaction name="menuToolTabOrient"/>
+     <addaction name="separator"/>
+     <addaction name="miToolsIconOnly"/>
     </widget>
-    <widget class="QMenu" name="mToolsTabOrient">
-     <property name="title">
-      <string>Tools Tab Orient</string>
-     </property>
-     <addaction name="miTabNorth"/>
-     <addaction name="miTabSouth"/>
-     <addaction name="miTabWest"/>
-     <addaction name="miTabEast"/>
-    </widget>
-    <addaction name="miNodeEditor"/>
-    <addaction name="miGraphView"/>
-    <addaction name="separator"/>
     <addaction name="miToolsVisibility"/>
-    <addaction name="mToolsBarOrient"/>
-    <addaction name="mToolsTabOrient"/>
-    <addaction name="miToolsIconOnly"/>
+    <addaction name="miNodeEditor"/>
+    <addaction name="miGraphScene"/>
+    <addaction name="separator"/>
+    <addaction name="menuToolBarOptions"/>
    </widget>
-   <widget class="QMenu" name="mHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <addaction name="miTreeDict"/>
-   </widget>
-   <addaction name="mFiles"/>
-   <addaction name="mGraph"/>
-   <addaction name="mDisplay"/>
-   <addaction name="mHelp"/>
+   <addaction name="menuDisplay"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="tbTools">
    <property name="windowTitle">
     <string>toolBar</string>
-   </property>
-   <property name="movable">
-    <bool>true</bool>
    </property>
    <property name="floatable">
     <bool>false</bool>
@@ -187,44 +111,31 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <action name="miNewNode">
+  <action name="miToolsVisibility">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>New Node</string>
+    <string>Tools Bar</string>
    </property>
   </action>
-  <action name="miModul">
+  <action name="miGraphScene">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Modul</string>
+    <string>Graph Scene</string>
    </property>
   </action>
-  <action name="miLoop">
-   <property name="text">
-    <string>Loop</string>
+  <action name="miNodeEditor">
+   <property name="checkable">
+    <bool>true</bool>
    </property>
-  </action>
-  <action name="miSysData">
    <property name="text">
-    <string>SysData</string>
-   </property>
-  </action>
-  <action name="miCmdData">
-   <property name="text">
-    <string>CmdData</string>
-   </property>
-  </action>
-  <action name="miPyData">
-   <property name="text">
-    <string>PyData</string>
-   </property>
-  </action>
-  <action name="miCondition">
-   <property name="text">
-    <string>Condition</string>
-   </property>
-  </action>
-  <action name="miUnselectAll">
-   <property name="text">
-    <string>Unselect All</string>
+    <string>Node Editor</string>
    </property>
   </action>
   <action name="miToolsIconOnly">
@@ -266,143 +177,6 @@
   <action name="miTabEast">
    <property name="text">
     <string>East</string>
-   </property>
-  </action>
-  <action name="miToolsVisibility">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Tools Visibility</string>
-   </property>
-  </action>
-  <action name="miExpandAll">
-   <property name="text">
-    <string>Expand All</string>
-   </property>
-  </action>
-  <action name="miCollapseAll">
-   <property name="text">
-    <string>Collapse All</string>
-   </property>
-  </action>
-  <action name="miExpandBranch">
-   <property name="text">
-    <string>Expand Branch</string>
-   </property>
-  </action>
-  <action name="miCollapseBranch">
-   <property name="text">
-    <string>Collapse Branch</string>
-   </property>
-  </action>
-  <action name="miDelSel">
-   <property name="text">
-    <string>Delete Selected</string>
-   </property>
-  </action>
-  <action name="miTreeDict">
-   <property name="text">
-    <string>Print Tree Dict</string>
-   </property>
-  </action>
-  <action name="miRefresh">
-   <property name="text">
-    <string>Refresh</string>
-   </property>
-  </action>
-  <action name="miMoveUp">
-   <property name="text">
-    <string>Move Up</string>
-   </property>
-  </action>
-  <action name="miMoveDn">
-   <property name="text">
-    <string>Move Down</string>
-   </property>
-  </action>
-  <action name="miNodeEditor">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Node Editor</string>
-   </property>
-  </action>
-  <action name="miCopyNodes">
-   <property name="text">
-    <string>Copy Nodes</string>
-   </property>
-  </action>
-  <action name="miCopyBranch">
-   <property name="text">
-    <string>Copy Branch</string>
-   </property>
-  </action>
-  <action name="miPaste">
-   <property name="text">
-    <string>Paste</string>
-   </property>
-  </action>
-  <action name="miCutBranch">
-   <property name="text">
-    <string>Cut Branch</string>
-   </property>
-  </action>
-  <action name="miGraphView">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Graph View</string>
-   </property>
-  </action>
-  <action name="miFoldUnfold">
-   <property name="text">
-    <string>Fold / Unfold</string>
-   </property>
-  </action>
-  <action name="miExpandAllEnable">
-   <property name="text">
-    <string>Expand All Enabled</string>
-   </property>
-  </action>
-  <action name="miExpandAllDisabled">
-   <property name="text">
-    <string>Expand All Disabled</string>
-   </property>
-  </action>
-  <action name="miCollapseAllEnabled">
-   <property name="text">
-    <string>Collapse All Enabled</string>
-   </property>
-  </action>
-  <action name="miCollapseAllDisabled">
-   <property name="text">
-    <string>Collapse All Disabled</string>
-   </property>
-  </action>
-  <action name="miExpandSel">
-   <property name="text">
-    <string>Expand Selected</string>
-   </property>
-  </action>
-  <action name="miCollapseSel">
-   <property name="text">
-    <string>Collapse Selected</string>
-   </property>
-  </action>
-  <action name="miFitInScene">
-   <property name="text">
-    <string>Fit In Scene</string>
-   </property>
-  </action>
-  <action name="miFitInSel">
-   <property name="text">
-    <string>Fit In Selected</string>
    </property>
   </action>
  </widget>

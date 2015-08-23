@@ -175,22 +175,26 @@ class TabUtil(ToolsTab):
         """
         Add tool: Create Modul Node
         """
-        self._mainUi.currentGraph.createGraphNode(nodeType='modul')
+        pass
+        # self._mainUi.currentGraph.createGraphNode(nodeType='modul')
 
     def sysDataNode(self):
         """
         Add tool: Create SysData Node
         """
-        self._mainUi.currentGraph.createGraphNode(nodeType='sysData')
+        pass
+        # self._mainUi.currentGraph.createGraphNode(nodeType='sysData')
 
     def cmdDataNode(self):
         """
         Add tool: Create CmdData Node
         """
-        self._mainUi.currentGraph.createGraphNode(nodeType='cmdData')
+        pass
+        # self._mainUi.currentGraph.createGraphNode(nodeType='cmdData')
 
     def pyDataNode(self):
         """
         Add tool: Create PyData Node
         """
-        self._mainUi.currentGraph.createGraphNode(nodeType='pyData')
+        pass
+        # self._mainUi.currentGraph.createGraphNode(nodeType='pyData')
