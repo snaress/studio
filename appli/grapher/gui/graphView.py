@@ -1,6 +1,7 @@
-import os
+import os, pprint
 from PyQt4 import QtGui, QtSvg, QtCore
-from appli.grapher.gui import graphNodes
+from appli.grapher.core import graphNodes
+from appli.grapher.gui import graphWgts
 
 
 class GraphView(QtGui.QGraphicsView):
@@ -19,6 +20,23 @@ class GraphView(QtGui.QGraphicsView):
         self.log.debug("\t Init GraphView Widget.")
         self.setScene(graphScene)
         self._setupWidget()
+
+    def getDatas(self, asString=False):
+        treeDict = dict()
+        #-- Parse Datas --#
+        for n, item in enumerate(self.scene().getAllNodes()):
+            nodeDatas = item._datas.getDatas()
+            nodeDatas['isEnabled'] = True
+            nodeDatas['isExpanded'] = True
+            if item._plugIn._parent() is None:
+                nodeDatas['parent'] = None
+            else:
+                nodeDatas['parent'] = item._plugIn._parent()._datas.nodeName
+            treeDict[n] = nodeDatas
+        #-- Return Datas --#
+        if asString:
+            pprint.pformat(treeDict)
+        return treeDict
 
     def _setupWidget(self):
         self.log.debug("\t ---> Setup GraphView Widget.")
@@ -114,11 +132,44 @@ class GraphScene(QtGui.QGraphicsScene):
         self.log.debug("\t Init GraphScene Widget.")
         self._setupWidget()
 
+    # noinspection PyUnresolvedReferences
     def _setupWidget(self):
         self.log.debug("\t ---> Setup GraphScene Widget.")
         self.line = None
         self.buffer = None
         self.ctrlKey = False
+        self.selBuffer = {'_order': []}
+        self.selectionChanged.connect(self._selectionChanged)
+
+    def _selectionChanged(self):
+        """
+        Store node selection order
+        """
+        selNodes = self.getSelectedNodes()
+        if not selNodes:
+            self.selBuffer = {'_order': []}
+        else:
+            for n, item in enumerate(selNodes):
+                if not item._datas.nodeName in self.selBuffer['_order']:
+                    self.selBuffer['_order'].append(item._datas.nodeName)
+                    self.selBuffer[item._datas.nodeName] = item
+
+    def getAllTopLevelNodes(self):
+        """
+        Get all nodes with 'nodeBase' _type in first column
+        :return: All topLevel 'nodeBase' items
+        :rtype: list
+        """
+        iDict = dict()
+        if self.items():
+            for item in self.items():
+                if item._type == 'nodeBase':
+                    if item.isRoot:
+                        iDict[item.pos().y()] = item
+        items = []
+        for k, v in sorted(iDict.iteritems()):
+            items.append(v)
+        return items
 
     def getAllNodes(self):
         """
@@ -127,22 +178,29 @@ class GraphScene(QtGui.QGraphicsScene):
         :rtype: list
         """
         items = []
-        if self.items():
-            for item in self.items():
-                if item._type == 'nodeBase':
-                    items.append(item)
+        for topItem in self.getAllTopLevelNodes():
+            items.extend(self.getAllChildren(topItem))
         return items
 
-    def getAllTopLevelNodes(self):
-        """
-        Get all nodes with 'nodeBase' _type in first column
-        :return: All topLevel 'nodeBase' items
-        :rtype: list
-        """
+    @staticmethod
+    def getAllChildren(item, depth=-1):
+        """ Get all children of given 'nodeBase' item
+            :param item: Recusion start item
+            :type item: QtGui.QTreeWidgetItem
+            :param depth: Number of recursion (-1 = infinite)
+            :type depth: int
+            :return: items list
+            :rtype: list """
         items = []
-        for item in self.getAllNodes():
-            if item.isRoot:
-                items.append(item)
+
+        def recurse(currentItem, depth):
+            items.append(currentItem)
+            if depth != 0:
+                if currentItem._plugOut._children() is not None:
+                    for n in range(len(currentItem._plugOut._children())):
+                        recurse(currentItem._plugOut._children()[n], depth-1)
+
+        recurse(item, depth)
         return items
 
     def getSelectedNodes(self):
@@ -156,6 +214,28 @@ class GraphScene(QtGui.QGraphicsScene):
             if item._type == 'nodeBase':
                 items.append(item)
         return items
+
+    def getItemFromNodeName(self, nodeName):
+        """
+        Get graphItem from given node name
+        :param nodeName: Graph node name
+        :type nodeName: str
+        :return: Graph item
+        :rtype: QtGui.QTreeWidgetItem
+        """
+        for item in self.getAllNodes():
+            if item._datas.nodeName == nodeName:
+                return item
+
+    def buildGraph(self, treeDict):
+        self.log.debug("#-- Build Graph --#" , newLinesBefor=1)
+        #-- Create Nodes --#
+        # items = dict()
+        self.log.debug("Creating Nodes ...")
+        for n in sorted(treeDict.keys()):
+            self.createGraphNode(nodeType=treeDict[n]['nodeType'], nodeName=treeDict[n]['nodeName'],
+                                 nodeParent=treeDict[n]['parent'])
+            # items[newItem] = treeDict[n]['isExpanded']
 
     def createGraphNode(self, nodeType='modul', nodeName=None, nodeParent=None, index=None):
         """
@@ -174,32 +254,60 @@ class GraphScene(QtGui.QGraphicsScene):
         if nodeName is None:
             nodeName = '%s_1' % nodeType
         newNodeName = self.mainUi._checkNodeName(nodeName, self.getAllNodes())
-        self.mainUi.log.debug("#-- + Creating %s ViewNode + : %s --#" % (nodeType, newNodeName))
-        newItem = GraphItem(self.mainUi, nodeType, newNodeName)
+        self.mainUi.log.debug("#-- + Creating %s Node + : %s --#" % (nodeType, newNodeName))
+        newItem = self.newGraphItem(nodeType, newNodeName)
         #-- Use Given Parent --#
         if nodeParent is not None:
             self.log.detail("\t ---> Use given parent: %s" % nodeParent)
-            pass
+            item = self.getItemFromNodeName(nodeParent)
+            if index is None:
+                self.addGraphWidget(newItem, isRoot=False, parent=item)
+                self.addItem(newItem)
+            self.createLine(item._plugOut, newItem._plugIn)
         else:
             selItems = self.selectedItems()
             #-- Parent To Selected Node --#
             if len(selItems) == 1:
-                self.log.detail("\t ---> Parent to selected node: %s" % selItems[0].nodeName)
+                self.log.detail("\t ---> Parent to selected node: %s" % selItems[0]._datas.nodeName)
                 if index is None:
                     self.addGraphWidget(newItem, isRoot=False)
                     self.addItem(newItem)
+                self.createLine(selItems[0]._plugOut, newItem._plugIn)
             #-- Parent To World --#
             else:
                 self.log.detail("\t ---> Parent to world")
                 if index is None:
-                    self.log.detail("\t ---> Adding graph item '%s' to world ..." % newItem.nodeName)
+                    self.log.detail("\t ---> Adding graph item '%s' to world ..." % newItem._datas.nodeName)
                     self.addGraphWidget(newItem, isRoot=True)
                     self.addItem(newItem)
                 else:
-                    self.log.detail("\t ---> Inserting graph item '%s' to world ..." % newItem.nodeName)
+                    self.log.detail("\t ---> Inserting graph item '%s' to world ..." % newItem._datas.nodeName)
         return newItem
 
-    def addGraphWidget(self, QGraphicsSvgItem, isRoot=False):
+    def newGraphItem(self, nodeType, nodeName):
+        """
+        Create new graphItem and graphNode
+        :param nodeType: Graph node type ('modul', 'sysData', 'cmdData', 'pyData', 'loop', 'condition')
+        :type nodeType: str
+        :param nodeName: Graph node name
+        :type nodeName: str
+        :return: New graphNode
+        :rtype: QtSvg.QGraphicsSvgItem
+        """
+        if nodeType == 'modul':
+            newItem = GraphItem(self.mainUi, graphNodes.Modul(nodeName))
+        elif nodeType == 'sysData':
+            newItem = GraphItem(self.mainUi, graphNodes.SysData(nodeName))
+        elif nodeType == 'cmdData':
+            newItem =  GraphItem(self.mainUi, graphNodes.CmdData(nodeName))
+        elif nodeType == 'pyData':
+            newItem = GraphItem(self.mainUi, graphNodes.PyData(nodeName))
+        else:
+            newItem = GraphItem(self.mainUi, graphNodes.Modul(nodeName))
+        newItem._widget = GraphNode(newItem)
+        return newItem
+
+    def addGraphWidget(self, QGraphicsSvgItem, isRoot=False, parent=None):
         """
         Add graphNode widget to given item
         :param QGraphicsSvgItem: Item widget parent
@@ -208,10 +316,15 @@ class GraphScene(QtGui.QGraphicsScene):
         :type isRoot: bool
         """
         self.log.detail("\t ---> Adding item widget ...")
+        #-- Get Items --#
         if isRoot:
-            allItems = self.getAllTopLevelNodes()
+            allItems = self.getAllNodes()
         else:
-            allItems = self.selectedItems()
+            if parent is None:
+                allItems = self.selectedItems()
+            else:
+                allItems = [parent]
+        #-- Get Position --#
         posX = 0
         posY = 0
         if allItems:
@@ -224,12 +337,21 @@ class GraphScene(QtGui.QGraphicsScene):
                     maxX = item.x()
             posX = maxX + 450
             posY = maxY + 150
+        #-- Apply Position --#
         if isRoot:
             QGraphicsSvgItem.setY(posY)
         else:
             QGraphicsSvgItem.setX(posX)
-            QGraphicsSvgItem.setY(allItems[0].y())
-        QGraphicsSvgItem._column = isRoot
+            if parent is not None:
+                parent.branchWorldBBox()
+                if parent._plugOut._children() is not None:
+                    posY = (posY + (150 * (len(parent._plugOut._children()) - 1 )))
+                    QGraphicsSvgItem.setY(posY)
+                else:
+                    QGraphicsSvgItem.setY(allItems[0].y())
+            else:
+                QGraphicsSvgItem.setY(allItems[0].y())
+        QGraphicsSvgItem.isRoot = isRoot
 
     def _drawLine(self):
         """
@@ -264,9 +386,9 @@ class GraphScene(QtGui.QGraphicsScene):
         :param endItem: End node connectionItem
         :type endItem: QtSvg.QGraphicsSvgItem
         """
-        self.log.debug("Creating line: %s ---> %s ..." % (startItem.parentItem().nodeName,
-                                                          endItem.parentItem().nodeName))
-        connectionLine = GraphLink(self.mainUi, startItem, endItem)
+        self.log.debug("Creating line: %s ---> %s ..." % (startItem.parentItem()._datas.nodeName,
+                                                          endItem.parentItem()._datas.nodeName))
+        connectionLine = graphWgts.GraphLink(self.mainUi, startItem, endItem)
         startItem.connections.append(connectionLine)
         endItem.connections.append(connectionLine)
         self.addItem(connectionLine)
@@ -342,41 +464,23 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
 
     _type = "nodeBase"
 
-    def __init__(self, mainUi, nodeType, nodeName):
+    def __init__(self, mainUi, nodeObject):
         self.mainUi = mainUi
-        self.log = self.mainUi.log
-        self.nodeName = nodeName
-        self._nodeType = nodeType
-        self._datas = self._initDatas()
+        self._datas = nodeObject
         self.isRoot = True
         self.iconFile = os.path.join(self.mainUi.iconPath, 'svg', self._datas._nodeIcon)
         super(GraphItem, self).__init__(self.iconFile)
         self._setupItem()
-
-    def _initDatas(self):
-        """
-        Init node datas object
-        :return: Datas object
-        :rtype: Modul | SysData | CmdData | PyData
-        """
-        if self._nodeType == 'modul':
-            return graphNodes.Modul(self.nodeName)
-        elif self._nodeType == 'sysData':
-            return graphNodes.SysData(self.nodeName)
-        elif self._nodeType == 'cmdData':
-            return graphNodes.CmdData(self.nodeName)
-        elif self._nodeType == 'pyData':
-            return graphNodes.PyData(self.nodeName)
 
     def _setupItem(self):
         self.setFlags(QtGui.QGraphicsItem.ItemIsSelectable|
                       QtGui.QGraphicsItem.ItemIsMovable|
                       QtGui.QGraphicsItem.ItemIsFocusable)
         self.setCachingEnabled(False)
-        self._label = GraphText('label', self.nodeName, parent=self)
         self._widget = GraphNode(parent=self)
-        self._plugIn = GraphPlug(mainUi=self.mainUi, isInput=True, parent=self)
-        self._plugOut = GraphPlug(mainUi=self.mainUi, isInput=False, parent=self)
+        self._label = graphWgts.GraphText('label', self._datas.nodeName, parent=self)
+        self._plugIn = graphWgts.GraphPlug(mainUi=self.mainUi, isInput=True, parent=self)
+        self._plugOut = graphWgts.GraphPlug(mainUi=self.mainUi, isInput=False, parent=self)
 
     @property
     def nodeSize(self):
@@ -406,147 +510,23 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
         """
         return self.nodeSize[1]
 
+    def branchWorldBBox(self):
+        branchItems = self.scene().getAllChildren(self)
+        print branchItems
+
     def delete(self):
         """
         Delete node and links
         """
         self.log.debug("#-- - Deleting %s Node - : %s --#" % (self._nodeType, self.nodeName), newLinesBefor=1)
 
-
-
-class GraphPlug(QtSvg.QGraphicsSvgItem):
-
-    _type = 'nodePlug'
-
-    def __init__(self, **kwargs):
-        self.mainUi = kwargs['mainUi']
-        self.iconFile = os.path.join(self.mainUi.iconPath, 'svg', 'plug.svg')
-        super(GraphPlug, self).__init__(self.iconFile, kwargs['parent'])
-        self.connections = []
-        self.isInputConnection = kwargs['isInput']
-        self._setupItem()
-
-    def _setupItem(self):
-        self.setAcceptHoverEvents(True)
-        self.setElementId("regular")
-        if self.isInputConnection:
-            self.setPos(-38, 77)
-        else:
-            self.setPos(self.parentItem().width + 2, 77)
-
-    @property
-    def nodeSize(self):
-        """
-        get graph node plug size
-        :return: Node plug size (width, height)
-        :rtype: (int, int)
-        """
-        size = (self.boundingRect().width(), self.boundingRect().height())
-        return size
-
-    @property
-    def width(self):
-        """
-        get graph node plug width
-        :return: Node plug width
-        :rtype: int
-        """
-        return self.nodeSize[0]
-
-    @property
-    def height(self):
-        """
-        get graph node plug height
-        :return: Node plug height
-        :rtype: int
-        """
-        return self.nodeSize[1]
-
-    def hoverMoveEvent(self,event):
-        """
-        Add hover move options: Change node style
-        """
-        self.setElementId("hover")
-
-    def hoverLeaveEvent(self, event):
-        """
-        Add hover leave options: Change node style
-        """
-        self.setElementId("regular")
-
     def mouseReleaseEvent(self, event):
         """
-        Add mouse release options: Change node style
+        Add mouse release options: 'left' = - If node is topLevel, force x position to 0
         """
-        self.setElementId("regular")
-
-
-class GraphText(QtGui.QGraphicsTextItem):
-
-    _type = "nodeText"
-
-    def __init__(self, _type, text, parent=None):
-        self._type = _type
-        self._text = text
-        super(GraphText, self).__init__(parent)
-        self._setupItem()
-
-    def _setupItem(self):
-        self.setText()
-        self.setTextFont()
-        self.setTextColor()
-        self.setTextPosition()
-
-    def setTextFont(self, qFont=None):
-        """
-        Set GraphText font. Create default or update if 'qFont' is None
-        :param qFont: GraphText font
-        :type: QtGui.QFont
-        """
-        if qFont is None:
-            if self._type == 'label':
-                fontSize = 20
-                bold = True
-            else:
-                fontSize = 14
-                bold = False
-            qFont = QtGui.QFont("SansSerif", fontSize)
-            qFont.setStyleHint(QtGui.QFont.Helvetica)
-            qFont.setBold(bold)
-        self.setFont(qFont)
-
-    def setText(self, label=None):
-        """
-        Set GraphText text. Create default or update if 'label' is None
-        :param label: GraphText text
-        :type label: str
-        """
-        if label is None:
-            label = self._text
-        self.setPlainText(label)
-
-    def setTextColor(self, qColor=None):
-        """
-        Set GraphText color. Create default or update if 'qColor' is None
-        :param qColor: GraphText color
-        :type qColor: QtGui.QColor
-        """
-        if qColor is None:
-            if self._type == 'label':
-                qColor = QtGui.QColor(255, 120, 50)
-            elif self._type == 'attr':
-                qColor = QtGui.QColor(180, 180, 180)
-        self.setDefaultTextColor(qColor)
-
-    def setTextPosition(self, pos=None):
-        """
-        Set GraphText position. Create default or update if 'pos' is None
-        :param pos: GraphText position
-        :type pos: tuple
-        """
-        if pos is None:
-            pos = (82, ((self.parentItem().height / 2) - self.font().pointSize()))
-        self.setPos(pos[0], pos[1])
+        super(GraphItem, self).mouseReleaseEvent(event)
+        if self.isRoot:
+            self.setPos(0, self.pos().y())
 
 
 class GraphNode(QtGui.QGraphicsRectItem):
@@ -577,108 +557,3 @@ class GraphNode(QtGui.QGraphicsRectItem):
         painter.setPen(pen)
         painter.setBrush(brush)
         painter.drawRect(self.rect())
-
-
-class GraphLink(QtGui.QGraphicsPathItem):
-
-    _type = "nodeLink"
-
-    def __init__(self, mainUi, startItem, endItem):
-        self.mainUi = mainUi
-        self.log = self.mainUi.log
-        super(GraphLink, self).__init__()
-        self.startItem = startItem
-        self.endItem = endItem
-        self._setupItem()
-
-    def _setupItem(self):
-        self.lineColor = QtCore.Qt.gray
-        self.setZValue(-1.0)
-        self.setFlags(QtGui.QGraphicsPathItem.ItemIsSelectable|QtGui.QGraphicsPathItem.ItemIsFocusable)
-        self.setPen(QtGui.QPen(self.lineColor, 4, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
-
-    @property
-    def startNode(self):
-        """
-        Get start graph node (_type='nodeBase')
-        :return: Start node
-        :rtype: QtSvg.QGraphicsSvgItem
-        """
-        return self.startItem.parentItem()
-
-    @property
-    def endNode(self):
-        """
-        Get end graph node (_type='nodeBase')
-        :return: end node
-        :rtype: QtSvg.QGraphicsSvgItem
-        """
-        return self.endItem.parentItem()
-
-    def getLine(self):
-        """
-        Get link coords
-        :return: Line coords
-        :rtype: QtCore.QLineF
-        """
-        p1 = self.startItem.sceneBoundingRect().center()
-        p2 = self.endItem.sceneBoundingRect().center()
-        return QtCore.QLineF(self.mapFromScene(p1), self.mapFromScene(p2))
-
-    def getCenterPoint(self):
-        """
-        Get link center point
-        :return: Link center point
-        :rtype: QtCore.QPointF
-        """
-        line = self.getLine()
-        centerX = (line.p1().x() + line.p2().x()) / 2
-        centerY = (line.p1().y() + line.p2().y()) / 2
-        return QtCore.QPointF(centerX, centerY)
-
-    def createPath(self):
-        """
-        Calculate link angle
-        :return: Link path
-        :rtype: QtGui.QPainterPath
-        """
-        line = self.getLine()
-        centerPoint = self.getCenterPoint()
-        coef = QtCore.QPointF(abs(centerPoint.x() - line.p1().x()), 0)
-        control_1 = line.p1() + coef
-        control_2 = line.p2() - coef
-        path = QtGui.QPainterPath(line.p1())
-        path.cubicTo(control_1, control_2, line.p2())
-        return path
-
-    def updatePosition(self):
-        """
-        Update link position
-        """
-        self.setPath(self.createPath())
-
-    def boundingRect(self):
-        """
-        Calculate line bounding rect
-        :return: Line bounding rect
-        :rtype: QtCore.QRectF
-        """
-        extra = (self.pen().width() + 100) / 2.0
-        line = self.getLine()
-        p1 = line.p1()
-        p2 = line.p2()
-        return QtCore.QRectF(p1, QtCore.QSizeF(p2.x()-p1.x(),
-                                               p2.y()-p1.y())).normalized().adjusted(-extra, -extra, extra, extra)
-
-    def paint(self, painter, option, widget=None):
-        """
-        Draw line connection
-        """
-        myPen = self.pen()
-        myPen.setColor(self.lineColor)
-        if self.isSelected():
-            painter.setBrush(QtCore.Qt.yellow)
-            myPen.setColor(QtCore.Qt.yellow)
-            myPen.setStyle(QtCore.Qt.DashLine)
-        painter.strokePath(self.createPath(), myPen)
-

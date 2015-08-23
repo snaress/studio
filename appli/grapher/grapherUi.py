@@ -4,8 +4,9 @@ from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
+from appli.grapher.core import graphNodes
 from appli.grapher.gui.ui import grapherUI
-from appli.grapher.gui import graphTree, graphView, graphNodes, toolsWgts, nodeEditor
+from appli.grapher.gui import graphTree, graphView, toolsWgts, nodeEditor
 
 
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
@@ -252,13 +253,10 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Refresh graph tree
         """
         self.log.detail(">>> Launch menuItem 'Refresh' ...")
-        if self.currentGraphMode == 'tree':
-            graphDict = self.treeView.__repr__()
-            self.graphTree.clearSelection()
-            self.graphTree.clear()
-            self.graphTree.buildGraph(graphDict)
-        else:
-            self.log.detail("\t\t >>> Not yet implemented !!!")
+        graphDict = self.currentView.getDatas()
+        self.currentGraph.clearSelection()
+        self.currentGraph.clear()
+        self.currentGraph.buildGraph(graphDict)
 
     def on_miNewNode(self, nodeType):
         """
@@ -399,8 +397,14 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Show / Hide Graph View
         """
         self.log.detail(">>> Launch menuItem 'Switch Graph Mode' ...")
+        if self.currentGraphMode == 'scene':
+            treeDict = self.treeView.getDatas()
+        else:
+            treeDict = self.graphView.getDatas()
         self.graphTree.setVisible(not self.miGraphView.isChecked())
         self.graphView.setVisible(self.miGraphView.isChecked())
+        self.currentGraph.clear()
+        self.currentGraph.buildGraph(treeDict)
 
     def on_miToolsOrientChanged(self, orient=False, force=False):
         """
@@ -456,7 +460,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Print graph tree repr
         """
         self.log.detail(">>> Launch menuItem 'Print Tree Dict' ...")
-        print self.treeView.__str__()
+        print self.treeView.getDatas(asString=True)
 
 
 def launch(logLvl='info'):

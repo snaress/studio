@@ -1,7 +1,7 @@
 import pprint
 from PyQt4 import QtGui
+from appli.grapher.core import graphNodes
 from lib.qt import procQt as pQt
-from appli.grapher.gui import graphNodes
 from appli.grapher.gui.ui import graphNodeUI
 
 
@@ -17,18 +17,20 @@ class TreeView(object):
         self.log = self.mainUi.log
         self.log.debug("\t Init TreeView Widget.")
         self.tree = graphTree
-        self.tree.view = self
         self.buffer = None
 
-    def __repr__(self):
+    def getDatas(self, asString=False):
         """
-        GraphTree representation as dict
+        GraphTree datas as dict or string
+        :param asString: Return string instead of dict
+        :type asString: bool
         :return: Tree contents
-        :rtype: dict
+        :rtype: dict | str
         """
         treeDict = dict()
+        #-- Parse Datas --#
         for n, item in enumerate(pQt.getAllItems(self.tree)):
-            nodeDatas = item._datas.__repr__()
+            nodeDatas = item._datas.getDatas()
             nodeDatas['isEnabled'] = item._widget.isEnabled
             nodeDatas['isExpanded'] = item._widget.isExpanded
             if item.parent() is None:
@@ -36,15 +38,10 @@ class TreeView(object):
             else:
                 nodeDatas['parent'] = item.parent()._datas.nodeName
             treeDict[n] = nodeDatas
+        #-- Return Datas --#
+        if asString:
+            return pprint.pformat(treeDict)
         return treeDict
-
-    def __str__(self):
-        """
-        GraphTree representation as string
-        :return: Tree contents
-        :rtype: str
-        """
-        return pprint.pformat(self.__repr__())
 
     def _insertIndex(self, item, pItem, side):
         """
