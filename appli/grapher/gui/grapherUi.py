@@ -9,11 +9,16 @@ from appli.grapher.gui import graphZone, toolsWgts, nodeEditor
 
 
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
+    """
+    Grapher main ui
+    :param logLvl: Verbose ('critical', 'error', 'warning', 'info', 'debug', 'detail')
+    :type logLvl: str
+    """
 
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="GrapherUi", level=logLvl)
         self.log.info("########## Launching Grapher Ui ##########")
-        self.grapher = Grapher()
+        self.grapher = Grapher(logLvl)
         self.iconPath = grapher.iconPath
         super(GrapherUi, self).__init__()
         self._setupUi()
@@ -41,8 +46,12 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
 
     def _initMenu(self):
         self.log.info("#-- Init Menus --#", newLinesBefor=1)
+        self._menuGraph()
         self._menuDisplay()
         self.on_miNodeEditor()
+
+    def _menuGraph(self):
+        self.graphZone.buildMenu(self.menuGraph)
 
     # noinspection PyUnresolvedReferences
     def _menuDisplay(self):
@@ -52,8 +61,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miToolsVisibility.setShortcut("T")
         self.miNodeEditor.triggered.connect(self.on_miNodeEditor)
         self.miNodeEditor.setShortcut("E")
-        # self.miGraphView.triggered.connect(self.on_miGraphView)
-        # self.miGraphView.setShortcut("Tab")
+        self.miGraphScene.triggered.connect(self.on_miGraphScene)
+        self.miGraphScene.setShortcut("Tab")
         #-- SubMenu 'Tools Bar Orient' --#
         self.miBarHorizontal.triggered.connect(partial(self.on_miToolsOrientChanged, orient='horizontal', force=True))
         self.miBarVertical.triggered.connect(partial(self.on_miToolsOrientChanged, orient='vertical', force=True))
@@ -124,6 +133,15 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail(">>> Launch menuItem 'Node Editor' ...")
         self.vfNodeEditor.setVisible(self.miNodeEditor.isChecked())
+
+    def on_miGraphScene(self):
+        """
+        Command launched when 'Graph View' QMenuItem is triggered
+        Show / Hide Graph View
+        """
+        self.log.detail(">>> Launch menuItem 'Switch Graph Mode' ...")
+        self.graphZone.graphTree.setVisible(not self.miGraphScene.isChecked())
+        self.graphZone.sceneView.setVisible(self.miGraphScene.isChecked())
 
     def on_miToolsIconOnly(self):
         """

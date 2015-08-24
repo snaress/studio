@@ -220,10 +220,12 @@ class GraphTree(object):
         :rtype: Modul | SysData | CmdData | PyData
         """
         if parent is None:
+            self.log.detail("\t ---> Parent %s to world" % item._node.nodeName)
             self._topItems.append(item)
         else:
             if isinstance(parent, str):
                 parent = self.getItemFromNodeName(parent)
+            self.log.detail("\t ---> Parent %s to %s" % (item._node.nodeName, parent._node.nodeName))
             parent._children.append(item)
             item._parent = parent
         return item
@@ -234,7 +236,8 @@ class GraphItem(object):
     def __init__(self, treeObject, nodeObject):
         self._tree = treeObject
         self.log = self._tree.log
-        self.log.debug("#-- Init Graph Item: %s --#" % nodeObject.nodeName)
+        self.log.debug("#-- Init Graph Item: %s (%s) --#" % (nodeObject.nodeName,
+                                                             nodeObject.nodeType), newLinesBefor=1)
         self._node = nodeObject
         self._parent = None
         self._children = []

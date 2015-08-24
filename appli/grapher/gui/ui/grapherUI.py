@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Sun Aug 23 23:38:53 2015
+# Created: Mon Aug 24 01:17:13 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -61,6 +61,8 @@ class Ui_mwGrapher(object):
         self.menuToolBarOrient.setObjectName(_fromUtf8("menuToolBarOrient"))
         self.menuToolTabOrient = QtGui.QMenu(self.menuToolBarOptions)
         self.menuToolTabOrient.setObjectName(_fromUtf8("menuToolTabOrient"))
+        self.menuGraph = QtGui.QMenu(self.menubar)
+        self.menuGraph.setObjectName(_fromUtf8("menuGraph"))
         mwGrapher.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(mwGrapher)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -110,6 +112,7 @@ class Ui_mwGrapher(object):
         self.menuDisplay.addAction(self.miGraphScene)
         self.menuDisplay.addSeparator()
         self.menuDisplay.addAction(self.menuToolBarOptions.menuAction())
+        self.menubar.addAction(self.menuGraph.menuAction())
         self.menubar.addAction(self.menuDisplay.menuAction())
 
         self.retranslateUi(mwGrapher)
@@ -121,6 +124,7 @@ class Ui_mwGrapher(object):
         self.menuToolBarOptions.setTitle(_translate("mwGrapher", "Tool Bar Options", None))
         self.menuToolBarOrient.setTitle(_translate("mwGrapher", "Tool Bar Orient", None))
         self.menuToolTabOrient.setTitle(_translate("mwGrapher", "Tool Tab Orient", None))
+        self.menuGraph.setTitle(_translate("mwGrapher", "Graph", None))
         self.tbTools.setWindowTitle(_translate("mwGrapher", "toolBar", None))
         self.miToolsVisibility.setText(_translate("mwGrapher", "Tools Bar", None))
         self.miGraphScene.setText(_translate("mwGrapher", "Graph Scene", None))

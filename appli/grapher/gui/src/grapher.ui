@@ -94,6 +94,12 @@
     <addaction name="separator"/>
     <addaction name="menuToolBarOptions"/>
    </widget>
+   <widget class="QMenu" name="menuGraph">
+    <property name="title">
+     <string>Graph</string>
+    </property>
+   </widget>
+   <addaction name="menuGraph"/>
    <addaction name="menuDisplay"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
