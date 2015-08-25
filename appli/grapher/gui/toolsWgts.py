@@ -6,16 +6,16 @@ from appli.grapher.gui.ui import toolsTabUI
 class GraphTools(QtGui.QTabWidget):
     """
     Fondation tools tab widget, child of GrapherUi
-    :param _mainUi: Fondation main window
-    :type _mainUi: QtGui.QMainWindow
+    :param mainUi: Fondation main window
+    :type mainUi: QtGui.QMainWindow
     """
 
-    def __init__(self, _mainUi):
+    def __init__(self, mainUi):
         super(GraphTools, self).__init__()
-        self._mainUi = _mainUi
-        self.log = self._mainUi.log
+        self.mainUi = mainUi
+        self.log = self.mainUi.log
         self.log.debug("\t Init GraphTools Widget.")
-        self._pWidget = self._mainUi.tbTools
+        self._pWidget = self.mainUi.tbTools
         self.tabs = []
         self.tools = []
         self._setupWidget()
@@ -53,7 +53,7 @@ class GraphTools(QtGui.QTabWidget):
         for tab in self.tabs:
             tab.rf_size()
         for tool in self.tools:
-            if self._mainUi.toolsIconOnly:
+            if self.mainUi.toolsIconOnly:
                 tool.setText("")
                 tool.setToolTip(tool.name)
             else:
@@ -66,7 +66,7 @@ class GraphTools(QtGui.QTabWidget):
         """
         self.clear()
         #-- Tab Util --#
-        self.tabUtil = TabUtil(self._mainUi, self)
+        self.tabUtil = TabUtil(self.mainUi, self)
         self.insertTab(-1, self.tabUtil, 'Util')
         self.tabs.append(self.tabUtil)
 
@@ -74,20 +74,20 @@ class GraphTools(QtGui.QTabWidget):
 class ToolsTab(QtGui.QWidget, toolsTabUI.Ui_wgToolsTab):
     """
     Fondation tools tab widget, child of GrapherUi.GraphTools
-    :param _mainUi: Fondation main window
-    :type _mainUi: QtGui.QMainWindow
+    :param mainUi: Fondation main window
+    :type mainUi: QtGui.QMainWindow
     :param tabWidget: Parent tabWidget
     :type tabWidget: QtGui.QTabWidget
     """
 
-    def __init__(self, _mainUi, tabWidget):
+    def __init__(self, mainUi, tabWidget):
         super(ToolsTab, self).__init__()
-        self._mainUi = _mainUi
-        self.log = self._mainUi.log
+        self.mainUi = mainUi
+        self.log = self.mainUi.log
         self.log.debug("\t Init GraphTools TabWidget.")
-        self.iconPath = self._mainUi.iconPath
+        self.iconPath = self.mainUi.iconPath
         self.tabWidget = tabWidget
-        self.log = self._mainUi.log
+        self.log = self.mainUi.log
         self._setupWidget()
 
     def _setupWidget(self):
@@ -111,7 +111,7 @@ class ToolsTab(QtGui.QWidget, toolsTabUI.Ui_wgToolsTab):
         """
         refresh toolBar size
         """
-        if self._mainUi.toolsIconOnly:
+        if self.mainUi.toolsIconOnly:
             self.saVertical.setMinimumWidth(40)
             self.saVertical.setMaximumWidth(40)
         else:
@@ -147,16 +147,16 @@ class ToolsTab(QtGui.QWidget, toolsTabUI.Ui_wgToolsTab):
 class TabUtil(ToolsTab):
     """
     Util tool tab template, GrapherUi.GraphTools.ToolsTab
-    :param _mainUi: Fondation main window
-    :type _mainUi: QtGui.QMainWindow
+    :param mainUi: Fondation main window
+    :type mainUi: QtGui.QMainWindow
     :param tabWidget: Parent tabWidget
     :type tabWidget: QtGui.QTabWidget
     """
 
-    def __init__(self, _mainUi, tabWidget):
-        super(TabUtil, self).__init__(_mainUi, tabWidget)
-        self._mainUi = _mainUi
-        self.log = self._mainUi.log
+    def __init__(self, mainUi, tabWidget):
+        super(TabUtil, self).__init__(mainUi, tabWidget)
+        self.mainUi = mainUi
+        self.log = self.mainUi.log
         self.log.debug("\t Init GraphTools UtilTab.")
         self._setupTab()
 
@@ -175,26 +175,25 @@ class TabUtil(ToolsTab):
         """
         Add tool: Create Modul Node
         """
-        pass
-        # self._mainUi.currentGraph.createGraphNode(nodeType='modul')
+        self.mainUi.graphZone.on_miNewNode('modul')
 
     def sysDataNode(self):
         """
         Add tool: Create SysData Node
         """
         pass
-        # self._mainUi.currentGraph.createGraphNode(nodeType='sysData')
+        # self.mainUi.currentGraph.createGraphNode(nodeType='sysData')
 
     def cmdDataNode(self):
         """
         Add tool: Create CmdData Node
         """
         pass
-        # self._mainUi.currentGraph.createGraphNode(nodeType='cmdData')
+        # self.mainUi.currentGraph.createGraphNode(nodeType='cmdData')
 
     def pyDataNode(self):
         """
         Add tool: Create PyData Node
         """
         pass
-        # self._mainUi.currentGraph.createGraphNode(nodeType='pyData')
+        # self.mainUi.currentGraph.createGraphNode(nodeType='pyData')

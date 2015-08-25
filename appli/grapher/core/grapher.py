@@ -109,12 +109,7 @@ class GraphTree(object):
         treeDict = dict()
         #-- Parse Datas --#
         for n, item in enumerate(self.allItems()):
-            nodeDatas = item._node.getDatas()
-            if item._parent is None:
-                nodeDatas['parent'] = None
-            else:
-                nodeDatas['parent'] = item._parent._node.nodeName
-            treeDict[n] = nodeDatas
+            treeDict[n] = item.getDatas()
         #-- Return Datas --#
         if asString:
             return pprint.pformat(treeDict)
@@ -165,7 +160,7 @@ class GraphTree(object):
         :param nodeName: Node name
         :type nodeName: str
         :return: Tree item
-        :rtype: Modul | SysData | CmdData | PyData
+        :rtype: GraphItem
         """
         for item in self.allItems():
             if item._node.nodeName == nodeName:
@@ -241,6 +236,22 @@ class GraphItem(object):
         self._node = nodeObject
         self._parent = None
         self._children = []
+
+    def getDatas(self, asString=False):
+        """
+        Get graphItem datas as dict or string
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: Item contents
+        :rtype: dict | str
+        """
+        #-- Parse Datas --#
+        nodeDatas = self._node.getDatas()
+        nodeDatas['parent'] = self.parent
+        #-- Return Datas --#
+        if asString:
+            return pprint.pformat(nodeDatas)
+        return nodeDatas
 
     @property
     def parent(self):

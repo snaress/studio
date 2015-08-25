@@ -6,13 +6,14 @@ class Node(object):
     def __init__(self, nodeName=None):
         self.nodeName = nodeName
         self.nodeIsEnabled = True
+        self.nodeIsActive = True
         self.nodeIsExpanded = False
         self.nodeVersion  = 0
         self.nodeVersions = {0: "Default Version"}
 
     def getDatas(self, asString=False):
         """
-        GraphNode datas as dict or string
+        get GraphNode datas as dict or string
         :param asString: Return string instead of dict
         :type asString: bool
         :return: Node contents
@@ -35,7 +36,7 @@ class Node(object):
         :rtype: list
         """
         attrs = []
-        for attr in self.__repr__().keys():
+        for attr in self.getDatas().keys():
             attrs.append(attr)
         return sorted(attrs)
 

@@ -1,4 +1,4 @@
-import sys
+import os, sys
 from appli import grapher
 from functools import partial
 from PyQt4 import QtGui, QtCore
@@ -20,6 +20,10 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log.info("########## Launching Grapher Ui ##########")
         self.grapher = Grapher(logLvl)
         self.iconPath = grapher.iconPath
+        self.enabledIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'enabled.png'))
+        self.disabledIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'disabled.png'))
+        self.expandIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'expand.png'))
+        self.collapseIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'collapse.png'))
         super(GrapherUi, self).__init__()
         self._setupUi()
 
@@ -50,8 +54,10 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self._menuDisplay()
         self.on_miNodeEditor()
 
+    # noinspection PyUnresolvedReferences
     def _menuGraph(self):
-        self.graphZone.buildMenu(self.menuGraph)
+        self.log.debug("\t ---> Menu Graph ...")
+        self.menuGraph.aboutToShow.connect(partial(self.graphZone.buildMenu, self.menuGraph))
 
     # noinspection PyUnresolvedReferences
     def _menuDisplay(self):

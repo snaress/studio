@@ -1,5 +1,6 @@
 from functools import partial
 from PyQt4 import QtGui, QtCore
+from lib.qt import procQt as pQt
 from appli.grapher.gui import graphTree, graphScene
 
 
@@ -28,6 +29,30 @@ class GraphZone(object):
         self.sceneView = GraphView(self.mainUi, self.graphScene)
         self.mainUi.vlGraphZone.insertWidget(0, self.sceneView)
 
+    @property
+    def currentGraphMode(self):
+        """
+        Get GraphZone mode
+        :return: GraphZone mode ('tree' or 'scene')
+        :rtype: str
+        """
+        if self.mainUi.miGraphScene.isChecked():
+            return 'scene'
+        else:
+            return 'tree'
+
+    @property
+    def currentGraph(self):
+        """
+        Get current GraphZone widget
+        :return: GraphZone widget ('self.graphTree' or 'self.graphScene')
+        :rtype: GrapherUi.GraphTree | GrapherUi.GraphScene
+        """
+        if self.currentGraphMode == 'tree':
+            return self.graphTree
+        elif self.currentGraphMode == 'scene':
+            return self.graphScene
+
     def commonMenuActions(self):
         """
         Common gaph menu actions
@@ -46,8 +71,19 @@ class GraphZone(object):
                                      'cmd': partial(self.on_miNewNode, 'cmdData')},
                                  3: {'type': 'item', 'title': 'PyData', 'key': '4',
                                      'cmd': partial(self.on_miNewNode, 'pyData')}}},
-                5: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
-                6: {'type': 'item', 'title': 'Delete', 'key': 'Del', 'cmd': None}}
+                5: {'type': 'menu', 'title': 'Expand / Collapse',
+                    'children': {0: {'type': 'item', 'title': 'Auto Expand', 'key': "C",
+                                     'cmd': self.on_miAutoExpand}}},
+                6: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},}
+
+    def sceneMenuActions(self):
+        """
+        GraphScene specific menu actions
+        :return: Scene menu actions
+        :rtype: dict
+        """
+        return {0: {'type': 'item', 'title': 'Fit In Scene', 'key': 'H', 'cmd': self.sceneView.fitInScene},
+                1: {'type': 'item', 'title': 'Fit In Selected', 'key': 'F', 'cmd': self.sceneView.fitInSelected}}
 
     def buildMenu(self, QMenu):
         """
@@ -56,20 +92,26 @@ class GraphZone(object):
         :type QMenu: QtGui.QMenu
         """
         QMenu.clear()
-        menuDict = self.commonMenuActions()
-        for n in sorted(menuDict.keys()):
-            #-- Add Sub Menu --#
-            if menuDict[n]['type'] == 'menu':
-                newMenu = QMenu.addMenu(menuDict[n]['title'])
-                #-- Add Sub Item --#
-                for i in sorted(menuDict[n]['children']):
-                    childDict = menuDict[n]['children'][i]
-                    self.newMenuItem(newMenu, childDict['type'], childDict['title'],
-                                              childDict['key'], childDict['cmd'])
-            #-- Add Item --#
-            elif menuDict[n]['type'] in ['item', 'sep']:
-                self.newMenuItem(QMenu, menuDict[n]['type'], menuDict[n]['title'],
-                                        menuDict[n]['key'], menuDict[n]['cmd'])
+        #-- Collecte Menu Items --#
+        if self.currentGraphMode == 'tree':
+            dictList = [self.commonMenuActions()]
+        else:
+            dictList = [self.commonMenuActions(), self.sceneMenuActions()]
+        #-- Build Menu --#
+        for menuDict in dictList:
+            for n in sorted(menuDict.keys()):
+                #-- Add Sub Menu --#
+                if menuDict[n]['type'] == 'menu':
+                    newMenu = QMenu.addMenu(menuDict[n]['title'])
+                    #-- Add Sub Item --#
+                    for i in sorted(menuDict[n]['children']):
+                        childDict = menuDict[n]['children'][i]
+                        self.newMenuItem(newMenu, childDict['type'], childDict['title'],
+                                                  childDict['key'], childDict['cmd'])
+                #-- Add Item --#
+                elif menuDict[n]['type'] in ['item', 'sep']:
+                    self.newMenuItem(QMenu, menuDict[n]['type'], menuDict[n]['title'],
+                                            menuDict[n]['key'], menuDict[n]['cmd'])
 
     @staticmethod
     def newMenuItem(QMenu, _type, title, key, cmd):
@@ -95,6 +137,34 @@ class GraphZone(object):
         elif _type == 'sep':
             QMenu.addSeparator()
 
+    def buildGraph(self, treeDict):
+        """
+        Build graph tree from given params
+        :param treeDict: Tree params
+        :type treeDict: dict
+        """
+        self.log.debug("#-- Build Graph --#" , newLinesBefor=1)
+        for n in sorted(treeDict.keys()):
+            self.currentGraph.createGraphNode(nodeType=treeDict[n]['nodeType'],
+                                              nodeName=treeDict[n]['nodeName'],
+                                              nodeParent=treeDict[n]['parent'])
+
+    def getItemFromNodeName(self, nodeName):
+        """
+        Get graphItem from given node name
+        :param nodeName: Node name
+        :type nodeName: str
+        :return: graphTree item
+        :rtype: QtGui.QTreeWidgetItem | QtSvg.QGraphicsSvgItem
+        """
+        if self.currentGraphMode == 'tree':
+            allItems = pQt.getAllItems(self.graphTree)
+        else:
+            allItems = self.graphScene.getAllNodes()
+        for item in allItems:
+            if item._item._node.nodeName == nodeName:
+                return item
+
     def on_miNewNode(self, nodeType):
         """
         Command launched when 'New Node' QMenuItem is triggered.
@@ -103,7 +173,22 @@ class GraphZone(object):
         :type nodeType: str
         """
         self.log.detail(">>> Launch menuItem 'New Node' ...")
-        newNode = self.grapher.tree.createItem(nodeType)
+        selItems = self.currentGraph.selectedItems()
+        parent = None
+        if len(selItems) == 1:
+            parent = selItems[0]._item._node.nodeName
+        newGrapherItem = self.grapher.tree.createItem(nodeType, nodeParent=parent)
+        self.buildGraph({0: newGrapherItem.getDatas()})
+
+    def on_miAutoExpand(self):
+        """
+        Command launched when 'Auto Expand' QMenuItem is triggered.
+        Expand or collapse node
+        """
+        self.log.detail(">>> Launch menuItem 'Auto Expand' ...")
+        selItems = self.graphTree.selectedItems()
+        if selItems:
+            selItems[0]._widget.set_expanded(state=not selItems[0]._widget.isExpanded)
 
 
 class GraphView(QtGui.QGraphicsView):
