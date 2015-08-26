@@ -58,6 +58,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def _menuGraph(self):
         self.log.debug("\t ---> Menu Graph ...")
         self.menuGraph.aboutToShow.connect(partial(self.graphZone.buildMenu, self.menuGraph))
+        self.graphZone.buildMenu(self.menuGraph)
 
     # noinspection PyUnresolvedReferences
     def _menuDisplay(self):
