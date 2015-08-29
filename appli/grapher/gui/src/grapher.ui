@@ -99,8 +99,22 @@
      <string>Graph</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <widget class="QMenu" name="menuTreeDict">
+     <property name="title">
+      <string>Tree Dict</string>
+     </property>
+     <addaction name="miFromCore"/>
+     <addaction name="miFromUi"/>
+    </widget>
+    <addaction name="menuTreeDict"/>
+   </widget>
    <addaction name="menuGraph"/>
    <addaction name="menuDisplay"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="tbTools">
@@ -183,6 +197,16 @@
   <action name="miTabEast">
    <property name="text">
     <string>East</string>
+   </property>
+  </action>
+  <action name="miFromCore">
+   <property name="text">
+    <string>From Core</string>
+   </property>
+  </action>
+  <action name="miFromUi">
+   <property name="text">
+    <string>From Ui</string>
    </property>
   </action>
  </widget>

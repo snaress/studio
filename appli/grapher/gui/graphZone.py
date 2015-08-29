@@ -59,8 +59,8 @@ class GraphZone(object):
         :return: Graph menu actions
         :rtype: dict
         """
-        return {0: {'type': 'item', 'title': 'Refresh', 'key': 'F5', 'cmd': None},
-                1: {'type': 'item', 'title': 'Unselect All', 'key': 'Esc', 'cmd': None},
+        return {0: {'type': 'item', 'title': 'Refresh', 'key': 'F5', 'cmd': self.on_miRefresh},
+                1: {'type': 'item', 'title': 'Unselect All', 'key': 'Esc', 'cmd': self.on_miUnselectAll},
                 3: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
                 4: {'type': 'menu', 'title': 'New Node',
                     'children': {0: {'type': 'item', 'title': 'Modul', 'key': '1',
@@ -74,7 +74,8 @@ class GraphZone(object):
                 5: {'type': 'menu', 'title': 'Expand / Collapse',
                     'children': {0: {'type': 'item', 'title': 'Auto Expand', 'key': "C",
                                      'cmd': self.on_miAutoExpand}}},
-                6: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},}
+                6: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                7: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
 
     def sceneMenuActions(self):
         """
@@ -137,17 +138,37 @@ class GraphZone(object):
         elif _type == 'sep':
             QMenu.addSeparator()
 
-    def buildGraph(self, treeDict):
+    def buildGraph(self, treeDict, clear=False):
         """
         Build graph tree from given params
         :param treeDict: Tree params
         :type treeDict: dict
         """
         self.log.debug("#-- Build Graph --#" , newLinesBefor=1)
+        #-- Clear Before Build --#
+        if clear:
+            self.currentGraph.clear()
+        #-- Build --#
         for n in sorted(treeDict.keys()):
             self.currentGraph.createGraphNode(nodeType=treeDict[n]['nodeType'],
                                               nodeName=treeDict[n]['nodeName'],
                                               nodeParent=treeDict[n]['parent'])
+
+    def refreshGraph(self):
+        """
+        Refresh current graph
+        """
+        self.buildGraph(self.grapher.tree.getDatas(), clear=True)
+
+    def deleteGraphNodes(self, items):
+        """
+        Delete given items
+        :param items: Graph items
+        :type items: list
+        """
+        for item in items:
+            item._item.delete()
+        self.refreshGraph()
 
     def getItemFromNodeName(self, nodeName):
         """
@@ -164,6 +185,21 @@ class GraphZone(object):
         for item in allItems:
             if item._item._node.nodeName == nodeName:
                 return item
+
+    def on_miRefresh(self):
+        """
+        Command launched when 'Refresh' QMenuItem is triggered. Refresh current graph.
+        """
+        self.log.detail(">>> Launch menuItem 'Refresh' ...")
+        self.refreshGraph()
+
+    def on_miUnselectAll(self):
+        """
+        Command launched when 'Unselect All' QMenuItem is triggered.
+        Clear graph selection.
+        """
+        self.log.detail(">>> Launch menuItem 'Unselect All' ...")
+        self.currentGraph.clearSelection()
 
     def on_miNewNode(self, nodeType):
         """
@@ -189,6 +225,17 @@ class GraphZone(object):
         selItems = self.graphTree.selectedItems()
         if selItems:
             selItems[0]._widget.set_expanded(state=not selItems[0]._widget.isExpanded)
+
+    def on_miDelSelected(self):
+        """
+        Command launched when 'Del Selected' QMenuItem is triggered.
+        Delete selected nodes
+        """
+        self.log.detail(">>> Launch menuItem 'Del Selected' ...")
+        if self.currentGraphMode == 'tree':
+            self.deleteGraphNodes(self.graphTree.selectedItems())
+        else:
+            self.deleteGraphNodes(self.graphScene.getSelectedNodes())
 
 
 class GraphView(QtGui.QGraphicsView):

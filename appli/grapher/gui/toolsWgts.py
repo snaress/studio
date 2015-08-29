@@ -1,4 +1,5 @@
 import os
+from functools import partial
 from PyQt4 import QtGui, QtCore
 from appli.grapher.gui.ui import toolsTabUI
 
@@ -163,37 +164,14 @@ class TabUtil(ToolsTab):
     def _setupTab(self):
         self.log.debug("\t ---> Setup 'Util' Tab.")
         self.log.detail("\t\t ---> Add tool 'PyData'.")
-        self.newTool('PyData', cmd=self.pyDataNode, iconFile=os.path.join(self.iconPath, 'png', 'pyData.png'))
+        self.newTool('PyData', cmd=partial(self.mainUi.graphZone.on_miNewNode, 'pyData'),
+                               iconFile=os.path.join(self.iconPath, 'png', 'pyData.png'))
         self.log.detail("\t\t ---> Add tool 'CmdData'.")
-        self.newTool('CmdData', cmd=self.cmdDataNode, iconFile=os.path.join(self.iconPath, 'png', 'cmdData.png'))
+        self.newTool('CmdData', cmd=partial(self.mainUi.graphZone.on_miNewNode, 'cmdData'),
+                                iconFile=os.path.join(self.iconPath, 'png', 'cmdData.png'))
         self.log.detail("\t\t ---> Add tool 'SysData'.")
-        self.newTool('SysData', cmd=self.sysDataNode, iconFile=os.path.join(self.iconPath, 'png', 'sysData.png'))
+        self.newTool('SysData', cmd=partial(self.mainUi.graphZone.on_miNewNode, 'sysData'),
+                                iconFile=os.path.join(self.iconPath, 'png', 'sysData.png'))
         self.log.detail("\t\t ---> Add tool 'Modul'.")
-        self.newTool('Modul', cmd=self.modulNode, iconFile=os.path.join(self.iconPath, 'png', 'modul.png'))
-
-    def modulNode(self):
-        """
-        Add tool: Create Modul Node
-        """
-        self.mainUi.graphZone.on_miNewNode('modul')
-
-    def sysDataNode(self):
-        """
-        Add tool: Create SysData Node
-        """
-        pass
-        # self.mainUi.currentGraph.createGraphNode(nodeType='sysData')
-
-    def cmdDataNode(self):
-        """
-        Add tool: Create CmdData Node
-        """
-        pass
-        # self.mainUi.currentGraph.createGraphNode(nodeType='cmdData')
-
-    def pyDataNode(self):
-        """
-        Add tool: Create PyData Node
-        """
-        pass
-        # self.mainUi.currentGraph.createGraphNode(nodeType='pyData')
+        self.newTool('Modul', cmd=partial(self.mainUi.graphZone.on_miNewNode, 'modul'),
+                              iconFile=os.path.join(self.iconPath, 'png', 'modul.png'))

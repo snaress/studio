@@ -16,6 +16,8 @@ class GraphScene(QtGui.QGraphicsScene):
         self.log.debug("\t Init GraphScene Widget.")
         self.graphZone = graphZone
         self.grapher = self.graphZone.grapher
+        self.horizontaleSpace = 500
+        self.verticaleSpace = 150
         self._setupWidget()
 
     # noinspection PyUnresolvedReferences
@@ -67,6 +69,18 @@ class GraphScene(QtGui.QGraphicsScene):
             items.extend(self.getAllChildren(topItem))
         return items
 
+    def getSelectedNodes(self):
+        """
+        Get selected nodes with 'nodeBase' _type
+        :return: Selected 'nodeBase' items
+        :rtype: list
+        """
+        items = []
+        for item in self.selectedItems():
+            if item._type == 'nodeBase':
+                items.append(item)
+        return items
+
     @staticmethod
     def getAllChildren(item, depth=-1):
         """
@@ -91,27 +105,51 @@ class GraphScene(QtGui.QGraphicsScene):
         #-- Result --#
         return items
 
-    def getSelectedNodes(self):
+    @staticmethod
+    def getMaxPos(items):
         """
-        Get selected nodes with 'nodeBase' _type
-        :return: Selected 'nodeBase' items
-        :rtype: list
+        Get max position
+        :param items: List of QGraphicsSvgItem
+        :type items: list
+        :return: MaxX, MaxY
+        :rtype: float, float
         """
-        items = []
-        for item in self.selectedItems():
-            if item._type == 'nodeBase':
-                items.append(item)
-        return items
+        maxX = 0
+        maxY = 0
+        for item in items:
+            if item.x() > maxX:
+                maxX = item.x()
+            if item.y() > maxY:
+                maxY = item.y()
+        return maxX, maxY
 
-    def setNodePosition(self, item, pos=None):
-        if pos is not None:
-            item.setPos(pos[0], pos[1])
+    def futurPos(self, item, parentItem=None):
+        """
+        Get Item futur position
+        :param item: New GraphItem
+        :type item: QtSvg.QGraphicsSvgItem
+        :param parentItem: Parent item
+        :type parentItem: QtSvg.QGraphicsSvgItem
+        :return: Item futur position
+        :rtype: float, float
+        """
+        #-- Top Item Position --#
+        if item._column == 0:
+            allItems = self.getAllNodes()
+            #-- First Top Item --#
+            if not allItems:
+                return 0, 0
+            #-- Other Top Items --#
+            maxX, maxY = self.getMaxPos(allItems)
+            return 0, (maxY + self.verticaleSpace)
+        #-- Child Position --#
+        x = (item._column * self.horizontaleSpace)
+        if len(parentItem._plugOut._children()) <= 1:
+            maxY = parentItem.y()
         else:
-            if item._column == 0:
-                allItems = self.getAllNodes()
-            else:
-                pass
-                # allItems = [item._pl]
+            maxX, maxY = self.getMaxPos(self.getAllChildren(parentItem))
+            maxY = (maxY + self.verticaleSpace)
+        return x, maxY
 
     def createGraphNode(self, nodeType='modul', nodeName=None, nodeParent=None):
         """
@@ -146,8 +184,10 @@ class GraphScene(QtGui.QGraphicsScene):
         :param QGraphicsSvgItem: Item to add
         :type QGraphicsSvgItem: QtSvg.QGraphicsSvgItem
         """
-        self.addItem(QGraphicsSvgItem)
         QGraphicsSvgItem._column = 0
+        x, y = self.futurPos(QGraphicsSvgItem)
+        self.addItem(QGraphicsSvgItem)
+        QGraphicsSvgItem.setY(y)
 
     def _drawLine(self):
         """
@@ -167,12 +207,8 @@ class GraphScene(QtGui.QGraphicsScene):
                 if hasattr(startItems[0], '_type') and hasattr(endItems[0], '_type'):
                     if startItems[0]._type == 'nodePlug' and endItems[0]._type == 'nodePlug':
                         if not startItems[0].isInputConnection and endItems[0].isInputConnection:
-                            if not endItems[0].connections:
-                                self.createLine(startItems[0], endItems[0])
-                            else:
-                                parent = endItems[0].parentItem()
-                                log = ">>> %s is already connected !!!" % parent._item._node.nodeName
-                                self.log.warning(log)
+                            endItems[0]._item.setParent(startItems[0]._item)
+                            self.graphZone.refreshGraph()
         self.line = None
 
     def createLine(self, startItem, endItem):
@@ -296,6 +332,17 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
         return size
 
     @property
+    def itemSize(self):
+        """
+        get graph item size (considering children items)
+        :return: Item size (width, height)
+        :rtype: (int, int)
+        """
+        size = ((self.boundingRect().width() + (self._plugIn.boundingRect().width() * 2)),
+                (self.boundingRect().height() + self._widget.boundingRect().height()))
+        return size
+
+    @property
     def width(self):
         """
         get graph node width
@@ -320,9 +367,19 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
         :type QGraphicsSvgItem: QtSvg.QGraphicsSvgItem
         """
         # self._widget.set_expanded(True)
-        self.scene().addItem(QGraphicsSvgItem)
         QGraphicsSvgItem._column = self._column + 1
+        self.scene().addItem(QGraphicsSvgItem)
         self.scene().createLine(self._plugOut, QGraphicsSvgItem._plugIn)
+        x, y = self.scene().futurPos(QGraphicsSvgItem, parentItem=self)
+        QGraphicsSvgItem.setPos(x, y)
+
+    def mouseReleaseEvent(self, event):
+        """
+        Add mouse release options: 'left' = - If node is topLevel, force x position to 0
+        """
+        super(GraphItem, self).mouseReleaseEvent(event)
+        if self._column == 0:
+            self.setPos(0, self.pos().y())
 
 
 class GraphWidget(QtGui.QGraphicsRectItem):
@@ -390,7 +447,7 @@ class GraphText(QtGui.QGraphicsTextItem):
         """
         if qFont is None:
             if self._txtType == 'label':
-                fontSize = 20
+                fontSize = 24
                 bold = True
             else:
                 fontSize = 14

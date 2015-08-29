@@ -225,6 +225,20 @@ class GraphTree(object):
             item._parent = parent
         return item
 
+    def deleteGraphNodes(self, items):
+        """
+        Delete given items
+        :param items: Graph items
+        :type items: list
+        """
+        pass
+
+    def printData(self):
+        """
+        Print tree datas
+        """
+        print self.getDatas(asString=True)
+
 
 class GraphItem(object):
 
@@ -295,6 +309,26 @@ class GraphItem(object):
         #-- Result --#
         return children
 
+    def setParent(self, graphItem):
+        """
+        Parent item to given GraphItem
+        :param graphItem: Parent item
+        :type graphItem: GraphItem
+        """
+        #-- Remove From Parent Children list --#
+        if self._parent is not None:
+            if self._parent._children:
+                self._parent._children.remove(self)
+        #-- Parent To Given GraphItem --#
+        self._parent = graphItem
+        self._parent._children.append(self)
+
+    def delete(self):
+        if self._parent is None:
+            self._tree._topItems.remove(self)
+        else:
+            self._parent._children.remove(self)
+
 
 
 if __name__ == '__main__':
@@ -302,4 +336,15 @@ if __name__ == '__main__':
     gp.tree.createItem()
     gp.tree.createItem()
     gp.tree.createItem(nodeParent='modul_2')
+    gp.tree.createItem(nodeParent='modul_3')
+    print '#' * 120
+    print gp.tree.getDatas(asString=True)
+    item1 = gp.tree.getItemFromNodeName('modul_3')
+    item2 = gp.tree.getItemFromNodeName('modul_1')
+    item1.setParent(item2)
+    print '#' * 120
+    print gp.tree.getDatas(asString=True)
+    itemToDel = gp.tree.getItemFromNodeName('modul_4')
+    itemToDel.delete()
+    print '#' * 120
     print gp.tree.getDatas(asString=True)

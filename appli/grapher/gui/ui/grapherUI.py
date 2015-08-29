@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Mon Aug 24 14:58:21 2015
+# Created: Thu Aug 27 00:58:10 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -63,6 +63,10 @@ class Ui_mwGrapher(object):
         self.menuToolTabOrient.setObjectName(_fromUtf8("menuToolTabOrient"))
         self.menuGraph = QtGui.QMenu(self.menubar)
         self.menuGraph.setObjectName(_fromUtf8("menuGraph"))
+        self.menuHelp = QtGui.QMenu(self.menubar)
+        self.menuHelp.setObjectName(_fromUtf8("menuHelp"))
+        self.menuTreeDict = QtGui.QMenu(self.menuHelp)
+        self.menuTreeDict.setObjectName(_fromUtf8("menuTreeDict"))
         mwGrapher.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(mwGrapher)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -97,6 +101,10 @@ class Ui_mwGrapher(object):
         self.miTabWest.setObjectName(_fromUtf8("miTabWest"))
         self.miTabEast = QtGui.QAction(mwGrapher)
         self.miTabEast.setObjectName(_fromUtf8("miTabEast"))
+        self.miFromCore = QtGui.QAction(mwGrapher)
+        self.miFromCore.setObjectName(_fromUtf8("miFromCore"))
+        self.miFromUi = QtGui.QAction(mwGrapher)
+        self.miFromUi.setObjectName(_fromUtf8("miFromUi"))
         self.menuToolBarOrient.addAction(self.miBarHorizontal)
         self.menuToolBarOrient.addAction(self.miBarVertical)
         self.menuToolTabOrient.addAction(self.miTabNorth)
@@ -112,8 +120,12 @@ class Ui_mwGrapher(object):
         self.menuDisplay.addAction(self.miGraphScene)
         self.menuDisplay.addSeparator()
         self.menuDisplay.addAction(self.menuToolBarOptions.menuAction())
+        self.menuTreeDict.addAction(self.miFromCore)
+        self.menuTreeDict.addAction(self.miFromUi)
+        self.menuHelp.addAction(self.menuTreeDict.menuAction())
         self.menubar.addAction(self.menuGraph.menuAction())
         self.menubar.addAction(self.menuDisplay.menuAction())
+        self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(mwGrapher)
         QtCore.QMetaObject.connectSlotsByName(mwGrapher)
@@ -125,6 +137,8 @@ class Ui_mwGrapher(object):
         self.menuToolBarOrient.setTitle(_translate("mwGrapher", "Tool Bar Orient", None))
         self.menuToolTabOrient.setTitle(_translate("mwGrapher", "Tool Tab Orient", None))
         self.menuGraph.setTitle(_translate("mwGrapher", "Graph", None))
+        self.menuHelp.setTitle(_translate("mwGrapher", "Help", None))
+        self.menuTreeDict.setTitle(_translate("mwGrapher", "Tree Dict", None))
         self.tbTools.setWindowTitle(_translate("mwGrapher", "toolBar", None))
         self.miToolsVisibility.setText(_translate("mwGrapher", "Tools Bar", None))
         self.miGraphScene.setText(_translate("mwGrapher", "Graph Scene", None))
@@ -136,4 +150,6 @@ class Ui_mwGrapher(object):
         self.miTabSouth.setText(_translate("mwGrapher", "South", None))
         self.miTabWest.setText(_translate("mwGrapher", "West", None))
         self.miTabEast.setText(_translate("mwGrapher", "East", None))
+        self.miFromCore.setText(_translate("mwGrapher", "From Core", None))
+        self.miFromUi.setText(_translate("mwGrapher", "From Ui", None))
 

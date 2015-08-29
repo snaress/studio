@@ -52,6 +52,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log.info("#-- Init Menus --#", newLinesBefor=1)
         self._menuGraph()
         self._menuDisplay()
+        self._menuHelp()
         self.on_miNodeEditor()
 
     # noinspection PyUnresolvedReferences
@@ -81,6 +82,13 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         #-- Tools Options --#
         self.miToolsIconOnly.triggered.connect(self.on_miToolsIconOnly)
         self.miToolsIconOnly.setShortcut("Ctrl+T")
+
+    # noinspection PyUnresolvedReferences
+    def _menuHelp(self):
+        self.log.debug("\t ---> Menu Help ...")
+        #-- Tree Dict --#
+        self.miFromCore.triggered.connect(self.grapher.tree.printData)
+
 
     @property
     def toolsIconOnly(self):
@@ -149,6 +157,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log.detail(">>> Launch menuItem 'Switch Graph Mode' ...")
         self.graphZone.graphTree.setVisible(not self.miGraphScene.isChecked())
         self.graphZone.sceneView.setVisible(self.miGraphScene.isChecked())
+        self.graphZone.refreshGraph()
 
     def on_miToolsIconOnly(self):
         """
