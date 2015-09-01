@@ -20,10 +20,6 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log.info("########## Launching Grapher Ui ##########")
         self.grapher = Grapher(logLvl)
         self.iconPath = grapher.iconPath
-        self.enabledIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'enabled.png'))
-        self.disabledIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'disabled.png'))
-        self.expandIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'expand.png'))
-        self.collapseIcon = QtGui.QIcon(os.path.join(self.iconPath, 'png', 'collapse.png'))
         super(GrapherUi, self).__init__()
         self._setupUi()
 
@@ -88,7 +84,6 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log.debug("\t ---> Menu Help ...")
         #-- Tree Dict --#
         self.miFromCore.triggered.connect(self.grapher.tree.printData)
-
 
     @property
     def toolsIconOnly(self):

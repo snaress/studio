@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>212</width>
-    <height>28</height>
+    <width>205</width>
+    <height>30</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -26,20 +26,6 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="0" column="0">
-    <widget class="Line" name="line_5">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="Line" name="line_6">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="hlNode">
      <property name="spacing">
@@ -210,7 +196,24 @@
      </item>
     </layout>
    </item>
+   <item row="2" column="0">
+    <widget class="Line" name="line_6">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="Line" name="line_5">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
   </layout>
+  <zorder>line_5</zorder>
+  <zorder>line_6</zorder>
+  <zorder>lNodeName</zorder>
  </widget>
  <resources/>
  <connections/>

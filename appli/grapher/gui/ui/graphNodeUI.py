@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\src\graphNode.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\graphNode.ui'
 #
-# Created: Sat Aug 15 00:04:06 2015
+# Created: Sat Aug 29 14:35:50 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,22 +26,12 @@ except AttributeError:
 class Ui_wgGraphNode(object):
     def setupUi(self, wgGraphNode):
         wgGraphNode.setObjectName(_fromUtf8("wgGraphNode"))
-        wgGraphNode.resize(212, 28)
+        wgGraphNode.resize(205, 30)
         wgGraphNode.setMinimumSize(QtCore.QSize(150, 0))
         self.gridLayout = QtGui.QGridLayout(wgGraphNode)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
-        self.line_5 = QtGui.QFrame(wgGraphNode)
-        self.line_5.setFrameShape(QtGui.QFrame.HLine)
-        self.line_5.setFrameShadow(QtGui.QFrame.Sunken)
-        self.line_5.setObjectName(_fromUtf8("line_5"))
-        self.gridLayout.addWidget(self.line_5, 0, 0, 1, 1)
-        self.line_6 = QtGui.QFrame(wgGraphNode)
-        self.line_6.setFrameShape(QtGui.QFrame.HLine)
-        self.line_6.setFrameShadow(QtGui.QFrame.Sunken)
-        self.line_6.setObjectName(_fromUtf8("line_6"))
-        self.gridLayout.addWidget(self.line_6, 2, 0, 1, 1)
         self.hlNode = QtGui.QHBoxLayout()
         self.hlNode.setSpacing(1)
         self.hlNode.setObjectName(_fromUtf8("hlNode"))
@@ -114,6 +104,16 @@ class Ui_wgGraphNode(object):
         self.line_3.setObjectName(_fromUtf8("line_3"))
         self.hlNode.addWidget(self.line_3)
         self.gridLayout.addLayout(self.hlNode, 1, 0, 1, 1)
+        self.line_6 = QtGui.QFrame(wgGraphNode)
+        self.line_6.setFrameShape(QtGui.QFrame.HLine)
+        self.line_6.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_6.setObjectName(_fromUtf8("line_6"))
+        self.gridLayout.addWidget(self.line_6, 2, 0, 1, 1)
+        self.line_5 = QtGui.QFrame(wgGraphNode)
+        self.line_5.setFrameShape(QtGui.QFrame.HLine)
+        self.line_5.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_5.setObjectName(_fromUtf8("line_5"))
+        self.gridLayout.addWidget(self.line_5, 0, 0, 1, 1)
 
         self.retranslateUi(wgGraphNode)
         QtCore.QMetaObject.connectSlotsByName(wgGraphNode)

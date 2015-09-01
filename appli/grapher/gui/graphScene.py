@@ -7,6 +7,8 @@ class GraphScene(QtGui.QGraphicsScene):
     GraphScene widget, child of Grapher.GraphView
     :param mainUi: Grapher main window
     :type mainUi: QtGui.QMainWindow
+    :param graphZone: GraphZone ui
+    :type graphZone: GraphZone
     """
 
     def __init__(self, mainUi, graphZone):
@@ -172,6 +174,7 @@ class GraphScene(QtGui.QGraphicsScene):
             self.log.detail("\t ---> Parent graph item '%s' to '%s'" % (grapherItem._node.nodeName, nodeParent))
             parentItem = self.graphZone.getItemFromNodeName(nodeParent)
             parentItem.addChild(newItem)
+            parentItem._widget.rf_expandIconVisibility()
         #-- Parent To World --#
         else:
             self.log.detail("\t ---> Adding graph item '%s' to world ..." % grapherItem._node.nodeName)
@@ -279,10 +282,20 @@ class GraphScene(QtGui.QGraphicsScene):
         Add mouse release options: 'left' = - If line construction is detected, will draw the final connection
                                               and clear construction line item.
                                             - Disable GraphView 'move by drag' mode.
+                                            - If no item under pointer, refresh element id
         """
         self._drawLine()
         self.graphZone.sceneView.setDragMode(QtGui.QGraphicsView.NoDrag)
         super(GraphScene, self).mouseReleaseEvent(event)
+        #-- Refresh Element Id --#
+        for graphItem in self.getAllNodes():
+            graphItem.rf_elementId()
+        else:
+            item = self.itemAt(event.scenePos())
+            if item is not None:
+                if item._type == 'nodeWidget':
+                    item.parentItem().setSelected(True)
+                    item.parentItem().rf_elementId()
 
 
 class GraphItem(QtSvg.QGraphicsSvgItem):
@@ -313,11 +326,16 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
                       QtGui.QGraphicsItem.ItemIsMovable|
                       QtGui.QGraphicsItem.ItemIsFocusable)
         self.setCachingEnabled(False)
+        self.setAcceptHoverEvents(True)
+        self.setElementId("regular")
 
     def _setupWidgets(self):
         self.log.detail("\t ---> Setup Graph Item Widgets --#")
         self._label = GraphText(self._item._node.nodeName, txtType='label', parent=self)
         self._widget = GraphWidget(parent=self)
+        self._pbEnable = GraphButton(self.mainUi, 'pbEnable', parent=self._widget)
+        self._pbExpand = GraphButton(self.mainUi, 'pbExpand', parent=self._widget)
+        self._pbUnfold = GraphButton(self.mainUi, 'pbUnfold', parent=self._widget)
         self._plugIn = GraphPlug(self.mainUi, isInput=True, parent=self)
         self._plugOut = GraphPlug(self.mainUi, parent=self)
 
@@ -360,18 +378,42 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
         """
         return self.nodeSize[1]
 
+    def rf_elementId(self):
+        """
+        Refresh item element id
+        """
+        if self.isSelected():
+            self.setElementId('selected')
+        else:
+            self.setElementId('regular')
+
     def addChild(self, QGraphicsSvgItem):
         """
         Add child item to scene
         :param QGraphicsSvgItem: Item to add
         :type QGraphicsSvgItem: QtSvg.QGraphicsSvgItem
         """
-        # self._widget.set_expanded(True)
+        self._widget.set_expanded(True)
         QGraphicsSvgItem._column = self._column + 1
         self.scene().addItem(QGraphicsSvgItem)
         self.scene().createLine(self._plugOut, QGraphicsSvgItem._plugIn)
         x, y = self.scene().futurPos(QGraphicsSvgItem, parentItem=self)
         QGraphicsSvgItem.setPos(x, y)
+
+    def hoverMoveEvent(self, event):
+        """
+        Add hover move options: Change node style
+        """
+        self.setElementId("hover")
+
+    def hoverLeaveEvent(self, event):
+        """
+        Add hover leave options: Change node style
+        """
+        if self.isSelected():
+            self.setElementId("selected")
+        else:
+            self.setElementId("regular")
 
     def mouseReleaseEvent(self, event):
         """
@@ -383,6 +425,11 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
 
 
 class GraphWidget(QtGui.QGraphicsRectItem):
+    """
+    GraphWidget item, child of GrapherUi.GraphScene.GraphItem
+    :param parent: Grapher parent item
+    :type parent: QtSvg.QGraphicsSvgItem
+    """
 
     _type = "nodeWidget"
 
@@ -398,13 +445,106 @@ class GraphWidget(QtGui.QGraphicsRectItem):
         self.setZValue(-1)
         self.setPos(0, 76)
 
+    @property
+    def nodeSize(self):
+        """
+        get graph node size
+        :return: Node size (width, height)
+        :rtype: (int, int)
+        """
+        size = (self.boundingRect().width(), self.boundingRect().height())
+        return size
+
+    @property
+    def width(self):
+        """
+        get graph node width
+        :return: Node width
+        :rtype: int
+        """
+        return self.nodeSize[0]
+
+    @property
+    def height(self):
+        """
+        get graph node height
+        :return: Node height
+        :rtype: int
+        """
+        return self.nodeSize[1]
+
+    @property
+    def isEnabled(self):
+        """
+        Get node enable state from grapher nodeObject
+        :return: Node enable state
+        :rtype: bool
+        """
+        return self._item._node.nodeIsEnabled
+
+    @property
+    def isActive(self):
+        """
+        Get node active state from grapher nodeObject
+        :return: Node active state
+        :rtype: bool
+        """
+        return self._item._node.nodeIsActive
+
+    @property
+    def isExpanded(self):
+        """
+        Get node expanded state from grapher nodeObject
+        :return: Node expanded state
+        :rtype: bool
+        """
+        return self._item._node.nodeIsExpanded
+
+    def rf_enableIcon(self):
+        """
+        Refresh enable state icon
+        """
+        if self._item._node.nodeIsEnabled:
+            self.parentItem()._pbEnable.setElementId('enable')
+        else:
+            self.parentItem()._pbEnable.setElementId('disable')
+
+    def rf_expandIcon(self):
+        """
+        Refresh expand state icon
+        """
+        if self._item._node.nodeIsExpanded:
+            self.parentItem()._pbExpand.setElementId('collapse')
+        else:
+            self.parentItem()._pbExpand.setElementId('expand')
+
+    def rf_expandIconVisibility(self):
+        """
+        Refresh expand button visibility
+        """
+        if self.parentItem()._plugOut._children():
+            self.parentItem()._pbExpand.setVisible(True)
+        else:
+            self.parentItem()._pbExpand.setVisible(True)
+
+    def set_expanded(self, state=None):
+        """
+        Set graphNode expanded with given state
+        :param state: Expand state
+        :type state: bool
+        """
+        if state is None:
+            state = not self.isExpanded
+        self._item._node.nodeIsExpanded = state
+        self.rf_expandIcon()
+
     def paint(self, painter, option, QWidget_widget=None):
         """
         Draw graphWidget
         """
         fillColor = QtGui.QColor(self._item._node._nodeColor[0], self._item._node._nodeColor[1],
                                  self._item._node._nodeColor[2], self._item._node._nodeColor[3])
-        borderColor = QtGui.QColor(255, 0, 0)
+        borderColor = QtGui.QColor(0, 0, 0)
         pen = QtGui.QPen()
         pen.setWidthF(2)
         pen.setColor(borderColor)
@@ -492,6 +632,15 @@ class GraphText(QtGui.QGraphicsTextItem):
 
 
 class GraphPlug(QtSvg.QGraphicsSvgItem):
+    """
+    GraphWidget item, child of GrapherUi.GraphScene.GraphItem
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    :param isInput: Connection input stete
+    :type isInput: bool
+    :param parent: Grapher parent item
+    :type parent: QtSvg.QGraphicsSvgItem
+    """
 
     _type = 'nodePlug'
 
@@ -581,7 +730,83 @@ class GraphPlug(QtSvg.QGraphicsSvgItem):
         self.setElementId("regular")
 
 
+class GraphButton(QtSvg.QGraphicsSvgItem):
+    """
+    GraphWidget item, child of GrapherUi.GraphScene.GraphItem
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    :param buttonType: Graph Button type ('pbEnable', 'pbExpand', 'pbUnfold')
+    :type buttonType: str
+    :param parent: Grapher parent item
+    :type parent: GraphWidget
+    """
+
+    _type = 'nodeButton'
+
+    def __init__(self, mainUi, buttonType, parent=None):
+        self.mainUi = mainUi
+        self.buttonType = buttonType
+        self.iconFile = os.path.join(self.mainUi.iconPath, 'svg', '%s.svg' % self.buttonType)
+        super(GraphButton, self).__init__(self.iconFile, parent)
+        self._setupItem()
+
+    def _setupItem(self):
+        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable)
+        self.setAcceptHoverEvents(True)
+        if self.buttonType == 'pbEnable':
+            self.setElementId("enable")
+            self.setPos(2, 6)
+        elif self.buttonType == 'pbExpand':
+            self.setElementId("expand")
+            self.setPos((self.parentItem().width - self.width - 2), 6)
+            self.setVisible(False)
+        elif self.buttonType == 'pbUnfold':
+            self.setElementId("unfold")
+            self.setPos(((self.parentItem().width / 2) - (self.width / 2)), 6)
+
+    @property
+    def nodeSize(self):
+        """
+        get graph node size
+        :return: Node size (width, height)
+        :rtype: (int, int)
+        """
+        size = (self.boundingRect().width(), self.boundingRect().height())
+        return size
+
+    @property
+    def width(self):
+        """
+        get graph node width
+        :return: Node width
+        :rtype: int
+        """
+        return self.nodeSize[0]
+
+    @property
+    def height(self):
+        """
+        get graph node height
+        :return: Node height
+        :rtype: int
+        """
+        return self.nodeSize[1]
+
+    def mousePressEvent(self, event):
+        if self.buttonType == 'pbExpand':
+            self.parentItem().set_expanded()
+
+
 class GraphLink(QtGui.QGraphicsPathItem):
+    """
+    Graphic link item, child of grapher.graphScene. Contains link connection
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    :param startItem: Start plug item
+    :type startItem: QtSvg.QGraphicsSvgItem
+    :param endItem: End plug item
+    :type endItem: QtSvg.QGraphicsSvgItem
+    """
 
     _type = "nodeLink"
 

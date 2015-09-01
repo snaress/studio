@@ -200,6 +200,9 @@ class GraphZone(object):
         """
         self.log.detail(">>> Launch menuItem 'Unselect All' ...")
         self.currentGraph.clearSelection()
+        if self.currentGraphMode == 'scene':
+            for item in self.graphScene.getAllNodes():
+                item.rf_elementId()
 
     def on_miNewNode(self, nodeType):
         """
@@ -222,7 +225,7 @@ class GraphZone(object):
         Expand or collapse node
         """
         self.log.detail(">>> Launch menuItem 'Auto Expand' ...")
-        selItems = self.graphTree.selectedItems()
+        selItems = self.currentGraph.selectedItems()
         if selItems:
             selItems[0]._widget.set_expanded(state=not selItems[0]._widget.isExpanded)
 

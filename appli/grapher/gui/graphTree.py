@@ -1,3 +1,4 @@
+import os
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
 from appli.grapher.gui.ui import graphNodeUI
@@ -8,6 +9,8 @@ class GraphTree(QtGui.QTreeWidget):
     GraphTree widget, child of GrapherUi.GraphZone
     :param mainUi: Grapher mainUi class
     :type mainUi: QtGui.QMainWindow
+    :param graphZone: GraphZone ui
+    :type graphZone: GraphZone
     """
 
     def __init__(self, mainUi, graphZone):
@@ -17,6 +20,10 @@ class GraphTree(QtGui.QTreeWidget):
         self.log.debug("\t Init GraphTree Widget.")
         self.graphZone = graphZone
         self.grapher = self.graphZone.grapher
+        self.enabledIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'enabled.png'))
+        self.disabledIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'disabled.png'))
+        self.expandIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'expand.png'))
+        self.collapseIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'collapse.png'))
         self._setupWidget()
 
     def _setupWidget(self):
@@ -59,6 +66,7 @@ class GraphTree(QtGui.QTreeWidget):
             self.log.detail("\t ---> Use given parent: %s" % nodeParent)
             parentItem = self.graphZone.getItemFromNodeName(nodeParent)
             parentItem.addChild(newItem)
+            parentItem._widget.rf_expandIconVisibility()
         #-- Parent To World --#
         else:
             self.log.detail("\t ---> Adding graph item '%s' to world ..." % grapherItem._node.nodeName)
@@ -89,7 +97,7 @@ class GraphTree(QtGui.QTreeWidget):
 class GraphItem(QtGui.QTreeWidgetItem):
     """
     GraphTree item, child of GrapherUi.GraphTree
-    :param mainUi: Fondation main window
+    :param mainUi: Grapher main window
     :type mainUi: QtGui.QMainWindow
     :param _item: Grapher item object
     :type _item: appli.grapher.core.grapher.GraphItem
@@ -137,6 +145,7 @@ class GraphWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         self.log.detail("\t ---> Setup Graph Widget --#")
         self.setupUi(self)
         self.pbExpand.clicked.connect(self.set_expanded)
+        self.pbExpand.setVisible(False)
         self.rf_label()
         self.rf_nodeColor()
         self.rf_enableIcon()
@@ -186,18 +195,27 @@ class GraphWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         Refresh enable state icon
         """
         if self._item._node.nodeIsEnabled:
-            self.pbEnable.setIcon(self.mainUi.enabledIcon)
+            self.pbEnable.setIcon(self.mainUi.graphZone.graphTree.enabledIcon)
         else:
-            self.pbEnable.setIcon(self.mainUi.disabledIcon)
+            self.pbEnable.setIcon(self.mainUi.graphZone.graphTree.disabledIcon)
 
     def rf_expandIcon(self):
         """
         Refresh expand state icon
         """
         if self._item._node.nodeIsExpanded:
-            self.pbExpand.setIcon(self.mainUi.collapseIcon)
+            self.pbExpand.setIcon(self.mainUi.graphZone.graphTree.collapseIcon)
         else:
-            self.pbExpand.setIcon(self.mainUi.expandIcon)
+            self.pbExpand.setIcon(self.mainUi.graphZone.graphTree.expandIcon)
+
+    def rf_expandIconVisibility(self):
+        """
+        Refresh expand button visibility
+        """
+        if self.pItem.childCount():
+            self.pbExpand.setVisible(True)
+        else:
+            self.pbExpand.setVisible(False)
 
     def set_nodeColor(self, rgba):
         """
