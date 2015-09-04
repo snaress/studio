@@ -59,7 +59,7 @@ class GraphTree(QtGui.QTreeWidget):
         #-- Create New Item --#
         grapherItem = self.grapher.tree.getItemFromNodeName(nodeName)
         newItem = GraphItem(self.mainUi, grapherItem)
-        newItem._widget = GraphWidget2(newItem)
+        newItem._widget = GraphWidget(newItem)
         #-- Use Given Parent --#
         if nodeParent is not None:
             self.log.detail("\t ---> Use given parent: %s" % nodeParent)
@@ -129,78 +129,22 @@ class GraphItem(QtGui.QTreeWidgetItem):
         self.treeWidget().rf_graphColumns()
 
 
-class GraphWidget2(graphWgts.ItemWidget):
-
-    def __init__(self, pItem):
-        self.pItem = pItem
-        super(GraphWidget2, self).__init__(self.pItem)
-        self.pTree = self.pItem.treeWidget()
-
-    def rf_expandIconVisibility(self):
-        """
-        Refresh expand button visibility
-        """
-        if self.pItem.childCount():
-            self.pbExpand.setVisible(True)
-        else:
-            self.pbExpand.setVisible(False)
-
-
-
-class GraphWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
+class GraphWidget(graphWgts.ItemWidget):
     """
     GraphTreeItem widget, child of GrapherUi.GraphTree.GraphItem
+
     :param pItem: Parent item
     :type pItem: QtGui.QTreeWidgetItem
     """
 
     def __init__(self, pItem):
         self.pItem = pItem
-        self.mainUi = self.pItem.mainUi
-        self.log = self.mainUi.log
-        self.log.detail("\t ---> Init Graph Widget --#")
+        super(GraphWidget, self).__init__(self.pItem)
         self.pTree = self.pItem.treeWidget()
-        self._item = self.pItem._item
-        super(GraphWidget, self).__init__()
-        self._setupWidget()
+        self._setupNode()
 
-    # noinspection PyUnresolvedReferences
-    def _setupWidget(self):
-        self.log.detail("\t ---> Setup Graph Widget --#")
-        self.setupUi(self)
-        self.pbExpand.clicked.connect(self.set_expanded)
-        self.pbExpand.setVisible(False)
+    def _setupNode(self):
         self.rf_label()
-        self.rf_nodeColor()
-        self.rf_enableIcon()
-        self.rf_expandIcon()
-
-    @property
-    def isEnabled(self):
-        """
-        Get node enable state from grapher nodeObject
-        :return: Node enable state
-        :rtype: bool
-        """
-        return self._item._node.nodeIsEnabled
-
-    @property
-    def isActive(self):
-        """
-        Get node active state from grapher nodeObject
-        :return: Node active state
-        :rtype: bool
-        """
-        return self._item._node.nodeIsActive
-
-    @property
-    def isExpanded(self):
-        """
-        Get node expanded state from grapher nodeObject
-        :return: Node expanded state
-        :rtype: bool
-        """
-        return self._item._node.nodeIsExpanded
 
     def rf_label(self):
         """
@@ -208,30 +152,6 @@ class GraphWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         """
         self.lNodeName.setText(self._item._node.nodeName)
 
-    def rf_nodeColor(self):
-        """
-        Refresh graphNode color
-        """
-        self.set_nodeColor(self._item._node._nodeColor)
-
-    def rf_enableIcon(self):
-        """
-        Refresh enable state icon
-        """
-        if self._item._node.nodeIsEnabled:
-            self.pbEnable.setIcon(self.mainUi.graphZone.enabledIcon)
-        else:
-            self.pbEnable.setIcon(self.mainUi.graphZone.disabledIcon)
-
-    def rf_expandIcon(self):
-        """
-        Refresh expand state icon
-        """
-        if self._item._node.nodeIsExpanded:
-            self.pbExpand.setIcon(self.mainUi.graphZone.collapseIcon)
-        else:
-            self.pbExpand.setIcon(self.mainUi.graphZone.expandIcon)
-
     def rf_expandIconVisibility(self):
         """
         Refresh expand button visibility
@@ -240,25 +160,3 @@ class GraphWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
             self.pbExpand.setVisible(True)
         else:
             self.pbExpand.setVisible(False)
-
-    def set_nodeColor(self, rgba):
-        """
-        Set graphNode color (used for highlighting selected items)
-        :param rgba: GraphNode color
-        :type rgba: tuple
-        """
-        self.setStyleSheet("background-color: rgba(%s, %s, %s, %s)" % (rgba[0], rgba[1], rgba[2], rgba[3]))
-
-    def set_expanded(self, state=None):
-        """
-        Set graphNode expanded with given state
-        :param state: Expand state
-        :type state: bool
-        """
-        if state is None:
-            state = self.pbExpand.isChecked()
-        else:
-            self.pbExpand.setChecked(state)
-        self._item._node.nodeIsExpanded = state
-        self.pItem.setExpanded(state)
-        self.rf_expandIcon()

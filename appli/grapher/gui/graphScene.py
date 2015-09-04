@@ -343,7 +343,7 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
     def _setupWidgets(self):
         self.log.detail("\t ---> Setup Graph Item Widgets --#")
         self._label = graphWgts.GraphText(self._item._node.nodeName, txtType='label', parent=self)
-        self._widget = GraphWidget2(parent=self)
+        self._widget = GraphWidget(parent=self)
         self._plugIn = graphWgts.GraphPlug(self.mainUi, isInput=True, parent=self)
         self._plugOut = graphWgts.GraphPlug(self.mainUi, parent=self)
 
@@ -442,12 +442,18 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
             self.setPos(0, self.pos().y())
 
 
-class GraphWidget2(QtGui.QGraphicsProxyWidget):
+class GraphWidget(QtGui.QGraphicsProxyWidget):
+    """
+    GraphSceneItem widget, child of GrapherUi.GraphScene.GraphItem
+
+    :param parent: Parent item
+    :type parent: QtSvg.QGraphicsSvgItem
+    """
 
     _type = "nodeWidget"
 
     def __init__(self, parent=None):
-        super(GraphWidget2, self).__init__(parent)
+        super(GraphWidget, self).__init__(parent)
         self.mainUi = self.parentItem().mainUi
         self._item = self.parentItem()._item
         self._setupItem()
@@ -486,137 +492,3 @@ class GraphWidget2(QtGui.QGraphicsProxyWidget):
         widget.pbExpand.setMaximumSize(pbSize, pbSize)
         widget.pbExpand.setIconSize(QtCore.QSize(pbSize, pbSize))
         return widget
-
-
-
-class GraphWidget(QtGui.QGraphicsRectItem):
-    """
-    GraphWidget item, child of GrapherUi.GraphScene.GraphItem
-    :param parent: Grapher parent item
-    :type parent: QtSvg.QGraphicsSvgItem
-    """
-
-    _type = "nodeWidget"
-
-    def __init__(self, parent=None):
-        super(GraphWidget, self).__init__(parent)
-        self._item = self.parentItem()._item
-        self._setupItem()
-
-    def _setupItem(self):
-        self.setFlags(QtGui.QGraphicsItem.ItemIsSelectable|
-                      QtGui.QGraphicsItem.ItemIsFocusable)
-        self.setRect(0, 0, 300, 50)
-        self.setZValue(-1)
-        self.setPos(0, 76)
-
-    @property
-    def nodeSize(self):
-        """
-        get graph node size
-        :return: Node size (width, height)
-        :rtype: (int, int)
-        """
-        size = (self.boundingRect().width(), self.boundingRect().height())
-        return size
-
-    @property
-    def width(self):
-        """
-        get graph node width
-        :return: Node width
-        :rtype: int
-        """
-        return self.nodeSize[0]
-
-    @property
-    def height(self):
-        """
-        get graph node height
-        :return: Node height
-        :rtype: int
-        """
-        return self.nodeSize[1]
-
-    @property
-    def isEnabled(self):
-        """
-        Get node enable state from grapher nodeObject
-        :return: Node enable state
-        :rtype: bool
-        """
-        return self._item._node.nodeIsEnabled
-
-    @property
-    def isActive(self):
-        """
-        Get node active state from grapher nodeObject
-        :return: Node active state
-        :rtype: bool
-        """
-        return self._item._node.nodeIsActive
-
-    @property
-    def isExpanded(self):
-        """
-        Get node expanded state from grapher nodeObject
-        :return: Node expanded state
-        :rtype: bool
-        """
-        return self._item._node.nodeIsExpanded
-
-    def rf_enableIcon(self):
-        """
-        Refresh enable state icon
-        """
-        if self._item._node.nodeIsEnabled:
-            self.parentItem()._pbEnable.setElementId('enable')
-        else:
-            self.parentItem()._pbEnable.setElementId('disable')
-
-    def rf_expandIcon(self):
-        """
-        Refresh expand state icon
-        """
-        if self._item._node.nodeIsExpanded:
-            self.parentItem()._pbExpand.setElementId('collapse')
-        else:
-            self.parentItem()._pbExpand.setElementId('expand')
-
-    def rf_expandIconVisibility(self):
-        """
-        Refresh expand button visibility
-        """
-        if self.parentItem()._plugOut._children():
-            self.parentItem()._pbExpand.setVisible(True)
-        else:
-            self.parentItem()._pbExpand.setVisible(True)
-
-    def set_expanded(self, state=None):
-        """
-        Set graphNode expanded with given state
-        :param state: Expand state
-        :type state: bool
-        """
-        if state is None:
-            state = not self.isExpanded
-        self._item._node.nodeIsExpanded = state
-        self.rf_expandIcon()
-
-    def paint(self, painter, option, QWidget_widget=None):
-        """
-        Draw graphWidget
-        """
-        fillColor = QtGui.QColor(self._item._node._nodeColor[0], self._item._node._nodeColor[1],
-                                 self._item._node._nodeColor[2], self._item._node._nodeColor[3])
-        borderColor = QtGui.QColor(0, 0, 0)
-        pen = QtGui.QPen()
-        pen.setWidthF(2)
-        pen.setColor(borderColor)
-        brush = QtGui.QBrush(fillColor)
-        painter.setPen(pen)
-        painter.setBrush(brush)
-        painter.drawRect(self.rect())
-
-
-

@@ -1,9 +1,50 @@
+"""
+Usage:
+
+Init Grapher:
+-------------
+gp = Grapher(logLvl='debug')
+
+Create Node:
+------------
+newItem = gp.tree.createItem(nodeType='modul', nodeName='myNodeName_1', nodeParent='nodeParentName_#')
+
+Get Node:
+---------
+myItem = gp.tree.getItemFromNodeName('myNodeName_1')
+
+Parent Node:
+------------
+myItem.setParent(GraphItem)
+
+delete Node:
+------------
+myItem.delete()
+
+Get Tree Datas:
+---------------
+treeDict = gp.tree.getDatas()
+print gp.tree.getDatas(asString=True)
+
+get Node Datas:
+---------------
+nodeDict = myNodeName_1.getDatas()
+print myNodeName_1.getDatas(asString=True)
+"""
+
+
 import os, pprint
 from lib.system import procFile as pFile
 from appli.grapher.core import graphNodes
 
 
 class Grapher(object):
+    """
+    Grapher core
+
+    :param logLvl: Verbose ('critical', 'error', 'warning', 'info', 'debug', 'detail')
+    :type logLvl: str
+    """
 
     _isReadOnly = False
     _graphFile = None
@@ -93,6 +134,12 @@ class Grapher(object):
 
 
 class GraphTree(object):
+    """
+    Grapher tree, child of Grapher
+
+    :param grapher: Grapher core
+    :type grapher: Grapher
+    """
 
     def __init__(self, grapher=None):
         self.gp = grapher
@@ -234,15 +281,6 @@ class GraphTree(object):
             item._parent = parent
         return item
 
-    def deleteGraphNodes(self, items):
-        """
-        Delete given items
-
-        :param items: Graph items
-        :type items: list
-        """
-        pass
-
     def printData(self):
         """
         Print tree datas
@@ -251,6 +289,14 @@ class GraphTree(object):
 
 
 class GraphItem(object):
+    """
+    Grapher tree item, child of Grapher.GraphTree
+
+    :param treeObject: Grapher tree
+    :type treeObject: GraphTree
+    :param nodeObject: Grapher node
+    :type nodeObject: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData | graphNodes.PyData
+    """
 
     def __init__(self, treeObject, nodeObject):
         self._tree = treeObject
@@ -351,18 +397,6 @@ class GraphItem(object):
 
 if __name__ == '__main__':
     gp = Grapher(logLvl='debug')
-    gp.tree.createItem()
-    gp.tree.createItem()
-    gp.tree.createItem(nodeParent='modul_2')
-    gp.tree.createItem(nodeParent='modul_3')
-    print '#' * 120
-    print gp.tree.getDatas(asString=True)
-    item1 = gp.tree.getItemFromNodeName('modul_3')
-    item2 = gp.tree.getItemFromNodeName('modul_1')
-    item1.setParent(item2)
-    print '#' * 120
-    print gp.tree.getDatas(asString=True)
-    itemToDel = gp.tree.getItemFromNodeName('modul_4')
-    itemToDel.delete()
+    gp.tree.createItem(nodeName='toto_1')
     print '#' * 120
     print gp.tree.getDatas(asString=True)
