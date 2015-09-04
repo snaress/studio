@@ -41,6 +41,7 @@ class Grapher(object):
     def graphFile(self, gpFile):
         """
         Set graphFile with given value
+
         :param gpFile: Grapher file full path
         :type gpFile: str
         """
@@ -53,6 +54,7 @@ class Grapher(object):
     def conformNewNodeName(self, nodeName):
         """
         Check new nodeName and return a unique name
+
         :param nodeName: New nodeName
         :type nodeName: str
         :return: New valide node name
@@ -101,6 +103,7 @@ class GraphTree(object):
     def getDatas(self, asString=False):
         """
         GraphTree datas as dict or string
+
         :param asString: Return string instead of dict
         :type asString: bool
         :return: Tree contents
@@ -118,6 +121,7 @@ class GraphTree(object):
     def topItems(self, asString=False):
         """
         Get tree top items
+
         :param asString: Return list of strings instead of objects
         :type asString: bool
         :return: Tree top nodes
@@ -135,6 +139,7 @@ class GraphTree(object):
     def allItems(self, asString=False):
         """
         Get tree all items
+
         :param asString: Return list of strings instead of objects
         :type asString: bool
         :return: Tree top nodes
@@ -157,6 +162,7 @@ class GraphTree(object):
     def getItemFromNodeName(self, nodeName):
         """
         Get item from given node name
+
         :param nodeName: Node name
         :type nodeName: str
         :return: Tree item
@@ -169,6 +175,7 @@ class GraphTree(object):
     def createItem(self, nodeType='modul', nodeName=None, nodeParent=None):
         """
         Create and add new tree item
+
         :param nodeType: 'modul', 'sysData', 'cmdData', 'pyData'
         :type nodeType: str
         :param nodeName: New node name
@@ -187,6 +194,7 @@ class GraphTree(object):
     def _newItem(self, nodeType, nodeName):
         """
         Create new tree item
+
         :param nodeType: 'modul', 'sysData', 'cmdData', 'pyData'
         :type nodeType: str
         :param nodeName: New node name
@@ -207,6 +215,7 @@ class GraphTree(object):
     def _addItem(self, item, parent=None):
         """
         Add given item to tree
+
         :param item: Tree item
         :rtype: Modul | SysData | CmdData | PyData
         :param parent: New node parent
@@ -228,6 +237,7 @@ class GraphTree(object):
     def deleteGraphNodes(self, items):
         """
         Delete given items
+
         :param items: Graph items
         :type items: list
         """
@@ -254,6 +264,7 @@ class GraphItem(object):
     def getDatas(self, asString=False):
         """
         Get graphItem datas as dict or string
+
         :param asString: Return string instead of dict
         :type asString: bool
         :return: Item contents
@@ -291,11 +302,14 @@ class GraphItem(object):
         return children
 
     def allChildren(self, depth=-1):
-        """ Get node all children
-            :param depth: Number of recursion (-1 = infinite)
-            :type depth: int
-            :return: Node children
-            :rtype: list """
+        """
+        Get node all children
+
+        :param depth: Number of recursion (-1 = infinite)
+        :type depth: int
+        :return: Node children
+        :rtype: list
+        """
         children = []
         #-- Recurse Function --#
         def recurse(currentItem, depth):
@@ -312,6 +326,7 @@ class GraphItem(object):
     def setParent(self, graphItem):
         """
         Parent item to given GraphItem
+
         :param graphItem: Parent item
         :type graphItem: GraphItem
         """
@@ -324,6 +339,9 @@ class GraphItem(object):
         self._parent._children.append(self)
 
     def delete(self):
+        """
+        Delete GraphItem
+        """
         if self._parent is None:
             self._tree._topItems.remove(self)
         else:

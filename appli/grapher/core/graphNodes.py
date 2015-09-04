@@ -14,6 +14,7 @@ class Node(object):
     def getDatas(self, asString=False):
         """
         get GraphNode datas as dict or string
+
         :param asString: Return string instead of dict
         :type asString: bool
         :return: Node contents
@@ -32,6 +33,7 @@ class Node(object):
     def listAttrs(self):
         """
         List all attributes
+
         :return: Attributes
         :rtype: list
         """

@@ -7,6 +7,7 @@ from appli.grapher.gui.ui import toolsTabUI
 class GraphTools(QtGui.QTabWidget):
     """
     Fondation tools tab widget, child of GrapherUi
+
     :param mainUi: Fondation main window
     :type mainUi: QtGui.QMainWindow
     """
@@ -30,6 +31,7 @@ class GraphTools(QtGui.QTabWidget):
     def tabOrientation(self, orient):
         """
         Edit tools tab orientation
+
         :param orient: 'North', 'South', 'West', 'East'
         :type orient: str
         """
@@ -75,6 +77,7 @@ class GraphTools(QtGui.QTabWidget):
 class ToolsTab(QtGui.QWidget, toolsTabUI.Ui_wgToolsTab):
     """
     Fondation tools tab widget, child of GrapherUi.GraphTools
+
     :param mainUi: Fondation main window
     :type mainUi: QtGui.QMainWindow
     :param tabWidget: Parent tabWidget
@@ -98,6 +101,7 @@ class ToolsTab(QtGui.QWidget, toolsTabUI.Ui_wgToolsTab):
     def setOrientation(self, orient):
         """
         Edit tools orientation
+
         :param orient: 'horizontal' or 'vertical'
         :type orient: str
         """
@@ -123,6 +127,7 @@ class ToolsTab(QtGui.QWidget, toolsTabUI.Ui_wgToolsTab):
     def newTool(self, name, cmd=None, iconFile=None):
         """
         Add tool to tab
+
         :param name: Tool button name
         :type name: str
         :param cmd: Tool button command
@@ -148,6 +153,7 @@ class ToolsTab(QtGui.QWidget, toolsTabUI.Ui_wgToolsTab):
 class TabUtil(ToolsTab):
     """
     Util tool tab template, GrapherUi.GraphTools.ToolsTab
+
     :param mainUi: Fondation main window
     :type mainUi: QtGui.QMainWindow
     :param tabWidget: Parent tabWidget

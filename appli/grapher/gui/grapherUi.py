@@ -11,6 +11,7 @@ from appli.grapher.gui import graphZone, toolsWgts, nodeEditor
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     """
     Grapher main ui
+
     :param logLvl: Verbose ('critical', 'error', 'warning', 'info', 'debug', 'detail')
     :type logLvl: str
     """
@@ -89,6 +90,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def toolsIconOnly(self):
         """
         Get tools icon only state
+
         :return: Tools icon only state
         :rtype: bool
         """
@@ -97,6 +99,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def on_miToolsOrientChanged(self, orient=False, force=False):
         """
         Orient toolsTab and their contents
+
         :param orient: 'horizontal' or 'vertical'
         :type orient: str
         :param force: Force orientation
@@ -121,6 +124,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def on_miTabOrientChanged(self, orient):
         """
         Command launched when 'Tab Orient' QMenuItem is triggered
+
         Orient tab contents
         :param orient: 'North', 'South', 'West' or 'East'
         :type orient: str
@@ -131,6 +135,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def on_miToolsVisibility(self):
         """
         Command launched when 'Tools Visibility' QMenuItem is triggered
+
         Turn on or off tools bar visibility
         """
         self.log.detail(">>> Launch menuItem 'Tools Visibility' ...")
@@ -139,6 +144,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def on_miNodeEditor(self):
         """
         Command launched when 'Node Editor' QMenuItem is triggered
+
         Show / Hide node editor
         """
         self.log.detail(">>> Launch menuItem 'Node Editor' ...")
@@ -147,6 +153,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def on_miGraphScene(self):
         """
         Command launched when 'Graph View' QMenuItem is triggered
+
         Show / Hide Graph View
         """
         self.log.detail(">>> Launch menuItem 'Switch Graph Mode' ...")
@@ -157,6 +164,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def on_miToolsIconOnly(self):
         """
         Command launched when 'Tools Icon Only' QMenuItem is triggered
+
         Switch toolsTab aspect
         """
         self.log.detail(">>> Launch menuItem 'Tools Icon Only' ...")
@@ -166,6 +174,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
 def launch(logLvl='info'):
     """
     Grapher launcher
+
     :param logLvl: Log level ('critical', 'error', 'warning', 'info', 'debug', 'detail')
     :type logLvl: str
     """

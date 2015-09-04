@@ -1,3 +1,4 @@
+import os
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
@@ -7,6 +8,7 @@ from appli.grapher.gui import graphTree, graphScene
 class GraphZone(object):
     """
     GraphZone widget, child of GrapherUi
+
     :param mainUi: Grapher mainUi class
     :type mainUi: QtGui.QMainWindow
     """
@@ -17,6 +19,10 @@ class GraphZone(object):
         self.log.debug("\t Init GraphZone Widget.")
         self.grapher = self.mainUi.grapher
         self.graphTree = None
+        self.enabledIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'enabled.png'))
+        self.disabledIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'disabled.png'))
+        self.expandIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'expand.png'))
+        self.collapseIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'collapse.png'))
         self._setupWidget()
 
     def _setupWidget(self):
@@ -33,6 +39,7 @@ class GraphZone(object):
     def currentGraphMode(self):
         """
         Get GraphZone mode
+
         :return: GraphZone mode ('tree' or 'scene')
         :rtype: str
         """
@@ -45,6 +52,7 @@ class GraphZone(object):
     def currentGraph(self):
         """
         Get current GraphZone widget
+
         :return: GraphZone widget ('self.graphTree' or 'self.graphScene')
         :rtype: GrapherUi.GraphTree | GrapherUi.GraphScene
         """
@@ -56,6 +64,7 @@ class GraphZone(object):
     def commonMenuActions(self):
         """
         Common gaph menu actions
+
         :return: Graph menu actions
         :rtype: dict
         """
@@ -80,6 +89,7 @@ class GraphZone(object):
     def sceneMenuActions(self):
         """
         GraphScene specific menu actions
+
         :return: Scene menu actions
         :rtype: dict
         """
@@ -89,6 +99,7 @@ class GraphZone(object):
     def buildMenu(self, QMenu):
         """
         Build graph menu
+
         :param QMenu: Graph menu
         :type QMenu: QtGui.QMenu
         """
@@ -118,6 +129,7 @@ class GraphZone(object):
     def newMenuItem(QMenu, _type, title, key, cmd):
         """
         Add menu item to given menu
+
         :param QMenu: Menu to build
         :type QMenu: QtGui.QMenu
         :param _type: Item type ('menu', 'item' or 'sep')
@@ -141,6 +153,7 @@ class GraphZone(object):
     def buildGraph(self, treeDict, clear=False):
         """
         Build graph tree from given params
+
         :param treeDict: Tree params
         :type treeDict: dict
         """
@@ -163,6 +176,7 @@ class GraphZone(object):
     def deleteGraphNodes(self, items):
         """
         Delete given items
+
         :param items: Graph items
         :type items: list
         """
@@ -173,6 +187,7 @@ class GraphZone(object):
     def getItemFromNodeName(self, nodeName):
         """
         Get graphItem from given node name
+
         :param nodeName: Node name
         :type nodeName: str
         :return: graphTree item
@@ -188,7 +203,9 @@ class GraphZone(object):
 
     def on_miRefresh(self):
         """
-        Command launched when 'Refresh' QMenuItem is triggered. Refresh current graph.
+        Command launched when 'Refresh' QMenuItem is triggered.
+
+        Refresh current graph.
         """
         self.log.detail(">>> Launch menuItem 'Refresh' ...")
         self.refreshGraph()
@@ -196,6 +213,7 @@ class GraphZone(object):
     def on_miUnselectAll(self):
         """
         Command launched when 'Unselect All' QMenuItem is triggered.
+
         Clear graph selection.
         """
         self.log.detail(">>> Launch menuItem 'Unselect All' ...")
@@ -207,6 +225,7 @@ class GraphZone(object):
     def on_miNewNode(self, nodeType):
         """
         Command launched when 'New Node' QMenuItem is triggered.
+
         Create new node (modul)
         :param nodeType: Graph node type ('modul', 'sysData', 'cmdData', 'pyData', 'loop', 'condition')
         :type nodeType: str
@@ -222,6 +241,7 @@ class GraphZone(object):
     def on_miAutoExpand(self):
         """
         Command launched when 'Auto Expand' QMenuItem is triggered.
+
         Expand or collapse node
         """
         self.log.detail(">>> Launch menuItem 'Auto Expand' ...")
@@ -232,6 +252,7 @@ class GraphZone(object):
     def on_miDelSelected(self):
         """
         Command launched when 'Del Selected' QMenuItem is triggered.
+
         Delete selected nodes
         """
         self.log.detail(">>> Launch menuItem 'Del Selected' ...")
@@ -244,6 +265,7 @@ class GraphZone(object):
 class GraphView(QtGui.QGraphicsView):
     """
     GraphView widget, child of Fondation
+
     :param mainUi: Fondation main window
     :type mainUi: QtGui.QMainWindow
     :param graphScene: Graph scene

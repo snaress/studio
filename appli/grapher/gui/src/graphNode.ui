@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>205</width>
+    <width>200</width>
     <height>30</height>
    </rect>
   </property>
@@ -213,7 +213,6 @@
   </layout>
   <zorder>line_5</zorder>
   <zorder>line_6</zorder>
-  <zorder>lNodeName</zorder>
  </widget>
  <resources/>
  <connections/>

@@ -1,12 +1,14 @@
 import os
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
+from appli.grapher.gui import graphWgts
 from appli.grapher.gui.ui import graphNodeUI
 
 
 class GraphTree(QtGui.QTreeWidget):
     """
     GraphTree widget, child of GrapherUi.GraphZone
+
     :param mainUi: Grapher mainUi class
     :type mainUi: QtGui.QMainWindow
     :param graphZone: GraphZone ui
@@ -20,10 +22,6 @@ class GraphTree(QtGui.QTreeWidget):
         self.log.debug("\t Init GraphTree Widget.")
         self.graphZone = graphZone
         self.grapher = self.graphZone.grapher
-        self.enabledIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'enabled.png'))
-        self.disabledIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'disabled.png'))
-        self.expandIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'expand.png'))
-        self.collapseIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'collapse.png'))
         self._setupWidget()
 
     def _setupWidget(self):
@@ -47,6 +45,7 @@ class GraphTree(QtGui.QTreeWidget):
     def createGraphNode(self, nodeType='modul', nodeName=None, nodeParent=None):
         """
         Add new graphNode to tree
+
         :param nodeType: Graph node type ('modul', 'sysData', 'cmdData', 'pyData', 'loop', 'condition')
         :type nodeType: str
         :param nodeName: Graph node name
@@ -60,7 +59,7 @@ class GraphTree(QtGui.QTreeWidget):
         #-- Create New Item --#
         grapherItem = self.grapher.tree.getItemFromNodeName(nodeName)
         newItem = GraphItem(self.mainUi, grapherItem)
-        newItem._widget = GraphWidget(newItem)
+        newItem._widget = GraphWidget2(newItem)
         #-- Use Given Parent --#
         if nodeParent is not None:
             self.log.detail("\t ---> Use given parent: %s" % nodeParent)
@@ -75,7 +74,9 @@ class GraphTree(QtGui.QTreeWidget):
 
     def selectionChanged(self, event, options):
         """
-        Add options: Update selected / deselected node color
+        Add options:
+
+        Update selected / deselected node color
         """
         super(GraphTree, self).selectionChanged(event, options)
         for item in pQt.getAllItems(self):
@@ -86,7 +87,9 @@ class GraphTree(QtGui.QTreeWidget):
 
     def addTopLevelItem(self, QTreeWidgetItem):
         """
-        Add options: Insert widget, refresh columns
+        Add options:
+
+        Insert widget, refresh columns
         """
         super(GraphTree, self).addTopLevelItem(QTreeWidgetItem)
         QTreeWidgetItem._column = 0
@@ -97,6 +100,7 @@ class GraphTree(QtGui.QTreeWidget):
 class GraphItem(QtGui.QTreeWidgetItem):
     """
     GraphTree item, child of GrapherUi.GraphTree
+
     :param mainUi: Grapher main window
     :type mainUi: QtGui.QMainWindow
     :param _item: Grapher item object
@@ -114,13 +118,33 @@ class GraphItem(QtGui.QTreeWidgetItem):
 
     def addChild(self, QTreeWidgetItem):
         """
-        Add options: Insert widget, refresh columns
+        Add options:
+
+        Add widget, refresh columns
         """
         super(GraphItem, self).addChild(QTreeWidgetItem)
         self._widget.set_expanded(True)
         QTreeWidgetItem._column = self._column + 1
         self.treeWidget().setItemWidget(QTreeWidgetItem, QTreeWidgetItem._column, QTreeWidgetItem._widget)
         self.treeWidget().rf_graphColumns()
+
+
+class GraphWidget2(graphWgts.ItemWidget):
+
+    def __init__(self, pItem):
+        self.pItem = pItem
+        super(GraphWidget2, self).__init__(self.pItem)
+        self.pTree = self.pItem.treeWidget()
+
+    def rf_expandIconVisibility(self):
+        """
+        Refresh expand button visibility
+        """
+        if self.pItem.childCount():
+            self.pbExpand.setVisible(True)
+        else:
+            self.pbExpand.setVisible(False)
+
 
 
 class GraphWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
@@ -195,18 +219,18 @@ class GraphWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         Refresh enable state icon
         """
         if self._item._node.nodeIsEnabled:
-            self.pbEnable.setIcon(self.mainUi.graphZone.graphTree.enabledIcon)
+            self.pbEnable.setIcon(self.mainUi.graphZone.enabledIcon)
         else:
-            self.pbEnable.setIcon(self.mainUi.graphZone.graphTree.disabledIcon)
+            self.pbEnable.setIcon(self.mainUi.graphZone.disabledIcon)
 
     def rf_expandIcon(self):
         """
         Refresh expand state icon
         """
         if self._item._node.nodeIsExpanded:
-            self.pbExpand.setIcon(self.mainUi.graphZone.graphTree.collapseIcon)
+            self.pbExpand.setIcon(self.mainUi.graphZone.collapseIcon)
         else:
-            self.pbExpand.setIcon(self.mainUi.graphZone.graphTree.expandIcon)
+            self.pbExpand.setIcon(self.mainUi.graphZone.expandIcon)
 
     def rf_expandIconVisibility(self):
         """

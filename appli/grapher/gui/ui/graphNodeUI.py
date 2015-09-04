@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\graphNode.ui'
 #
-# Created: Sat Aug 29 14:35:50 2015
+# Created: Thu Sep 03 02:19:44 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgGraphNode(object):
     def setupUi(self, wgGraphNode):
         wgGraphNode.setObjectName(_fromUtf8("wgGraphNode"))
-        wgGraphNode.resize(205, 30)
+        wgGraphNode.resize(200, 30)
         wgGraphNode.setMinimumSize(QtCore.QSize(150, 0))
         self.gridLayout = QtGui.QGridLayout(wgGraphNode)
         self.gridLayout.setMargin(0)
