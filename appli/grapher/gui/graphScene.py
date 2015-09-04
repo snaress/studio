@@ -306,6 +306,15 @@ class GraphScene(QtGui.QGraphicsScene):
         self._drawLine()
         self.graphZone.sceneView.setDragMode(QtGui.QGraphicsView.NoDrag)
         super(GraphScene, self).mouseReleaseEvent(event)
+        #-- Refresh Element Id --#
+        for graphItem in self.getAllNodes():
+            graphItem.rf_elementId()
+        else:
+            item = self.itemAt(event.scenePos())
+            if item is not None:
+                if item._type == 'nodeWidget':
+                    item.parentItem().setSelected(True)
+                    item.parentItem().rf_elementId()
 
 
 class GraphItem(QtSvg.QGraphicsSvgItem):
