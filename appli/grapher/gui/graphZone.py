@@ -23,6 +23,8 @@ class GraphZone(object):
         self.disabledIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'disabled.png'))
         self.expandIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'expand.png'))
         self.collapseIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'collapse.png'))
+        self.unfoldIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'arrowDnBlue.png'))
+        self.foldIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'arrowUpBlue.png'))
         self._setupWidget()
 
     def _setupWidget(self):
@@ -162,10 +164,16 @@ class GraphZone(object):
         if clear:
             self.currentGraph.clear()
         #-- Build --#
+        datasDict = {}
         for n in sorted(treeDict.keys()):
-            self.currentGraph.createGraphNode(nodeType=treeDict[n]['nodeType'],
-                                              nodeName=treeDict[n]['nodeName'],
-                                              nodeParent=treeDict[n]['parent'])
+            newItem = self.currentGraph.createGraphNode(nodeType=treeDict[n]['nodeType'],
+                                                        nodeName=treeDict[n]['nodeName'],
+                                                        nodeParent=treeDict[n]['parent'])
+            datasDict[n] = {newItem: treeDict[n]}
+        #-- Update --#
+        for n in sorted(datasDict.keys()):
+            for k, v in datasDict[n].iteritems():
+                k.update(v)
 
     def refreshGraph(self):
         """

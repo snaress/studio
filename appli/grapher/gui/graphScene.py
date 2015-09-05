@@ -5,7 +5,7 @@ from appli.grapher.gui import graphWgts
 
 class GraphScene(QtGui.QGraphicsScene):
     """
-    GraphScene widget, child of Grapher.GraphView
+    GraphScene widget, child of GrapherUi.GraphView
 
     :param mainUi: Grapher main window
     :type mainUi: QtGui.QMainWindow
@@ -126,10 +126,11 @@ class GraphScene(QtGui.QGraphicsScene):
         maxX = 0
         maxY = 0
         for item in items:
-            if item.x() > maxX:
-                maxX = item.x()
-            if item.y() > maxY:
-                maxY = item.y()
+            if item.isVisible():
+                if item.x() > maxX:
+                    maxX = item.x()
+                if item.y() > maxY:
+                    maxY = item.y()
         return maxX, maxY
 
     def futurPos(self, item, parentItem=None):
@@ -319,7 +320,7 @@ class GraphScene(QtGui.QGraphicsScene):
 
 class GraphItem(QtSvg.QGraphicsSvgItem):
     """
-    GraphTree item, child of GrapherUi.GraphScene
+    GraphScene item, child of GrapherUi.GraphView.GraphScene
 
     :param mainUi: Grapher main window
     :type mainUi: QtGui.QMainWindow
@@ -450,10 +451,21 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
         if self._column == 0:
             self.setPos(0, self.pos().y())
 
+    def update(self, nodeDict):
+        """
+        Update GraphItem with given GrapherCore nodeDict
+
+        :param nodeDict: Node params
+        :type nodeDict: dict
+        """
+        for k, v in nodeDict.iteritems():
+            if k == 'nodeIsExpanded':
+                self._widget.widget().set_expanded(v)
+
 
 class GraphWidget(QtGui.QGraphicsProxyWidget):
     """
-    GraphSceneItem widget, child of GrapherUi.GraphScene.GraphItem
+    GraphSceneItem widget, child of GrapherUi.GraphView.GraphScene.GraphItem
 
     :param parent: Parent item
     :type parent: QtSvg.QGraphicsSvgItem
@@ -469,9 +481,11 @@ class GraphWidget(QtGui.QGraphicsProxyWidget):
 
     def _setupItem(self):
         self.setWidget(self.newWidget())
+        self.widget().pbUnfold.clicked.connect(self.setUnfold)
         self.setMinimumSize(302, 44)
         self.setMaximumSize(302, 44)
         self.setPos(0, 80)
+        self.rf_unfoldIcon()
 
     def rf_expandIconVisibility(self):
         """
@@ -482,8 +496,33 @@ class GraphWidget(QtGui.QGraphicsProxyWidget):
         else:
             self.widget().pbExpand.setVisible(True)
 
+    def rf_unfoldIcon(self):
+        """
+        Refresh unfold state icon
+        """
+        if self.widget().pbUnfold.isChecked():
+            self.widget().pbUnfold.setIcon(self.mainUi.graphZone.foldIcon)
+        else:
+            self.widget().pbUnfold.setIcon(self.mainUi.graphZone.unfoldIcon)
+
     def setExpanded(self, state):
-        pass
+        """
+        Set GraphItem expanded
+
+        :param state: Item expanded state
+        :type state: bool
+        """
+        items = self.scene().getAllChildren(self.parentItem())
+        for n, item in enumerate(items):
+            if item._plugOut.connections:
+                for link in item._plugOut.connections:
+                    link.setVisible(state)
+            if n > 0:
+                item.setVisible(item._plugIn._parent()._widget.widget().isExpanded)
+                item._plugIn.connections[0].setVisible(item._plugIn._parent()._widget.widget().isExpanded)
+
+    def setUnfold(self):
+        self.rf_unfoldIcon()
 
     def newWidget(self):
         """
@@ -494,10 +533,9 @@ class GraphWidget(QtGui.QGraphicsProxyWidget):
         """
         pbSize = 36
         widget = graphWgts.ItemWidget(self)
-        widget.pbEnable.setMinimumSize(pbSize, pbSize)
-        widget.pbEnable.setMaximumSize(pbSize, pbSize)
-        widget.pbEnable.setIconSize(QtCore.QSize(pbSize, pbSize))
-        widget.pbExpand.setMinimumSize(pbSize, pbSize)
-        widget.pbExpand.setMaximumSize(pbSize, pbSize)
-        widget.pbExpand.setIconSize(QtCore.QSize(pbSize, pbSize))
+        widget.lNodeName.setVisible(False)
+        for pb in [widget.pbEnable, widget.pbExpand, widget.pbUnfold]:
+            pb.setMinimumSize(pbSize, pbSize)
+            pb.setMaximumSize(pbSize, pbSize)
+            pb.setIconSize(QtCore.QSize(pbSize, pbSize))
         return widget

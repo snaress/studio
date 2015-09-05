@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\graphNode.ui'
 #
-# Created: Thu Sep 03 02:19:44 2015
+# Created: Sat Sep 05 10:30:23 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgGraphNode(object):
     def setupUi(self, wgGraphNode):
         wgGraphNode.setObjectName(_fromUtf8("wgGraphNode"))
-        wgGraphNode.resize(200, 30)
+        wgGraphNode.resize(200, 28)
         wgGraphNode.setMinimumSize(QtCore.QSize(150, 0))
         self.gridLayout = QtGui.QGridLayout(wgGraphNode)
         self.gridLayout.setMargin(0)
@@ -78,6 +78,26 @@ class Ui_wgGraphNode(object):
         self.lNodeName.setIndent(-1)
         self.lNodeName.setObjectName(_fromUtf8("lNodeName"))
         self.hlNode.addWidget(self.lNodeName)
+        self.qfUnfold = QtGui.QFrame(wgGraphNode)
+        self.qfUnfold.setObjectName(_fromUtf8("qfUnfold"))
+        self.hlUnfold = QtGui.QHBoxLayout(self.qfUnfold)
+        self.hlUnfold.setSpacing(1)
+        self.hlUnfold.setMargin(0)
+        self.hlUnfold.setObjectName(_fromUtf8("hlUnfold"))
+        spacerItem = QtGui.QSpacerItem(40, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.hlUnfold.addItem(spacerItem)
+        self.pbUnfold = QtGui.QPushButton(self.qfUnfold)
+        self.pbUnfold.setMinimumSize(QtCore.QSize(16, 16))
+        self.pbUnfold.setMaximumSize(QtCore.QSize(16, 16))
+        self.pbUnfold.setText(_fromUtf8(""))
+        self.pbUnfold.setCheckable(True)
+        self.pbUnfold.setChecked(False)
+        self.pbUnfold.setFlat(False)
+        self.pbUnfold.setObjectName(_fromUtf8("pbUnfold"))
+        self.hlUnfold.addWidget(self.pbUnfold)
+        spacerItem1 = QtGui.QSpacerItem(40, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.hlUnfold.addItem(spacerItem1)
+        self.hlNode.addWidget(self.qfUnfold)
         self.label_2 = QtGui.QLabel(wgGraphNode)
         self.label_2.setMinimumSize(QtCore.QSize(10, 20))
         self.label_2.setMaximumSize(QtCore.QSize(10, 20))

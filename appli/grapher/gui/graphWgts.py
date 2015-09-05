@@ -104,7 +104,7 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
             state = not self.isExpanded
         else:
             self.pbExpand.setChecked(state)
-        self._item._node.nodeIsExpanded = state
+        self._item.setExpanded(state)
         self.pItem.setExpanded(state)
         self.rf_expandIcon()
 

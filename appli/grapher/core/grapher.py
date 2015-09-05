@@ -57,6 +57,8 @@ class Grapher(object):
     @property
     def graphPath(self):
         """
+        Get Grapher root path
+
         :return: Grapher root path
         :rtype: str
         """
@@ -65,6 +67,8 @@ class Grapher(object):
     @property
     def GraphName(self):
         """
+        Get Grapher name
+
         :return: Grapher name (graphFile without extension)
         :rtype: str
         """
@@ -73,6 +77,8 @@ class Grapher(object):
     @property
     def graphFile(self):
         """
+        Get Grapher file name
+
         :return: Grapher file name (with extension)
         :rtype: str
         """
@@ -327,6 +333,8 @@ class GraphItem(object):
     @property
     def parent(self):
         """
+        Get parent node name
+
         :return: Node parent
         :rtype: str
         """
@@ -339,8 +347,10 @@ class GraphItem(object):
     @property
     def children(self):
         """
+        Get node children
+
         :return: Node Children
-        :rtype: str
+        :rtype: list
         """
         children = []
         for child in self._children:
@@ -383,6 +393,18 @@ class GraphItem(object):
         #-- Parent To Given GraphItem --#
         self._parent = graphItem
         self._parent._children.append(self)
+
+    def setExpanded(self, state):
+        """
+        Expand item with given state
+
+        :param state: Expand state
+        :type state: bool
+        """
+        self._node.nodeIsExpanded = state
+        if not state:
+            for child in self.allChildren():
+                child._node.nodeIsExpanded = state
 
     def delete(self):
         """

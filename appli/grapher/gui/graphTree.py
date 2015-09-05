@@ -128,6 +128,17 @@ class GraphItem(QtGui.QTreeWidgetItem):
         self.treeWidget().setItemWidget(QTreeWidgetItem, QTreeWidgetItem._column, QTreeWidgetItem._widget)
         self.treeWidget().rf_graphColumns()
 
+    def update(self, nodeDict):
+        """
+        Update GraphItem with given GrapherCore nodeDict
+
+        :param nodeDict: Node params
+        :type nodeDict: dict
+        """
+        for k, v in nodeDict.iteritems():
+            if k == 'nodeIsExpanded':
+                self._widget.set_expanded(state=v)
+
 
 class GraphWidget(graphWgts.ItemWidget):
     """
@@ -144,6 +155,7 @@ class GraphWidget(graphWgts.ItemWidget):
         self._setupNode()
 
     def _setupNode(self):
+        self.qfUnfold.setVisible(False)
         self.rf_label()
 
     def rf_label(self):
