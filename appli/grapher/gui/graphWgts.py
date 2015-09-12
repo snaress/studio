@@ -24,6 +24,7 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
     def _setupWidget(self):
         self.log.detail("\t ---> Setup Graph Widget --#")
         self.setupUi(self)
+        self.pbEnable.clicked.connect(self.set_enabled)
         self.pbExpand.clicked.connect(self.set_expanded)
         self.pbExpand.setVisible(False)
         self.rf_nodeColor()
@@ -74,6 +75,7 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
             self.pbEnable.setIcon(self.mainUi.graphZone.enabledIcon)
         else:
             self.pbEnable.setIcon(self.mainUi.graphZone.disabledIcon)
+        self.lNodeName.setEnabled(self.isActive)
 
     def rf_expandIcon(self):
         """
@@ -92,6 +94,21 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         :type rgba: tuple
         """
         self.setStyleSheet("background-color: rgba(%s, %s, %s, %s)" % (rgba[0], rgba[1], rgba[2], rgba[3]))
+
+    def set_enabled(self, state=None):
+        """
+        Set node enable state with given value
+
+        :param state: Node enable state
+        :type state: bool
+        """
+        if state is None:
+            state = not self.isEnabled
+        else:
+            self.pbEnable.setChecked(state)
+        self._item.setEnabled(state)
+        self.lNodeName.setEnabled(self.isActive)
+        self.rf_enableIcon()
 
     def set_expanded(self, state=None):
         """

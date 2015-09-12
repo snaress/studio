@@ -86,7 +86,11 @@ class GraphZone(object):
                     'children': {0: {'type': 'item', 'title': 'Auto Expand', 'key': "C",
                                      'cmd': self.on_miAutoExpand}}},
                 6: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
-                7: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
+                7: {'type': 'menu', 'title': 'Copy / Paste',
+                    'children': {0: {'type': 'item', 'title': 'Copy Nodes', 'key': "Ctrl+C",
+                                     'cmd': None}}},
+                8: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                9: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
 
     def sceneMenuActions(self):
         """
@@ -255,7 +259,10 @@ class GraphZone(object):
         self.log.detail(">>> Launch menuItem 'Auto Expand' ...")
         selItems = self.currentGraph.selectedItems()
         if selItems:
-            selItems[0]._widget.set_expanded(state=not selItems[0]._widget.isExpanded)
+            if self.currentGraphMode == 'tree':
+                selItems[0]._widget.set_expanded(state=not selItems[0]._widget.isExpanded)
+            else:
+                selItems[0]._widget.widget().set_expanded(state=not selItems[0]._widget.widget().isExpanded)
 
     def on_miDelSelected(self):
         """

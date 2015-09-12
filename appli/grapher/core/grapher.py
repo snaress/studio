@@ -394,6 +394,21 @@ class GraphItem(object):
         self._parent = graphItem
         self._parent._children.append(self)
 
+    def setEnabled(self, state):
+        """
+        Enable item with given state
+
+        :param state: Enable state
+        :type state: bool
+        """
+        self._node.nodeIsEnabled = state
+        self._node.nodeIsActive = state
+        for child in self.allChildren():
+            if child._node.nodeIsEnabled:
+                child._node.nodeIsActive = state
+            else:
+                child._node.nodeIsActive = False
+
     def setExpanded(self, state):
         """
         Expand item with given state

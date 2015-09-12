@@ -136,7 +136,13 @@ class GraphItem(QtGui.QTreeWidgetItem):
         :type nodeDict: dict
         """
         for k, v in nodeDict.iteritems():
-            if k == 'nodeIsExpanded':
+            if k == 'nodeIsEnabled':
+                self._widget.pbEnable.setChecked(v)
+                if self._item._parent is not None:
+                    if not self._item._parent._node.nodeIsActive:
+                        self._widget.pbEnable.setEnabled(False)
+                        self._widget.lNodeName.setEnabled(False)
+            elif k == 'nodeIsExpanded':
                 self._widget.set_expanded(state=v)
 
 

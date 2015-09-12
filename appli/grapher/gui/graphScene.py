@@ -126,11 +126,10 @@ class GraphScene(QtGui.QGraphicsScene):
         maxX = 0
         maxY = 0
         for item in items:
-            if item.isVisible():
-                if item.x() > maxX:
-                    maxX = item.x()
-                if item.y() > maxY:
-                    maxY = item.y()
+            if item.x() > maxX:
+                maxX = item.x()
+            if item.y() > maxY:
+                maxY = item.y()
         return maxX, maxY
 
     def futurPos(self, item, parentItem=None):
@@ -459,7 +458,13 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
         :type nodeDict: dict
         """
         for k, v in nodeDict.iteritems():
-            if k == 'nodeIsExpanded':
+            if k == 'nodeIsEnabled':
+                self._widget.widget().pbEnable.setChecked(v)
+                if self._item._parent is not None:
+                    if not self._item._parent._node.nodeIsActive:
+                        self._widget.widget().pbEnable.setEnabled(False)
+                        self._widget.widget().lNodeName.setEnabled(False)
+            elif k == 'nodeIsExpanded':
                 self._widget.widget().set_expanded(v)
 
 
