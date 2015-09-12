@@ -29,6 +29,7 @@ class GraphZone(object):
 
     def _setupWidget(self):
         self.log.debug("\t ---> Setup GraphZone Widget.")
+        self.cpBuffer = None
         #-- Add GraphTree --#
         self.graphTree = graphTree.GraphTree(self.mainUi, self)
         self.mainUi.vlGraphZone.insertWidget(0, self.graphTree)
@@ -85,12 +86,11 @@ class GraphZone(object):
                 5: {'type': 'menu', 'title': 'Expand / Collapse',
                     'children': {0: {'type': 'item', 'title': 'Auto Expand', 'key': "C",
                                      'cmd': self.on_miAutoExpand}}},
-                6: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
-                7: {'type': 'menu', 'title': 'Copy / Paste',
+                6: {'type': 'menu', 'title': 'Copy / Paste',
                     'children': {0: {'type': 'item', 'title': 'Copy Nodes', 'key': "Ctrl+C",
                                      'cmd': None}}},
-                8: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
-                9: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
+                7: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                8: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
 
     def sceneMenuActions(self):
         """
@@ -99,8 +99,9 @@ class GraphZone(object):
         :return: Scene menu actions
         :rtype: dict
         """
-        return {0: {'type': 'item', 'title': 'Fit In Scene', 'key': 'H', 'cmd': self.sceneView.fitInScene},
-                1: {'type': 'item', 'title': 'Fit In Selected', 'key': 'F', 'cmd': self.sceneView.fitInSelected}}
+        return {0: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                1: {'type': 'item', 'title': 'Fit In Scene', 'key': 'H', 'cmd': self.sceneView.fitInScene},
+                2: {'type': 'item', 'title': 'Fit In Selected', 'key': 'F', 'cmd': self.sceneView.fitInSelected}}
 
     def buildMenu(self, QMenu):
         """
@@ -184,6 +185,29 @@ class GraphZone(object):
         Refresh current graph
         """
         self.buildGraph(self.grapher.tree.getDatas(), clear=True)
+
+    def copyNodes(self, items=None, _mode='nodes', rm=False):
+        """
+        Copy / Cut selected nodes or branch
+
+        :param items: Force using given nodes
+        :type items: list
+        :param _mode: 'nodes' or 'branch'
+        :type _mode: str
+        :param rm: Remove selected nodes (cut)
+        :type rm: bool
+        """
+        self.cpBuffer = dict()
+        #-- Collecte Info --#
+        if items is None:
+            selItems = self.currentGraph.selectedItems() or []
+        else:
+            if items == '':
+                selItems = []
+            else:
+                selItems = items
+        if selItems:
+            self.log.detail("Storing selected nodes ...")
 
     def deleteGraphNodes(self, items):
         """

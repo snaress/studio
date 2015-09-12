@@ -141,7 +141,8 @@ class GraphItem(QtGui.QTreeWidgetItem):
                 if self._item._parent is not None:
                     if not self._item._parent._node.nodeIsActive:
                         self._widget.pbEnable.setEnabled(False)
-                        self._widget.lNodeName.setEnabled(False)
+            elif k == 'nodeIsActive':
+                self._widget.lNodeName.setEnabled(v)
             elif k == 'nodeIsExpanded':
                 self._widget.set_expanded(state=v)
 

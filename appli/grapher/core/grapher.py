@@ -405,7 +405,13 @@ class GraphItem(object):
         self._node.nodeIsActive = state
         for child in self.allChildren():
             if child._node.nodeIsEnabled:
-                child._node.nodeIsActive = state
+                if child._parent is not None:
+                    if not child._parent._node.nodeIsActive:
+                        child._node.nodeIsActive = False
+                    else:
+                        child._node.nodeIsActive = state
+                else:
+                    child._node.nodeIsActive = state
             else:
                 child._node.nodeIsActive = False
 
