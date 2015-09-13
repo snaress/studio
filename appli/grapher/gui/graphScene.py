@@ -463,7 +463,8 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
                 if self._item._parent is not None:
                     if not self._item._parent._node.nodeIsActive:
                         self._widget.widget().pbEnable.setEnabled(False)
-                        self._widget.widget().lNodeName.setEnabled(False)
+            elif k == 'nodeIsActive':
+                self._widget.widget().lNodeName.setEnabled(v)
             elif k == 'nodeIsExpanded':
                 self._widget.widget().set_expanded(v)
 

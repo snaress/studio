@@ -106,9 +106,11 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
             state = not self.isEnabled
         else:
             self.pbEnable.setChecked(state)
+        self.log.detail(">>> Set enable state: %s ---> %s" % (self._item._node.nodeName, state))
         self._item.setEnabled(state)
         self.lNodeName.setEnabled(self.isActive)
         self.rf_enableIcon()
+        self.mainUi.graphZone.refreshGraph()
 
     def set_expanded(self, state=None):
         """
@@ -121,6 +123,7 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
             state = not self.isExpanded
         else:
             self.pbExpand.setChecked(state)
+        self.log.detail(">>> Set expand state: %s ---> %s" % (self._item._node.nodeName, state))
         self._item.setExpanded(state)
         self.pItem.setExpanded(state)
         self.rf_expandIcon()

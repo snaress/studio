@@ -88,7 +88,13 @@ class GraphZone(object):
                                      'cmd': self.on_miAutoExpand}}},
                 6: {'type': 'menu', 'title': 'Copy / Paste',
                     'children': {0: {'type': 'item', 'title': 'Copy Nodes', 'key': "Ctrl+C",
-                                     'cmd': None}}},
+                                     'cmd': partial(self.on_miCopyNodes, _mode='nodes', rm=False)},
+                                 1: {'type': 'item', 'title': 'Copy Branch', 'key': "Alt+C",
+                                     'cmd': partial(self.on_miCopyNodes, _mode='branch', rm=False)},
+                                 2: {'type': 'item', 'title': 'Cut Branch', 'key': "Ctrl+X",
+                                     'cmd': partial(self.on_miCopyNodes, _mode='branch', rm=True)},
+                                 3: {'type': 'item', 'title': 'Paste Nodes', 'key': "Ctrl+V",
+                                     'cmd': self.on_miPasteNodes}}},
                 7: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
                 8: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
 
@@ -197,7 +203,7 @@ class GraphZone(object):
         :param rm: Remove selected nodes (cut)
         :type rm: bool
         """
-        self.cpBuffer = dict()
+        self.cpBuffer = dict(_mode=_mode)
         #-- Collecte Info --#
         if items is None:
             selItems = self.currentGraph.selectedItems() or []
@@ -208,6 +214,78 @@ class GraphZone(object):
                 selItems = items
         if selItems:
             self.log.detail("Storing selected nodes ...")
+            #-- Store Selected Nodes --#
+            for n, item in enumerate(selItems):
+                nodeDict = item._item.getDatas()
+                self.cpBuffer[n] = dict(nodeName=item._item._node.nodeName, nodeChildren={}, nodeDict=nodeDict)
+                if _mode == 'branch':
+                    if item._item._children:
+                        #-- Store Children --#
+                        for c, child in enumerate(item._item.allChildren()):
+                            self.cpBuffer[n]['nodeChildren'][c] = child.getDatas()
+            #-- Delete For cut --#
+            if rm:
+                self.deleteGraphNodes(selItems)
+
+    def pasteNodes(self, dstItem=None):
+        """
+        Paste stored node
+
+        :param dstItem: Destination graph item
+        :type dstItem: QtGui.QTreeWidgetItem
+        :return: Pasted items
+        :rtype: list
+        """
+        if self.cpBuffer is not None:
+            self.log.detail("Pasting Stored nodes ...")
+            #-- Get Destination items --#
+            if dstItem is None:
+                selItems = self.currentGraph.selectedItems() or []
+            else:
+                selItems = [dstItem]
+            #-- Paste Nodes --#
+            items = {}
+            for n in sorted(self.cpBuffer.keys()):
+                if isinstance(n, int):
+                    nodeDict = self.cpBuffer[n]
+                    newNodeName = self.grapher.conformNewNodeName(nodeDict['nodeName'])
+                    newItem = None
+                    #-- Parent To World --#
+                    if len(selItems) == 0:
+                        self.log.detail("\t ---> Paste Node to world ...")
+                        newItem = self.grapher.tree.createItem(nodeType=nodeDict['nodeDict']['nodeType'],
+                                                               nodeName=newNodeName)
+                    #-- Parent To Node --#
+                    elif len(selItems) == 1:
+                        self.log.detail("\t ---> Paste Node to %s ..." % selItems[0]._item._node.nodeName)
+                        selItems[0]._item.setExpanded(True)
+                        newItem = self.grapher.tree.createItem(nodeType=nodeDict['nodeDict']['nodeType'],
+                                                               nodeName=newNodeName,
+                                                               nodeParent=selItems[0]._item._node.nodeName)
+                    #-- Parent Child Node --#
+                    if newItem is not None:
+                        items[newItem] = nodeDict['nodeDict']
+                        if nodeDict['nodeChildren'].keys():
+                            #-- Check First Parent --#
+                            renameDict = dict()
+                            for c in sorted(nodeDict['nodeChildren'].keys()):
+                                newChildName = self.grapher.conformNewNodeName(nodeDict['nodeChildren'][c]['nodeName'])
+                                renameDict[nodeDict['nodeChildren'][c]['nodeName']] = newChildName
+                                if nodeDict['nodeChildren'][c]['parent'] == self.cpBuffer[n]['nodeName']:
+                                    nodeParent = newNodeName
+                                else:
+                                    nodeParent = renameDict[nodeDict['nodeChildren'][c]['parent']]
+                                nodeDict['nodeChildren'][c]['parent'] = nodeParent
+                                newChild = self.grapher.tree.createItem(nodeType=nodeDict['nodeChildren'][c]['nodeType'],
+                                                                        nodeName=newChildName,
+                                                                        nodeParent=nodeParent)
+                                items[newChild] = nodeDict
+            #-- Clear CpBuffer --#
+            if self.cpBuffer['_mode'] == 'branch':
+                self.cpBuffer = None
+            #-- Result --#
+            return items.keys()
+        self.log.warning("!!! Nothing to paste !!!")
 
     def deleteGraphNodes(self, items):
         """
@@ -236,6 +314,38 @@ class GraphZone(object):
         for item in allItems:
             if item._item._node.nodeName == nodeName:
                 return item
+
+    def getSelectedNodeNames(self):
+        """
+        Get selected node names
+
+        :return: Selected node names
+        :rtype: list
+        """
+        selItems = self.currentGraph.selectedItems() or []
+        selNodeNames = []
+        for selItem in selItems:
+            selNodeNames.append(selItem._item._node.nodeName)
+        return selNodeNames
+
+    def reselectNodes(self, selNodeNames):
+        """
+        Reselect nodes from given node names list
+
+        :param selNodeNames: Selected node names
+        :type selNodeNames: list
+        """
+        if self.currentGraphMode == 'tree':
+            allItems = pQt.getAllItems(self.graphTree)
+        else:
+            allItems = self.graphScene.getAllNodes()
+        for item in allItems:
+            if item._item._node.nodeName in selNodeNames:
+                item.setSelected(True)
+            else:
+                item.setSelected(False)
+            if self.currentGraphMode == 'scene':
+                item.rf_elementId()
 
     def on_miRefresh(self):
         """
@@ -287,6 +397,35 @@ class GraphZone(object):
                 selItems[0]._widget.set_expanded(state=not selItems[0]._widget.isExpanded)
             else:
                 selItems[0]._widget.widget().set_expanded(state=not selItems[0]._widget.widget().isExpanded)
+
+    def on_miCopyNodes(self, _mode='nodes', rm=False):
+        """
+        Command launched when 'Copy Nodes / Branch' or 'Cut Nodes' QMenuItem is triggered.
+
+        Copy / Cut selected nodes or branch
+        :param _mode: 'nodes' or 'branch'
+        :type _mode: str
+        :param rm: Remove selected nodes (cut)
+        :type rm: bool
+        """
+        if not rm:
+            self.log.detail(">>> Launch menuItem 'Copy %s' ..." % _mode)
+        else:
+            self.log.detail(">>> Launch menuItem 'Cut Nodes' ...")
+        self.copyNodes(_mode=_mode, rm=rm)
+
+    def on_miPasteNodes(self):
+        """
+        Command launched when 'Paste' QMenuItem is triggered.
+
+        Paste stored nodes and refresh ui
+        """
+        self.log.detail(">>> Launch menuItem 'Paste Nodes' ...")
+        pastedItems = self.pasteNodes()
+        if pastedItems:
+            selNodeNames = self.getSelectedNodeNames()
+            self.refreshGraph()
+            self.reselectNodes(selNodeNames)
 
     def on_miDelSelected(self):
         """

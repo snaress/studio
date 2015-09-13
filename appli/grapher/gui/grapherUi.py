@@ -185,4 +185,4 @@ def launch(logLvl='info'):
 
 
 if __name__ == '__main__':
-    launch(logLvl='detail')
+    launch(logLvl='debug')
