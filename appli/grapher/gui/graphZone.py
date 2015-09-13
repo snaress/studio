@@ -73,8 +73,8 @@ class GraphZone(object):
         """
         return {0: {'type': 'item', 'title': 'Refresh', 'key': 'F5', 'cmd': self.on_miRefresh},
                 1: {'type': 'item', 'title': 'Unselect All', 'key': 'Esc', 'cmd': self.on_miUnselectAll},
-                3: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
-                4: {'type': 'menu', 'title': 'New Node',
+                2: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                3: {'type': 'menu', 'title': 'New Node',
                     'children': {0: {'type': 'item', 'title': 'Modul', 'key': '1',
                                      'cmd': partial(self.on_miNewNode, 'modul')},
                                  1: {'type': 'item', 'title': 'SysData', 'key': '2',
@@ -83,10 +83,10 @@ class GraphZone(object):
                                      'cmd': partial(self.on_miNewNode, 'cmdData')},
                                  3: {'type': 'item', 'title': 'PyData', 'key': '4',
                                      'cmd': partial(self.on_miNewNode, 'pyData')}}},
-                5: {'type': 'menu', 'title': 'Expand / Collapse',
+                4: {'type': 'menu', 'title': 'Expand / Collapse',
                     'children': {0: {'type': 'item', 'title': 'Auto Expand', 'key': "C",
                                      'cmd': self.on_miAutoExpand}}},
-                6: {'type': 'menu', 'title': 'Copy / Paste',
+                5: {'type': 'menu', 'title': 'Copy / Paste',
                     'children': {0: {'type': 'item', 'title': 'Copy Nodes', 'key': "Ctrl+C",
                                      'cmd': partial(self.on_miCopyNodes, _mode='nodes', rm=False)},
                                  1: {'type': 'item', 'title': 'Copy Branch', 'key': "Alt+C",
@@ -95,6 +95,11 @@ class GraphZone(object):
                                      'cmd': partial(self.on_miCopyNodes, _mode='branch', rm=True)},
                                  3: {'type': 'item', 'title': 'Paste Nodes', 'key': "Ctrl+V",
                                      'cmd': self.on_miPasteNodes}}},
+                6: {'type': 'menu', 'title': 'Move Nodes',
+                    'children': {0: {'type': 'item', 'title': 'Move Up', 'key': "Ctrl+Up",
+                                     'cmd': partial(self.on_miMoveNodes, side='up')},
+                                 1: {'type': 'item', 'title': 'Move Down', 'key': "Ctrl+Down",
+                                     'cmd': partial(self.on_miMoveNodes, side='down')}}},
                 7: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
                 8: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
 
@@ -213,7 +218,7 @@ class GraphZone(object):
             else:
                 selItems = items
         if selItems:
-            self.log.detail("Storing selected nodes ...")
+            self.log.debug("Storing selected nodes ...")
             #-- Store Selected Nodes --#
             for n, item in enumerate(selItems):
                 nodeDict = item._item.getDatas()
@@ -237,7 +242,7 @@ class GraphZone(object):
         :rtype: list
         """
         if self.cpBuffer is not None:
-            self.log.detail("Pasting Stored nodes ...")
+            self.log.debug("Pasting Stored nodes ...")
             #-- Get Destination items --#
             if dstItem is None:
                 selItems = self.currentGraph.selectedItems() or []
@@ -286,6 +291,25 @@ class GraphZone(object):
             #-- Result --#
             return items.keys()
         self.log.warning("!!! Nothing to paste !!!")
+
+    def moveNodes(self, side='up'):
+        """
+        Move selected nodes
+
+        :param side: 'up', 'down'
+        :type side: str
+        :return: Moved items
+        :rtype: list
+        """
+        #-- Collecte Info --#
+        selItems = self.currentGraph.selectedItems() or []
+        if selItems:
+            self.log.debug("Moving selected nodes ...")
+            movedItems = []
+            for n, item in enumerate(selItems):
+                item._item.move(side)
+                movedItems.append(item)
+            return movedItems
 
     def deleteGraphNodes(self, items):
         """
@@ -423,6 +447,21 @@ class GraphZone(object):
         self.log.detail(">>> Launch menuItem 'Paste Nodes' ...")
         pastedItems = self.pasteNodes()
         if pastedItems:
+            selNodeNames = self.getSelectedNodeNames()
+            self.refreshGraph()
+            self.reselectNodes(selNodeNames)
+
+    def on_miMoveNodes(self, side='up'):
+        """
+        Command launched when 'Move Up / Down' QMenuItem is triggered.
+
+        Move up or down selected nodes
+        :param side: 'up' or 'down'
+        :type side: str
+        """
+        self.log.detail(">>> Launch menuItem 'Move Nodes': %s ..." % side)
+        movedItems = self.moveNodes(side=side)
+        if movedItems:
             selNodeNames = self.getSelectedNodeNames()
             self.refreshGraph()
             self.reselectNodes(selNodeNames)

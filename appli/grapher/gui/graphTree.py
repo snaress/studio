@@ -84,6 +84,7 @@ class GraphTree(QtGui.QTreeWidget):
                 item._widget.set_nodeColor((255, 255, 0, 255))
             else:
                 item._widget.rf_nodeColor()
+            item._widget.set_expanded(state=item.isExpanded())
 
     def addTopLevelItem(self, QTreeWidgetItem):
         """

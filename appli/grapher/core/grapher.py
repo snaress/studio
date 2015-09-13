@@ -17,6 +17,11 @@ Parent Node:
 ------------
 myItem.setParent(GraphItem)
 
+Enable / Disable Node:
+----------------------
+myItem.setEnabled(True)
+myItem.setEnabled(False)
+
 delete Node:
 ------------
 myItem.delete()
@@ -188,6 +193,19 @@ class GraphTree(object):
             return topItems
         #-- Return Object List --#
         return self._topItems
+
+    def topItemIndex(self, topItem):
+        """
+        Get given topItem index
+
+        :param topItem: Top GraphItem
+        :type topItem: GraphItem
+        :return: Top item index
+        :rtype: int
+        """
+        for n, tItem in enumerate(self.topItems()):
+            if tItem == topItem:
+                return n
 
     def allItems(self, asString=False):
         """
@@ -379,6 +397,19 @@ class GraphItem(object):
         #-- Result --#
         return children
 
+    def childItemIndex(self, childItem):
+        """
+        Get given chilItem index
+
+        :param childItem: Child GraphItem
+        :type childItem: GraphItem
+        :return: Child item index
+        :rtype: int
+        """
+        for n, cItem in enumerate(self._children):
+            if cItem == childItem:
+                return n
+
     def setParent(self, graphItem):
         """
         Parent item to given GraphItem
@@ -426,6 +457,46 @@ class GraphItem(object):
         if not state:
             for child in self.allChildren():
                 child._node.nodeIsExpanded = state
+
+    def move(self, side):
+        newIndex = self._getNewIndex(side)
+        if newIndex is not None:
+            if self._parent is None:
+                self._tree._topItems.pop(self._tree.topItemIndex(self))
+                self._tree._topItems.insert(newIndex, self)
+            else:
+                self._parent._children.pop(self._parent.childItemIndex(self))
+                self._parent._children.insert(newIndex, self)
+
+    def _getNewIndex(self, side):
+        """
+        Get new insertion index
+
+        :param side: 'up', 'down'
+        :type side: str
+        :return: New index
+        :rtype: int
+        """
+        #-- Get Current Index --#
+        if self._parent is None:
+            index = self._tree.topItemIndex(self)
+            iCount = len(self._tree._topItems)
+        else:
+            index = self._parent.childItemIndex(self)
+            iCount = len(self._parent._children)
+        #- Side Up New Index --#
+        if side == 'up':
+            if index > 0:
+                newIndex = index - 1
+            else:
+                newIndex = None
+        #-- Side Down New Index --#
+        else:
+            if index < (iCount - 1):
+                newIndex = index + 1
+            else:
+                newIndex = None
+        return newIndex
 
     def delete(self):
         """

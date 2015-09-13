@@ -2,6 +2,12 @@ import pprint
 
 
 class Node(object):
+    """
+    Node common datas contents.
+
+    :param nodeName: Node Name
+    :type nodeName: str
+    """
 
     def __init__(self, nodeName=None):
         self.nodeName = nodeName
@@ -44,6 +50,12 @@ class Node(object):
 
 
 class Modul(Node):
+    """
+    Modul datas contents.
+
+    :param nodeName: Node Name
+    :type nodeName: str
+    """
 
     _nodeColor = (200, 200, 200, 255)
     _nodeIcon = 'modul.svg'
@@ -54,6 +66,12 @@ class Modul(Node):
 
 
 class SysData(Node):
+    """
+    SysData datas contents.
+
+    :param nodeName: Node Name
+    :type nodeName: str
+    """
 
     _nodeColor = (100, 255, 255, 255)
     _nodeIcon = 'sysData.svg'
@@ -65,6 +83,12 @@ class SysData(Node):
 
 
 class CmdData(Node):
+    """
+    CmdData datas contents.
+
+    :param nodeName: Node Name
+    :type nodeName: str
+    """
 
     _nodeColor = (60, 135, 255, 255)
     _nodeIcon = 'cmdData.svg'
@@ -76,6 +100,12 @@ class CmdData(Node):
 
 
 class PyData(Node):
+    """
+    PyData datas contents.
+
+    :param nodeName: Node Name
+    :type nodeName: str
+    """
 
     _nodeColor = (0, 125, 0, 255)
     _nodeIcon = 'pyData.svg'
