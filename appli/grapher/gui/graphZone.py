@@ -2,7 +2,7 @@ import os
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
-from appli.grapher.gui import graphTree, graphScene
+from appli.grapher.gui import graphTree, graphScene, graphWgts
 
 
 class GraphZone(object):
@@ -71,10 +71,11 @@ class GraphZone(object):
         :return: Graph menu actions
         :rtype: dict
         """
-        return {0: {'type': 'item', 'title': 'Refresh', 'key': 'F5', 'cmd': self.on_miRefresh},
-                1: {'type': 'item', 'title': 'Unselect All', 'key': 'Esc', 'cmd': self.on_miUnselectAll},
-                2: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
-                3: {'type': 'menu', 'title': 'New Node',
+        return {0: {'type': 'item', 'title': 'Rename Node', 'key': 'F2', 'cmd': self.on_miRenameNode},
+                1: {'type': 'item', 'title': 'Refresh Graph', 'key': 'F5', 'cmd': self.on_miRefresh},
+                2: {'type': 'item', 'title': 'Unselect All', 'key': 'Esc', 'cmd': self.on_miUnselectAll},
+                3: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                4: {'type': 'menu', 'title': 'New Node',
                     'children': {0: {'type': 'item', 'title': 'Modul', 'key': '1',
                                      'cmd': partial(self.on_miNewNode, 'modul')},
                                  1: {'type': 'item', 'title': 'SysData', 'key': '2',
@@ -83,10 +84,10 @@ class GraphZone(object):
                                      'cmd': partial(self.on_miNewNode, 'cmdData')},
                                  3: {'type': 'item', 'title': 'PyData', 'key': '4',
                                      'cmd': partial(self.on_miNewNode, 'pyData')}}},
-                4: {'type': 'menu', 'title': 'Expand / Collapse',
+                5: {'type': 'menu', 'title': 'Expand / Collapse',
                     'children': {0: {'type': 'item', 'title': 'Auto Expand', 'key': "C",
                                      'cmd': self.on_miAutoExpand}}},
-                5: {'type': 'menu', 'title': 'Copy / Paste',
+                6: {'type': 'menu', 'title': 'Copy / Paste',
                     'children': {0: {'type': 'item', 'title': 'Copy Nodes', 'key': "Ctrl+C",
                                      'cmd': partial(self.on_miCopyNodes, _mode='nodes', rm=False)},
                                  1: {'type': 'item', 'title': 'Copy Branch', 'key': "Alt+C",
@@ -95,13 +96,13 @@ class GraphZone(object):
                                      'cmd': partial(self.on_miCopyNodes, _mode='branch', rm=True)},
                                  3: {'type': 'item', 'title': 'Paste Nodes', 'key': "Ctrl+V",
                                      'cmd': self.on_miPasteNodes}}},
-                6: {'type': 'menu', 'title': 'Move Nodes',
+                7: {'type': 'menu', 'title': 'Move Nodes',
                     'children': {0: {'type': 'item', 'title': 'Move Up', 'key': "Ctrl+Up",
                                      'cmd': partial(self.on_miMoveNodes, side='up')},
                                  1: {'type': 'item', 'title': 'Move Down', 'key': "Ctrl+Down",
                                      'cmd': partial(self.on_miMoveNodes, side='down')}}},
-                7: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
-                8: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
+                8: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                9: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
 
     def sceneMenuActions(self):
         """
@@ -370,6 +371,18 @@ class GraphZone(object):
                 item.setSelected(False)
             if self.currentGraphMode == 'scene':
                 item.rf_elementId()
+
+    def on_miRenameNode(self):
+        """
+        Command launched when 'Rename Node' QMenuItem is triggered.
+
+        Refresh selected node.
+        """
+        self.log.detail(">>> Launch menuItem 'Rename Node' ...")
+        selItems = self.currentGraph.selectedItems() or []
+        if len(selItems) == 1:
+            self.nodeRenamer = graphWgts.NodeRenamer(self.mainUi, selItems[0])
+            self.nodeRenamer.exec_()
 
     def on_miRefresh(self):
         """

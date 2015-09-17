@@ -1,6 +1,6 @@
 import os
 from PyQt4 import QtGui, QtSvg, QtCore
-from appli.grapher.gui.ui import graphNodeUI
+from appli.grapher.gui.ui import graphNodeUI, nodeRenameUI
 
 
 class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
@@ -433,3 +433,46 @@ class GraphLink(QtGui.QGraphicsPathItem):
             myPen.setColor(QtCore.Qt.yellow)
             myPen.setStyle(QtCore.Qt.DashLine)
         painter.strokePath(self.createPath(), myPen)
+
+
+class NodeRenamer(QtGui.QDialog, nodeRenameUI.Ui_dialNodeRename):
+    """
+    Node renamer QDialog, child of mainUi
+
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    :param selItem: Selected graphItem
+    :type selItem: graphTree.GraphItem | graphScene.GraphItem
+    """
+
+    def __init__(self, mainUi, selItem):
+        self.mainUi = mainUi
+        self.item = selItem
+        super(NodeRenamer, self).__init__(self.mainUi)
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        self.setupUi(self)
+        self.lCurrentNodeVal.setText(self.item._item._node.nodeName)
+        self.leNewName.textChanged.connect(self.updateResult)
+        self.pbOk.clicked.connect(self.accept)
+        self.pbCancel.clicked.connect(self.close)
+
+    def updateResult(self):
+        """
+        Update new node name result
+        """
+        self.lResultVal.setText(self.mainUi.grapher.conformNewNodeName(str(self.leNewName.text())))
+
+    def accept(self):
+        """
+        Rename node and update node
+        """
+        super(NodeRenamer, self).accept()
+        self.item._item._node.nodeName = str(self.lResultVal.text())
+        if self.mainUi.graphZone.currentGraphMode == 'tree':
+            self.item._widget.rf_label()
+        else:
+            self.item._label._text = self.item._item._node.nodeName
+            self.item._label.setText()
