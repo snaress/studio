@@ -81,10 +81,11 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         """
         Refresh expand state icon
         """
-        if self._item._node.nodeIsExpanded:
-            self.pbExpand.setIcon(self.mainUi.graphZone.collapseIcon)
-        else:
-            self.pbExpand.setIcon(self.mainUi.graphZone.expandIcon)
+        if self.mainUi.graphZone.currentGraphMode == 'tree':
+            if self._item._node.nodeIsExpanded:
+                self.pbExpand.setIcon(self.mainUi.graphZone.collapseIcon)
+            else:
+                self.pbExpand.setIcon(self.mainUi.graphZone.expandIcon)
 
     def set_nodeColor(self, rgba):
         """
@@ -110,7 +111,8 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         self._item.setEnabled(state)
         self.lNodeName.setEnabled(self.isActive)
         self.rf_enableIcon()
-        self.mainUi.graphZone.refreshGraph()
+        if self.mainUi.graphZone.currentGraphMode == 'tree':
+            self.mainUi.graphZone.refreshGraph()
 
     def set_expanded(self, state=None):
         """
@@ -119,14 +121,15 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         :param state: Expand state
         :type state: bool
         """
-        if state is None:
-            state = not self.isExpanded
-        else:
-            self.pbExpand.setChecked(state)
-        self.log.detail(">>> Set expand state: %s ---> %s" % (self._item._node.nodeName, state))
-        self._item.setExpanded(state)
-        self.pItem.setExpanded(state)
-        self.rf_expandIcon()
+        if self.mainUi.graphZone.currentGraphMode == 'tree':
+            if state is None:
+                state = not self.isExpanded
+            else:
+                self.pbExpand.setChecked(state)
+            self.log.detail(">>> Set expand state: %s ---> %s" % (self._item._node.nodeName, state))
+            self._item.setExpanded(state)
+            self.pItem.setExpanded(state)
+            self.rf_expandIcon()
 
 
 class GraphText(QtGui.QGraphicsTextItem):

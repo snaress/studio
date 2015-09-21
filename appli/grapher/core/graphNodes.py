@@ -14,12 +14,14 @@ class Node(object):
         self.nodeIsEnabled = True
         self.nodeIsActive = True
         self.nodeIsExpanded = False
-        self.nodeVersion  = 0
+        self.nodeVersion = 0
         self.nodeVersions = {0: "Default Version"}
+        self.nodeComments = {0: ""}
+        self.nodeNotes = {0: ""}
 
     def getDatas(self, asString=False):
         """
-        get GraphNode datas as dict or string
+        Get GraphNode datas as dict or string
 
         :param asString: Return string instead of dict
         :type asString: bool
@@ -36,6 +38,19 @@ class Node(object):
             return pprint.pformat(nodeDict)
         return nodeDict
 
+    def setDatas(self, **kwargs):
+        """
+        Set GraphNode versionned datas
+
+        :param kwargs: Datas (node.attrName: node.attrValue)
+        :type kwargs: dict
+        """
+        for k, v in kwargs.iteritems():
+            if hasattr(self, k):
+                val = getattr(self, k)
+                val[self.nodeVersion] = v
+                setattr(self, k, val)
+
     def listAttrs(self):
         """
         List all attributes
@@ -47,6 +62,23 @@ class Node(object):
         for attr in self.getDatas().keys():
             attrs.append(attr)
         return sorted(attrs)
+
+    def addVersion(self):
+        """
+        Add new node version
+
+        :return: New version
+        :rtype: int
+        """
+        curIndex = self.nodeVersion
+        newIndex = int(self.nodeVersions.keys()[-1] + 1)
+        self.nodeVersions[newIndex] = "New version"
+        self.nodeComments[newIndex] = self.nodeComments[curIndex]
+        self.nodeNotes[newIndex] = self.nodeNotes[curIndex]
+        if hasattr(self, 'nodeScript'):
+            self.nodeScript[newIndex] = self.nodeScript[curIndex]
+        self.nodeVersion = newIndex
+        return self.nodeVersion
 
 
 class Modul(Node):

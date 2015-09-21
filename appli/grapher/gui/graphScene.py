@@ -1,4 +1,5 @@
 import os
+from lib.qt import procQt as pQt
 from PyQt4 import QtGui, QtCore, QtSvg
 from appli.grapher.gui import graphWgts
 
@@ -30,13 +31,16 @@ class GraphScene(QtGui.QGraphicsScene):
         self.line = None
         self.ctrlKey = False
         self.selBuffer = {'_order': []}
+        self.clickHandler = pQt.ClickHandler(singleClickCmd=self.graphZone._singleClick,
+                                             doubleClickCmd=self.graphZone._doubleClick)
         self.selectionChanged.connect(self._selectionChanged)
 
     def _selectionChanged(self):
         """
-        Store node selection order
+        Store node selection order, clear node editor
         """
         selNodes = self.getSelectedNodes()
+        #-- Store Selection --#
         if not selNodes:
             self.selBuffer = {'_order': []}
         else:
@@ -44,6 +48,10 @@ class GraphScene(QtGui.QGraphicsScene):
                 if not item._item._node.nodeName in self.selBuffer['_order']:
                     self.selBuffer['_order'].append(item._item._node.nodeName)
                     self.selBuffer[item._item._node.nodeName] = item
+        #-- Node Editor --#
+        if self.mainUi.nodeEditorIsEnabled:
+            if not selNodes:
+                self.mainUi.nodeEditor.clear()
 
     def getAllTopLevelNodes(self):
         """
@@ -301,7 +309,8 @@ class GraphScene(QtGui.QGraphicsScene):
 
         'left' = - If line construction is detected, will draw the final connection and clear construction line item.
                  - Disable GraphView 'move by drag' mode.
-                 - If no item under pointer, refresh element id
+                 - If no item under pointer, refresh element id.
+                 - If nodeEditor is enabled, connect item.
         """
         self._drawLine()
         self.graphZone.sceneView.setDragMode(QtGui.QGraphicsView.NoDrag)
@@ -315,6 +324,8 @@ class GraphScene(QtGui.QGraphicsScene):
                 if item._type == 'nodeWidget':
                     item.parentItem().setSelected(True)
                     item.parentItem().rf_elementId()
+        #-- Connect Node Editor --#
+        self.clickHandler.__call__()
 
 
 class GraphItem(QtSvg.QGraphicsSvgItem):
@@ -465,8 +476,6 @@ class GraphItem(QtSvg.QGraphicsSvgItem):
                         self._widget.widget().pbEnable.setEnabled(False)
             elif k == 'nodeIsActive':
                 self._widget.widget().lNodeName.setEnabled(v)
-            elif k == 'nodeIsExpanded':
-                self._widget.widget().set_expanded(v)
 
 
 class GraphWidget(QtGui.QGraphicsProxyWidget):
@@ -497,10 +506,7 @@ class GraphWidget(QtGui.QGraphicsProxyWidget):
         """
         Refresh expand button visibility
         """
-        if self.parentItem()._plugOut._children():
-            self.widget().pbExpand.setVisible(True)
-        else:
-            self.widget().pbExpand.setVisible(True)
+        self.widget().pbExpand.setVisible(False)
 
     def rf_unfoldIcon(self):
         """
@@ -510,22 +516,6 @@ class GraphWidget(QtGui.QGraphicsProxyWidget):
             self.widget().pbUnfold.setIcon(self.mainUi.graphZone.foldIcon)
         else:
             self.widget().pbUnfold.setIcon(self.mainUi.graphZone.unfoldIcon)
-
-    def setExpanded(self, state):
-        """
-        Set GraphItem expanded
-
-        :param state: Item expanded state
-        :type state: bool
-        """
-        items = self.scene().getAllChildren(self.parentItem())
-        for n, item in enumerate(items):
-            if item._plugOut.connections:
-                for link in item._plugOut.connections:
-                    link.setVisible(state)
-            if n > 0:
-                item.setVisible(item._plugIn._parent()._widget.widget().isExpanded)
-                item._plugIn.connections[0].setVisible(item._plugIn._parent()._widget.widget().isExpanded)
 
     def setUnfold(self):
         self.rf_unfoldIcon()

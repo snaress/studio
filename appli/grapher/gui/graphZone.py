@@ -2,7 +2,7 @@ import os
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
-from appli.grapher.gui import graphTree, graphScene, graphWgts
+from appli.grapher.gui import graphTree, graphScene, graphWgts, nodeEditor
 
 
 class GraphZone(object):
@@ -19,6 +19,7 @@ class GraphZone(object):
         self.log.debug("\t Init GraphZone Widget.")
         self.grapher = self.mainUi.grapher
         self.graphTree = None
+        self.editors = []
         self.enabledIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'enabled.png'))
         self.disabledIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'disabled.png'))
         self.expandIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'expand.png'))
@@ -84,25 +85,32 @@ class GraphZone(object):
                                      'cmd': partial(self.on_miNewNode, 'cmdData')},
                                  3: {'type': 'item', 'title': 'PyData', 'key': '4',
                                      'cmd': partial(self.on_miNewNode, 'pyData')}}},
-                5: {'type': 'menu', 'title': 'Expand / Collapse',
-                    'children': {0: {'type': 'item', 'title': 'Auto Expand', 'key': "C",
-                                     'cmd': self.on_miAutoExpand}}},
-                6: {'type': 'menu', 'title': 'Copy / Paste',
-                    'children': {0: {'type': 'item', 'title': 'Copy Nodes', 'key': "Ctrl+C",
+                5: {'type': 'menu', 'title': 'Copy / Paste',
+                    'children': {0: {'type': 'item', 'title': 'Copy Nodes', 'key': 'Ctrl+C',
                                      'cmd': partial(self.on_miCopyNodes, _mode='nodes', rm=False)},
-                                 1: {'type': 'item', 'title': 'Copy Branch', 'key': "Alt+C",
+                                 1: {'type': 'item', 'title': 'Copy Branch', 'key': 'Alt+C',
                                      'cmd': partial(self.on_miCopyNodes, _mode='branch', rm=False)},
-                                 2: {'type': 'item', 'title': 'Cut Branch', 'key': "Ctrl+X",
+                                 2: {'type': 'item', 'title': 'Cut Branch', 'key': 'Ctrl+X',
                                      'cmd': partial(self.on_miCopyNodes, _mode='branch', rm=True)},
-                                 3: {'type': 'item', 'title': 'Paste Nodes', 'key': "Ctrl+V",
+                                 3: {'type': 'item', 'title': 'Paste Nodes', 'key': 'Ctrl+V',
                                      'cmd': self.on_miPasteNodes}}},
-                7: {'type': 'menu', 'title': 'Move Nodes',
-                    'children': {0: {'type': 'item', 'title': 'Move Up', 'key': "Ctrl+Up",
+                6: {'type': 'menu', 'title': 'Move Nodes',
+                    'children': {0: {'type': 'item', 'title': 'Move Up', 'key': 'Ctrl+Up',
                                      'cmd': partial(self.on_miMoveNodes, side='up')},
-                                 1: {'type': 'item', 'title': 'Move Down', 'key': "Ctrl+Down",
+                                 1: {'type': 'item', 'title': 'Move Down', 'key': 'Ctrl+Down',
                                      'cmd': partial(self.on_miMoveNodes, side='down')}}},
-                8: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
-                9: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
+                7: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                8: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
+
+    def treeMenuActions(self):
+        """
+        GraphTree specific menu actions
+
+        :return: Tree menu actions
+        :rtype: dict
+        """
+        return {0: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                1: {'type': 'item', 'title': 'Auto Expand', 'key': 'C', 'cmd': self.on_miAutoExpand}}
 
     def sceneMenuActions(self):
         """
@@ -125,7 +133,7 @@ class GraphZone(object):
         QMenu.clear()
         #-- Collecte Menu Items --#
         if self.currentGraphMode == 'tree':
-            dictList = [self.commonMenuActions()]
+            dictList = [self.commonMenuActions(), self.treeMenuActions()]
         else:
             dictList = [self.commonMenuActions(), self.sceneMenuActions()]
         #-- Build Menu --#
@@ -371,6 +379,33 @@ class GraphZone(object):
                 item.setSelected(False)
             if self.currentGraphMode == 'scene':
                 item.rf_elementId()
+
+    def _singleClick(self):
+        """
+        Connect graphNode to nodeEditor
+        """
+        if self.mainUi.nodeEditorIsEnabled:
+            if self.currentGraphMode == 'tree':
+                selItems = self.graphTree.selectedItems() or []
+            else:
+                selItems = self.graphScene.getSelectedNodes()
+            self.mainUi.nodeEditor.clear()
+            if len(selItems) == 1:
+                self.mainUi.nodeEditor.connectItem(selItems[0])
+
+    def _doubleClick(self):
+        """
+        Connect graphNode to an external nodeEditor
+        """
+        if self.currentGraphMode == 'tree':
+            selItems = self.graphTree.selectedItems() or []
+        else:
+            selItems = self.graphScene.getSelectedNodes()
+        if len(selItems) == 1:
+            editor = nodeEditor.NodeEditor(self.mainUi)
+            editor.connectItem(selItems[0])
+            self.editors.append(editor)
+        self.editors[-1].show()
 
     def on_miRenameNode(self):
         """

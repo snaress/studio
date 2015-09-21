@@ -57,7 +57,39 @@ class Grapher(object):
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="Grapher", level=logLvl)
         self.log.info("#-- Init Grapher Core --#", newLinesBefor=1)
+
         self.tree = GraphTree(self)
+
+    def getDatas(self, asString=False):
+        """
+        Grapher datas as dict or string
+
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: Grapher contents
+        :rtype: dict | str
+        """
+        graphDict = dict(graphDatas={}, treeDatas=self.tree.getDatas())
+        if asString:
+            graphTxt = []
+            for k, v in sorted(graphDict.iteritems()):
+                if isinstance(v, basestring):
+                    graphTxt.append("%s = %r" % (k, v))
+                else:
+                    graphTxt.append("%s = %s" % (k, pprint.pformat(v)))
+            return '\n'.join(graphTxt)
+        return graphDict
+
+    def readDatas(self):
+        """
+        Read graph datas from graphFile
+
+        :return: Grapher datas
+        :rtype: dict
+        """
+        if self._graphFile is None:
+            raise AttributeError("!!! 'graphFile' attribute not setted !!!")
+        return pFile.readPyFile(self.graphFullPath)
 
     @property
     def graphPath(self):
@@ -97,11 +129,17 @@ class Grapher(object):
         :param gpFile: Grapher file full path
         :type gpFile: str
         """
-        if not os.path.exists(gpFile):
-            raise IOError ('!!! Graph file not found !!!')
-        if not gpFile.endswith('.gp.py'):
-            raise IOError ('!!! Wrong Extension, should be ".gp.py"')
         self._graphFile = gpFile
+
+    @property
+    def graphFullPath(self):
+        """
+        Get Grapher file full path
+
+        :return: Grapher file full path
+        :rtype: str
+        """
+        return self._graphFile
 
     def conformNewNodeName(self, nodeName):
         """
@@ -142,6 +180,57 @@ class Grapher(object):
         for f in founds:
             iList.append(int(f.split('_')[-1]))
         return '%s_%s' % (nodeName.split('_')[0], (max(iList) + 1))
+
+    def load(self, graphFile):
+        if not os.path.exists(graphFile):
+            raise IOError("!!! GraphFile not found: %s !!!" % graphFile)
+        self.log.info("#-- Load Graph File --#")
+        self.log.info("Set graphFile: %s" % graphFile)
+        self.graphFile = graphFile
+        graphDatas = self.readDatas()
+        #-- Build Tree --#
+        self.tree._topItems = []
+        self.tree.buildTree(graphDatas['treeDatas'])
+        self.log.info("Parsing Done")
+
+    def saveAs(self, graphFile):
+        """
+        Save graph as given file name
+
+        :param graphFile: Graph file full path
+        :type graphFile: str
+        :return: Result
+        :rtype: bool
+        """
+        if not os.path.exists(os.path.dirname(graphFile)):
+            raise IOError("!!! Given path not found: %s !!!" % os.path.dirname(graphFile))
+        self.log.info("#-- Save Graph File --#")
+        self.log.info("Set graphFile: %s" % graphFile)
+        self.graphFile = graphFile
+        result = self.save()
+        if result:
+            os.chdir(self.graphPath)
+        return result
+
+    def save(self):
+        """
+        Save graph
+
+        :return: Result
+        :rtype: bool
+        """
+        #-- Check GraphFile Attr --#
+        if self._graphFile is None:
+            raise AttributeError("!!! 'graphFile' attribute is None !!!")
+        if not os.path.exists(self.graphPath):
+            raise IOError("!!! GraphFile path not found: %s !!!" % self.graphPath)
+        #-- Try To Save --#
+        try:
+            pFile.writeFile(self.graphFullPath, self.getDatas(asString=True))
+            self.log.info("Graph saved: %s" % self.graphFullPath)
+            return True
+        except:
+            raise IOError("!!! Can not write file %s !!!" % self.graphFullPath)
 
 
 class GraphTree(object):
@@ -242,6 +331,9 @@ class GraphTree(object):
         for item in self.allItems():
             if item._node.nodeName == nodeName:
                 return item
+
+    def buildTree(self, treeDict):
+        pass
 
     def createItem(self, nodeType='modul', nodeName=None, nodeParent=None):
         """

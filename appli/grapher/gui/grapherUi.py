@@ -2,6 +2,7 @@ import os, sys
 from appli import grapher
 from functools import partial
 from PyQt4 import QtGui, QtCore
+from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from appli.grapher.gui.ui import grapherUI
 from appli.grapher.core.grapher import Grapher
@@ -20,8 +21,12 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log = pFile.Logger(title="GrapherUi", level=logLvl)
         self.log.info("########## Launching Grapher Ui ##########")
         self.grapher = Grapher(logLvl)
+        self.user = grapher.user
+        self.userPath = os.path.join(grapher.binPath, 'users', self.user)
+        self.userFile = os.path.join(self.userPath, '%s.py' % self.user)
         self.iconPath = grapher.iconPath
         super(GrapherUi, self).__init__()
+        self.checkUserPath()
         self._setupUi()
 
     def _setupUi(self):
@@ -43,14 +48,28 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.tbTools.orientationChanged.connect(partial(self.on_miToolsOrientChanged, orient=False, force=False))
         #-- Node Editor --#
         self.nodeEditor = nodeEditor.NodeEditor(self)
+        self.nodeEditor.pbClose.setVisible(False)
         self.vlNodeEditor.insertWidget(0, self.nodeEditor)
 
     def _initMenu(self):
         self.log.info("#-- Init Menus --#", newLinesBefor=1)
+        self._menuFiles()
         self._menuGraph()
+        self._menuExec()
         self._menuDisplay()
         self._menuHelp()
         self.on_miNodeEditor()
+
+    # noinspection PyUnresolvedReferences
+    def _menuFiles(self):
+        self.log.debug("\t ---> Menu Files ...")
+        #-- Save --#
+        self.miSave.triggered.connect(self.on_miSave)
+        self.miSave.setShortcut('Ctrl+S')
+        self.miSaveAs.triggered.connect(self.on_miSaveAs)
+        self.miSaveAs.setShortcut('Ctrl+Shift+S')
+        #-- Recent Files --#
+        self.menuRecentFiles.aboutToShow.connect(self.buildRecentFilesMenu)
 
     # noinspection PyUnresolvedReferences
     def _menuGraph(self):
@@ -59,15 +78,24 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.graphZone.buildMenu(self.menuGraph)
 
     # noinspection PyUnresolvedReferences
+    def _menuExec(self):
+        self.log.debug("\t ---> Menu Exec ...")
+        #-- Launcher --#
+        self.miXplorer.triggered.connect(self.on_miXplorer)
+        self.miXplorer.setShortcut('F3')
+        self.miXterm.triggered.connect(self.on_miXterm)
+        self.miXterm.setShortcut('F4')
+
+    # noinspection PyUnresolvedReferences
     def _menuDisplay(self):
         self.log.debug("\t ---> Menu Display ...")
         #-- Widgets Visibility --#
         self.miToolsVisibility.triggered.connect(self.on_miToolsVisibility)
-        self.miToolsVisibility.setShortcut("T")
+        self.miToolsVisibility.setShortcut('T')
         self.miNodeEditor.triggered.connect(self.on_miNodeEditor)
-        self.miNodeEditor.setShortcut("E")
+        self.miNodeEditor.setShortcut('E')
         self.miGraphScene.triggered.connect(self.on_miGraphScene)
-        self.miGraphScene.setShortcut("Tab")
+        self.miGraphScene.setShortcut('Tab')
         #-- SubMenu 'Tools Bar Orient' --#
         self.miBarHorizontal.triggered.connect(partial(self.on_miToolsOrientChanged, orient='horizontal', force=True))
         self.miBarVertical.triggered.connect(partial(self.on_miToolsOrientChanged, orient='vertical', force=True))
@@ -78,13 +106,14 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miTabEast.triggered.connect(partial(self.on_miTabOrientChanged, 'East'))
         #-- Tools Options --#
         self.miToolsIconOnly.triggered.connect(self.on_miToolsIconOnly)
-        self.miToolsIconOnly.setShortcut("Ctrl+T")
+        self.miToolsIconOnly.setShortcut('Ctrl+T')
 
     # noinspection PyUnresolvedReferences
     def _menuHelp(self):
         self.log.debug("\t ---> Menu Help ...")
-        #-- Tree Dict --#
-        self.miFromCore.triggered.connect(self.grapher.tree.printData)
+        #-- Datas --#
+        self.miTreeDatas.triggered.connect(self.on_miTreeDatas)
+        self.miNodeDatas.triggered.connect(self.on_miNodeDatas)
 
     @property
     def toolsIconOnly(self):
@@ -95,6 +124,166 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         :rtype: bool
         """
         return self.miToolsIconOnly.isChecked()
+
+    @property
+    def nodeEditorIsEnabled(self):
+        """
+        Get nodeEditor state
+
+        :return: NodeEditor state
+        :rtype: bool
+        """
+        return self.miNodeEditor.isChecked()
+
+    @property
+    def userDatas(self):
+        """
+        Get user datas from user file
+
+        :return: User datas
+        :rtype: dict
+        """
+        return pFile.readPyFile(os.path.normpath(self.userFile))
+
+    def checkUserPath(self):
+        """
+        Check if user path and files, needed by Grapher, exists
+        """
+        self.log.info("Check user path ...")
+        #-- User Path --#
+        pFile.mkPathFolders(os.path.normpath(grapher.binPath), os.path.normpath(self.userPath))
+        #-- User Files --#
+        if not os.path.exists(self.userFile):
+            userDatas = ["recentFiles = []"]
+            try:
+                pFile.writeFile(self.userFile, '\n'.join(userDatas))
+                self.log.info("Create user file: %s" % self.userFile)
+            except:
+                raise IOError("!!! Can not create user file: %s !!!" % self.userFile)
+
+    def load(self, graphFile=None):
+        """
+        Load graphFile
+
+        :param graphFile: GraphFile full path
+        :type graphFile: str
+        """
+        if graphFile is None:
+            selFiles = self.fdLoadGraph.selectedFiles() or []
+            if selFiles:
+                graphFile = selFiles[0]
+            self.fdLoadGraph.close()
+        self.grapher.load(graphFile)
+
+    def saveAs(self):
+        """
+        Save graph as given fileDialog result
+        """
+        gpFiles = self.fdSaveGraph.selectedFiles()
+        if gpFiles:
+            graphFile = gpFiles[0]
+            if not graphFile.endsWith('.gp.py'):
+                graphFile = '%s.gp.py' % graphFile.split('.')[0]
+            result = self.grapher.saveAs(str(graphFile))
+            if result:
+                self.setWindowTitle(graphFile)
+                self.addToRecentFiles()
+
+    def addToRecentFiles(self):
+        """
+        Add current graphFile to recent files
+        """
+        #-- Update Recent Files --#
+        userDatas = self.userDatas
+        if not self.grapher.graphFullPath in userDatas['recentFiles']:
+            if len(userDatas['recentFiles']) == 10:
+                userDatas['recentFiles'].pop(len(userDatas['recentFiles']) - 1)
+            userDatas['recentFiles'].insert(0, self.grapher.graphFullPath)
+            #-- Write Datas --#
+            userTxt = []
+            for k , v in sorted(userDatas.iteritems()):
+                if isinstance(v, basestring):
+                    userTxt.append("%s = %r" % (k, v))
+                else:
+                    userTxt.append("%s = %s" % (k, v))
+            try:
+                pFile.writeFile(self.userFile, '\n'.join(userTxt))
+                self.log.debug("Recent files updated")
+            except:
+                raise IOError("!!! Can not update recent files !!!")
+
+    def buildRecentFilesMenu(self):
+        """
+        Build 'Recent Files' QMenu
+        """
+        recentFiles = self.userDatas['recentFiles']
+        self.menuRecentFiles.clear()
+        for f in recentFiles:
+            newItem = self.menuRecentFiles.addAction(f)
+            newItem.clicked.connect(partial(self.load, graphFile=f))
+
+    def on_miLoad(self):
+        """
+        Command launched when 'Load' QMenuItem is triggered
+
+        Launch fileDialog
+        """
+        self.log.detail(">>> Launch menuItem 'Load' ...")
+        if self.grapher._graphFile is not None:
+            root = self.grapher.graphPath
+        else:
+            root = 'D:/prods'
+        self.fdLoadGraph = pQt.fileDialog(fdFileMode='ExistingFile', fdRoot=root, fdFilters=['*.gp.py'],
+                                          fdCmd=self.saveAs)
+        self.fdLoadGraph.exec_()
+
+    def on_miSave(self):
+        """
+        Command launched when 'Save' QMenuItem is triggered
+
+        Save graph if 'graphFile' is not None, else launch fileDialog
+        """
+        self.log.detail(">>> Launch menuItem 'Save' ...")
+        if self.grapher._graphFile is None:
+            self.on_miSaveAs()
+        else:
+            self.grapher.save()
+
+    def on_miSaveAs(self):
+        """
+        Command launched when 'Save As' QMenuItem is triggered
+
+        Launch fileDialog
+        """
+        self.log.detail(">>> Launch menuItem 'Save As' ...")
+        if self.grapher._graphFile is not None:
+            root = self.grapher.graphPath
+        else:
+            root = 'D:/prods'
+        self.fdSaveGraph = pQt.fileDialog(fdMode='save', fdRoot=root, fdFilters=['*.gp.py'], fdCmd=self.saveAs)
+        self.fdSaveGraph.exec_()
+
+    def on_miXplorer(self):
+        """
+        Command launched when 'Xplorer' QMenuItem is triggered
+
+        Launch Explorer
+        """
+        if self.grapher._graphFile is not None:
+            os.system('start %s' % os.path.normpath(self.grapher.graphPath))
+        else:
+            self.log.info("GraphFile not setted, can not launch Xplorer !!!")
+
+    def on_miXterm(self):
+        """
+        Command launched when 'Xterm' QMenuItem is triggered
+
+        Launch Xterm
+        """
+        if self.grapher._graphFile is not None:
+            os.system('start cmd.exe /K "cd /d %s"' % os.path.normpath(self.grapher.graphPath))
+        else:
+            self.log.info("GraphFile not setted, can not launch Xterm !!!")
 
     def on_miToolsOrientChanged(self, orient=False, force=False):
         """
@@ -149,6 +338,10 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail(">>> Launch menuItem 'Node Editor' ...")
         self.vfNodeEditor.setVisible(self.miNodeEditor.isChecked())
+        selItems = self.graphZone.currentGraph.selectedItems() or []
+        self.nodeEditor.clear()
+        if len(selItems) == 1:
+            self.nodeEditor.connectItem(selItems[0])
 
     def on_miGraphScene(self):
         """
@@ -170,6 +363,31 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log.detail(">>> Launch menuItem 'Tools Icon Only' ...")
         self.graphTools.toolsAspect()
 
+    def on_miTreeDatas(self):
+        """
+        Command launched when 'Tree Datas' QMenuItem is triggered
+
+        Print tree datas
+        """
+        self.log.detail(">>> Launch menuItem 'Tree Datas' ...")
+        self.grapher.tree.printData()
+
+    def on_miNodeDatas(self):
+        """
+        Command launched when 'Node Datas' QMenuItem is triggered
+
+        Print selected nodes datas
+        """
+        self.log.detail(">>> Launch menuItem 'Node Datas' ...")
+        if self.graphZone.currentGraphMode == 'tree':
+            selItems = self.graphZone.graphTree.selectedItems() or []
+        else:
+            selItems = self.graphZone.graphScene.getSelectedNodes()
+        if selItems:
+            for item in selItems:
+                self.log.info("Node Datas: %s" % item._item._node.nodeName)
+                print item._item.getDatas(asString=True)
+
 
 def launch(logLvl='info'):
     """
@@ -185,4 +403,4 @@ def launch(logLvl='info'):
 
 
 if __name__ == '__main__':
-    launch(logLvl='debug')
+    launch(logLvl='detail')

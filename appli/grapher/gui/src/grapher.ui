@@ -103,16 +103,39 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <widget class="QMenu" name="menuTreeDict">
-     <property name="title">
-      <string>Tree Dict</string>
-     </property>
-     <addaction name="miFromCore"/>
-     <addaction name="miFromUi"/>
-    </widget>
-    <addaction name="menuTreeDict"/>
+    <addaction name="miTreeDatas"/>
+    <addaction name="miNodeDatas"/>
    </widget>
+   <widget class="QMenu" name="menuFiles">
+    <property name="title">
+     <string>Files</string>
+    </property>
+    <widget class="QMenu" name="menuRecentFiles">
+     <property name="title">
+      <string>Recent Files</string>
+     </property>
+    </widget>
+    <addaction name="miLoad"/>
+    <addaction name="menuRecentFiles"/>
+    <addaction name="separator"/>
+    <addaction name="miSave"/>
+    <addaction name="miSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="miBreakLock"/>
+    <addaction name="separator"/>
+    <addaction name="miClose"/>
+    <addaction name="miQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuExec">
+    <property name="title">
+     <string>Exec</string>
+    </property>
+    <addaction name="miXplorer"/>
+    <addaction name="miXterm"/>
+   </widget>
+   <addaction name="menuFiles"/>
    <addaction name="menuGraph"/>
+   <addaction name="menuExec"/>
    <addaction name="menuDisplay"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -199,14 +222,64 @@
     <string>East</string>
    </property>
   </action>
-  <action name="miFromCore">
+  <action name="miTreeDatas">
    <property name="text">
-    <string>From Core</string>
+    <string>Tree Datas</string>
    </property>
   </action>
   <action name="miFromUi">
    <property name="text">
     <string>From Ui</string>
+   </property>
+  </action>
+  <action name="miSaveAs">
+   <property name="text">
+    <string>Save As</string>
+   </property>
+  </action>
+  <action name="miSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="miLoad">
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="miBreakLock">
+   <property name="text">
+    <string>Break Lock</string>
+   </property>
+  </action>
+  <action name="miClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="miQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="miNodeDatas">
+   <property name="text">
+    <string>Node Datas</string>
+   </property>
+  </action>
+  <action name="miXplorer">
+   <property name="text">
+    <string>Xplorer</string>
+   </property>
+  </action>
+  <action name="miXterm">
+   <property name="text">
+    <string>Xterm</string>
+   </property>
+  </action>
+  <action name="actionRecent">
+   <property name="text">
+    <string>recent</string>
    </property>
   </action>
  </widget>

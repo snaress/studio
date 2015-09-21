@@ -1,8 +1,6 @@
-import os
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
 from appli.grapher.gui import graphWgts
-from appli.grapher.gui.ui import graphNodeUI
 
 
 class GraphTree(QtGui.QTreeWidget):
@@ -24,11 +22,14 @@ class GraphTree(QtGui.QTreeWidget):
         self.grapher = self.graphZone.grapher
         self._setupWidget()
 
+    # noinspection PyUnresolvedReferences
     def _setupWidget(self):
         self.log.debug("\t ---> Setup GraphTree Widget.")
         self.setStyleSheet("background-color: rgb(35, 35, 35)")
         self.setSelectionMode(QtGui.QTreeWidget.ExtendedSelection)
         self.setSelectionBehavior(QtGui.QAbstractItemView.SelectItems)
+        self.itemClicked.connect(pQt.ClickHandler(singleClickCmd=self.graphZone._singleClick,
+                                                  doubleClickCmd=self.graphZone._doubleClick))
         self.setExpandsOnDoubleClick(False)
         self.setHeaderHidden(True)
         self.setColumnCount(12)
@@ -79,12 +80,16 @@ class GraphTree(QtGui.QTreeWidget):
         Update selected / deselected node color
         """
         super(GraphTree, self).selectionChanged(event, options)
+        #-- Node Color --#
         for item in pQt.getAllItems(self):
             if item in self.selectedItems():
                 item._widget.set_nodeColor((255, 255, 0, 255))
             else:
                 item._widget.rf_nodeColor()
-            item._widget.set_expanded(state=item.isExpanded())
+        #-- Node Editor --#
+        if self.mainUi.nodeEditorIsEnabled:
+            if not self.selectedItems():
+                self.mainUi.nodeEditor.clear()
 
     def addTopLevelItem(self, QTreeWidgetItem):
         """
