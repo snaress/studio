@@ -83,7 +83,7 @@ class Node(object):
         :rtype: int
         """
         curIndex = self.nodeVersion
-        newIndex = int(self.nodeVersions.keys()[-1] + 1)
+        newIndex = int(sorted(self.nodeVersions.keys())[-1] + 1)
         self.nodeVersions[newIndex] = "New version"
         self.nodeComments[newIndex] = self.nodeComments[curIndex]
         self.nodeNotes[newIndex] = self.nodeNotes[curIndex]
@@ -91,6 +91,30 @@ class Node(object):
             self.nodeScript[newIndex] = self.nodeScript[curIndex]
         self.nodeVersion = newIndex
         return self.nodeVersion
+
+    def delVersion(self):
+        """
+        Delete current node version
+
+        :return: Current version
+        :rtype: int
+        """
+        curIndex = self.nodeVersion
+        if not len(self.nodeVersions.keys()) == 1:
+            #-- Get new Index --#
+            if curIndex == sorted(self.nodeVersions.keys())[0]:
+                newIndex = sorted(self.nodeVersions.keys())[1]
+            else:
+                n = sorted(self.nodeVersions.keys()).index(curIndex)
+                newIndex = sorted(self.nodeVersions.keys())[n-1]
+            self.nodeVersion = newIndex
+            #-- Delete Version --#
+            self.nodeVersions.pop(curIndex)
+            self.nodeComments.pop(curIndex)
+            self.nodeNotes.pop(curIndex)
+            if hasattr(self, 'nodeScript'):
+                self.nodeScript.pop(curIndex)
+            return newIndex
 
 
 class Modul(Node):

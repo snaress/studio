@@ -31,6 +31,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.leVersionTitle.returnPressed.connect(self.on_versionTitle)
         self.pbSwitch.clicked.connect(self.on_switchVersion)
         self.pbNewVersion.clicked.connect(self.on_newVersion)
+        self.pbDelVersion.clicked.connect(self.on_delVersion)
         #-- Node Comment --#
         self.nodeComment = textEditor.TextEditor()
         self.nodeComment.bLoadFile.setEnabled(False)
@@ -143,6 +144,18 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         if self.node is not None:
             self.log.detail(">>> Create new node version")
             self.node.addVersion()
+            self.clear()
+            self.update()
+
+    def on_delVersion(self):
+        """
+        Command launched when 'Del Version' QPushButton is clicked.
+
+        Delete current node version
+        """
+        if self.node is not None:
+            self.log.detail(">>> Delete current node version")
+            self.node.delVersion()
             self.clear()
             self.update()
 
