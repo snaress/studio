@@ -40,6 +40,18 @@ class Node(object):
 
     def setDatas(self, **kwargs):
         """
+        Set GraphNode datas
+
+        :param kwargs: Node datas
+        :type kwargs: dict
+        """
+        for k, v in kwargs.iteritems():
+            if not k in ['nodeName', 'nodeType']:
+                if hasattr(self, k):
+                    setattr(self, k, v)
+
+    def setVersionnedDatas(self, **kwargs):
+        """
         Set GraphNode versionned datas
 
         :param kwargs: Datas (node.attrName: node.attrValue)

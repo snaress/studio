@@ -154,7 +154,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         """
         if self.node is not None:
             self.log.detail(">>> Save node datas")
-            self.node.setDatas(**self.getDatas())
+            self.node.setVersionnedDatas(**self.getDatas())
 
     def on_cancel(self):
         """

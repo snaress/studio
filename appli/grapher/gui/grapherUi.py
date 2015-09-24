@@ -63,13 +63,15 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     # noinspection PyUnresolvedReferences
     def _menuFiles(self):
         self.log.debug("\t ---> Menu Files ...")
+        #-- Load --#
+        self.miLoad.triggered.connect(self.on_miLoad)
+        self.miLoad.setShortcut('Ctrl+L')
+        self.menuRecentFiles.aboutToShow.connect(self.buildRecentFilesMenu)
         #-- Save --#
         self.miSave.triggered.connect(self.on_miSave)
         self.miSave.setShortcut('Ctrl+S')
         self.miSaveAs.triggered.connect(self.on_miSaveAs)
         self.miSaveAs.setShortcut('Ctrl+Shift+S')
-        #-- Recent Files --#
-        self.menuRecentFiles.aboutToShow.connect(self.buildRecentFilesMenu)
 
     # noinspection PyUnresolvedReferences
     def _menuGraph(self):
@@ -173,7 +175,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
             if selFiles:
                 graphFile = selFiles[0]
             self.fdLoadGraph.close()
-        self.grapher.load(graphFile)
+        self.grapher.load(str(graphFile))
+        self.graphZone.refreshGraph()
 
     def saveAs(self):
         """
@@ -220,7 +223,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.menuRecentFiles.clear()
         for f in recentFiles:
             newItem = self.menuRecentFiles.addAction(f)
-            newItem.clicked.connect(partial(self.load, graphFile=f))
+            newItem.triggered.connect(partial(self.load, graphFile=f))
 
     def on_miLoad(self):
         """
@@ -234,7 +237,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         else:
             root = 'D:/prods'
         self.fdLoadGraph = pQt.fileDialog(fdFileMode='ExistingFile', fdRoot=root, fdFilters=['*.gp.py'],
-                                          fdCmd=self.saveAs)
+                                          fdCmd=self.load)
         self.fdLoadGraph.exec_()
 
     def on_miSave(self):

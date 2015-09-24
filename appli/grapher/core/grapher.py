@@ -5,6 +5,10 @@ Init Grapher:
 -------------
 gp = Grapher(logLvl='debug')
 
+Load GraphFile:
+---------------
+gp.load(graphFile)
+
 Create Node:
 ------------
 newItem = gp.tree.createItem(nodeType='modul', nodeName='myNodeName_1', nodeParent='nodeParentName_#')
@@ -182,6 +186,12 @@ class Grapher(object):
         return '%s_%s' % (nodeName.split('_')[0], (max(iList) + 1))
 
     def load(self, graphFile):
+        """
+        Load given graph file
+
+        :param graphFile: Grapher file full path
+        :type graphFile: str
+        """
         if not os.path.exists(graphFile):
             raise IOError("!!! GraphFile not found: %s !!!" % graphFile)
         self.log.info("#-- Load Graph File --#")
@@ -216,7 +226,7 @@ class Grapher(object):
         """
         Save graph
 
-        :return: Result
+        :return: Result, True if success, else False
         :rtype: bool
         """
         #-- Check GraphFile Attr --#
@@ -333,7 +343,18 @@ class GraphTree(object):
                 return item
 
     def buildTree(self, treeDict):
-        pass
+        """
+        Build tree from given tree datas
+
+        :param treeDict: Tree datas
+        :type treeDict: dict
+        """
+        for n in sorted(treeDict.keys()):
+            newItem = self.createItem(nodeType=treeDict[n]['nodeType'],
+                                      nodeName=treeDict[n]['nodeName'],
+                                      nodeParent=treeDict[n]['parent'])
+            # noinspection PyUnresolvedReferences
+            newItem._node.setDatas(**treeDict[n])
 
     def createItem(self, nodeType='modul', nodeName=None, nodeParent=None):
         """
