@@ -1,12 +1,12 @@
-import os, sys
+import os, sys, pprint
 from appli import grapher
 from functools import partial
 from PyQt4 import QtGui, QtCore
-from lib.qt import procQt as pQt
+from lib.qt import procQt, textEditor
 from lib.system import procFile as pFile
 from appli.grapher.gui.ui import grapherUI
 from appli.grapher.core.grapher import Grapher
-from appli.grapher.gui import graphZone, toolsWgts, nodeEditor
+from appli.grapher.gui import graphZone, toolsWgts, nodeEditor, graphWgts
 
 
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
@@ -29,6 +29,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.checkUserPath()
         self._setupUi()
 
+    # noinspection PyUnresolvedReferences
     def _setupUi(self):
         self.log.info("#-- Setup Main Ui --#", newLinesBefor=1)
         self.setupUi(self)
@@ -36,10 +37,23 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.gridLayout.setSpacing(0)
         self._initWidgets()
         self._initMenu()
+        self.rf_nodeGroupVisibility(self.gbComment, self.graphComment)
+        self.rf_nodeGroupVisibility(self.gbVariables, self.graphVar)
 
     # noinspection PyUnresolvedReferences
     def _initWidgets(self):
         self.log.info("#-- Init Widgets --#", newLinesBefor=1)
+        #-- Node Comment --#
+        self.graphComment = textEditor.TextEditor()
+        self.graphComment.bLoadFile.setEnabled(False)
+        self.graphComment.bSaveFile.setEnabled(False)
+        self.graphComment.teText.textChanged.connect(self.rf_graphComment)
+        self.glComment.addWidget(self.graphComment, 0, 0)
+        self.gbComment.clicked.connect(partial(self.rf_nodeGroupVisibility, self.gbComment, self.graphComment))
+        #-- Node Variables --#
+        self.graphVar = graphWgts.Variables(self)
+        self.glVariables.addWidget(self.graphVar, 0, 0)
+        self.gbVariables.clicked.connect(partial(self.rf_nodeGroupVisibility, self.gbVariables, self.graphVar))
         #-- GraphZone --#
         self.graphZone = graphZone.GraphZone(self)
         #-- GraphTools --#
@@ -114,6 +128,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def _menuHelp(self):
         self.log.debug("\t ---> Menu Help ...")
         #-- Datas --#
+        self.miGrapherDatas.triggered.connect(self.on_miGrapherDatas)
         self.miTreeDatas.triggered.connect(self.on_miTreeDatas)
         self.miNodeDatas.triggered.connect(self.on_miNodeDatas)
 
@@ -147,6 +162,28 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         return pFile.readPyFile(os.path.normpath(self.userFile))
 
+    @staticmethod
+    def rf_nodeGroupVisibility(groupBox, widget):
+        """
+        Refresh given QGroupBox visibility
+
+        :param groupBox: Node editor groupBox
+        :type groupBox: QtGui.QGroupBox
+        :param widget: GroupBox child widget
+        :type widget: textEditor.TextEditor | QtGui.QTextEdit | graphWgts.NodeVariables
+        """
+        widget.setVisible(groupBox.isChecked())
+        if groupBox.isChecked():
+            groupBox.setMaximumHeight(16777215)
+        else:
+            groupBox.setMaximumHeight(15)
+
+    def rf_graphComment(self):
+        """
+        Refresh grapher comment
+        """
+        self.grapher.setComment(str(self.graphComment.teText.toHtml()))
+
     def checkUserPath(self):
         """
         Check if user path and files, needed by Grapher, exists
@@ -176,6 +213,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
                 graphFile = selFiles[0]
             self.fdLoadGraph.close()
         self.grapher.load(str(graphFile))
+        self.graphComment.teText.setHtml(self.grapher.graphComment)
         self.graphZone.refreshGraph()
 
     def saveAs(self):
@@ -236,8 +274,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
             root = self.grapher.graphPath
         else:
             root = 'D:/prods'
-        self.fdLoadGraph = pQt.fileDialog(fdFileMode='ExistingFile', fdRoot=root, fdFilters=['*.gp.py'],
-                                          fdCmd=self.load)
+        self.fdLoadGraph = procQt.fileDialog(fdFileMode='ExistingFile', fdRoot=root, fdFilters=['*.gp.py'],
+                                             fdCmd=self.load)
         self.fdLoadGraph.exec_()
 
     def on_miSave(self):
@@ -263,7 +301,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
             root = self.grapher.graphPath
         else:
             root = 'D:/prods'
-        self.fdSaveGraph = pQt.fileDialog(fdMode='save', fdRoot=root, fdFilters=['*.gp.py'], fdCmd=self.saveAs)
+        self.fdSaveGraph = procQt.fileDialog(fdMode='save', fdRoot=root, fdFilters=['*.gp.py'],
+                                             fdCmd=self.saveAs)
         self.fdSaveGraph.exec_()
 
     def on_miXplorer(self):
@@ -272,6 +311,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
 
         Launch Explorer
         """
+        self.log.detail(">>> Launch menuItem 'Xplorer' ...")
         if self.grapher._graphFile is not None:
             os.system('start %s' % os.path.normpath(self.grapher.graphPath))
         else:
@@ -283,8 +323,9 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
 
         Launch Xterm
         """
+        self.log.detail(">>> Launch menuItem 'Xterm' ...")
         if self.grapher._graphFile is not None:
-            os.system('start cmd.exe /K "cd /d %s"' % os.path.normpath(self.grapher.graphPath))
+            os.system('start')
         else:
             self.log.info("GraphFile not setted, can not launch Xterm !!!")
 
@@ -366,6 +407,15 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log.detail(">>> Launch menuItem 'Tools Icon Only' ...")
         self.graphTools.toolsAspect()
 
+    def on_miGrapherDatas(self):
+        """
+        Command launched when 'Grapher Datas' QMenuItem is triggered
+
+        Print grapher datas
+        """
+        self.log.detail(">>> Launch menuItem 'Grapher Datas' ...")
+        print pprint.pformat(self.grapher.getDatas()['graphDatas'])
+
     def on_miTreeDatas(self):
         """
         Command launched when 'Tree Datas' QMenuItem is triggered
@@ -406,4 +456,6 @@ def launch(logLvl='info'):
 
 
 if __name__ == '__main__':
-    launch(logLvl='detail')
+    import os
+    # launch(logLvl='detail')
+    os.system("start %s" % os.path.normpath(os.path.join(grapher.toolPath, '__exe__.py')))

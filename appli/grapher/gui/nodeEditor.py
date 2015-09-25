@@ -1,6 +1,7 @@
 from PyQt4 import QtGui
 from functools import partial
-from lib.qt import textEditor
+from lib.qt import procQt, textEditor
+from appli.grapher.gui import graphWgts
 from appli.grapher.gui.ui import nodeEditorUI
 
 
@@ -37,11 +38,13 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.nodeComment.bLoadFile.setEnabled(False)
         self.nodeComment.bSaveFile.setEnabled(False)
         self.glComment.addWidget(self.nodeComment, 0, 0)
-        self.gbComment.clicked.connect(partial(self.rf_nodeGroupVisibility, self.gbComment))
+        self.gbComment.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbComment, self.nodeComment))
         #-- Node Variables --#
-        self.gbVariables.clicked.connect(partial(self.rf_nodeGroupVisibility, self.gbVariables))
+        self.nodeVar = graphWgts.Variables(self.mainUi)
+        self.glVariables.addWidget(self.nodeVar, 0, 0)
+        self.gbVariables.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbVariables, self.nodeVar))
         #-- Node Notes --#
-        self.gbNotes.clicked.connect(partial(self.rf_nodeGroupVisibility, self.gbNotes))
+        self.gbNotes.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbNotes, self.teNotes))
         #-- Node Buttons --#
         self.pbSave.clicked.connect(self.on_save)
         self.pbCancel.clicked.connect(self.on_cancel)
@@ -50,6 +53,12 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.refresh()
 
     def getDatas(self):
+        """
+        Get node editor datas
+
+        :return: Node editor datas
+        :rtype: dict
+        """
         return dict(nodeComments=str(self.nodeComment.teText.toHtml()),
                     nodeNotes=str(self.teNotes.toPlainText()))
 
@@ -67,9 +76,9 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         Refresh nodeEditor widgets
         """
         self.log.detail(">>> Refreshing NodeEditor")
-        self.rf_nodeGroupVisibility(self.gbComment)
-        self.rf_nodeGroupVisibility(self.gbVariables)
-        self.rf_nodeGroupVisibility(self.gbNotes)
+        self.mainUi.rf_nodeGroupVisibility(self.gbComment, self.nodeComment)
+        self.mainUi.rf_nodeGroupVisibility(self.gbVariables, self.nodeVar)
+        self.mainUi.rf_nodeGroupVisibility(self.gbNotes, self.teNotes)
 
     def update(self):
         """
@@ -99,21 +108,14 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.node = self.item._item._node
         self.update()
 
-    def rf_nodeGroupVisibility(self, groupBox):
+    def delVersion(self):
         """
-        Refresh given QGroupBox visibility
-
-        :param groupBox: Node editor groupBox
-        :type groupBox: QtGui.QGroupBox
+        Delete current node version
         """
-        if str(groupBox.title()) == 'Comment':
-            self.nodeComment.setVisible(groupBox.isChecked())
-        elif str(groupBox.title()) == 'Notes':
-            self.teNotes.setVisible(groupBox.isChecked())
-        if groupBox.isChecked():
-            groupBox.setMaximumHeight(16777215)
-        else:
-            groupBox.setMaximumHeight(20)
+        self.fdDelVersion.close()
+        self.node.delVersion()
+        self.clear()
+        self.update()
 
     def on_versionTitle(self):
         """
@@ -151,13 +153,13 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         """
         Command launched when 'Del Version' QPushButton is clicked.
 
-        Delete current node version
+        Launch confirm dialog
         """
         if self.node is not None:
             self.log.detail(">>> Delete current node version")
-            self.node.delVersion()
-            self.clear()
-            self.update()
+            mess = "Delete node version %s ?" % self.node.nodeVersion
+            self.fdDelVersion = procQt.ConfirmDialog(mess, ['Delete'], [self.delVersion])
+            self.fdDelVersion.exec_()
 
     def on_save(self):
         """

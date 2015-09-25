@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Sun Sep 20 16:23:33 2015
+# Created: Fri Sep 25 02:00:16 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,12 +26,43 @@ except AttributeError:
 class Ui_mwGrapher(object):
     def setupUi(self, mwGrapher):
         mwGrapher.setObjectName(_fromUtf8("mwGrapher"))
-        mwGrapher.resize(1080, 720)
+        mwGrapher.resize(819, 594)
         self.centralwidget = QtGui.QWidget(mwGrapher)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
-        self.splitter = QtGui.QSplitter(self.centralwidget)
+        self.splitter_2 = QtGui.QSplitter(self.centralwidget)
+        self.splitter_2.setOrientation(QtCore.Qt.Vertical)
+        self.splitter_2.setObjectName(_fromUtf8("splitter_2"))
+        self.gbComment = QtGui.QGroupBox(self.splitter_2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.gbComment.sizePolicy().hasHeightForWidth())
+        self.gbComment.setSizePolicy(sizePolicy)
+        self.gbComment.setFlat(False)
+        self.gbComment.setCheckable(True)
+        self.gbComment.setChecked(False)
+        self.gbComment.setObjectName(_fromUtf8("gbComment"))
+        self.glComment = QtGui.QGridLayout(self.gbComment)
+        self.glComment.setMargin(0)
+        self.glComment.setSpacing(0)
+        self.glComment.setObjectName(_fromUtf8("glComment"))
+        self.gbVariables = QtGui.QGroupBox(self.splitter_2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.gbVariables.sizePolicy().hasHeightForWidth())
+        self.gbVariables.setSizePolicy(sizePolicy)
+        self.gbVariables.setFlat(False)
+        self.gbVariables.setCheckable(True)
+        self.gbVariables.setChecked(False)
+        self.gbVariables.setObjectName(_fromUtf8("gbVariables"))
+        self.glVariables = QtGui.QGridLayout(self.gbVariables)
+        self.glVariables.setMargin(0)
+        self.glVariables.setSpacing(0)
+        self.glVariables.setObjectName(_fromUtf8("glVariables"))
+        self.splitter = QtGui.QSplitter(self.splitter_2)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName(_fromUtf8("splitter"))
         self.vfGraphZone = QtGui.QFrame(self.splitter)
@@ -48,10 +79,10 @@ class Ui_mwGrapher(object):
         self.vlNodeEditor.setSpacing(0)
         self.vlNodeEditor.setMargin(0)
         self.vlNodeEditor.setObjectName(_fromUtf8("vlNodeEditor"))
-        self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         mwGrapher.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(mwGrapher)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1080, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 819, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuDisplay = QtGui.QMenu(self.menubar)
         self.menuDisplay.setObjectName(_fromUtf8("menuDisplay"))
@@ -129,6 +160,8 @@ class Ui_mwGrapher(object):
         self.miXterm.setObjectName(_fromUtf8("miXterm"))
         self.actionRecent = QtGui.QAction(mwGrapher)
         self.actionRecent.setObjectName(_fromUtf8("actionRecent"))
+        self.miGrapherDatas = QtGui.QAction(mwGrapher)
+        self.miGrapherDatas.setObjectName(_fromUtf8("miGrapherDatas"))
         self.menuToolBarOrient.addAction(self.miBarHorizontal)
         self.menuToolBarOrient.addAction(self.miBarVertical)
         self.menuToolTabOrient.addAction(self.miTabNorth)
@@ -144,6 +177,7 @@ class Ui_mwGrapher(object):
         self.menuDisplay.addAction(self.miGraphScene)
         self.menuDisplay.addSeparator()
         self.menuDisplay.addAction(self.menuToolBarOptions.menuAction())
+        self.menuHelp.addAction(self.miGrapherDatas)
         self.menuHelp.addAction(self.miTreeDatas)
         self.menuHelp.addAction(self.miNodeDatas)
         self.menuFiles.addAction(self.miLoad)
@@ -169,6 +203,8 @@ class Ui_mwGrapher(object):
 
     def retranslateUi(self, mwGrapher):
         mwGrapher.setWindowTitle(_translate("mwGrapher", "Grapher", None))
+        self.gbComment.setTitle(_translate("mwGrapher", "Comment", None))
+        self.gbVariables.setTitle(_translate("mwGrapher", "Variables", None))
         self.menuDisplay.setTitle(_translate("mwGrapher", "Display", None))
         self.menuToolBarOptions.setTitle(_translate("mwGrapher", "Tool Bar Options", None))
         self.menuToolBarOrient.setTitle(_translate("mwGrapher", "Tool Bar Orient", None))
@@ -201,4 +237,5 @@ class Ui_mwGrapher(object):
         self.miXplorer.setText(_translate("mwGrapher", "Xplorer", None))
         self.miXterm.setText(_translate("mwGrapher", "Xterm", None))
         self.actionRecent.setText(_translate("mwGrapher", "recent", None))
+        self.miGrapherDatas.setText(_translate("mwGrapher", "Grapher Datas", None))
 

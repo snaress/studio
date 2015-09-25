@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\nodeEditor.ui'
 #
-# Created: Sat Sep 19 20:02:24 2015
+# Created: Thu Sep 24 23:57:35 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgNodeEditor(object):
     def setupUi(self, wgNodeEditor):
         wgNodeEditor.setObjectName(_fromUtf8("wgNodeEditor"))
-        wgNodeEditor.resize(444, 800)
+        wgNodeEditor.resize(444, 803)
         self.gridLayout = QtGui.QGridLayout(wgNodeEditor)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.hlNodeName = QtGui.QHBoxLayout()

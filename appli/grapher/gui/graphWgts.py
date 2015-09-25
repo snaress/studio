@@ -1,6 +1,6 @@
 import os
 from PyQt4 import QtGui, QtSvg, QtCore
-from appli.grapher.gui.ui import graphNodeUI, nodeRenameUI
+from appli.grapher.gui.ui import graphNodeUI, nodeRenameUI, wgVariablesUI
 
 
 class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
@@ -479,3 +479,68 @@ class NodeRenamer(QtGui.QDialog, nodeRenameUI.Ui_dialNodeRename):
         else:
             self.item._label._text = self.item._item._node.nodeName
             self.item._label.setText()
+
+
+class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
+    """
+    Node Variables QWidget, child of mainUi and NodeEditor
+
+    :param mainUi: Grapher main window
+    :type mainUi: QtGui.QMainWindow
+    """
+
+    def __init__(self, mainUi):
+        self.mainUi = mainUi
+        super(Variables, self).__init__()
+        self._setupWidget()
+
+    # noinspection PyUnresolvedReferences
+    def _setupWidget(self):
+        self.setupUi(self)
+        self.pbAddVar.clicked.connect(self.on_addVar)
+        self.rf_columnSize()
+
+    def rf_columnSize(self):
+        """
+        Refresh tree column size
+        """
+        self.twVar.resizeColumnToContents(0)
+        self.twVar.resizeColumnToContents(1)
+        self.twVar.resizeColumnToContents(3)
+
+    def on_addVar(self):
+        """
+        Command launched when 'Add Var' QPushButton is clicked
+
+        Add new variable
+        """
+        newItem = self.new_varItem()
+        self.twVar.addTopLevelItem(newItem)
+        #-- Add Widgets --#
+        self.twVar.setItemWidget(newItem, 1, newItem._wState)
+        self.twVar.setItemWidget(newItem, 2, newItem._wLabel)
+        self.twVar.setItemWidget(newItem, 3, newItem._wType)
+        self.twVar.setItemWidget(newItem, 4, newItem._wValue)
+        self.twVar.setItemWidget(newItem, 5, newItem._wComment)
+        #-- refresh --#
+        self.rf_columnSize()
+
+    def new_varItem(self):
+        """
+        Create variable item
+
+        :return: Variable item
+        :rtype: QtGui.QTreeWidgetItem
+        """
+        newItem = QtGui.QTreeWidgetItem()
+        #-- State PushButton --#
+        newItem._wState = QtGui.QPushButton()
+        newItem._wState.setIcon(self.mainUi.graphZone.enabledIcon)
+        newItem._wState.setCheckable(True)
+        newItem._wState.setChecked(True)
+        newItem._wLabel = QtGui.QLineEdit()
+        newItem._wType = QtGui.QComboBox()
+        newItem._wType.addItems(['auto', 'num', ' + ', ' - '])
+        newItem._wValue = QtGui.QLineEdit()
+        newItem._wComment = QtGui.QLineEdit()
+        return newItem

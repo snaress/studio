@@ -17,6 +17,7 @@ class Node(object):
         self.nodeVersion = 0
         self.nodeVersions = {0: "Default Version"}
         self.nodeComments = {0: ""}
+        self.nodeVariables = {0: {}}
         self.nodeNotes = {0: ""}
 
     def getDatas(self, asString=False):

@@ -61,7 +61,8 @@ class Grapher(object):
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="Grapher", level=logLvl)
         self.log.info("#-- Init Grapher Core --#", newLinesBefor=1)
-
+        self.graphComment = ""
+        self.graphVariables = dict()
         self.tree = GraphTree(self)
 
     def getDatas(self, asString=False):
@@ -73,7 +74,9 @@ class Grapher(object):
         :return: Grapher contents
         :rtype: dict | str
         """
-        graphDict = dict(graphDatas={}, treeDatas=self.tree.getDatas())
+        graphDict = dict(graphDatas={'graphComment': self.graphComment,
+                                     'graphVariables': self.graphVariables},
+                         treeDatas=self.tree.getDatas())
         if asString:
             graphTxt = []
             for k, v in sorted(graphDict.iteritems()):
@@ -83,6 +86,15 @@ class Grapher(object):
                     graphTxt.append("%s = %s" % (k, pprint.pformat(v)))
             return '\n'.join(graphTxt)
         return graphDict
+
+    def setComment(self, comment):
+        """
+        Set grapher comment
+
+        :param comment: Grapher comment
+        :type comment: str
+        """
+        self.graphComment = comment
 
     def readDatas(self):
         """
@@ -197,7 +209,10 @@ class Grapher(object):
         self.log.info("#-- Load Graph File --#")
         self.log.info("Set graphFile: %s" % graphFile)
         self.graphFile = graphFile
+        os.chdir(self.graphPath)
+        #-- Set Graph Datas --#
         graphDatas = self.readDatas()
+        self.setComment(graphDatas['graphDatas']['graphComment'])
         #-- Build Tree --#
         self.tree._topItems = []
         self.tree.buildTree(graphDatas['treeDatas'])
