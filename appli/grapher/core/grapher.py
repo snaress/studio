@@ -41,8 +41,8 @@ nodeDict = myNodeName_1.getDatas()
 print myNodeName_1.getDatas(asString=True)
 """
 
-
 import os, pprint
+from lib.env import studio
 from lib.system import procFile as pFile
 from appli.grapher.core import graphNodes
 
@@ -61,8 +61,9 @@ class Grapher(object):
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="Grapher", level=logLvl)
         self.log.info("#-- Init Grapher Core --#", newLinesBefor=1)
-        self.graphComment = ""
-        self.graphVariables = dict()
+        self.studio = studio
+        self.comment = ""
+        self.variables = dict()
         self.tree = GraphTree(self)
 
     def getDatas(self, asString=False):
@@ -74,8 +75,8 @@ class Grapher(object):
         :return: Grapher contents
         :rtype: dict | str
         """
-        graphDict = dict(graphDatas={'graphComment': self.graphComment,
-                                     'graphVariables': self.graphVariables},
+        graphDict = dict(graphDatas={'comment': self.comment,
+                                     'variables': self.variables},
                          treeDatas=self.tree.getDatas())
         if asString:
             graphTxt = []
@@ -94,7 +95,7 @@ class Grapher(object):
         :param comment: Grapher comment
         :type comment: str
         """
-        self.graphComment = comment
+        self.comment = comment
 
     def readDatas(self):
         """
@@ -212,7 +213,8 @@ class Grapher(object):
         os.chdir(self.graphPath)
         #-- Set Graph Datas --#
         graphDatas = self.readDatas()
-        self.setComment(graphDatas['graphDatas']['graphComment'])
+        self.setComment(graphDatas['graphDatas']['comment'])
+        self.variables = graphDatas['graphDatas']['variables']
         #-- Build Tree --#
         self.tree._topItems = []
         self.tree.buildTree(graphDatas['treeDatas'])
@@ -263,7 +265,7 @@ class GraphTree(object):
     Grapher tree, child of Grapher
 
     :param grapher: Grapher core
-    :type grapher: Grapher
+    :type grapher: grapher.Grapher
     """
 
     def __init__(self, grapher=None):
@@ -634,11 +636,3 @@ class GraphItem(object):
             self._tree._topItems.remove(self)
         else:
             self._parent._children.remove(self)
-
-
-
-if __name__ == '__main__':
-    gp = Grapher(logLvl='debug')
-    gp.tree.createItem(nodeName='toto_1')
-    print '#' * 120
-    print gp.tree.getDatas(asString=True)

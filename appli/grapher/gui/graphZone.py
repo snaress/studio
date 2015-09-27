@@ -26,6 +26,7 @@ class GraphZone(object):
         self.collapseIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'collapse.png'))
         self.unfoldIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'arrowDnBlue.png'))
         self.foldIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'arrowUpBlue.png'))
+        self.pullIcon = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'png', 'arrowDnGreen.png'))
         self._setupWidget()
 
     def _setupWidget(self):
@@ -462,13 +463,11 @@ class GraphZone(object):
 
         Expand or collapse node
         """
-        self.log.detail(">>> Launch menuItem 'Auto Expand' ...")
         selItems = self.currentGraph.selectedItems()
         if selItems:
             if self.currentGraphMode == 'tree':
+                self.log.detail(">>> Launch menuItem 'Auto Expand' ...")
                 selItems[0]._widget.set_expanded(state=not selItems[0]._widget.isExpanded)
-            else:
-                selItems[0]._widget.widget().set_expanded(state=not selItems[0]._widget.widget().isExpanded)
 
     def on_miCopyNodes(self, _mode='nodes', rm=False):
         """

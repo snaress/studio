@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\nodeEditor.ui'
 #
-# Created: Thu Sep 24 23:57:35 2015
+# Created: Sun Sep 27 03:06:27 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -148,11 +148,22 @@ class Ui_wgNodeEditor(object):
         self.glVariables.setMargin(0)
         self.glVariables.setSpacing(0)
         self.glVariables.setObjectName(_fromUtf8("glVariables"))
-        self.verticalLayoutWidget = QtGui.QWidget(self.splitter)
-        self.verticalLayoutWidget.setObjectName(_fromUtf8("verticalLayoutWidget"))
-        self.vlSpacer = QtGui.QVBoxLayout(self.verticalLayoutWidget)
+        self.vfScript = QtGui.QFrame(self.splitter)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.vfScript.sizePolicy().hasHeightForWidth())
+        self.vfScript.setSizePolicy(sizePolicy)
+        self.vfScript.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.vfScript.setObjectName(_fromUtf8("vfScript"))
+        self.vlScript = QtGui.QVBoxLayout(self.vfScript)
+        self.vlScript.setSpacing(0)
+        self.vlScript.setMargin(0)
+        self.vlScript.setObjectName(_fromUtf8("vlScript"))
+        self.vfSpacer = QtGui.QFrame(self.splitter)
+        self.vfSpacer.setObjectName(_fromUtf8("vfSpacer"))
+        self.vlSpacer = QtGui.QVBoxLayout(self.vfSpacer)
         self.vlSpacer.setSpacing(0)
-        self.vlSpacer.setMargin(0)
         self.vlSpacer.setObjectName(_fromUtf8("vlSpacer"))
         spacerItem = QtGui.QSpacerItem(18, 230, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.vlSpacer.addItem(spacerItem)

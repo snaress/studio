@@ -1,6 +1,7 @@
 from PyQt4 import QtGui
 from functools import partial
-from lib.qt import procQt, textEditor
+from lib.qt import textEditor
+from lib.qt import procQt as pQt
 from appli.grapher.gui import graphWgts
 from appli.grapher.gui.ui import nodeEditorUI
 
@@ -10,7 +11,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
     NodeEditor widget, child of GrapherUi. Widget used to edit nodes attributes
 
     :param mainUi: Grapher mainUi class
-    :type mainUi: QtGui.QMainWindow
+    :type mainUi: GrapherUi
     """
 
     def __init__(self, mainUi):
@@ -40,9 +41,12 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.glComment.addWidget(self.nodeComment, 0, 0)
         self.gbComment.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbComment, self.nodeComment))
         #-- Node Variables --#
-        self.nodeVar = graphWgts.Variables(self.mainUi)
+        self.nodeVar = graphWgts.Variables(self.mainUi, self)
         self.glVariables.addWidget(self.nodeVar, 0, 0)
         self.gbVariables.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbVariables, self.nodeVar))
+        #-- Node Script --#
+        self.nodeScript = graphWgts.Script(self.mainUi, self)
+        self.vlScript.addWidget(self.nodeScript)
         #-- Node Notes --#
         self.gbNotes.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbNotes, self.teNotes))
         #-- Node Buttons --#
@@ -60,6 +64,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         :rtype: dict
         """
         return dict(nodeComments=str(self.nodeComment.teText.toHtml()),
+                    nodeVariables=self.nodeVar.getDatas(),
                     nodeNotes=str(self.teNotes.toPlainText()))
 
     def clear(self):
@@ -68,8 +73,10 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         """
         self.log.detail(">>> Clear NodeEditor")
         for w in [self.leNodeName, self.lTypeValue, self.leVersionTitle, self.cbNodeVersion, self.nodeComment.teText,
-                  self.teNotes]:
+                  self.nodeVar.twVar, self.teNotes]:
             w.clear()
+        self.nodeScript.scriptEditor.resetScript()
+        self.refresh()
 
     def refresh(self):
         """
@@ -79,6 +86,16 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.mainUi.rf_nodeGroupVisibility(self.gbComment, self.nodeComment)
         self.mainUi.rf_nodeGroupVisibility(self.gbVariables, self.nodeVar)
         self.mainUi.rf_nodeGroupVisibility(self.gbNotes, self.teNotes)
+        self.vfScript.setVisible(False)
+        self.vfSpacer.setVisible(True)
+
+    def updateVisibility(self):
+        spacer = True
+        self.vfScript.setVisible(False)
+        if hasattr(self.node, 'nodeScript'):
+            self.vfScript.setVisible(True)
+            spacer = False
+        self.vfSpacer.setVisible(spacer)
 
     def update(self):
         """
@@ -94,6 +111,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
             self.cbNodeVersion.addItem(str(n))
         self.cbNodeVersion.setCurrentIndex(self.cbNodeVersion.findText(str(self.node.nodeVersion)))
         self.nodeComment.teText.setHtml(self.node.nodeComments[self.node.nodeVersion])
+        self.nodeVar.buildTree(self.node.nodeVariables[self.node.nodeVersion])
         self.teNotes.setPlainText(self.node.nodeNotes[self.node.nodeVersion])
 
     def connectItem(self, item):
@@ -106,6 +124,14 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.log.detail(">>> Connecting NodeEditor to %s" % item._item._node.nodeName)
         self.item = item
         self.node = self.item._item._node
+        #-- Refresh Widget Visibility --#
+        spacer = True
+        self.vfScript.setVisible(False)
+        if hasattr(self.node, 'nodeScript'):
+            self.vfScript.setVisible(True)
+            spacer = False
+        self.vfSpacer.setVisible(spacer)
+        #-- Update Datas --#
         self.update()
 
     def delVersion(self):
@@ -158,7 +184,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         if self.node is not None:
             self.log.detail(">>> Delete current node version")
             mess = "Delete node version %s ?" % self.node.nodeVersion
-            self.fdDelVersion = procQt.ConfirmDialog(mess, ['Delete'], [self.delVersion])
+            self.fdDelVersion = pQt.ConfirmDialog(mess, ['Delete'], [self.delVersion])
             self.fdDelVersion.exec_()
 
     def on_save(self):

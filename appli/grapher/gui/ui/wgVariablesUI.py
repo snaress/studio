@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgVariables.ui'
 #
-# Created: Fri Sep 25 01:18:08 2015
+# Created: Sat Sep 26 20:33:52 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -35,6 +35,18 @@ class Ui_wgVariables(object):
         self.hlButtons.setSpacing(0)
         self.hlButtons.setContentsMargins(2, -1, -1, -1)
         self.hlButtons.setObjectName(_fromUtf8("hlButtons"))
+        self.pbVarDn = QtGui.QPushButton(wgVariables)
+        self.pbVarDn.setMinimumSize(QtCore.QSize(20, 20))
+        self.pbVarDn.setMaximumSize(QtCore.QSize(20, 20))
+        self.pbVarDn.setText(_fromUtf8(""))
+        self.pbVarDn.setObjectName(_fromUtf8("pbVarDn"))
+        self.hlButtons.addWidget(self.pbVarDn)
+        self.pbVarUp = QtGui.QPushButton(wgVariables)
+        self.pbVarUp.setMinimumSize(QtCore.QSize(20, 20))
+        self.pbVarUp.setMaximumSize(QtCore.QSize(20, 20))
+        self.pbVarUp.setText(_fromUtf8(""))
+        self.pbVarUp.setObjectName(_fromUtf8("pbVarUp"))
+        self.hlButtons.addWidget(self.pbVarUp)
         spacerItem = QtGui.QSpacerItem(40, 12, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hlButtons.addItem(spacerItem)
         self.pbAddVar = QtGui.QPushButton(wgVariables)
@@ -42,6 +54,11 @@ class Ui_wgVariables(object):
         self.pbAddVar.setMaximumSize(QtCore.QSize(50, 20))
         self.pbAddVar.setObjectName(_fromUtf8("pbAddVar"))
         self.hlButtons.addWidget(self.pbAddVar)
+        self.pbDupVar = QtGui.QPushButton(wgVariables)
+        self.pbDupVar.setMinimumSize(QtCore.QSize(50, 20))
+        self.pbDupVar.setMaximumSize(QtCore.QSize(50, 20))
+        self.pbDupVar.setObjectName(_fromUtf8("pbDupVar"))
+        self.hlButtons.addWidget(self.pbDupVar)
         self.pbDelVar = QtGui.QPushButton(wgVariables)
         self.pbDelVar.setMinimumSize(QtCore.QSize(50, 20))
         self.pbDelVar.setMaximumSize(QtCore.QSize(50, 20))
@@ -49,6 +66,7 @@ class Ui_wgVariables(object):
         self.hlButtons.addWidget(self.pbDelVar)
         self.gridLayout.addLayout(self.hlButtons, 0, 0, 1, 1)
         self.twVar = QtGui.QTreeWidget(wgVariables)
+        self.twVar.setLineWidth(2)
         self.twVar.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.twVar.setIndentation(0)
         self.twVar.setItemsExpandable(False)
@@ -71,6 +89,7 @@ class Ui_wgVariables(object):
     def retranslateUi(self, wgVariables):
         wgVariables.setWindowTitle(_translate("wgVariables", "Variables", None))
         self.pbAddVar.setText(_translate("wgVariables", "Add Var", None))
+        self.pbDupVar.setText(_translate("wgVariables", "Dup Var", None))
         self.pbDelVar.setText(_translate("wgVariables", "Del Var", None))
         self.twVar.headerItem().setText(0, _translate("wgVariables", "N", None))
         self.twVar.headerItem().setText(1, _translate("wgVariables", "S", None))

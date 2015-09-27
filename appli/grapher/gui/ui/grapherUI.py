@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Fri Sep 25 02:00:16 2015
+# Created: Sun Sep 27 03:06:27 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_mwGrapher(object):
     def setupUi(self, mwGrapher):
         mwGrapher.setObjectName(_fromUtf8("mwGrapher"))
-        mwGrapher.resize(819, 594)
+        mwGrapher.resize(1006, 670)
         self.centralwidget = QtGui.QWidget(mwGrapher)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
@@ -82,7 +82,7 @@ class Ui_mwGrapher(object):
         self.gridLayout.addWidget(self.splitter_2, 0, 0, 1, 1)
         mwGrapher.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(mwGrapher)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 819, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1006, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuDisplay = QtGui.QMenu(self.menubar)
         self.menuDisplay.setObjectName(_fromUtf8("menuDisplay"))

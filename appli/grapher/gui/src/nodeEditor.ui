@@ -328,7 +328,26 @@
        </property>
       </layout>
      </widget>
-     <widget class="QWidget" name="verticalLayoutWidget">
+     <widget class="QFrame" name="vfScript">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <layout class="QVBoxLayout" name="vlScript">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
+      </layout>
+     </widget>
+     <widget class="QFrame" name="vfSpacer">
       <layout class="QVBoxLayout" name="vlSpacer">
        <property name="spacing">
         <number>0</number>

@@ -1,6 +1,10 @@
-import os
-from PyQt4 import QtGui, QtSvg, QtCore
-from appli.grapher.gui.ui import graphNodeUI, nodeRenameUI, wgVariablesUI
+import os, pprint
+from functools import partial
+from lib.qt import scriptEditor
+from PyQt4 import QtGui, QtCore
+from lib.qt import procQt as pQt
+from lib.system import procFile as pFile
+from appli.grapher.gui.ui import graphNodeUI, nodeRenameUI, wgVariablesUI, wgScriptUI
 
 
 class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
@@ -132,312 +136,6 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
             self.rf_expandIcon()
 
 
-class GraphText(QtGui.QGraphicsTextItem):
-    """
-    GraphTree text item, child of GraphItem
-
-    :param text: Display text
-    :type text: str
-    :param txtType: 'label' or 'attr'
-    :type txtType: str
-    :param parent: Parent graphItem
-    :type parent: QtSvg.QGraphicsSvgItem
-    """
-
-    _type = "nodeText"
-
-    def __init__(self, text, txtType='label', parent=None):
-        self._text = text
-        self._txtType = txtType
-        super(GraphText, self).__init__(parent)
-        self._setupItem()
-
-    def _setupItem(self):
-        self.setText()
-        self.setTextFont()
-        self.setTextColor()
-        self.setTextPosition()
-
-    def setTextFont(self, qFont=None):
-        """
-        Set GraphText font. Create default or update if 'qFont' is None
-
-        :param qFont: GraphText font
-        :type: QtGui.QFont
-        """
-        if qFont is None:
-            if self._txtType == 'label':
-                fontSize = 24
-                bold = True
-            else:
-                fontSize = 14
-                bold = False
-            qFont = QtGui.QFont("SansSerif", fontSize)
-            qFont.setStyleHint(QtGui.QFont.Helvetica)
-            qFont.setBold(bold)
-        self.setFont(qFont)
-
-    def setText(self, label=None):
-        """
-        Set GraphText text. Create default or update if 'label' is None
-
-        :param label: GraphText text
-        :type label: str
-        """
-        if label is None:
-            label = self._text
-        self.setPlainText(label)
-
-    def setTextColor(self, qColor=None):
-        """
-        Set GraphText color. Create default or update if 'qColor' is None
-
-        :param qColor: GraphText color
-        :type qColor: QtGui.QColor
-        """
-        if qColor is None:
-            if self._txtType == 'label':
-                qColor = QtGui.QColor(255, 120, 50)
-            elif self._txtType == 'attr':
-                qColor = QtGui.QColor(180, 180, 180)
-        self.setDefaultTextColor(qColor)
-
-    def setTextPosition(self, pos=None):
-        """
-        Set GraphText position. Create default or update if 'pos' is None
-
-        :param pos: GraphText position
-        :type pos: tuple
-        """
-        if pos is None:
-            pos = (82, ((self.parentItem().height / 2) - self.font().pointSize()))
-        self.setPos(pos[0], pos[1])
-
-
-class GraphPlug(QtSvg.QGraphicsSvgItem):
-    """
-    GraphWidget item, child of GrapherUi.GraphScene.GraphItem
-
-    :param mainUi: Grapher main window
-    :type mainUi: QtGui.QMainWindow
-    :param isInput: Connection input stete
-    :type isInput: bool
-    :param parent: Grapher parent item
-    :type parent: QtSvg.QGraphicsSvgItem
-    """
-
-    _type = 'nodePlug'
-
-    def __init__(self, mainUi, isInput=False, parent=None):
-        self.mainUi = mainUi
-        self.iconFile = os.path.join(self.mainUi.iconPath, 'svg', 'plug.svg')
-        super(GraphPlug, self).__init__(self.iconFile, parent)
-        self._item = self.parentItem()._item
-        self.connections = []
-        self.isInputConnection = isInput
-        self._setupItem()
-
-    def _setupItem(self):
-        self.setAcceptHoverEvents(True)
-        self.setElementId("regular")
-        if self.isInputConnection:
-            self.setPos(-45, 80)
-        else:
-            self.setPos(self.parentItem().width + 2, 80)
-        self.setScale(1.2)
-
-    @property
-    def nodeSize(self):
-        """
-        get graph node plug size
-
-        :return: Node plug size (width, height)
-        :rtype: (int, int)
-        """
-        size = (self.boundingRect().width(), self.boundingRect().height())
-        return size
-
-    @property
-    def width(self):
-        """
-        get graph node plug width
-
-        :return: Node plug width
-        :rtype: int
-        """
-        return self.nodeSize[0]
-
-    @property
-    def height(self):
-        """
-        get graph node plug height
-
-        :return: Node plug height
-        :rtype: int
-        """
-        return self.nodeSize[1]
-
-    def _parent(self):
-        """
-        Get parent graph node
-
-        :return: Parent graph node
-        :rtype: QtSvg.QGraphicsSvgItem
-        """
-        if self.connections:
-            return self.connections[0].startNode
-
-    def _children(self):
-        """
-        Get children graph nodes
-
-        :return: Children graph nodes
-        :rtype: QtSvg.QGraphicsSvgItem
-        """
-        if self.connections:
-            children = []
-            for link in self.connections:
-                children.append(link.endNode)
-            return children
-
-    def hoverMoveEvent(self,event):
-        """
-        Add hover move options: Change node style
-        """
-        self.setElementId("hover")
-
-    def hoverLeaveEvent(self, event):
-        """
-        Add hover leave options: Change node style
-        """
-        self.setElementId("regular")
-
-    def mouseReleaseEvent(self, event):
-        """
-        Add mouse release options: Change node style
-        """
-        self.setElementId("regular")
-
-
-class GraphLink(QtGui.QGraphicsPathItem):
-    """
-    Graphic link item, child of grapher.graphScene. Contains link connection
-
-    :param mainUi: Grapher main window
-    :type mainUi: QtGui.QMainWindow
-    :param startItem: Start plug item
-    :type startItem: QtSvg.QGraphicsSvgItem
-    :param endItem: End plug item
-    :type endItem: QtSvg.QGraphicsSvgItem
-    """
-
-    _type = "nodeLink"
-
-    def __init__(self, mainUi, startItem, endItem):
-        self.mainUi = mainUi
-        super(GraphLink, self).__init__()
-        self.startItem = startItem
-        self.endItem = endItem
-        self._setupItem()
-
-    def _setupItem(self):
-        self.lineColor = QtCore.Qt.gray
-        self.setZValue(-1.0)
-        self.setFlags(QtGui.QGraphicsPathItem.ItemIsSelectable|QtGui.QGraphicsPathItem.ItemIsFocusable)
-        self.setPen(QtGui.QPen(self.lineColor, 4, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
-
-    @property
-    def startNode(self):
-        """
-        Get start graph node (_type='nodeBase')
-
-        :return: Start node
-        :rtype: QtSvg.QGraphicsSvgItem
-        """
-        return self.startItem.parentItem()
-
-    @property
-    def endNode(self):
-        """
-        Get end graph node (_type='nodeBase')
-
-        :return: end node
-        :rtype: QtSvg.QGraphicsSvgItem
-        """
-        return self.endItem.parentItem()
-
-    def getLine(self):
-        """
-        Get link coords
-
-        :return: Line coords
-        :rtype: QtCore.QLineF
-        """
-        p1 = self.startItem.sceneBoundingRect().center()
-        p2 = self.endItem.sceneBoundingRect().center()
-        return QtCore.QLineF(self.mapFromScene(p1), self.mapFromScene(p2))
-
-    def getCenterPoint(self):
-        """
-        Get link center point
-
-        :return: Link center point
-        :rtype: QtCore.QPointF
-        """
-        line = self.getLine()
-        centerX = (line.p1().x() + line.p2().x()) / 2
-        centerY = (line.p1().y() + line.p2().y()) / 2
-        return QtCore.QPointF(centerX, centerY)
-
-    def createPath(self):
-        """
-        Calculate link angle
-
-        :return: Link path
-        :rtype: QtGui.QPainterPath
-        """
-        line = self.getLine()
-        centerPoint = self.getCenterPoint()
-        coef = QtCore.QPointF(abs(centerPoint.x() - line.p1().x()), 0)
-        control_1 = line.p1() + coef
-        control_2 = line.p2() - coef
-        path = QtGui.QPainterPath(line.p1())
-        path.cubicTo(control_1, control_2, line.p2())
-        return path
-
-    def updatePosition(self):
-        """
-        Update link position
-        """
-        self.setPath(self.createPath())
-
-    def boundingRect(self):
-        """
-        Calculate line bounding rect
-
-        :return: Line bounding rect
-        :rtype: QtCore.QRectF
-        """
-        extra = (self.pen().width() + 100) / 2.0
-        line = self.getLine()
-        p1 = line.p1()
-        p2 = line.p2()
-        return QtCore.QRectF(p1, QtCore.QSizeF(p2.x()-p1.x(),
-                                               p2.y()-p1.y())).normalized().adjusted(-extra, -extra, extra, extra)
-
-    def paint(self, painter, option, widget=None):
-        """
-        Draw line connection
-        """
-        myPen = self.pen()
-        myPen.setColor(self.lineColor)
-        if self.isSelected():
-            painter.setBrush(QtCore.Qt.yellow)
-            myPen.setColor(QtCore.Qt.yellow)
-            myPen.setStyle(QtCore.Qt.DashLine)
-        painter.strokePath(self.createPath(), myPen)
-
-
 class NodeRenamer(QtGui.QDialog, nodeRenameUI.Ui_dialNodeRename):
     """
     Node renamer QDialog, child of mainUi
@@ -486,19 +184,117 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
     Node Variables QWidget, child of mainUi and NodeEditor
 
     :param mainUi: Grapher main window
-    :type mainUi: QtGui.QMainWindow
+    :type mainUi: GrapherUi
+    :param pWidget: Parent widget
+    :type: GrapherUi | NodeEditor
     """
 
-    def __init__(self, mainUi):
+    def __init__(self, mainUi, pWidget):
         self.mainUi = mainUi
+        self.log = self.mainUi.log
+        self.pWidget = pWidget
         super(Variables, self).__init__()
         self._setupWidget()
 
     # noinspection PyUnresolvedReferences
     def _setupWidget(self):
         self.setupUi(self)
-        self.pbAddVar.clicked.connect(self.on_addVar)
+        self.menu = QtGui.QMenu()
+        self.pbAddVar.clicked.connect(partial(self.on_addVar, index=None))
+        self.pbDupVar.clicked.connect(self.on_dupVar)
+        self.pbDelVar.clicked.connect(partial(self.on_delVar, items=None))
+        self.pbVarDn.setIcon(self.mainUi.graphZone.unfoldIcon)
+        self.pbVarDn.clicked.connect(partial(self.on_moveVar, 'down'))
+        self.pbVarUp.setIcon(self.mainUi.graphZone.foldIcon)
+        self.pbVarUp.clicked.connect(partial(self.on_moveVar, 'up'))
+        self.twVar.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.twVar.connect(self.twVar, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'), self.on_popUpMenu)
+        self.buildMenu()
         self.rf_columnSize()
+
+    def menuActions(self):
+        """
+        Get popup menu actions
+
+        :return: Menu actions
+        :rtype: dict
+        """
+        return {0: {'type': 'item', 'title': 'Copy Var', 'key': None, 'cmd': self.on_copyVar},
+                1: {'type': 'item', 'title': 'Paste Var', 'key': None, 'cmd': self.on_pasteVar}}
+
+    def buildMenu(self):
+        """
+        Build variable tree menu
+        """
+        #-- Build Menu --#
+        menuDict = self.menuActions()
+        for n in sorted(menuDict.keys()):
+            #-- Add Sub Menu --#
+            if menuDict[n]['type'] == 'menu':
+                newMenu = self.menu.addMenu(menuDict[n]['title'])
+                #-- Add Sub Item --#
+                for i in sorted(menuDict[n]['children']):
+                    childDict = menuDict[n]['children'][i]
+                    self.newMenuItem(newMenu, childDict['type'], childDict['title'],
+                                              childDict['key'], childDict['cmd'])
+            #-- Add Item --#
+            elif menuDict[n]['type'] in ['item', 'sep']:
+                self.mainUi.graphZone.newMenuItem(self.menu, menuDict[n]['type'], menuDict[n]['title'],
+                                                             menuDict[n]['key'], menuDict[n]['cmd'])
+
+    def getDatas(self, asString=False):
+        """
+        Get variable tree datas
+
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: Variable tree datas
+        :rtype: dict | str
+        """
+        treeVarDict = dict()
+        #-- Parsing --#
+        for n, item in enumerate(pQt.getTopItems(self.twVar)):
+            treeVarDict[n] = dict(state=item._wState.isChecked(),
+                                  label=str(item._wLabel.text()),
+                                  type=item._wType.currentIndex(),
+                                  value=str(item._wValue.text()),
+                                  comment=str(item._wComment.text()))
+        #-- Result --#
+        if asString:
+            return pprint.pformat(treeVarDict)
+        return treeVarDict
+
+    def getVarDatas(self, index, asString=False):
+        """
+        Get given varItem datas
+
+        :param index: VarItem index
+        :type index: int
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: Variable item datas
+        :rtype: dict | str
+        """
+        varDatas =  self.getDatas()[index]
+        if asString:
+            return pprint.pformat(varDatas)
+        return varDatas
+
+    def setDatas(self, item, varDict):
+        """
+        Set given varItem datas
+
+        :param item: Variable item
+        :type item: QtGui.QTreeWidgetItem
+        :param varDict: Variable datas
+        :type varDict: dict
+        """
+        item._wState.setChecked(varDict['state'])
+        item._wLabel.setText(varDict['label'])
+        item._wType.setCurrentIndex(varDict['type'])
+        item._wValue.setText(varDict['value'])
+        item._wComment.setText(varDict['comment'])
+        self.on_stateButton(item)
 
     def rf_columnSize(self):
         """
@@ -508,14 +304,51 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
         self.twVar.resizeColumnToContents(1)
         self.twVar.resizeColumnToContents(3)
 
-    def on_addVar(self):
+    def rf_stateIcon(self, widget):
+        """
+        Refresh enable state icon
+        """
+        if widget.isChecked():
+            widget.setIcon(self.mainUi.graphZone.enabledIcon)
+        else:
+            widget.setIcon(self.mainUi.graphZone.disabledIcon)
+
+    def buildTree(self, varDict):
+        """
+        Build variable tree
+
+        :param varDict: Variable datas
+        :type varDict: dict
+        """
+        for n, d in sorted(varDict.iteritems()):
+            newItem = self.on_addVar()
+            self.setDatas(newItem, d)
+
+    def on_popUpMenu(self, point):
+        """
+        Command launched when right mouse button is clicked
+
+        :param point: Qt position
+        """
+        self.menu.exec_(self.mapToGlobal(point))
+
+    def on_addVar(self, index=None):
         """
         Command launched when 'Add Var' QPushButton is clicked
 
-        Add new variable
+        Add variable
+        :param index: Insert new variable at given index
+        :type index: int
+        :return: Variable item
+        :rtype: QtGui.QTreeWidgetItem
         """
+        #-- Create Item --#
         newItem = self.new_varItem()
-        self.twVar.addTopLevelItem(newItem)
+        if index is None:
+            self.twVar.addTopLevelItem(newItem)
+        else:
+            self.twVar.insertTopLevelItem(index, newItem)
+        newItem.setText(0, str(self.twVar.indexOfTopLevelItem(newItem) + 1))
         #-- Add Widgets --#
         self.twVar.setItemWidget(newItem, 1, newItem._wState)
         self.twVar.setItemWidget(newItem, 2, newItem._wLabel)
@@ -524,6 +357,122 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
         self.twVar.setItemWidget(newItem, 5, newItem._wComment)
         #-- refresh --#
         self.rf_columnSize()
+        return newItem
+
+    def on_dupVar(self):
+        """
+        Command launched when 'Dup Var' QPushButton is clicked
+
+        Duplicate selected variables
+        :return: Duplicated items
+        :rtype: list
+        """
+        newItems = []
+        selItems = self.twVar.selectedItems() or []
+        for item in selItems:
+            newItem = self.on_addVar()
+            self.setDatas(newItem, self.getVarDatas(self.twVar.indexOfTopLevelItem(item)))
+            newItems.append(newItem)
+        self.twVar.clearSelection()
+        for item in selItems:
+            item.setSelected(True)
+        return newItems
+
+    def on_delVar(self, items=None):
+        """
+        Command launched when 'DelVar' QPushButton is clicked
+
+        Delete selected variables
+        :param items: Delete given varItems
+        :type items: list
+        """
+        if items is None:
+            selItems = self.twVar.selectedItems() or []
+        else:
+            selItems = items
+        for item in selItems:
+            self.twVar.takeTopLevelItem(self.twVar.indexOfTopLevelItem(item))
+        self.rf_columnSize()
+
+    def on_moveVar(self, side):
+        """
+        Move selected variable up or down
+
+        :param side: 'up' or 'down'
+        :type side: str
+        :return: Moved index
+        :rtype: list
+        """
+        movedIndex = []
+        selItems = self.twVar.selectedItems() or []
+        if side == 'down':
+            selItems.reverse()
+        for n, item in enumerate(selItems):
+            #-- Get new index and datas --#
+            newIndex = None
+            curIndex = self.twVar.indexOfTopLevelItem(item)
+            datas = self.getVarDatas(curIndex)
+            if side == 'up':
+                if curIndex > 0:
+                    newIndex = (curIndex - 1)
+            elif side == 'down':
+                if curIndex < (len(pQt.getTopItems(self.twVar)) - 1):
+                    newIndex = (curIndex + 1)
+            #-- Move Var --#
+            if newIndex is not None:
+                self.on_delVar(items=[item])
+                newItem = self.on_addVar(index=newIndex)
+                self.setDatas(newItem, datas)
+                movedIndex.append(newIndex)
+        #-- Refresh Tree --#
+        treeDatas = self.getDatas()
+        self.twVar.clear()
+        self.buildTree(treeDatas)
+        #-- select Back --#
+        allItems = pQt.getTopItems(self.twVar)
+        for index in sorted(movedIndex):
+            allItems[index].setSelected(True)
+        return sorted(movedIndex)
+
+    def on_copyVar(self):
+        """
+        Command launched when 'Copy Var' QAction is triggered
+
+        Copy selected items datas to buffer
+        """
+        self.log.detail(">>> Copy var datas ...")
+        selItems = self.twVar.selectedItems() or []
+        self.mainUi.varBuffer = dict()
+        for n, item in enumerate(selItems):
+            self.mainUi.varBuffer[n] = self.getVarDatas(self.twVar.indexOfTopLevelItem(item))
+
+    def on_pasteVar(self):
+        """
+        Command launched when 'Paste Var' QAction is triggered
+
+        Paste stored items datas from buffer
+        :return: Pasted items
+        :rtype: list
+        """
+        self.log.detail(">>> Paste var datas ...")
+        pastedItems = []
+        if self.mainUi.varBuffer:
+            for n, varDict in sorted(self.mainUi.varBuffer.iteritems()):
+                newItem = self.on_addVar()
+                self.setDatas(newItem, varDict)
+                pastedItems.append(newItem)
+        return pastedItems
+
+    def on_stateButton(self, item):
+        """
+        Command launched when 'State' QPushButton is clicked
+
+        :param item: Variable item
+        :type item: QtGui.QTreeWidgetItem
+        """
+        self.rf_stateIcon(item._wState)
+        for w in [item._wLabel, item._wType, item._wValue, item._wComment]:
+            w.setEnabled(item._wState.isChecked())
 
     def new_varItem(self):
         """
@@ -533,14 +482,125 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
         :rtype: QtGui.QTreeWidgetItem
         """
         newItem = QtGui.QTreeWidgetItem()
-        #-- State PushButton --#
-        newItem._wState = QtGui.QPushButton()
-        newItem._wState.setIcon(self.mainUi.graphZone.enabledIcon)
-        newItem._wState.setCheckable(True)
-        newItem._wState.setChecked(True)
+        newItem.setTextAlignment(0, 5)
+        newItem._wState = self.new_itemButton(icon=self.mainUi.graphZone.enabledIcon,
+                                              checkable=True, checked=True)
+        # noinspection PyUnresolvedReferences
+        newItem._wState.clicked.connect(partial(self.on_stateButton, newItem))
         newItem._wLabel = QtGui.QLineEdit()
         newItem._wType = QtGui.QComboBox()
         newItem._wType.addItems(['auto', 'num', ' + ', ' - '])
         newItem._wValue = QtGui.QLineEdit()
         newItem._wComment = QtGui.QLineEdit()
         return newItem
+
+    @staticmethod
+    def new_itemButton(icon=None, checkable=False, checked=False, flat=False, cmd=None):
+        """
+        Create pushButton
+
+        :param icon: Icon widget
+        :type icon: QtGui.QIcon
+        :param checkable: Chackable state
+        :type checkable:bool
+        :param checked: Checked state
+        :type checked: bool
+        :param flat: Flat mode
+        :type flat: bool
+        :param cmd: Command launched when clicked
+        :type cmd: function
+        :return: New button
+        :rtype: QtGui.QPushButton
+        """
+        newWidget = QtGui.QPushButton()
+        if icon is not None:
+            newWidget.setIcon(icon)
+        newWidget.setCheckable(checkable)
+        newWidget.setChecked(checked)
+        newWidget.setFlat(flat)
+        if cmd is not None:
+            # noinspection PyUnresolvedReferences
+            newWidget.clicked.connect(cmd)
+        return newWidget
+
+
+class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
+    """
+    Node Script QWidget, child of NodeEditor
+
+    :param mainUi: Grapher main window
+    :type mainUi: GrapherUi
+    :param pWidget: Parent widget
+    :type: NodeEditor
+    """
+
+    def __init__(self, mainUi, pWidget):
+        self.mainUi = mainUi
+        self.pWidget = pWidget
+        self.log = self.mainUi.log
+        self.grapher = self.mainUi.grapher
+        super(Script, self).__init__()
+        self._setupWidget()
+
+    # noinspection PyUnresolvedReferences
+    def _setupWidget(self):
+        self.setupUi(self)
+        self.pbPush.setIcon(self.mainUi.graphZone.foldIcon)
+        self.pbPush.clicked.connect(self.on_push)
+        self.pbPull.setIcon(self.mainUi.graphZone.pullIcon)
+        self.pbPull.clicked.connect(self.on_pull)
+        self.scriptEditor = scriptEditor.ScriptEditor()
+        self.scriptEditor.tbEdit.setVisible(False)
+        self.vlScript.addWidget(self.scriptEditor)
+
+    @property
+    def tmpScriptFile(self):
+        """
+        Get tmp script file
+
+        :return: Tmp script relative path
+        :rtype: str
+        """
+        if self.pWidget.node is not None:
+            return os.path.join('tmp', self.mainUi.user, 'externScripts', '%s.py' % self.pWidget.node.nodeName)
+
+    def on_push(self):
+        """
+        Command launched when 'Push' QPushButton is clicked
+
+        Externalise script
+        """
+        if self.grapher._graphFile is not None:
+            self.log.detail(">>> Push script ...")
+            #-- Check Tmp Path --#
+            scriptPath =  os.path.normpath(self.grapher.graphPath)
+            for path in os.path.dirname(self.tmpScriptFile).split(os.sep):
+                scriptPath = os.path.join(scriptPath, path)
+                if not os.path.exists(scriptPath):
+                    try:
+                        os.mkdir(scriptPath)
+                        self.log.debug("Create tmpPath: %s" % pFile.conformPath(scriptPath))
+                    except:
+                        raise IOError("!!! Can not create tmpPath: %s !!!" % pFile.conformPath(scriptPath))
+            #-- Externalize Script --#
+            try:
+                pFile.writeFile(self.tmpScriptFile, str(self.scriptEditor._widget.getCode()))
+                self.log.debug("Saved: %s" % pFile.conformPath(self.tmpScriptFile))
+            except:
+                raise IOError("!!! Can not write tmpFile: %s !!!" % pFile.conformPath(self.tmpScriptFile))
+            #-- Launch Editor --#
+            editor = self.grapher.studio.pyCharm
+            os.system('%s %s' % (os.path.normpath(editor), os.path.normpath(self.tmpScriptFile)))
+
+    def on_pull(self):
+        """
+        Command launched when 'Pull' QPushButton is clicked
+
+        Update script
+        """
+        self.log.detail(">>> Pull script ...")
+        if self.tmpScriptFile is not None:
+            if os.path.exists(self.tmpScriptFile):
+                self.scriptEditor._widget.setCode(''.join(pFile.readFile(self.tmpScriptFile)))
+                self.log.debug("Updated: %s" % pFile.conformPath(self.tmpScriptFile))
+                os.remove(self.tmpScriptFile)

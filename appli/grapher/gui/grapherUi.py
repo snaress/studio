@@ -33,6 +33,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     def _setupUi(self):
         self.log.info("#-- Setup Main Ui --#", newLinesBefor=1)
         self.setupUi(self)
+        self.varBuffer = None
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
         self._initWidgets()
@@ -47,15 +48,14 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.graphComment = textEditor.TextEditor()
         self.graphComment.bLoadFile.setEnabled(False)
         self.graphComment.bSaveFile.setEnabled(False)
-        self.graphComment.teText.textChanged.connect(self.rf_graphComment)
         self.glComment.addWidget(self.graphComment, 0, 0)
         self.gbComment.clicked.connect(partial(self.rf_nodeGroupVisibility, self.gbComment, self.graphComment))
-        #-- Node Variables --#
-        self.graphVar = graphWgts.Variables(self)
-        self.glVariables.addWidget(self.graphVar, 0, 0)
-        self.gbVariables.clicked.connect(partial(self.rf_nodeGroupVisibility, self.gbVariables, self.graphVar))
         #-- GraphZone --#
         self.graphZone = graphZone.GraphZone(self)
+        #-- Node Variables --#
+        self.graphVar = graphWgts.Variables(self, self)
+        self.glVariables.addWidget(self.graphVar, 0, 0)
+        self.gbVariables.clicked.connect(partial(self.rf_nodeGroupVisibility, self.gbVariables, self.graphVar))
         #-- GraphTools --#
         self.graphTools = toolsWgts.GraphTools(self)
         self.tbTools.addWidget(self.graphTools)
@@ -178,12 +178,6 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         else:
             groupBox.setMaximumHeight(15)
 
-    def rf_graphComment(self):
-        """
-        Refresh grapher comment
-        """
-        self.grapher.setComment(str(self.graphComment.teText.toHtml()))
-
     def checkUserPath(self):
         """
         Check if user path and files, needed by Grapher, exists
@@ -200,6 +194,20 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
             except:
                 raise IOError("!!! Can not create user file: %s !!!" % self.userFile)
 
+    def updateUi(self):
+        """
+        Update Grapher ui
+        """
+        self.graphComment.teText.setHtml(self.grapher.comment)
+        self.graphVar.buildTree(self.grapher.variables)
+
+    def updateCore(self):
+        """
+        Update Grapher core
+        """
+        self.grapher.setComment(str(self.graphComment.teText.toHtml()))
+        self.grapher.variables = self.graphVar.getDatas()
+
     def load(self, graphFile=None):
         """
         Load graphFile
@@ -213,7 +221,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
                 graphFile = selFiles[0]
             self.fdLoadGraph.close()
         self.grapher.load(str(graphFile))
-        self.graphComment.teText.setHtml(self.grapher.graphComment)
+        self.updateUi()
         self.graphZone.refreshGraph()
 
     def saveAs(self):
@@ -225,6 +233,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
             graphFile = gpFiles[0]
             if not graphFile.endsWith('.gp.py'):
                 graphFile = '%s.gp.py' % graphFile.split('.')[0]
+            self.updateCore()
             result = self.grapher.saveAs(str(graphFile))
             if result:
                 self.setWindowTitle(graphFile)
@@ -288,6 +297,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         if self.grapher._graphFile is None:
             self.on_miSaveAs()
         else:
+            self.updateCore()
             self.grapher.save()
 
     def on_miSaveAs(self):
@@ -456,6 +466,4 @@ def launch(logLvl='info'):
 
 
 if __name__ == '__main__':
-    import os
-    # launch(logLvl='detail')
-    os.system("start %s" % os.path.normpath(os.path.join(grapher.toolPath, '__exe__.py')))
+    launch(logLvl='detail')
