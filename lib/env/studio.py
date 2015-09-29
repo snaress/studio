@@ -15,6 +15,9 @@ djvConvert = os.path.join(djvPath, "bin", "djv_convert.exe")
 nConvert = os.path.join(appsPath, "nConvert", "nconvert.exe")
 ffmpeg = os.path.join(appsPath, "ffmpeg", "bin", "ffmpeg.exe")
 
+cmdExe = 'C:/Windows/System32/cmd.exe'
+# cmdExe = 'F:/apps/system/cmd.lnk'
+python27 = 'C:/Python27/python.exe'
 pyCharm = '"C:/Program Files (x86)/JetBrains/PyCharm Community Edition 3.4.1/bin/pycharm.exe "'
 mayaPath = os.path.join(appsPath, "Autodesk", "Maya2014")
 maya = os.path.join(mayaPath, "bin", "maya.exe")
