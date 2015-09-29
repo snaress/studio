@@ -192,8 +192,21 @@
     <property name="title">
      <string>Exec</string>
     </property>
+    <widget class="QMenu" name="menuExecOptions">
+     <property name="tearOffEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>Exec Options</string>
+     </property>
+     <addaction name="miShowXterm"/>
+     <addaction name="miWaitAtEnd"/>
+    </widget>
     <addaction name="miXplorer"/>
     <addaction name="miXterm"/>
+    <addaction name="separator"/>
+    <addaction name="miExecGraph"/>
+    <addaction name="menuExecOptions"/>
    </widget>
    <addaction name="menuFiles"/>
    <addaction name="menuGraph"/>
@@ -347,6 +360,33 @@
   <action name="miGrapherDatas">
    <property name="text">
     <string>Grapher Datas</string>
+   </property>
+  </action>
+  <action name="miExecGraph">
+   <property name="text">
+    <string>Exec Graph</string>
+   </property>
+  </action>
+  <action name="miShowXterm">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Xterm</string>
+   </property>
+  </action>
+  <action name="miWaitAtEnd">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wait At End</string>
    </property>
   </action>
  </widget>

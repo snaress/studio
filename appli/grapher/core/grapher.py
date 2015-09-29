@@ -42,6 +42,7 @@ print myNodeName_1.getDatas(asString=True)
 """
 
 import os, pprint
+from appli import grapher
 from lib.env import studio
 from lib.system import procFile as pFile
 from appli.grapher.core import graphNodes
@@ -61,52 +62,13 @@ class Grapher(object):
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="Grapher", level=logLvl)
         self.log.info("#-- Init Grapher Core --#", newLinesBefor=1)
+        self.user = grapher.user
+        self.userPath = os.path.join(grapher.binPath, 'users', self.user)
         self.studio = studio
         self.comment = ""
         self.variables = dict()
         self.tree = GraphTree(self)
-
-    def getDatas(self, asString=False):
-        """
-        Grapher datas as dict or string
-
-        :param asString: Return string instead of dict
-        :type asString: bool
-        :return: Grapher contents
-        :rtype: dict | str
-        """
-        graphDict = dict(graphDatas={'comment': self.comment,
-                                     'variables': self.variables},
-                         treeDatas=self.tree.getDatas())
-        if asString:
-            graphTxt = []
-            for k, v in sorted(graphDict.iteritems()):
-                if isinstance(v, basestring):
-                    graphTxt.append("%s = %r" % (k, v))
-                else:
-                    graphTxt.append("%s = %s" % (k, pprint.pformat(v)))
-            return '\n'.join(graphTxt)
-        return graphDict
-
-    def setComment(self, comment):
-        """
-        Set grapher comment
-
-        :param comment: Grapher comment
-        :type comment: str
-        """
-        self.comment = comment
-
-    def readDatas(self):
-        """
-        Read graph datas from graphFile
-
-        :return: Grapher datas
-        :rtype: dict
-        """
-        if self._graphFile is None:
-            raise AttributeError("!!! 'graphFile' attribute not setted !!!")
-        return pFile.readPyFile(self.graphFullPath)
+        self.createFolders(os.path.join(self.userPath, 'logs'), relative=False)
 
     @property
     def graphPath(self):
@@ -119,7 +81,7 @@ class Grapher(object):
         return os.path.dirname(self._graphFile)
 
     @property
-    def GraphName(self):
+    def graphName(self):
         """
         Get Grapher name
 
@@ -157,6 +119,58 @@ class Grapher(object):
         :rtype: str
         """
         return self._graphFile
+
+    @property
+    def graphTmpPath(self):
+        """
+        Get Grapher tmp path
+
+        :return: Grapher relative tmp path
+        :rtype: str
+        """
+        return os.path.join('tmp', 'GP_%s' % self.graphName)
+
+    def getDatas(self, asString=False):
+        """
+        Grapher datas as dict or string
+
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: Grapher contents
+        :rtype: dict | str
+        """
+        graphDict = dict(graphDatas={'comment': self.comment,
+                                     'variables': self.variables},
+                         treeDatas=self.tree.getDatas())
+        if asString:
+            graphTxt = []
+            for k, v in sorted(graphDict.iteritems()):
+                if isinstance(v, basestring):
+                    graphTxt.append("%s = %r" % (k, v))
+                else:
+                    graphTxt.append("%s = %s" % (k, pprint.pformat(v)))
+            return '\n'.join(graphTxt)
+        return graphDict
+
+    def readDatas(self):
+        """
+        Read graph datas from graphFile
+
+        :return: Grapher datas
+        :rtype: dict
+        """
+        if self._graphFile is None:
+            raise AttributeError("!!! 'graphFile' attribute not setted !!!")
+        return pFile.readPyFile(self.graphFullPath)
+
+    def setComment(self, comment):
+        """
+        Set grapher comment
+
+        :param comment: Grapher comment
+        :type comment: str
+        """
+        self.comment = comment
 
     def conformNewNodeName(self, nodeName):
         """
@@ -197,6 +211,34 @@ class Grapher(object):
         for f in founds:
             iList.append(int(f.split('_')[-1]))
         return '%s_%s' % (nodeName.split('_')[0], (max(iList) + 1))
+
+    def createFolders(self, path, relative=True):
+        """
+        Create Grapher folders
+
+        :param path: Directory to create
+        :type path: str
+        :param relative: Path is relative to grapher root path
+        :type relative: bool
+        :return: Full path
+        :rtype: str
+        """
+        #-- Get Root Path --#
+        if relative:
+            fullPath = os.path.normpath(self.graphPath)
+        else:
+            fullPath = ''
+        #-- Create Path --#
+        for fld in os.path.normpath(path).split(os.sep):
+            fullPath = os.path.join(fullPath, fld)
+            if not os.path.exists(fullPath):
+                try:
+                    os.mkdir(fullPath)
+                    self.log.debug("Create path: %s" % pFile.conformPath(fullPath))
+                except:
+                    raise IOError("!!! Can not create path: %s !!!" % pFile.conformPath(fullPath))
+        #-- Result --#
+        return fullPath
 
     def load(self, graphFile):
         """
@@ -258,6 +300,108 @@ class Grapher(object):
             return True
         except:
             raise IOError("!!! Can not write file %s !!!" % self.graphFullPath)
+
+    def execGraph(self, xTerm=True, wait=True):
+        """
+        Execute graph
+
+        :param xTerm: Enable xTerm
+        :type xTerm: bool
+        :param wait: Wait at end
+        :type wait: bool
+        """
+        self.log.info("########## EXEC GRAPH ##########", newLinesBefor=1)
+        self.log.info("xTerm: %s" % xTerm)
+        self.log.info("wait: %s" % wait)
+        #-- Save Grapher --#
+        self.log.info("#--- Saving current Graph ---#")
+        self.save()
+        #-- Create Process Path --#
+        self.log.info("#--- Checking Path ---#")
+        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'exec')))
+        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'tmpFiles')))
+        #-- Init Exec Script --#
+        self.log.info("#--- Init Exec Script ---#")
+        _date = pFile.getDate()
+        _time = pFile.getTime()
+        execTxt = self.execHeader(_date, _time)
+        #-- Collecte Datas --#
+        varDict = self.variables
+        #-- Write Exec File --#
+        self.log.info("#--- Write Exec File ---#")
+        execFile = os.path.join(self.graphTmpPath, 'exec', '%s--%s--%s.py' % (self.user, _date, _time))
+        # logFile = os.path.join(self.userPath, 'logs', '%s--%s--%s.txt' % (self.user, _date, _time))
+        try:
+            pFile.writeFile(execFile, execTxt)
+            self.log.info("execFile saved: %s" % pFile.conformPath(execFile))
+        except:
+            raise IOError("!!! Can not write execFile: %s !!!" % pFile.conformPath(execFile))
+        #-- Exec Script --#
+        self.log.info("#--- Launch Exec File ---#")
+        cmd = self.execCommand(execFile, xTerm=xTerm, wait=wait)
+        self.log.info("cmd: %s" % cmd)
+        os.system(cmd)
+
+    def execHeader(self, _date, _time):
+        """
+        Create execFile header
+
+        :param _date: Exec date (Y_M_D)
+        :type _date: str
+        :param _time: Exec time (H_M_S)
+        :type _time: str
+        :return: ExecFile header
+        :rtype: str
+        """
+        #-- Init --#
+        header = ["print '%s GRAPHER %s'" % ("#" * 20, "#" * 20),
+                  "print 'Date: %s -- Time: %s'" % (_date, _time),
+                  "print ''", "print '#--- Import ---#'"]
+        #-- Import --#
+        importDict = dict(imp=['os', 'sys', 'time'],
+                          impFrom={'pprint': 'pprint'})
+        for m in importDict['imp']:
+            header.append("print '---> %s'" % m)
+            header.append("import %s" % m)
+        for k, v in importDict['impFrom'].iteritems():
+            header.append("print '---> %s'" % v)
+            header.append("from %s import %s" % (k, v))
+        #-- Set Path --#
+        header.extend(["print ''",
+                       "print '#--- Set Path ---#'",
+                       "os.chdir('%s')" % self.graphPath,
+                       "print '--->', os.getcwd()"])
+        return '\n'.join(header)
+
+    def execCommand(self, execFile, xTerm=True, wait=True):
+        """
+        Get exec command
+
+        :param execFile: Exec file full path
+        :type execFile: str
+        :param xTerm: Enable xTerm
+        :type xTerm: bool
+        :param wait: Wait at end
+        :type wait: bool
+        """
+        cmd = ''
+        #-- Start Options --#
+        cmd += 'start "%s" ' % self.graphName
+        if not xTerm:
+            cmd += '/B '
+        #-- Batch Options --#
+        cmd += '%s ' % os.path.normpath(self.studio.cmdExe)
+        if wait:
+            if xTerm:
+                cmd += '/K '
+            else:
+                cmd += '/C '
+        else:
+            cmd += '/C '
+        #-- Command Options --#
+        cmd += '%s ' % os.path.normpath(self.studio.python27)
+        cmd += '%s ' % os.path.normpath(os.path.join(self.graphPath, pFile.conformPath(execFile)))
+        return cmd
 
 
 class GraphTree(object):

@@ -63,10 +63,11 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         :return: Node editor datas
         :rtype: dict
         """
-        return dict(nodeComments=str(self.nodeComment.teText.toHtml()),
-                    nodeVariables=self.nodeVar.getDatas(),
-                    nodeNotes=str(self.teNotes.toPlainText()))
-
+        datas = dict(nodeComments=str(self.nodeComment.teText.toHtml()),
+                     nodeVariables=self.nodeVar.getDatas(),
+                     nodeScript=str(self.nodeScript.scriptEditor._widget.getCode()),
+                     nodeNotes=str(self.teNotes.toPlainText()))
+        return datas
     def clear(self):
         """
         Clear all editor values
@@ -112,6 +113,8 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.cbNodeVersion.setCurrentIndex(self.cbNodeVersion.findText(str(self.node.nodeVersion)))
         self.nodeComment.teText.setHtml(self.node.nodeComments[self.node.nodeVersion])
         self.nodeVar.buildTree(self.node.nodeVariables[self.node.nodeVersion])
+        if hasattr(self.node, 'nodeScript'):
+            self.nodeScript.scriptEditor._widget.setCode(self.node.nodeScript[self.node.nodeVersion])
         self.teNotes.setPlainText(self.node.nodeNotes[self.node.nodeVersion])
 
     def connectItem(self, item):
@@ -124,14 +127,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.log.detail(">>> Connecting NodeEditor to %s" % item._item._node.nodeName)
         self.item = item
         self.node = self.item._item._node
-        #-- Refresh Widget Visibility --#
-        spacer = True
-        self.vfScript.setVisible(False)
-        if hasattr(self.node, 'nodeScript'):
-            self.vfScript.setVisible(True)
-            spacer = False
-        self.vfSpacer.setVisible(spacer)
-        #-- Update Datas --#
+        self.updateVisibility()
         self.update()
 
     def delVersion(self):
@@ -161,6 +157,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         """
         self.node.nodeVersion = int(self.cbNodeVersion.currentText())
         self.clear()
+        self.updateVisibility()
         self.update()
 
     def on_newVersion(self):

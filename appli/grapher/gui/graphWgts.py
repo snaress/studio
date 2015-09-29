@@ -572,23 +572,13 @@ class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
         """
         if self.grapher._graphFile is not None:
             self.log.detail(">>> Push script ...")
-            #-- Check Tmp Path --#
-            scriptPath =  os.path.normpath(self.grapher.graphPath)
-            for path in os.path.dirname(self.tmpScriptFile).split(os.sep):
-                scriptPath = os.path.join(scriptPath, path)
-                if not os.path.exists(scriptPath):
-                    try:
-                        os.mkdir(scriptPath)
-                        self.log.debug("Create tmpPath: %s" % pFile.conformPath(scriptPath))
-                    except:
-                        raise IOError("!!! Can not create tmpPath: %s !!!" % pFile.conformPath(scriptPath))
-            #-- Externalize Script --#
-            try:
-                pFile.writeFile(self.tmpScriptFile, str(self.scriptEditor._widget.getCode()))
-                self.log.debug("Saved: %s" % pFile.conformPath(self.tmpScriptFile))
-            except:
-                raise IOError("!!! Can not write tmpFile: %s !!!" % pFile.conformPath(self.tmpScriptFile))
-            #-- Launch Editor --#
+            scriptPath = self.grapher.createFolders(os.path.dirname(self.tmpScriptFile))
+            if scriptPath is not None:
+                try:
+                    pFile.writeFile(self.tmpScriptFile, str(self.scriptEditor._widget.getCode()))
+                    self.log.debug("Saved: %s" % pFile.conformPath(self.tmpScriptFile))
+                except:
+                    raise IOError("!!! Can not write tmpFile: %s !!!" % pFile.conformPath(self.tmpScriptFile))
             editor = self.grapher.studio.pyCharm
             os.system('%s %s' % (os.path.normpath(editor), os.path.normpath(self.tmpScriptFile)))
 

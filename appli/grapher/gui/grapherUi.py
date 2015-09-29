@@ -21,8 +21,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.log = pFile.Logger(title="GrapherUi", level=logLvl)
         self.log.info("########## Launching Grapher Ui ##########")
         self.grapher = Grapher(logLvl)
-        self.user = grapher.user
-        self.userPath = os.path.join(grapher.binPath, 'users', self.user)
+        self.user = self.grapher.user
+        self.userPath = self.grapher.userPath
         self.userFile = os.path.join(self.userPath, '%s.py' % self.user)
         self.iconPath = grapher.iconPath
         super(GrapherUi, self).__init__()
@@ -101,6 +101,9 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miXplorer.setShortcut('F3')
         self.miXterm.triggered.connect(self.on_miXterm)
         self.miXterm.setShortcut('F4')
+        #-- Exec --#
+        self.miExecGraph.triggered.connect(self.on_miExecGraph)
+        self.miExecGraph.setShortcut('Alt+E')
 
     # noinspection PyUnresolvedReferences
     def _menuDisplay(self):
@@ -183,8 +186,6 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Check if user path and files, needed by Grapher, exists
         """
         self.log.info("Check user path ...")
-        #-- User Path --#
-        pFile.mkPathFolders(os.path.normpath(grapher.binPath), os.path.normpath(self.userPath))
         #-- User Files --#
         if not os.path.exists(self.userFile):
             userDatas = ["recentFiles = []"]
@@ -338,6 +339,16 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
             os.system('start')
         else:
             self.log.info("GraphFile not setted, can not launch Xterm !!!")
+
+    def on_miExecGraph(self):
+        """
+        Command launched when 'Exec Graph' QMenuItem is triggered
+
+        Exec Graph
+        """
+        self.log.detail(">>> Launch menuItem 'Exec Graph' ...")
+        self.grapher.execGraph(xTerm=self.miShowXterm.isChecked(),
+                               wait=self.miWaitAtEnd.isChecked())
 
     def on_miToolsOrientChanged(self, orient=False, force=False):
         """

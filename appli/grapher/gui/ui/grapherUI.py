@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Sun Sep 27 03:06:27 2015
+# Created: Tue Sep 29 00:51:12 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -102,6 +102,9 @@ class Ui_mwGrapher(object):
         self.menuRecentFiles.setObjectName(_fromUtf8("menuRecentFiles"))
         self.menuExec = QtGui.QMenu(self.menubar)
         self.menuExec.setObjectName(_fromUtf8("menuExec"))
+        self.menuExecOptions = QtGui.QMenu(self.menuExec)
+        self.menuExecOptions.setTearOffEnabled(True)
+        self.menuExecOptions.setObjectName(_fromUtf8("menuExecOptions"))
         mwGrapher.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(mwGrapher)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -162,6 +165,16 @@ class Ui_mwGrapher(object):
         self.actionRecent.setObjectName(_fromUtf8("actionRecent"))
         self.miGrapherDatas = QtGui.QAction(mwGrapher)
         self.miGrapherDatas.setObjectName(_fromUtf8("miGrapherDatas"))
+        self.miExecGraph = QtGui.QAction(mwGrapher)
+        self.miExecGraph.setObjectName(_fromUtf8("miExecGraph"))
+        self.miShowXterm = QtGui.QAction(mwGrapher)
+        self.miShowXterm.setCheckable(True)
+        self.miShowXterm.setChecked(True)
+        self.miShowXterm.setObjectName(_fromUtf8("miShowXterm"))
+        self.miWaitAtEnd = QtGui.QAction(mwGrapher)
+        self.miWaitAtEnd.setCheckable(True)
+        self.miWaitAtEnd.setChecked(True)
+        self.miWaitAtEnd.setObjectName(_fromUtf8("miWaitAtEnd"))
         self.menuToolBarOrient.addAction(self.miBarHorizontal)
         self.menuToolBarOrient.addAction(self.miBarVertical)
         self.menuToolTabOrient.addAction(self.miTabNorth)
@@ -190,8 +203,13 @@ class Ui_mwGrapher(object):
         self.menuFiles.addSeparator()
         self.menuFiles.addAction(self.miClose)
         self.menuFiles.addAction(self.miQuit)
+        self.menuExecOptions.addAction(self.miShowXterm)
+        self.menuExecOptions.addAction(self.miWaitAtEnd)
         self.menuExec.addAction(self.miXplorer)
         self.menuExec.addAction(self.miXterm)
+        self.menuExec.addSeparator()
+        self.menuExec.addAction(self.miExecGraph)
+        self.menuExec.addAction(self.menuExecOptions.menuAction())
         self.menubar.addAction(self.menuFiles.menuAction())
         self.menubar.addAction(self.menuGraph.menuAction())
         self.menubar.addAction(self.menuExec.menuAction())
@@ -214,6 +232,7 @@ class Ui_mwGrapher(object):
         self.menuFiles.setTitle(_translate("mwGrapher", "Files", None))
         self.menuRecentFiles.setTitle(_translate("mwGrapher", "Recent Files", None))
         self.menuExec.setTitle(_translate("mwGrapher", "Exec", None))
+        self.menuExecOptions.setTitle(_translate("mwGrapher", "Exec Options", None))
         self.tbTools.setWindowTitle(_translate("mwGrapher", "toolBar", None))
         self.miToolsVisibility.setText(_translate("mwGrapher", "Tools Bar", None))
         self.miGraphScene.setText(_translate("mwGrapher", "Graph Scene", None))
@@ -238,4 +257,7 @@ class Ui_mwGrapher(object):
         self.miXterm.setText(_translate("mwGrapher", "Xterm", None))
         self.actionRecent.setText(_translate("mwGrapher", "recent", None))
         self.miGrapherDatas.setText(_translate("mwGrapher", "Grapher Datas", None))
+        self.miExecGraph.setText(_translate("mwGrapher", "Exec Graph", None))
+        self.miShowXterm.setText(_translate("mwGrapher", "Show Xterm", None))
+        self.miWaitAtEnd.setText(_translate("mwGrapher", "Wait At End", None))
 
