@@ -23,7 +23,7 @@ class ScriptEditor(QsciScintilla):
         #-- Edge --#
         self.setEdgeMode(QsciScintilla.EdgeLine)
         self.setEdgeColumn(80)
-        self.setEdgeColor(QtGui.QColor(255, 0, 0))
+        self.setEdgeColor(QtGui.QColor(180, 180, 180))
         #-- Folding --#
         self.setFolding(QsciScintilla.BoxedTreeFoldStyle)
         #-- Markers --#
