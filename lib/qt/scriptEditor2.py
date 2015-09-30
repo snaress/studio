@@ -60,7 +60,7 @@ class ScriptEditor(QsciScintilla):
         print self.text()
 
     def getCode(self):
-        return self.text()
+        return self.text().replace('\r', '')
 
     def setCode(self, text):
         self.setText(text)
