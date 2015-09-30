@@ -65,18 +65,18 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         """
         datas = dict(nodeComments=str(self.nodeComment.teText.toHtml()),
                      nodeVariables=self.nodeVar.getDatas(),
-                     nodeScript=str(self.nodeScript.scriptEditor._widget.getCode()),
+                     nodeScript=str(self.nodeScript.scriptEditor.getCode()),
                      nodeNotes=str(self.teNotes.toPlainText()))
         return datas
+
     def clear(self):
         """
         Clear all editor values
         """
         self.log.detail(">>> Clear NodeEditor")
         for w in [self.leNodeName, self.lTypeValue, self.leVersionTitle, self.cbNodeVersion, self.nodeComment.teText,
-                  self.nodeVar.twVar, self.teNotes]:
+                  self.nodeVar.twVar, self.nodeScript.scriptEditor, self.teNotes]:
             w.clear()
-        self.nodeScript.scriptEditor.resetScript()
         self.refresh()
 
     def refresh(self):
@@ -114,7 +114,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.nodeComment.teText.setHtml(self.node.nodeComments[self.node.nodeVersion])
         self.nodeVar.buildTree(self.node.nodeVariables[self.node.nodeVersion])
         if hasattr(self.node, 'nodeScript'):
-            self.nodeScript.scriptEditor._widget.setCode(self.node.nodeScript[self.node.nodeVersion])
+            self.nodeScript.scriptEditor.setCode(self.node.nodeScript[self.node.nodeVersion])
         self.teNotes.setPlainText(self.node.nodeNotes[self.node.nodeVersion])
 
     def connectItem(self, item):

@@ -40,6 +40,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self._initMenu()
         self.rf_nodeGroupVisibility(self.gbComment, self.graphComment)
         self.rf_nodeGroupVisibility(self.gbVariables, self.graphVar)
+        self.rf_nodeGroupVisibility(self.gbLogs, self.graphLogs)
 
     # noinspection PyUnresolvedReferences
     def _initWidgets(self):
@@ -64,6 +65,10 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.nodeEditor = nodeEditor.NodeEditor(self)
         self.nodeEditor.pbClose.setVisible(False)
         self.vlNodeEditor.insertWidget(0, self.nodeEditor)
+        #-- Grapher Logs --#
+        self.graphLogs = graphWgts.Logs(self)
+        self.glLogs.addWidget(self.graphLogs, 0, 0)
+        self.gbLogs.clicked.connect(partial(self.rf_nodeGroupVisibility, self.gbLogs, self.graphLogs))
 
     def _initMenu(self):
         self.log.info("#-- Init Menus --#", newLinesBefor=1)
@@ -199,6 +204,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         Update Grapher ui
         """
+        self.setWindowTitle(self.grapher.graphFullPath)
         self.graphComment.teText.setHtml(self.grapher.comment)
         self.graphVar.buildTree(self.grapher.variables)
 
@@ -347,6 +353,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Exec Graph
         """
         self.log.detail(">>> Launch menuItem 'Exec Graph' ...")
+        self.grapher.save()
         self.grapher.execGraph(xTerm=self.miShowXterm.isChecked(),
                                wait=self.miWaitAtEnd.isChecked())
 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Tue Sep 29 00:51:12 2015
+# Created: Wed Sep 30 01:32:32 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -32,9 +32,12 @@ class Ui_mwGrapher(object):
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.splitter_2 = QtGui.QSplitter(self.centralwidget)
-        self.splitter_2.setOrientation(QtCore.Qt.Vertical)
+        self.splitter_2.setOrientation(QtCore.Qt.Horizontal)
         self.splitter_2.setObjectName(_fromUtf8("splitter_2"))
-        self.gbComment = QtGui.QGroupBox(self.splitter_2)
+        self.splitter = QtGui.QSplitter(self.splitter_2)
+        self.splitter.setOrientation(QtCore.Qt.Vertical)
+        self.splitter.setObjectName(_fromUtf8("splitter"))
+        self.gbComment = QtGui.QGroupBox(self.splitter)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -48,7 +51,7 @@ class Ui_mwGrapher(object):
         self.glComment.setMargin(0)
         self.glComment.setSpacing(0)
         self.glComment.setObjectName(_fromUtf8("glComment"))
-        self.gbVariables = QtGui.QGroupBox(self.splitter_2)
+        self.gbVariables = QtGui.QGroupBox(self.splitter)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -62,9 +65,6 @@ class Ui_mwGrapher(object):
         self.glVariables.setMargin(0)
         self.glVariables.setSpacing(0)
         self.glVariables.setObjectName(_fromUtf8("glVariables"))
-        self.splitter = QtGui.QSplitter(self.splitter_2)
-        self.splitter.setOrientation(QtCore.Qt.Horizontal)
-        self.splitter.setObjectName(_fromUtf8("splitter"))
         self.vfGraphZone = QtGui.QFrame(self.splitter)
         self.vfGraphZone.setFrameShape(QtGui.QFrame.StyledPanel)
         self.vfGraphZone.setObjectName(_fromUtf8("vfGraphZone"))
@@ -72,7 +72,21 @@ class Ui_mwGrapher(object):
         self.vlGraphZone.setSpacing(0)
         self.vlGraphZone.setMargin(0)
         self.vlGraphZone.setObjectName(_fromUtf8("vlGraphZone"))
-        self.vfNodeEditor = QtGui.QFrame(self.splitter)
+        self.gbLogs = QtGui.QGroupBox(self.splitter)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.gbLogs.sizePolicy().hasHeightForWidth())
+        self.gbLogs.setSizePolicy(sizePolicy)
+        self.gbLogs.setFlat(False)
+        self.gbLogs.setCheckable(True)
+        self.gbLogs.setChecked(False)
+        self.gbLogs.setObjectName(_fromUtf8("gbLogs"))
+        self.glLogs = QtGui.QGridLayout(self.gbLogs)
+        self.glLogs.setMargin(0)
+        self.glLogs.setSpacing(0)
+        self.glLogs.setObjectName(_fromUtf8("glLogs"))
+        self.vfNodeEditor = QtGui.QFrame(self.splitter_2)
         self.vfNodeEditor.setFrameShape(QtGui.QFrame.StyledPanel)
         self.vfNodeEditor.setObjectName(_fromUtf8("vfNodeEditor"))
         self.vlNodeEditor = QtGui.QVBoxLayout(self.vfNodeEditor)
@@ -223,6 +237,7 @@ class Ui_mwGrapher(object):
         mwGrapher.setWindowTitle(_translate("mwGrapher", "Grapher", None))
         self.gbComment.setTitle(_translate("mwGrapher", "Comment", None))
         self.gbVariables.setTitle(_translate("mwGrapher", "Variables", None))
+        self.gbLogs.setTitle(_translate("mwGrapher", "Logs", None))
         self.menuDisplay.setTitle(_translate("mwGrapher", "Display", None))
         self.menuToolBarOptions.setTitle(_translate("mwGrapher", "Tool Bar Options", None))
         self.menuToolBarOrient.setTitle(_translate("mwGrapher", "Tool Bar Orient", None))

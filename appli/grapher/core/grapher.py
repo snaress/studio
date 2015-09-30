@@ -313,9 +313,6 @@ class Grapher(object):
         self.log.info("########## EXEC GRAPH ##########", newLinesBefor=1)
         self.log.info("xTerm: %s" % xTerm)
         self.log.info("wait: %s" % wait)
-        #-- Save Grapher --#
-        self.log.info("#--- Saving current Graph ---#")
-        self.save()
         #-- Create Process Path --#
         self.log.info("#--- Checking Path ---#")
         self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'exec')))
@@ -386,7 +383,7 @@ class Grapher(object):
         """
         cmd = ''
         #-- Start Options --#
-        cmd += 'start "%s" ' % self.graphName
+        cmd += 'start "%s" ' % self.graphFile
         if not xTerm:
             cmd += '/B '
         #-- Batch Options --#

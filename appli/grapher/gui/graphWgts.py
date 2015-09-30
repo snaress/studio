@@ -1,10 +1,10 @@
 import os, pprint
 from functools import partial
-from lib.qt import scriptEditor
+from lib.qt import scriptEditor2
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.grapher.gui.ui import graphNodeUI, nodeRenameUI, wgVariablesUI, wgScriptUI
+from appli.grapher.gui.ui import graphNodeUI, nodeRenameUI, wgVariablesUI, wgScriptUI, wgLogsUI
 
 
 class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
@@ -549,8 +549,8 @@ class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
         self.pbPush.clicked.connect(self.on_push)
         self.pbPull.setIcon(self.mainUi.graphZone.pullIcon)
         self.pbPull.clicked.connect(self.on_pull)
-        self.scriptEditor = scriptEditor.ScriptEditor()
-        self.scriptEditor.tbEdit.setVisible(False)
+        self.scriptEditor = scriptEditor2.ScriptEditor()
+        # self.scriptEditor.tbEdit.setVisible(False)
         self.vlScript.addWidget(self.scriptEditor)
 
     @property
@@ -575,7 +575,7 @@ class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
             scriptPath = self.grapher.createFolders(os.path.dirname(self.tmpScriptFile))
             if scriptPath is not None:
                 try:
-                    pFile.writeFile(self.tmpScriptFile, str(self.scriptEditor._widget.getCode()))
+                    pFile.writeFile(self.tmpScriptFile, str(self.scriptEditor.getCode()))
                     self.log.debug("Saved: %s" % pFile.conformPath(self.tmpScriptFile))
                 except:
                     raise IOError("!!! Can not write tmpFile: %s !!!" % pFile.conformPath(self.tmpScriptFile))
@@ -591,6 +591,19 @@ class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
         self.log.detail(">>> Pull script ...")
         if self.tmpScriptFile is not None:
             if os.path.exists(self.tmpScriptFile):
-                self.scriptEditor._widget.setCode(''.join(pFile.readFile(self.tmpScriptFile)))
+                self.scriptEditor.setCode(''.join(pFile.readFile(self.tmpScriptFile)))
                 self.log.debug("Updated: %s" % pFile.conformPath(self.tmpScriptFile))
                 os.remove(self.tmpScriptFile)
+
+
+class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
+
+    def __init__(self, mainUi):
+        self.mainUi = mainUi
+        super(Logs, self).__init__()
+        self._setupWidget()
+
+    def _setupWidget(self):
+        self.setupUi(self)
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setSpacing(0)
