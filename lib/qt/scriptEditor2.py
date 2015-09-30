@@ -11,8 +11,6 @@ class ScriptEditor(QsciScintilla):
 
     # noinspection PyUnresolvedReferences
     def _setupWidget(self):
-        self.setIndentationGuides(True)
-        self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
         #-- Font --#
         font = QtGui.QFont('Courier', 10, QtGui.QFont.Normal)
         font.setStyleHint(QtGui.QFont.Monospace)
@@ -33,9 +31,14 @@ class ScriptEditor(QsciScintilla):
         self.markerDefine(QsciScintilla.RightArrow, self.markerNum)
         self.setMarkerBackgroundColor(QtGui.QColor(255, 0, 0), self.markerNum)
         #-- Tab --#
-        self.setIndentationsUseTabs(False)
+        self.setIndentationsUseTabs(True)
+        self.setIndentationGuides(True)
         self.setTabWidth(4)
         self.setTabIndents(True)
+        #-- White Space --#
+        self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
+        self.setWhitespaceVisibility(QsciScintilla.SC_PRINT_BLACKONWHITE)
+        self.setWhitespaceSize(2)
         #-- Lexer --#
         lexer = QsciLexerPython()
         lexer.setDefaultFont(font)
