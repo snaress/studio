@@ -6,18 +6,19 @@ class ScriptEditor(QsciScintilla):
 
     def __init__(self, parent=None):
         super(ScriptEditor, self).__init__(parent)
+        self.font = QtGui.QFont('Courier', 10, QtGui.QFont.Normal)
+        self.font.setStyleHint(QtGui.QFont.Monospace)
+        self.fm = QtGui.QFontMetrics(self.font)
         self.markerNum = 8
+        self.margeLine = self.fm.width("0000")
+        self.spaceSize = 2
         self._setupWidget()
 
     # noinspection PyUnresolvedReferences
     def _setupWidget(self):
-        #-- Font --#
-        font = QtGui.QFont('Courier', 10, QtGui.QFont.Normal)
-        font.setStyleHint(QtGui.QFont.Monospace)
-        fm = QtGui.QFontMetrics(font)
         #-- Line Numbers --#
-        self.setMarginWidth(0, fm.width("000"))
         self.setMarginLineNumbers(0, True)
+        self.setMarginWidth(0, self.margeLine)
         self.setAutoIndent(True)
         #-- Edge --#
         self.setEdgeMode(QsciScintilla.EdgeLine)
@@ -38,15 +39,15 @@ class ScriptEditor(QsciScintilla):
         #-- White Space --#
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
         self.setWhitespaceVisibility(QsciScintilla.SC_PRINT_BLACKONWHITE)
-        self.setWhitespaceSize(2)
+        self.setWhitespaceSize(self.spaceSize)
         #-- Lexer --#
         lexer = QsciLexerPython()
-        lexer.setDefaultFont(font)
-        lexer.setFont(font)
+        lexer.setDefaultFont(self.font)
+        lexer.setFont(self.font)
         self.setLexer(lexer)
         self.recolor()
         #-- Completion --#
-        self.setAutoCompletionThreshold(2)
+        self.setAutoCompletionThreshold(3)
         self.setAutoCompletionSource(QsciScintilla.AcsDocument)
         self.setAutoCompletionCaseSensitivity(True)
         self.setAutoCompletionReplaceWord(True)
