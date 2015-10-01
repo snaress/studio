@@ -58,7 +58,6 @@ class ScriptEditor(QsciScintilla):
             self.markerDelete(nline, self.markerNum)
         else:
             self.markerAdd(nline, self.markerNum)
-        print self.text()
 
     def getCode(self):
         return self.text().replace('\r', '')
