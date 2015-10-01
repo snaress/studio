@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\nodeEditor.ui'
 #
-# Created: Sun Sep 27 03:06:27 2015
+# Created: Thu Oct 01 00:39:38 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -167,26 +167,26 @@ class Ui_wgNodeEditor(object):
         self.vlSpacer.setObjectName(_fromUtf8("vlSpacer"))
         spacerItem = QtGui.QSpacerItem(18, 230, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.vlSpacer.addItem(spacerItem)
-        self.gbNotes = QtGui.QGroupBox(self.splitter)
+        self.gbTrash = QtGui.QGroupBox(self.splitter)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.gbNotes.sizePolicy().hasHeightForWidth())
-        self.gbNotes.setSizePolicy(sizePolicy)
-        self.gbNotes.setFlat(False)
-        self.gbNotes.setCheckable(True)
-        self.gbNotes.setChecked(False)
-        self.gbNotes.setObjectName(_fromUtf8("gbNotes"))
-        self.glNotes = QtGui.QGridLayout(self.gbNotes)
+        sizePolicy.setHeightForWidth(self.gbTrash.sizePolicy().hasHeightForWidth())
+        self.gbTrash.setSizePolicy(sizePolicy)
+        self.gbTrash.setFlat(False)
+        self.gbTrash.setCheckable(True)
+        self.gbTrash.setChecked(False)
+        self.gbTrash.setObjectName(_fromUtf8("gbTrash"))
+        self.glNotes = QtGui.QGridLayout(self.gbTrash)
         self.glNotes.setMargin(0)
         self.glNotes.setSpacing(0)
         self.glNotes.setObjectName(_fromUtf8("glNotes"))
-        self.teNotes = QtGui.QPlainTextEdit(self.gbNotes)
-        self.teNotes.setLineWrapMode(QtGui.QPlainTextEdit.NoWrap)
-        self.teNotes.setTabStopWidth(4)
-        self.teNotes.setBackgroundVisible(False)
-        self.teNotes.setObjectName(_fromUtf8("teNotes"))
-        self.glNotes.addWidget(self.teNotes, 0, 0, 1, 1)
+        self.teTrash = QtGui.QPlainTextEdit(self.gbTrash)
+        self.teTrash.setLineWrapMode(QtGui.QPlainTextEdit.NoWrap)
+        self.teTrash.setTabStopWidth(4)
+        self.teTrash.setBackgroundVisible(False)
+        self.teTrash.setObjectName(_fromUtf8("teTrash"))
+        self.glNotes.addWidget(self.teTrash, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.splitter, 3, 0, 1, 1)
         self.line_5 = QtGui.QFrame(wgNodeEditor)
         self.line_5.setFrameShape(QtGui.QFrame.HLine)
@@ -228,7 +228,7 @@ class Ui_wgNodeEditor(object):
         self.pbDelVersion.setText(_translate("wgNodeEditor", "Del", None))
         self.gbComment.setTitle(_translate("wgNodeEditor", "Comment", None))
         self.gbVariables.setTitle(_translate("wgNodeEditor", "Variables", None))
-        self.gbNotes.setTitle(_translate("wgNodeEditor", "Notes", None))
+        self.gbTrash.setTitle(_translate("wgNodeEditor", "Trash", None))
         self.pbClose.setText(_translate("wgNodeEditor", "Close", None))
         self.pbSave.setText(_translate("wgNodeEditor", "Save", None))
         self.pbCancel.setText(_translate("wgNodeEditor", "Cancel", None))

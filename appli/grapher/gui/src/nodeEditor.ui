@@ -367,7 +367,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QGroupBox" name="gbNotes">
+     <widget class="QGroupBox" name="gbTrash">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
         <horstretch>0</horstretch>
@@ -375,7 +375,7 @@
        </sizepolicy>
       </property>
       <property name="title">
-       <string>Notes</string>
+       <string>Trash</string>
       </property>
       <property name="flat">
        <bool>false</bool>
@@ -394,7 +394,7 @@
         <number>0</number>
        </property>
        <item row="0" column="0">
-        <widget class="QPlainTextEdit" name="teNotes">
+        <widget class="QPlainTextEdit" name="teTrash">
          <property name="lineWrapMode">
           <enum>QPlainTextEdit::NoWrap</enum>
          </property>

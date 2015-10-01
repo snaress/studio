@@ -3,6 +3,7 @@ from functools import partial
 from lib.qt import scriptEditor2
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
+from PyQt4.Qsci import QsciScintilla
 from lib.system import procFile as pFile
 from appli.grapher.gui.ui import graphNodeUI, nodeRenameUI, wgVariablesUI, wgScriptUI, wgLogsUI
 
@@ -545,13 +546,21 @@ class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
     # noinspection PyUnresolvedReferences
     def _setupWidget(self):
         self.setupUi(self)
+        #-- Script Zone --#
+        self.scriptEditor = scriptEditor2.ScriptEditor()
+        self.vlScript.addWidget(self.scriptEditor)
+        #-- Script Options --#
+        self.cbLineNum.clicked.connect(self.on_lineNumber)
+        self.cbFolding.clicked.connect(self.on_folding)
+        self.cbCompletion.clicked.connect(self.on_completion)
+        self.cbTabGuides.clicked.connect(self.on_tabGuides)
+        self.cbWhiteSpace.clicked.connect(self.on_whiteSpace)
+        self.cbEdge.clicked.connect(self.on_edge)
+        #-- Externalize Script --#
         self.pbPush.setIcon(self.mainUi.graphZone.foldIcon)
         self.pbPush.clicked.connect(self.on_push)
         self.pbPull.setIcon(self.mainUi.graphZone.pullIcon)
         self.pbPull.clicked.connect(self.on_pull)
-        self.scriptEditor = scriptEditor2.ScriptEditor()
-        # self.scriptEditor.tbEdit.setVisible(False)
-        self.vlScript.addWidget(self.scriptEditor)
 
     @property
     def tmpScriptFile(self):
@@ -563,6 +572,64 @@ class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
         """
         if self.pWidget.node is not None:
             return os.path.join('tmp', self.mainUi.user, 'externScripts', '%s.py' % self.pWidget.node.nodeName)
+
+    def on_lineNumber(self):
+        """
+        Command launched when 'Line Num' QCheckBox is clicked
+
+        Enable / disable line numbers
+        """
+        if self.cbLineNum.isChecked():
+            self.scriptEditor.setMarginWidth(0, self.scriptEditor.margeLine)
+        else:
+            self.scriptEditor.setMarginWidth(0, 0)
+
+    def on_folding(self):
+        """
+        Command launched when 'Folding' QCheckBox is clicked
+
+        Enable / disable code folding
+        """
+        if self.cbFolding.isChecked():
+            self.scriptEditor.setFolding(QsciScintilla.BoxedTreeFoldStyle)
+        else:
+            self.scriptEditor.setFolding(QsciScintilla.NoFoldStyle)
+
+    def on_completion(self):
+        """
+        Command launched when 'Completion' QCheckBox is clicked
+
+        Enable / disable code completion
+        """
+        if self.cbCompletion.isChecked():
+            self.scriptEditor.setAutoCompletionSource(QsciScintilla.AcsDocument)
+        else:
+            self.scriptEditor.setAutoCompletionSource(QsciScintilla.AcsNone)
+
+    def on_tabGuides(self):
+        """
+        Command launched when 'Tab Guides' QCheckBox is clicked
+
+        Enable / disable tab guides visiility
+        """
+        self.scriptEditor.setIndentationGuides(self.cbTabGuides.isChecked())
+
+    def on_whiteSpace(self):
+        """
+        Command launched when 'White Space' QCheckBox is clicked
+
+        Enable / disable white space visibility
+        """
+        if self.cbWhiteSpace.isChecked():
+            self.scriptEditor.setWhitespaceSize(self.scriptEditor.spaceSize)
+        else:
+            self.scriptEditor.setWhitespaceSize(0)
+
+    def on_edge(self):
+        if self.cbEdge.isChecked():
+            self.scriptEditor.setEdgeMode(QsciScintilla.EdgeLine)
+        else:
+            self.scriptEditor.setEdgeMode(QsciScintilla.EdgeNone)
 
     def on_push(self):
         """

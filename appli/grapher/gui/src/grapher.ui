@@ -93,30 +93,15 @@
          </property>
         </layout>
        </widget>
-       <widget class="QGroupBox" name="gbLogs">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QFrame" name="vfLogs">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
         </property>
-        <property name="title">
-         <string>Logs</string>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <layout class="QGridLayout" name="glLogs">
-         <property name="margin">
+        <layout class="QVBoxLayout" name="vlLogs">
+         <property name="spacing">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="margin">
           <number>0</number>
          </property>
         </layout>
@@ -180,6 +165,7 @@
     <addaction name="miToolsVisibility"/>
     <addaction name="miNodeEditor"/>
     <addaction name="miGraphScene"/>
+    <addaction name="miLogs"/>
     <addaction name="separator"/>
     <addaction name="menuToolBarOptions"/>
    </widget>
@@ -192,9 +178,27 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="miGrapherDatas"/>
-    <addaction name="miTreeDatas"/>
-    <addaction name="miNodeDatas"/>
+    <widget class="QMenu" name="menuPrintDatas">
+     <property name="tearOffEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>Print Datas</string>
+     </property>
+     <addaction name="miGrapherDatas"/>
+     <addaction name="miTreeDatas"/>
+     <addaction name="miNodeDatas"/>
+    </widget>
+    <widget class="QMenu" name="menuVerbose">
+     <property name="tearOffEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>Verbose</string>
+     </property>
+    </widget>
+    <addaction name="menuPrintDatas"/>
+    <addaction name="menuVerbose"/>
    </widget>
    <widget class="QMenu" name="menuFiles">
     <property name="title">
@@ -415,6 +419,85 @@
    </property>
    <property name="text">
     <string>Wait At End</string>
+   </property>
+  </action>
+  <action name="actionDe">
+   <property name="text">
+    <string>de</string>
+   </property>
+  </action>
+  <action name="miCriticalLvl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>critical</string>
+   </property>
+  </action>
+  <action name="miErrorLvl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>error</string>
+   </property>
+  </action>
+  <action name="miWarningLvl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>warning</string>
+   </property>
+  </action>
+  <action name="miInfoLvl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>info</string>
+   </property>
+  </action>
+  <action name="miDebugLvl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>debug</string>
+   </property>
+  </action>
+  <action name="miDetailLvl">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>detail</string>
+   </property>
+  </action>
+  <action name="miLogs">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Logs</string>
    </property>
   </action>
  </widget>

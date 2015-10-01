@@ -18,7 +18,7 @@ class Node(object):
         self.nodeVersions = {0: "Default Version"}
         self.nodeComments = {0: ""}
         self.nodeVariables = {0: dict()}
-        self.nodeNotes = {0: ""}
+        self.nodeTrash = {0: ""}
 
     def getDatas(self, asString=False):
         """
@@ -88,7 +88,7 @@ class Node(object):
         self.nodeVersions[newIndex] = "New version"
         self.nodeComments[newIndex] = self.nodeComments[curIndex]
         self.nodeVariables[newIndex] = self.nodeVariables[curIndex]
-        self.nodeNotes[newIndex] = self.nodeNotes[curIndex]
+        self.nodeTrash[newIndex] = self.nodeTrash[curIndex]
         if hasattr(self, 'nodeScript'):
             self.nodeScript[newIndex] = self.nodeScript[curIndex]
         self.nodeVersion = newIndex
@@ -114,7 +114,7 @@ class Node(object):
             self.nodeVersions.pop(curIndex)
             self.nodeComments.pop(curIndex)
             self.nodeVariables.pop(curIndex)
-            self.nodeNotes.pop(curIndex)
+            self.nodeTrash.pop(curIndex)
             if hasattr(self, 'nodeScript'):
                 self.nodeScript.pop(curIndex)
             return newIndex

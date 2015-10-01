@@ -47,8 +47,9 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         #-- Node Script --#
         self.nodeScript = graphWgts.Script(self.mainUi, self)
         self.vlScript.addWidget(self.nodeScript)
-        #-- Node Notes --#
-        self.gbNotes.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbNotes, self.teNotes))
+        #-- Node Trash --#
+        self.teTrash.setStyleSheet("background-color: rgb(150, 150, 150)")
+        self.gbTrash.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbTrash, self.teTrash))
         #-- Node Buttons --#
         self.pbSave.clicked.connect(self.on_save)
         self.pbCancel.clicked.connect(self.on_cancel)
@@ -66,7 +67,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         datas = dict(nodeComments=str(self.nodeComment.teText.toHtml()),
                      nodeVariables=self.nodeVar.getDatas(),
                      nodeScript=str(self.nodeScript.scriptEditor.getCode()),
-                     nodeNotes=str(self.teNotes.toPlainText()))
+                     nodeTrash=str(self.teTrash.toPlainText()))
         return datas
 
     def clear(self):
@@ -75,7 +76,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         """
         self.log.detail(">>> Clear NodeEditor")
         for w in [self.leNodeName, self.lTypeValue, self.leVersionTitle, self.cbNodeVersion, self.nodeComment.teText,
-                  self.nodeVar.twVar, self.nodeScript.scriptEditor, self.teNotes]:
+                  self.nodeVar.twVar, self.nodeScript.scriptEditor, self.teTrash]:
             w.clear()
         self.refresh()
 
@@ -86,7 +87,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.log.detail(">>> Refreshing NodeEditor")
         self.mainUi.rf_nodeGroupVisibility(self.gbComment, self.nodeComment)
         self.mainUi.rf_nodeGroupVisibility(self.gbVariables, self.nodeVar)
-        self.mainUi.rf_nodeGroupVisibility(self.gbNotes, self.teNotes)
+        self.mainUi.rf_nodeGroupVisibility(self.gbTrash, self.teTrash)
         self.vfScript.setVisible(False)
         self.vfSpacer.setVisible(True)
 
@@ -115,7 +116,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.nodeVar.buildTree(self.node.nodeVariables[self.node.nodeVersion])
         if hasattr(self.node, 'nodeScript'):
             self.nodeScript.scriptEditor.setCode(self.node.nodeScript[self.node.nodeVersion])
-        self.teNotes.setPlainText(self.node.nodeNotes[self.node.nodeVersion])
+        self.teTrash.setPlainText(self.node.nodeTrash[self.node.nodeVersion])
 
     def connectItem(self, item):
         """

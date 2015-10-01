@@ -548,6 +548,8 @@ class GraphView(QtGui.QGraphicsView):
         self.log.debug("\t ---> Setup GraphView Widget.")
         self.setSceneRect(0, 0, 10000, 10000)
         self.scale(0.5, 0.5)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setRubberBandSelectionMode(QtCore.Qt.IntersectsItemShape)
         self.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(35, 35, 35, 255), QtCore.Qt.SolidPattern))
         self.setVisible(False)

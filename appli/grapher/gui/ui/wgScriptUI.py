@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgScript.ui'
 #
-# Created: Sun Sep 27 03:26:11 2015
+# Created: Thu Oct 01 00:26:11 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgScript(object):
     def setupUi(self, wgScript):
         wgScript.setObjectName(_fromUtf8("wgScript"))
-        wgScript.resize(400, 300)
+        wgScript.resize(597, 300)
         self.gridLayout = QtGui.QGridLayout(wgScript)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
@@ -35,9 +35,30 @@ class Ui_wgScript(object):
         self.hlButtons.setSpacing(0)
         self.hlButtons.setContentsMargins(2, -1, -1, -1)
         self.hlButtons.setObjectName(_fromUtf8("hlButtons"))
-        self.label = QtGui.QLabel(wgScript)
-        self.label.setObjectName(_fromUtf8("label"))
-        self.hlButtons.addWidget(self.label)
+        self.cbLineNum = QtGui.QCheckBox(wgScript)
+        self.cbLineNum.setChecked(True)
+        self.cbLineNum.setObjectName(_fromUtf8("cbLineNum"))
+        self.hlButtons.addWidget(self.cbLineNum)
+        self.cbFolding = QtGui.QCheckBox(wgScript)
+        self.cbFolding.setChecked(True)
+        self.cbFolding.setObjectName(_fromUtf8("cbFolding"))
+        self.hlButtons.addWidget(self.cbFolding)
+        self.cbCompletion = QtGui.QCheckBox(wgScript)
+        self.cbCompletion.setChecked(True)
+        self.cbCompletion.setObjectName(_fromUtf8("cbCompletion"))
+        self.hlButtons.addWidget(self.cbCompletion)
+        self.cbTabGuides = QtGui.QCheckBox(wgScript)
+        self.cbTabGuides.setChecked(True)
+        self.cbTabGuides.setObjectName(_fromUtf8("cbTabGuides"))
+        self.hlButtons.addWidget(self.cbTabGuides)
+        self.cbWhiteSpace = QtGui.QCheckBox(wgScript)
+        self.cbWhiteSpace.setChecked(True)
+        self.cbWhiteSpace.setObjectName(_fromUtf8("cbWhiteSpace"))
+        self.hlButtons.addWidget(self.cbWhiteSpace)
+        self.cbEdge = QtGui.QCheckBox(wgScript)
+        self.cbEdge.setChecked(True)
+        self.cbEdge.setObjectName(_fromUtf8("cbEdge"))
+        self.hlButtons.addWidget(self.cbEdge)
         spacerItem = QtGui.QSpacerItem(40, 12, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hlButtons.addItem(spacerItem)
         self.pbPush = QtGui.QPushButton(wgScript)
@@ -72,5 +93,10 @@ class Ui_wgScript(object):
 
     def retranslateUi(self, wgScript):
         wgScript.setWindowTitle(_translate("wgScript", "ScriptEditor", None))
-        self.label.setText(_translate("wgScript", "Script", None))
+        self.cbLineNum.setText(_translate("wgScript", "Line Num", None))
+        self.cbFolding.setText(_translate("wgScript", "Folding", None))
+        self.cbCompletion.setText(_translate("wgScript", "Completion", None))
+        self.cbTabGuides.setText(_translate("wgScript", "Tab Guides", None))
+        self.cbWhiteSpace.setText(_translate("wgScript", "White Space", None))
+        self.cbEdge.setText(_translate("wgScript", "Edge", None))
 

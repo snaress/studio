@@ -40,7 +40,6 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self._initMenu()
         self.rf_nodeGroupVisibility(self.gbComment, self.graphComment)
         self.rf_nodeGroupVisibility(self.gbVariables, self.graphVar)
-        self.rf_nodeGroupVisibility(self.gbLogs, self.graphLogs)
 
     # noinspection PyUnresolvedReferences
     def _initWidgets(self):
@@ -67,8 +66,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.vlNodeEditor.insertWidget(0, self.nodeEditor)
         #-- Grapher Logs --#
         self.graphLogs = graphWgts.Logs(self)
-        self.glLogs.addWidget(self.graphLogs, 0, 0)
-        self.gbLogs.clicked.connect(partial(self.rf_nodeGroupVisibility, self.gbLogs, self.graphLogs))
+        self.vlLogs.addWidget(self.graphLogs)
 
     def _initMenu(self):
         self.log.info("#-- Init Menus --#", newLinesBefor=1)
@@ -78,6 +76,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self._menuDisplay()
         self._menuHelp()
         self.on_miNodeEditor()
+        self.on_miLogs()
 
     # noinspection PyUnresolvedReferences
     def _menuFiles(self):
@@ -120,9 +119,13 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miNodeEditor.setShortcut('E')
         self.miGraphScene.triggered.connect(self.on_miGraphScene)
         self.miGraphScene.setShortcut('Tab')
+        self.miLogs.triggered.connect(self.on_miLogs)
+        self.miLogs.setShortcut('L')
         #-- SubMenu 'Tools Bar Orient' --#
-        self.miBarHorizontal.triggered.connect(partial(self.on_miToolsOrientChanged, orient='horizontal', force=True))
-        self.miBarVertical.triggered.connect(partial(self.on_miToolsOrientChanged, orient='vertical', force=True))
+        self.miBarHorizontal.triggered.connect(partial(self.on_miToolsOrientChanged,
+                                                       orient='horizontal', force=True))
+        self.miBarVertical.triggered.connect(partial(self.on_miToolsOrientChanged,
+                                                     orient='vertical', force=True))
         #-- SubMenu 'Tools Tab Orient' --#
         self.miTabNorth.triggered.connect(partial(self.on_miTabOrientChanged, 'North'))
         self.miTabSouth.triggered.connect(partial(self.on_miTabOrientChanged, 'South'))
@@ -139,6 +142,15 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miGrapherDatas.triggered.connect(self.on_miGrapherDatas)
         self.miTreeDatas.triggered.connect(self.on_miTreeDatas)
         self.miNodeDatas.triggered.connect(self.on_miNodeDatas)
+        #-- Verbose --#
+        self.logLevels = []
+        if hasattr(self, 'log'):
+            for lvl in self.log.levels:
+                newItem = self.menuVerbose.addAction(lvl)
+                newItem.setCheckable(True)
+                newItem.triggered.connect(partial(self.on_miVerbose, lvl))
+                self.logLevels.append(newItem)
+        self.on_miVerbose(self.log.level)
 
     @property
     def toolsIconOnly(self):
@@ -426,6 +438,15 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.graphZone.sceneView.setVisible(self.miGraphScene.isChecked())
         self.graphZone.refreshGraph()
 
+    def on_miLogs(self):
+        """
+        Command launched when 'Logs' QMenuItem is triggered
+
+        Show / Hide logs
+        """
+        self.log.detail(">>> Launch menuItem 'Logs' ...")
+        self.vfLogs.setVisible(self.miLogs.isChecked())
+
     def on_miToolsIconOnly(self):
         """
         Command launched when 'Tools Icon Only' QMenuItem is triggered
@@ -468,6 +489,29 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
             for item in selItems:
                 self.log.info("Node Datas: %s" % item._item._node.nodeName)
                 print item._item.getDatas(asString=True)
+
+    def on_miVerbose(self, logLvl):
+        """
+        Command launched when 'Verbose' log level QMenuItem is triggered
+
+        Set log level
+        :param logLvl: Verbose ('critical', 'error', 'warning', 'info', 'debug', 'detail')
+        :type logLvl: str
+        """
+        self.log.detail(">>> Launch menuItem 'Verbose': %s ..." % logLvl)
+        #-- Uncheck All --#
+        for item in self.logLevels:
+            item.setChecked(False)
+        #-- Check Given LogLvl --#
+        for item in self.logLevels:
+            if str(item.text()) == logLvl:
+                item.setChecked(True)
+                break
+        #-- Set LogLvl --#
+        self.log.level = logLvl
+        self.log.lvlIndex = self.log.levels.index(self.log.level)
+        self.grapher.log.level = logLvl
+        self.grapher.log.lvlIndex = self.grapher.log.levels.index(self.grapher.log.level)
 
 
 def launch(logLvl='info'):
