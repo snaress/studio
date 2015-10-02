@@ -17,45 +17,35 @@
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="vlButtons">
      <property name="spacing">
-      <number>20</number>
+      <number>2</number>
      </property>
      <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
+      <widget class="QPushButton" name="pbGetJobs">
+       <property name="maximumSize">
         <size>
-         <width>20</width>
-         <height>40</height>
+         <width>16777215</width>
+         <height>20</height>
         </size>
        </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pbAutoRefresh">
        <property name="text">
-        <string>Auto Refresh</string>
+        <string>Get Jobs</string>
        </property>
        <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
         <bool>false</bool>
        </property>
        <property name="autoRepeat">
-        <bool>true</bool>
-       </property>
-       <property name="default">
-        <bool>false</bool>
-       </property>
-       <property name="flat">
         <bool>false</bool>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pbDelJobs">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>20</height>
+        </size>
+       </property>
        <property name="text">
         <string>Del Jobs</string>
        </property>
@@ -74,6 +64,20 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QCheckBox" name="cbShowXterm">
+       <property name="text">
+        <string>Show Xterm</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cbWaitAtEnd">
+       <property name="text">
+        <string>Wait At End</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="0" column="1">
@@ -82,9 +86,27 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <widget class="QTreeWidget" name="twJobs">
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+      <property name="indentation">
+       <number>2</number>
+      </property>
+      <property name="itemsExpandable">
+       <bool>false</bool>
+      </property>
+      <property name="expandsOnDoubleClick">
+       <bool>false</bool>
+      </property>
       <column>
        <property name="text">
-        <string notr="true">1</string>
+        <string notr="true">Jobs</string>
+       </property>
+       <property name="textAlignment">
+        <set>AlignHCenter|AlignVCenter|AlignCenter</set>
        </property>
       </column>
      </widget>

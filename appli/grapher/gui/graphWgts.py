@@ -667,10 +667,90 @@ class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
 
     def __init__(self, mainUi):
         self.mainUi = mainUi
+        self.log = self.mainUi.log
         super(Logs, self).__init__()
         self._setupWidget()
 
+    # noinspection PyUnresolvedReferences
     def _setupWidget(self):
         self.setupUi(self)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
+        self.teLogs.setStyleSheet("background-color: rgb(35, 35, 35);"
+                                  "color: rgb(220, 220, 220);")
+        self.twJobs.itemClicked.connect(self.updateLog)
+        self.pbGetJobs.clicked.connect(self.on_getJobs)
+        self.pbDelJobs.clicked.connect(self.on_delJobs)
+
+    @property
+    def showXterm(self):
+        """
+        Get 'Show Xterm' QCheckBox state
+
+        :return: Show xterm state
+        :type: bool
+        """
+        return self.cbShowXterm.isChecked()
+
+    @property
+    def waitAtEnd(self):
+        """
+        Get 'Wait At End' QCheckBox state
+
+        :return: Wait at end state
+        :type: bool
+        """
+        return self.cbWaitAtEnd.isChecked()
+
+    def addJob(self, logFile):
+        """
+        Add job to 'Jobs' tree
+
+        :param logFile: Log file
+        :type logFile: str
+        """
+        self.twJobs.clearSelection()
+        self.teLogs.clear()
+        newItem = QtGui.QTreeWidgetItem()
+        newItem.logFile = logFile
+        newItem.setText(0, '--'.join(os.path.basename(logFile).split('.')[0].split('--')[1:]))
+        self.twJobs.insertTopLevelItem(0, newItem)
+
+    def updateLog(self):
+        """
+        Update log with selected job item
+        """
+        self.teLogs.clear()
+        selItems = self.twJobs.selectedItems() or []
+        if len(selItems) == 1:
+            log = pFile.readFile(selItems[0].logFile)
+            self.teLogs.setPlainText(''.join(log))
+
+    def on_getJobs(self):
+        """
+        Command launched when 'Get Jobs' QPushButton is clicked.
+
+        Import jobs for current graphFile
+        """
+        self.twJobs.clear()
+        logFiles = os.listdir(self.mainUi.grapher.logsPath) or []
+        for logFile in logFiles:
+            self.addJob(os.path.join(self.mainUi.grapher.logsPath, logFile))
+        if not logFiles:
+            self.log.info("No log files to import: %s" % self.mainUi.grapher.logsPath)
+
+    def on_delJobs(self):
+        """
+        Command launched when 'Del Jobs' QPushButton is clicked.
+
+        Delete selected jobs for current graphFile
+        """
+        self.teLogs.clear()
+        selItems = self.twJobs.selectedItems() or []
+        for item in selItems:
+            try:
+                os.remove(item.logFile)
+                self.log.detail("delete %s" % item.logFile)
+            except:
+                self.log.error("!!! Can not delete logFile: %s !!!" % item.logFile)
+        self.on_getJobs()

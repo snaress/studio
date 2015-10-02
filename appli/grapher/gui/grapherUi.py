@@ -366,8 +366,9 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail(">>> Launch menuItem 'Exec Graph' ...")
         self.grapher.save()
-        self.grapher.execGraph(xTerm=self.miShowXterm.isChecked(),
-                               wait=self.miWaitAtEnd.isChecked())
+        logFile = self.grapher.execGraph(xTerm=self.graphLogs.showXterm, wait=self.graphLogs.waitAtEnd)
+        if not self.graphLogs.cbShowXterm.isChecked():
+            self.graphLogs.addJob(logFile)
 
     def on_miToolsOrientChanged(self, orient=False, force=False):
         """

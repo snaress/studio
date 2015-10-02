@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgLogs.ui'
 #
-# Created: Thu Oct 01 02:30:26 2015
+# Created: Sat Oct 03 01:46:09 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -30,30 +30,39 @@ class Ui_wgLogs(object):
         self.gridLayout = QtGui.QGridLayout(wgLogs)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.vlButtons = QtGui.QVBoxLayout()
-        self.vlButtons.setSpacing(20)
+        self.vlButtons.setSpacing(2)
         self.vlButtons.setObjectName(_fromUtf8("vlButtons"))
-        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.vlButtons.addItem(spacerItem)
-        self.pbAutoRefresh = QtGui.QPushButton(wgLogs)
-        self.pbAutoRefresh.setCheckable(True)
-        self.pbAutoRefresh.setChecked(False)
-        self.pbAutoRefresh.setAutoRepeat(True)
-        self.pbAutoRefresh.setDefault(False)
-        self.pbAutoRefresh.setFlat(False)
-        self.pbAutoRefresh.setObjectName(_fromUtf8("pbAutoRefresh"))
-        self.vlButtons.addWidget(self.pbAutoRefresh)
+        self.pbGetJobs = QtGui.QPushButton(wgLogs)
+        self.pbGetJobs.setMaximumSize(QtCore.QSize(16777215, 20))
+        self.pbGetJobs.setCheckable(False)
+        self.pbGetJobs.setAutoRepeat(False)
+        self.pbGetJobs.setObjectName(_fromUtf8("pbGetJobs"))
+        self.vlButtons.addWidget(self.pbGetJobs)
         self.pbDelJobs = QtGui.QPushButton(wgLogs)
+        self.pbDelJobs.setMaximumSize(QtCore.QSize(16777215, 20))
         self.pbDelJobs.setObjectName(_fromUtf8("pbDelJobs"))
         self.vlButtons.addWidget(self.pbDelJobs)
-        spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        self.vlButtons.addItem(spacerItem1)
+        spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.vlButtons.addItem(spacerItem)
+        self.cbShowXterm = QtGui.QCheckBox(wgLogs)
+        self.cbShowXterm.setObjectName(_fromUtf8("cbShowXterm"))
+        self.vlButtons.addWidget(self.cbShowXterm)
+        self.cbWaitAtEnd = QtGui.QCheckBox(wgLogs)
+        self.cbWaitAtEnd.setObjectName(_fromUtf8("cbWaitAtEnd"))
+        self.vlButtons.addWidget(self.cbWaitAtEnd)
         self.gridLayout.addLayout(self.vlButtons, 0, 0, 1, 1)
         self.splitter = QtGui.QSplitter(wgLogs)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName(_fromUtf8("splitter"))
         self.twJobs = QtGui.QTreeWidget(self.splitter)
+        self.twJobs.setAlternatingRowColors(True)
+        self.twJobs.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
+        self.twJobs.setIndentation(2)
+        self.twJobs.setItemsExpandable(False)
+        self.twJobs.setExpandsOnDoubleClick(False)
         self.twJobs.setObjectName(_fromUtf8("twJobs"))
-        self.twJobs.headerItem().setText(0, _fromUtf8("1"))
+        self.twJobs.headerItem().setText(0, _fromUtf8("Jobs"))
+        self.twJobs.headerItem().setTextAlignment(0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter|QtCore.Qt.AlignCenter)
         self.teLogs = QtGui.QPlainTextEdit(self.splitter)
         self.teLogs.setReadOnly(True)
         self.teLogs.setObjectName(_fromUtf8("teLogs"))
@@ -64,6 +73,8 @@ class Ui_wgLogs(object):
 
     def retranslateUi(self, wgLogs):
         wgLogs.setWindowTitle(_translate("wgLogs", "Logs", None))
-        self.pbAutoRefresh.setText(_translate("wgLogs", "Auto Refresh", None))
+        self.pbGetJobs.setText(_translate("wgLogs", "Get Jobs", None))
         self.pbDelJobs.setText(_translate("wgLogs", "Del Jobs", None))
+        self.cbShowXterm.setText(_translate("wgLogs", "Show Xterm", None))
+        self.cbWaitAtEnd.setText(_translate("wgLogs", "Wait At End", None))
 

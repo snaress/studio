@@ -121,6 +121,23 @@ class Grapher(object):
         return self._graphFile
 
     @property
+    def logsPath(self):
+        """
+        Get grapher logs path
+
+        :return: Logs path
+        :rtype: str
+        """
+        rootKey = 'prods'
+        rootIndex = os.path.normpath(self.graphPath).split(os.sep).index(rootKey)
+        folders = os.path.normpath(self.graphPath).split(os.sep)[rootIndex + 1:]
+        logPath = os.path.join(self.userPath, 'logs')
+        for fld in folders:
+            logPath = os.path.join(logPath, fld)
+        logPath = os.path.join(logPath, 'GP_%s' % self.graphName)
+        return logPath
+
+    @property
     def graphTmpPath(self):
         """
         Get Grapher tmp path
@@ -309,6 +326,8 @@ class Grapher(object):
         :type xTerm: bool
         :param wait: Wait at end
         :type wait: bool
+        :return: Log file full path
+        :rtype: str
         """
         self.log.info("########## EXEC GRAPH ##########", newLinesBefor=1)
         self.log.info("xTerm: %s" % xTerm)
@@ -327,7 +346,8 @@ class Grapher(object):
         #-- Write Exec File --#
         self.log.info("#--- Write Exec File ---#")
         execFile = os.path.join(self.graphTmpPath, 'exec', '%s--%s--%s.py' % (self.user, _date, _time))
-        # logFile = os.path.join(self.userPath, 'logs', '%s--%s--%s.txt' % (self.user, _date, _time))
+        self.createFolders(self.logsPath, relative=False)
+        logFile = os.path.join(self.logsPath, '%s--%s--%s.txt' % (self.user, _date, _time))
         try:
             pFile.writeFile(execFile, execTxt)
             self.log.info("execFile saved: %s" % pFile.conformPath(execFile))
@@ -335,9 +355,10 @@ class Grapher(object):
             raise IOError("!!! Can not write execFile: %s !!!" % pFile.conformPath(execFile))
         #-- Exec Script --#
         self.log.info("#--- Launch Exec File ---#")
-        cmd = self.execCommand(execFile, xTerm=xTerm, wait=wait)
+        cmd = self.execCommand(execFile, logFile, xTerm=xTerm, wait=wait)
         self.log.info("cmd: %s" % cmd)
         os.system(cmd)
+        return logFile
 
     def execHeader(self, _date, _time):
         """
@@ -367,15 +388,19 @@ class Grapher(object):
         header.extend(["print ''",
                        "print '#--- Set Path ---#'",
                        "os.chdir('%s')" % self.graphPath,
-                       "print '--->', os.getcwd()"])
+                       "print '--->', os.getcwd()",
+                       "time.sleep(5)",
+                       "print 'okokokokokok'"])
         return '\n'.join(header)
 
-    def execCommand(self, execFile, xTerm=True, wait=True):
+    def execCommand(self, execFile, logFile, xTerm=True, wait=True):
         """
         Get exec command
 
         :param execFile: Exec file full path
         :type execFile: str
+        :param logFile: Log file full path
+        :type logFile: str
         :param xTerm: Enable xTerm
         :type xTerm: bool
         :param wait: Wait at end
@@ -398,6 +423,10 @@ class Grapher(object):
         #-- Command Options --#
         cmd += '%s ' % os.path.normpath(self.studio.python27)
         cmd += '%s ' % os.path.normpath(os.path.join(self.graphPath, pFile.conformPath(execFile)))
+        #-- Log File --#
+        if not xTerm:
+            cmd += '>>%s 2>&1' % logFile
+        #-- Result --#
         return cmd
 
 
@@ -777,3 +806,10 @@ class GraphItem(object):
             self._tree._topItems.remove(self)
         else:
             self._parent._children.remove(self)
+
+
+if __name__ == '__main__':
+    graphFile = "E:/prods/cu--captain/asset/char/char.gp.py"
+    gp = Grapher(logLvl='detail')
+    gp.load(graphFile)
+    print gp.logsPath
