@@ -1,4 +1,5 @@
 import pprint
+from lib.env import studio
 
 
 class Node(object):
@@ -130,6 +131,7 @@ class Modul(Node):
 
     _nodeColor = (200, 200, 200, 255)
     _nodeIcon = 'modul.svg'
+    _hasExecCmd = False
 
     def __init__(self, nodeName=None):
         super(Modul, self).__init__(nodeName)
@@ -146,11 +148,16 @@ class SysData(Node):
 
     _nodeColor = (100, 255, 255, 255)
     _nodeIcon = 'sysData.svg'
+    _hasExecCmd = True
 
     def __init__(self, nodeName=None):
         super(SysData, self).__init__(nodeName)
         self.nodeType = 'sysData'
         self.nodeScript = {0: ''}
+
+    @property
+    def execCommand(self):
+        return studio.python27
 
 
 class CmdData(Node):
@@ -163,25 +170,48 @@ class CmdData(Node):
 
     _nodeColor = (60, 135, 255, 255)
     _nodeIcon = 'cmdData.svg'
+    _hasExecCmd = True
 
     def __init__(self, nodeName=None):
         super(CmdData, self).__init__(nodeName)
         self.nodeType = 'cmdData'
         self.nodeScript = {0: ''}
 
+    @property
+    def execCommand(self):
+        return "CmdData cmd"
 
-class PyData(Node):
+
+class PurData(Node):
     """
-    PyData datas contents.
+    PurData datas contents.
 
     :param nodeName: Node Name
     :type nodeName: str
     """
 
     _nodeColor = (0, 125, 0, 255)
-    _nodeIcon = 'pyData.svg'
+    _nodeIcon = 'purData.svg'
+    _hasExecCmd = False
 
     def __init__(self, nodeName=None):
-        super(PyData, self).__init__(nodeName)
-        self.nodeType = 'pyData'
+        super(PurData, self).__init__(nodeName)
+        self.nodeType = 'purData'
         self.nodeScript = {0: ''}
+
+
+class Loop(Node):
+    """
+    Loop datas contents.
+
+    :param nodeName: Node Name
+    :type nodeName: str
+    """
+
+    _nodeColor = (100, 220, 150, 255)
+    _nodeIcon = 'loop.svg'
+    _hasExecCmd = False
+
+    def __init__(self, nodeName=None):
+        super(Loop, self).__init__(nodeName)
+        self.nodeType = 'loop'

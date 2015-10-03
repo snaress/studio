@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgLogs.ui'
 #
-# Created: Sat Oct 03 01:46:09 2015
+# Created: Sat Oct 03 02:07:09 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,9 +45,11 @@ class Ui_wgLogs(object):
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.vlButtons.addItem(spacerItem)
         self.cbShowXterm = QtGui.QCheckBox(wgLogs)
+        self.cbShowXterm.setChecked(True)
         self.cbShowXterm.setObjectName(_fromUtf8("cbShowXterm"))
         self.vlButtons.addWidget(self.cbShowXterm)
         self.cbWaitAtEnd = QtGui.QCheckBox(wgLogs)
+        self.cbWaitAtEnd.setChecked(True)
         self.cbWaitAtEnd.setObjectName(_fromUtf8("cbWaitAtEnd"))
         self.vlButtons.addWidget(self.cbWaitAtEnd)
         self.gridLayout.addLayout(self.vlButtons, 0, 0, 1, 1)

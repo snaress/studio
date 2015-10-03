@@ -10,7 +10,7 @@ class GraphZone(object):
     GraphZone widget, child of GrapherUi
 
     :param mainUi: Grapher mainUi class
-    :type mainUi: QtGui.QMainWindow
+    :type mainUi: grapherUi..GrapherUi
     """
 
     def __init__(self, mainUi):
@@ -73,20 +73,20 @@ class GraphZone(object):
         :return: Graph menu actions
         :rtype: dict
         """
-        return {0: {'type': 'item', 'title': 'Rename Node', 'key': 'F2', 'cmd': self.on_miRenameNode},
-                1: {'type': 'item', 'title': 'Refresh Graph', 'key': 'F5', 'cmd': self.on_miRefresh},
-                2: {'type': 'item', 'title': 'Unselect All', 'key': 'Esc', 'cmd': self.on_miUnselectAll},
-                3: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
-                4: {'type': 'menu', 'title': 'New Node',
+        return {0: {'type': 'menu', 'title': 'New Node',
                     'children': {0: {'type': 'item', 'title': 'Modul', 'key': '1',
                                      'cmd': partial(self.on_miNewNode, 'modul')},
                                  1: {'type': 'item', 'title': 'SysData', 'key': '2',
                                      'cmd': partial(self.on_miNewNode, 'sysData')},
                                  2: {'type': 'item', 'title': 'CmdData', 'key': '3',
                                      'cmd': partial(self.on_miNewNode, 'cmdData')},
-                                 3: {'type': 'item', 'title': 'PyData', 'key': '4',
-                                     'cmd': partial(self.on_miNewNode, 'pyData')}}},
-                5: {'type': 'menu', 'title': 'Copy / Paste',
+                                 3: {'type': 'item', 'title': 'PurData', 'key': '4',
+                                     'cmd': partial(self.on_miNewNode, 'purData')},
+                                 4: {'type': 'item', 'title': 'Loop', 'key': '5',
+                                     'cmd': partial(self.on_miNewNode, 'loop')}}},
+                1: {'type': 'item', 'title': 'Rename Node', 'key': 'F2', 'cmd': self.on_miRenameNode},
+                2: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                3: {'type': 'menu', 'title': 'Copy / Paste',
                     'children': {0: {'type': 'item', 'title': 'Copy Nodes', 'key': 'Ctrl+C',
                                      'cmd': partial(self.on_miCopyNodes, _mode='nodes', rm=False)},
                                  1: {'type': 'item', 'title': 'Copy Branch', 'key': 'Alt+C',
@@ -95,13 +95,16 @@ class GraphZone(object):
                                      'cmd': partial(self.on_miCopyNodes, _mode='branch', rm=True)},
                                  3: {'type': 'item', 'title': 'Paste Nodes', 'key': 'Ctrl+V',
                                      'cmd': self.on_miPasteNodes}}},
-                6: {'type': 'menu', 'title': 'Move Nodes',
+                4: {'type': 'menu', 'title': 'Move Nodes',
                     'children': {0: {'type': 'item', 'title': 'Move Up', 'key': 'Ctrl+Up',
                                      'cmd': partial(self.on_miMoveNodes, side='up')},
                                  1: {'type': 'item', 'title': 'Move Down', 'key': 'Ctrl+Down',
                                      'cmd': partial(self.on_miMoveNodes, side='down')}}},
+                5: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                6: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected},
                 7: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
-                8: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected}}
+                8: {'type': 'item', 'title': 'Refresh Graph', 'key': 'F5', 'cmd': self.on_miRefresh},
+                9: {'type': 'item', 'title': 'Unselect All', 'key': 'Esc', 'cmd': self.on_miUnselectAll},}
 
     def treeMenuActions(self):
         """
@@ -467,7 +470,8 @@ class GraphZone(object):
         if selItems:
             if self.currentGraphMode == 'tree':
                 self.log.detail(">>> Launch menuItem 'Auto Expand' ...")
-                selItems[0]._widget.set_expanded(state=not selItems[0]._widget.isExpanded)
+                for item in selItems:
+                    item._widget.set_expanded(state=not item._widget.isExpanded)
 
     def on_miCopyNodes(self, _mode='nodes', rm=False):
         """

@@ -69,12 +69,18 @@
        <property name="text">
         <string>Show Xterm</string>
        </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="cbWaitAtEnd">
        <property name="text">
         <string>Wait At End</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

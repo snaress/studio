@@ -668,11 +668,14 @@ class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
     def __init__(self, mainUi):
         self.mainUi = mainUi
         self.log = self.mainUi.log
+        self.log.detail("\t ---> Init Logs Widget.")
         super(Logs, self).__init__()
         self._setupWidget()
+        self.rf_waitVisibility()
 
     # noinspection PyUnresolvedReferences
     def _setupWidget(self):
+        self.log.detail("\t ---> Setup Logs Widget.")
         self.setupUi(self)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
@@ -681,6 +684,7 @@ class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
         self.twJobs.itemClicked.connect(self.updateLog)
         self.pbGetJobs.clicked.connect(self.on_getJobs)
         self.pbDelJobs.clicked.connect(self.on_delJobs)
+        self.cbShowXterm.clicked.connect(self.rf_waitVisibility)
 
     @property
     def showXterm(self):
@@ -701,6 +705,9 @@ class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
         :type: bool
         """
         return self.cbWaitAtEnd.isChecked()
+
+    def rf_waitVisibility(self):
+        self.cbWaitAtEnd.setEnabled(self.cbShowXterm.isChecked())
 
     def addJob(self, logFile):
         """
@@ -723,8 +730,12 @@ class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
         self.teLogs.clear()
         selItems = self.twJobs.selectedItems() or []
         if len(selItems) == 1:
+            #-- Update Text --#
             log = pFile.readFile(selItems[0].logFile)
             self.teLogs.setPlainText(''.join(log))
+            #-- Scroll To Bottom --#
+            sb = self.teLogs.verticalScrollBar()
+            sb.setValue(sb.maximum())
 
     def on_getJobs(self):
         """

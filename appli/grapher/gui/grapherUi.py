@@ -365,7 +365,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Exec Graph
         """
         self.log.detail(">>> Launch menuItem 'Exec Graph' ...")
-        self.grapher.save()
+        # self.grapher.save()
         logFile = self.grapher.execGraph(xTerm=self.graphLogs.showXterm, wait=self.graphLogs.waitAtEnd)
         if not self.graphLogs.cbShowXterm.isChecked():
             self.graphLogs.addJob(logFile)

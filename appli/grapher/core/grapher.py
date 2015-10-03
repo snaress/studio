@@ -342,7 +342,9 @@ class Grapher(object):
         _time = pFile.getTime()
         execTxt = self.execHeader(_date, _time)
         #-- Collecte Datas --#
-        varDict = self.variables
+        for item in self.tree.allItems():
+            if item._node.nodeIsActive:
+                execTxt += self.nodeHeader(item._node)
         #-- Write Exec File --#
         self.log.info("#--- Write Exec File ---#")
         execFile = os.path.join(self.graphTmpPath, 'exec', '%s--%s--%s.py' % (self.user, _date, _time))
@@ -388,9 +390,24 @@ class Grapher(object):
         header.extend(["print ''",
                        "print '#--- Set Path ---#'",
                        "os.chdir('%s')" % self.graphPath,
-                       "print '--->', os.getcwd()",
-                       "time.sleep(5)",
-                       "print 'okokokokokok'"])
+                       "print '--->', os.getcwd()"])
+        return '\n'.join(header)
+
+    @staticmethod
+    def nodeHeader(node):
+        """
+        Get node header
+
+        :param node: Graph node
+        :type node: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData | graphNodes.PyData
+        :return: Node header
+        :rtype: str
+        """
+        header = ["\nprint ''", "print ''", "print ''", "print ''", "print ''",
+                  "print '%s%s%s'" % ('#' * 10, '#' * (len(node.nodeName) + 2), '#' * 10),
+                  "print '%s %s %s'" % ('#' * 10, node.nodeName, '#' * 10),
+                  "print '%s%s%s'" % ('#' * 10, '#' * (len(node.nodeName) + 2), '#' * 10),
+                  "print 'Date: %s -- Time: %s'" % (pFile.getDate(), pFile.getTime())]
         return '\n'.join(header)
 
     def execCommand(self, execFile, logFile, xTerm=True, wait=True):
@@ -571,7 +588,7 @@ class GraphTree(object):
         :param nodeName: New node name
         :type nodeName: str
         :return: New tree item
-        :rtype: Modul | SysData | CmdData | PyData
+        :rtype: Modul | SysData | CmdData | PurData | Loop
         """
         if nodeType == 'modul':
             return GraphItem(self, graphNodes.Modul(nodeName))
@@ -579,8 +596,10 @@ class GraphTree(object):
             return GraphItem(self, graphNodes.SysData(nodeName))
         elif nodeType == 'cmdData':
             return  GraphItem(self, graphNodes.CmdData(nodeName))
-        elif nodeType == 'pyData':
-            return GraphItem(self, graphNodes.PyData(nodeName))
+        elif nodeType == 'purData':
+            return GraphItem(self, graphNodes.PurData(nodeName))
+        elif nodeType == 'loop':
+            return GraphItem(self, graphNodes.Loop(nodeName))
 
     # noinspection PyUnresolvedReferences
     def _addItem(self, item, parent=None):
@@ -588,11 +607,11 @@ class GraphTree(object):
         Add given item to tree
 
         :param item: Tree item
-        :rtype: Modul | SysData | CmdData | PyData
+        :rtype: Modul | SysData | CmdData | PyData | Loop
         :param parent: New node parent
-        :type parent: str | Modul | SysData | CmdData | PyData
+        :type parent: str | Modul | SysData | CmdData | PyData | Loop
         :return: New tree item
-        :rtype: Modul | SysData | CmdData | PyData
+        :rtype: Modul | SysData | CmdData | PyData | Loop
         """
         if parent is None:
             self.log.detail("\t ---> Parent %s to world" % item._node.nodeName)

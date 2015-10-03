@@ -169,9 +169,11 @@ class TabUtil(ToolsTab):
 
     def _setupTab(self):
         self.log.debug("\t ---> Setup 'Util' Tab.")
-        self.log.detail("\t\t ---> Add tool 'PyData'.")
-        self.newTool('PyData', cmd=partial(self.mainUi.graphZone.on_miNewNode, 'pyData'),
-                               iconFile=os.path.join(self.iconPath, 'png', 'pyData.png'))
+        self.log.detail("\t\t ---> Add tool 'PurData'.")
+        self.newTool('Loop', cmd=partial(self.mainUi.graphZone.on_miNewNode, 'loop'),
+                             iconFile=os.path.join(self.iconPath, 'png', 'loop.png'))
+        self.newTool('PurData', cmd=partial(self.mainUi.graphZone.on_miNewNode, 'purData'),
+                               iconFile=os.path.join(self.iconPath, 'png', 'purData.png'))
         self.log.detail("\t\t ---> Add tool 'CmdData'.")
         self.newTool('CmdData', cmd=partial(self.mainUi.graphZone.on_miNewNode, 'cmdData'),
                                 iconFile=os.path.join(self.iconPath, 'png', 'cmdData.png'))
