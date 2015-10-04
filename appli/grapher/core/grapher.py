@@ -35,10 +35,15 @@ Get Tree Datas:
 treeDict = gp.tree.getDatas()
 print gp.tree.getDatas(asString=True)
 
-get Node Datas:
+Get Node Datas:
 ---------------
 nodeDict = myNodeName_1.getDatas()
 print myNodeName_1.getDatas(asString=True)
+
+Loop On Nodes:
+--------------
+for item in gp.tree.allItems():
+    print item._node.nodeName
 """
 
 import os, pprint
@@ -146,6 +151,16 @@ class Grapher(object):
         :rtype: str
         """
         return os.path.join('tmp', 'GP_%s' % self.graphName)
+
+    @property
+    def graphScriptPath(self):
+        """
+        Get Grapher scripts path
+
+        :return: Grapher relative scripts path
+        :rtype: str
+        """
+        return os.path.join('scripts', 'GP_%s' % self.graphName)
 
     def getDatas(self, asString=False):
         """
@@ -318,6 +333,10 @@ class Grapher(object):
         except:
             raise IOError("!!! Can not write file %s !!!" % self.graphFullPath)
 
+    #===============================================================================================#
+    #======================================== EXEC COMMANDS ========================================#
+    #===============================================================================================#
+
     def execGraph(self, xTerm=True, wait=True):
         """
         Execute graph
@@ -329,57 +348,75 @@ class Grapher(object):
         :return: Log file full path
         :rtype: str
         """
+        #-- Init --#
         self.log.info("########## EXEC GRAPH ##########", newLinesBefor=1)
         self.log.info("xTerm: %s" % xTerm)
         self.log.info("wait: %s" % wait)
-        #-- Create Process Path --#
-        self.log.info("#--- Checking Path ---#")
-        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'exec')))
-        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'tmpFiles')))
-        #-- Init Exec Script --#
-        self.log.info("#--- Init Exec Script ---#")
         _date = pFile.getDate()
         _time = pFile.getTime()
-        execTxt = self.execHeader(_date, _time)
-        #-- Collecte Datas --#
-        for item in self.tree.allItems():
-            if item._node.nodeIsActive:
-                execTxt += self.nodeHeader(item._node)
-        #-- Write Exec File --#
-        self.log.info("#--- Write Exec File ---#")
-        execFile = os.path.join(self.graphTmpPath, 'exec', '%s--%s--%s.py' % (self.user, _date, _time))
-        self.createFolders(self.logsPath, relative=False)
-        logFile = os.path.join(self.logsPath, '%s--%s--%s.txt' % (self.user, _date, _time))
-        try:
-            pFile.writeFile(execFile, execTxt)
-            self.log.info("execFile saved: %s" % pFile.conformPath(execFile))
-        except:
-            raise IOError("!!! Can not write execFile: %s !!!" % pFile.conformPath(execFile))
-        #-- Exec Script --#
-        self.log.info("#--- Launch Exec File ---#")
-        cmd = self.execCommand(execFile, logFile, xTerm=xTerm, wait=wait)
-        self.log.info("cmd: %s" % cmd)
-        os.system(cmd)
+        #-- Compile --#
+        self._createProcessPaths()
+        execFile, logFile = self._createProcessFiles(_date, _time)
+        execTxt = self._initExecScript(execFile, _date, _time)
+        execTxt = self._collecteGraphDatas(execTxt)
+        execTxt += self._endExecScript()
+        self._writeExecFile(execFile, execTxt)
+        self._execScript(execFile, logFile, xTerm, wait)
         return logFile
 
-    def execHeader(self, _date, _time):
+    def _createProcessPaths(self):
         """
-        Create execFile header
+        Create process directories
+        """
+        self.log.info("#--- Create Process Path ---#", newLinesBefor=1)
+        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'exec')))
+        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'tmpFiles')))
+        self.createFolders(os.path.normpath(self.graphScriptPath))
+        self.createFolders(os.path.normpath(self.logsPath), relative=False)
+        self.log.detail("\t >>> Create process path done.")
+
+    def _createProcessFiles(self, _date, _time):
+        """
+        Create process files
 
         :param _date: Exec date (Y_M_D)
         :type _date: str
         :param _time: Exec time (H_M_S)
         :type _time: str
-        :return: ExecFile header
+        :return: ExecFile full path, LogFile full path
+        :rtype: str && str
+        """
+        self.log.info("#--- Create Process Files ---#", newLinesBefor=1)
+        execFile = os.path.join(self.graphTmpPath, 'exec', '%s--%s--%s.py' % (self.user, _date, _time))
+        logFile = os.path.join(self.logsPath, '%s--%s--%s.txt' % (self.user, _date, _time))
+        self.log.detail("\t >>> Create process files done.")
+        return execFile, logFile
+
+    def _initExecScript(self, execFile, _date, _time):
+        """
+        Store exec script init
+
+        :param execFile: ExecFile full path
+        :type execFile: str
+        :param _date: Exec date (Y_M_D)
+        :type _date: str
+        :param _time: Exec time (H_M_S)
+        :type _time: str
+        :return: Script header
         :rtype: str
         """
+        self.log.info("#--- Init Exec Script ---#", newLinesBefor=1)
         #-- Init --#
-        header = ["print '%s GRAPHER %s'" % ("#" * 20, "#" * 20),
+        header = ["print '%s%s%s'" % ("#" * 20, "#" * 9, "#" * 20),
+                  "print '%s GRAPHER %s'" % ("#" * 20, "#" * 20),
+                  "print '%s%s%s'" % ("#" * 20, "#" * 9, "#" * 20),
                   "print 'Date: %s -- Time: %s'" % (_date, _time),
+                  "print 'GraphFile: %s'" % pFile.conformPath(self.graphFullPath),
+                  "print 'ExecFile: %s'" % pFile.conformPath(execFile),
                   "print ''", "print '#--- Import ---#'"]
         #-- Import --#
         importDict = dict(imp=['os', 'sys', 'time'],
-                          impFrom={'pprint': 'pprint'})
+                          impFrom={'lib.system': 'procFile'})
         for m in importDict['imp']:
             header.append("print '---> %s'" % m)
             header.append("import %s" % m)
@@ -391,15 +428,99 @@ class Grapher(object):
                        "print '#--- Set Path ---#'",
                        "os.chdir('%s')" % self.graphPath,
                        "print '--->', os.getcwd()"])
+        #-- Start Duration --#
+        header.append("GP_START_TIME = time.time()")
+        #-- Result --#
+        self.log.detail("\t >>> Init exec script done.")
         return '\n'.join(header)
 
+    def _collecteGraphDatas(self, execTxt):
+        """
+        Collecte graph datas to store in exec script
+
+        :param execTxt: Exec script
+        :type execTxt: str
+        :return: Updated Exec script
+        :rtype: str
+        """
+        self.log.info("#--- Parse Graph Tree ---#", newLinesBefor=1)
+        for item in self.tree.allItems():
+            self.log.detail("\t ---> %s" % item._node.nodeName)
+            #-- Write Script File --#
+            nodeScriptFile = os.path.join(self.graphScriptPath, '%s.py' % item._node.nodeName)
+            parents = item.allParents()
+            item._node.writeScript(nodeScriptFile, self.variables, parents)
+            if item._node.nodeIsActive:
+                #-- Get Node Header --#
+                execTxt += self.__nodeHeader(item._node)
+                #-- Get Exec Command --#
+                if hasattr(item._node, 'execCommand'):
+                    nodeCmd = self.__nodeExecCommand(item._node, nodeScriptFile)
+                    execTxt += self.__nodeExecHeader(nodeCmd)
+                    execTxt += self.__nodeEnder(item._node)
+        self.log.detail("\t >>> Parse graph tree done.")
+        return execTxt
+
     @staticmethod
-    def nodeHeader(node):
+    def _endExecScript():
+        """
+        Store exec script last lines
+
+        :return: Script end header
+        :rtype: str
+        """
+        header = ["\nprint ''", "print ''", "print ''", "print ''", "print ''",
+                  "print '%s%s%s'" % ('=' * 20, '=' * 13, '=' * 20),
+                  "print '%s GRAPHER END %s'" % ('=' * 20, '=' * 20),
+                  "print '%s%s%s'" % ('=' * 20, '=' * 13, '=' * 20),
+                  "print 'Date: %s -- Time: %s' % (procFile.getDate(), procFile.getTime())",
+                  "print 'Duration: %s' % procFile.secondsToStr(time.time() - GP_START_TIME)"]
+        return '\n'.join(header)
+
+    def _writeExecFile(self, execFile, execTxt):
+        """
+        Write exec file
+
+        :param execFile: ExecFile full path
+        :type execFile: str
+        :param execTxt: Exec script
+        :type execTxt: str
+        """
+        self.log.info("#--- Write Exec File ---#", newLinesBefor=1)
+        try:
+            pFile.writeFile(execFile, execTxt)
+            self.log.info("execFile saved: %s" % pFile.conformPath(execFile))
+        except:
+            raise IOError("!!! Can not write execFile: %s !!!" % pFile.conformPath(execFile))
+        self.log.detail("\t >>> Write exec file done.")
+
+    def _execScript(self, execFile, logFile, xTerm, wait):
+        """
+        Execute script file
+
+        :param execFile: ExecFile full path
+        :type execFile: str
+        :param logFile: LogFile full path
+        :type logFile: str
+        :param xTerm: Enable 'Show XTerm'
+        :type xTerm: bool
+        :param wait: Enable 'Wait At End'
+        :type wait: bool
+        """
+        self.log.info("#--- Launch Exec File ---#", newLinesBefor=1)
+        cmd = self.__execCommand(execFile, logFile, xTerm=xTerm, wait=wait)
+        self.log.info("cmd: %s" % cmd)
+        os.system(cmd)
+        self.log.detail("\t >>> Exec file launched.")
+
+    @staticmethod
+    def __nodeHeader(node):
         """
         Get node header
 
         :param node: Graph node
-        :type node: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData | graphNodes.PyData
+        :type node: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData |
+                    graphNodes.PurData | graphNodes.Loop
         :return: Node header
         :rtype: str
         """
@@ -407,10 +528,61 @@ class Grapher(object):
                   "print '%s%s%s'" % ('#' * 10, '#' * (len(node.nodeName) + 2), '#' * 10),
                   "print '%s %s %s'" % ('#' * 10, node.nodeName, '#' * 10),
                   "print '%s%s%s'" % ('#' * 10, '#' * (len(node.nodeName) + 2), '#' * 10),
-                  "print 'Date: %s -- Time: %s'" % (pFile.getDate(), pFile.getTime())]
+                  "print 'Date: %s -- Time: %s'" % (pFile.getDate(), pFile.getTime()),
+                  "GP_NODE_START_TIME = time.time()"]
         return '\n'.join(header)
 
-    def execCommand(self, execFile, logFile, xTerm=True, wait=True):
+    @staticmethod
+    def __nodeExecCommand(node, nodeScriptFile):
+        """
+        Get given node exec command
+
+        :param node: Graph node
+        :type node: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData |
+                    graphNodes.PurData | graphNodes.Loop
+        :param nodeScriptFile: Node script file full path
+        :type nodeScriptFile: str
+        :return: Node exec header
+        :rtype: str
+        """
+        cmd = ''
+        cmd += 'os.system("'
+        cmd += '%s' % node.execCommand(pFile.conformPath(nodeScriptFile))
+        cmd += '")'
+        return cmd
+
+    @staticmethod
+    def __nodeExecHeader(cmd):
+        """
+        Get node exec header
+
+        :param cmd: Node exec command
+        :type cmd: str
+        :return: Node exec header
+        :rtype: str
+        """
+        header = ["\nprint '%s'" % pFile.conformPath(cmd),
+                  "print ''", cmd]
+        return '\n'.join(header)
+
+    @staticmethod
+    def __nodeEnder(node):
+        """
+        Get node end process header
+
+        :param node: Graph node
+        :type node: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData |
+                    graphNodes.PurData | graphNodes.Loop
+        :return: Node end process header
+        :rtype: str
+        """
+        header = ["\nprint ''", "print ''",
+                  "print '%s Node End: %s %s'" % ('=' * 20, node.nodeName, '=' * 20),
+                  "print 'Date: %s -- Time: %s' % (procFile.getDate(), procFile.getTime())",
+                  "print 'Duration: %s' % procFile.secondsToStr(time.time() - GP_NODE_START_TIME)"]
+        return '\n'.join(header)
+
+    def __execCommand(self, execFile, logFile, xTerm=True, wait=True):
         """
         Get exec command
 
@@ -422,6 +594,8 @@ class Grapher(object):
         :type xTerm: bool
         :param wait: Wait at end
         :type wait: bool
+        :return: Exec commmand
+        :rtype: str
         """
         cmd = ''
         #-- Start Options --#
@@ -429,7 +603,7 @@ class Grapher(object):
         if not xTerm:
             cmd += '/B '
         #-- Batch Options --#
-        cmd += '%s ' % os.path.normpath(self.studio.cmdExe)
+        cmd += '"%s" ' % os.path.normpath(self.studio.cmdExe)
         if wait:
             if xTerm:
                 cmd += '/K '
@@ -438,8 +612,8 @@ class Grapher(object):
         else:
             cmd += '/C '
         #-- Command Options --#
-        cmd += '%s ' % os.path.normpath(self.studio.python27)
-        cmd += '%s ' % os.path.normpath(os.path.join(self.graphPath, pFile.conformPath(execFile)))
+        cmd += '"%s ' % os.path.normpath(self.studio.python27)
+        cmd += '%s" ' % os.path.normpath(os.path.join(self.graphPath, pFile.conformPath(execFile)))
         #-- Log File --#
         if not xTerm:
             cmd += '>>%s 2>&1' % logFile
@@ -716,6 +890,25 @@ class GraphItem(object):
         #-- Result --#
         return children
 
+    def allParents(self, depth=-1):
+        """
+        Get node all parents
+
+        :param depth: Number of recursion (-1 = infinite)
+        :type depth: int
+        :return: Node parents
+        :rtype: list
+        """
+        parents = []
+        def recurse(currentItem, depth):
+            parents.append(currentItem)
+            if depth != 0:
+                if currentItem._parent is not None:
+                    recurse(currentItem._parent, depth-1)
+        if self._parent is not None:
+            recurse(self._parent, depth)
+        return parents
+
     def childItemIndex(self, childItem):
         """
         Get given chilItem index
@@ -825,10 +1018,3 @@ class GraphItem(object):
             self._tree._topItems.remove(self)
         else:
             self._parent._children.remove(self)
-
-
-if __name__ == '__main__':
-    graphFile = "E:/prods/cu--captain/asset/char/char.gp.py"
-    gp = Grapher(logLvl='detail')
-    gp.load(graphFile)
-    print gp.logsPath

@@ -6,7 +6,7 @@ from PyQt4.Qsci import QsciScintilla
 from appli.grapher.gui import graphWgts
 from lib.system import procFile as pFile
 from lib.qt import textEditor, scriptEditor2
-from appli.grapher.gui.ui import nodeEditorUI, wgScriptUI
+from appli.grapher.gui.ui import nodeEditorUI, wgLauncherUI, wgScriptUI
 
 
 class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
@@ -48,6 +48,8 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.glVariables.addWidget(self.nodeVar, 0, 0)
         self.gbVariables.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbVariables, self.nodeVar))
         #-- Node Script --#
+        self.nodeLauncher = Launcher(self.mainUi, self)
+        self.vlScript.addWidget(self.nodeLauncher)
         self.nodeScript = Script(self.mainUi, self)
         self.vlScript.addWidget(self.nodeScript)
         #-- Node Trash --#
@@ -91,14 +93,22 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.mainUi.rf_nodeGroupVisibility(self.gbComment, self.nodeComment)
         self.mainUi.rf_nodeGroupVisibility(self.gbVariables, self.nodeVar)
         self.mainUi.rf_nodeGroupVisibility(self.gbTrash, self.teTrash)
+        self.nodeLauncher.setVisible(False)
         self.vfScript.setVisible(False)
         self.vfSpacer.setVisible(True)
 
     def updateVisibility(self):
+        """
+        Update widgets visibility
+        """
         spacer = True
         self.vfScript.setVisible(False)
         if hasattr(self.node, 'nodeScript'):
             self.vfScript.setVisible(True)
+            if hasattr(self.node, 'nodeLauncher'):
+                self.nodeLauncher.setVisible(True)
+            else:
+                self.nodeLauncher.setVisible(False)
             spacer = False
         self.vfSpacer.setVisible(spacer)
 
@@ -207,6 +217,32 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         if self.node is not None:
             self.clear()
             self.update()
+
+
+class Launcher(QtGui.QWidget, wgLauncherUI.Ui_wgLauncher):
+    """
+    Node Launcher QWidget, child of NodeEditor
+
+    :param mainUi: Grapher main window
+    :type mainUi: GrapherUi
+    :param pWidget: Parent widget
+    :type: NodeEditor
+    """
+
+    def __init__(self, mainUi, pWidget):
+        self.mainUi = mainUi
+        self.pWidget = pWidget
+        self.log = self.mainUi.log
+        super(Launcher, self).__init__()
+        self._setupWidget()
+
+    # noinspection PyUnresolvedReferences
+    def _setupWidget(self):
+        self.setupUi(self)
+
+    def updateLaunchers(self):
+        self.cbLauncher.clear()
+
 
 
 class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):

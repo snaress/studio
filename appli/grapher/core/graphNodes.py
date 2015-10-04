@@ -1,5 +1,6 @@
-import pprint
+import os, pprint
 from lib.env import studio
+from lib.system import procFile as pFile
 
 
 class Node(object):
@@ -92,6 +93,10 @@ class Node(object):
         self.nodeTrash[newIndex] = self.nodeTrash[curIndex]
         if hasattr(self, 'nodeScript'):
             self.nodeScript[newIndex] = self.nodeScript[curIndex]
+            if hasattr(self, 'nodeLauncher'):
+                self.nodeLauncher[newIndex] = self.nodeLauncher[curIndex]
+            if hasattr(self, 'nodeLaunchArgs'):
+                self.nodeLaunchArgs[newIndex] = self.nodeLaunchArgs[curIndex]
         self.nodeVersion = newIndex
         return self.nodeVersion
 
@@ -118,7 +123,115 @@ class Node(object):
             self.nodeTrash.pop(curIndex)
             if hasattr(self, 'nodeScript'):
                 self.nodeScript.pop(curIndex)
+                if hasattr(self, 'nodeLauncher'):
+                    self.nodeLauncher.pop(curIndex)
+                if hasattr(self, 'nodeLaunchArgs'):
+                    self.nodeLaunchArgs.pop(curIndex)
             return newIndex
+
+    @staticmethod
+    def conformVarDict(varDict):
+        """
+        Conform variables to string
+
+        :param varDict: Variables to conform
+        :type varDict: dict
+        :return: Conformed variables
+        :rtype: str
+        """
+        var = []
+        stored = dict()
+        for n, varDict in sorted(varDict.iteritems()):
+            if varDict['state']:
+                #-- Store Current Var Type --#
+                if not varDict['label'] in stored.keys():
+                    stored[varDict['label']] = type(varDict['value'])
+                #-- Type Init --#
+                if varDict['type'] == 0:
+                    if isinstance(varDict['value'], str):
+                        var.append("%s = %r" % (varDict['label'], varDict['value']))
+                    else:
+                        var.append("%s = %s" % (varDict['label'], varDict['value']))
+                #-- Type Add --#
+                elif varDict['type'] == 1:
+                    #-- Add List --#
+                    if stored[varDict['label']] is list:
+                        if isinstance(varDict['value'], list):
+                            var.append("%s.extend(%s)" % (varDict['label'], varDict['value']))
+                        else:
+                            if isinstance(varDict['value'], basestring):
+                                var.append("%s.append(%r)" % (varDict['label'], varDict['value']))
+                            else:
+                                var.append("%s.append(%s)" % (varDict['label'], varDict['value']))
+                    #-- Add Dict --#
+                    elif stored[varDict['label']] is dict:
+                        if isinstance(varDict['value'], dict):
+                            for k, v in varDict['value'].iteritems():
+                                if isinstance(v, basestring):
+                                    if isinstance(k, basestring):
+                                        var.append("%s[%r] = %r" % (varDict['label'], k, v))
+                                    else:
+                                        var.append("%s[%s] = %r" % (varDict['label'], k, v))
+                                else:
+                                    if isinstance(k, basestring):
+                                        var.append("%s[%r] = %s" % (varDict['label'], k, v))
+                                    else:
+                                        var.append("%s[%s] = %s" % (varDict['label'], k, v))
+                        else:
+                            raise ValueError("!!! ERROR: %s value should be 'dict', got %s" % (varDict['label'],
+                                                                                               varDict['value']))
+                    #-- Add Str --#
+                    elif stored[varDict['label']] in [str, basestring]:
+                        var.append("%s += %r" % (varDict['label'], varDict['value']))
+                    #-- Add Num --#
+                    elif stored[varDict['label']] in [int, float, long, complex]:
+                        var.append("%s += %s" % (varDict['label'], varDict['value']))
+                    #-- Error --#
+                    else:
+                        raise ValueError("!!! ERROR: %s value type not supported: %s" % (varDict['label'],
+                                                                                         stored[varDict['label']]))
+        if var:
+            return '\n'.join(var)
+
+    def writeScript(self, scriptFile, graphVars, parents):
+        """
+        Write current script to file
+
+        :param scriptFile: Script file full path
+        :type scriptFile: str
+        :param graphVars: Grapher variables
+        :type graphVars: dict
+        :param parents: Parent items
+        :type parents: list
+        """
+        if hasattr(self, 'nodeScript'):
+            script = []
+            if not self.nodeType == 'purData':
+                #-- Get Graph Var --#
+                script.append("\n#----- Grapher Vars -----#")
+                varStr = self.conformVarDict(graphVars)
+                if varStr is not None:
+                    script.append(varStr)
+                #-- Get Parents Var --#
+                script.append("\n#----- Parents Vars -----#")
+                parents.reverse()
+                for parent in parents:
+                    script.append("#-- Node: %s --#" % parent._node.nodeName)
+                    varStr = self.conformVarDict(parent._node.nodeVariables[parent._node.nodeVersion])
+                    if varStr is not None:
+                        script.append(varStr)
+            #-- Get Node Var --#
+            script.append("\n#----- Node Vars -----#")
+            varStr = self.conformVarDict(self.nodeVariables[self.nodeVersion])
+            if varStr is not None:
+                script.append(varStr)
+            #-- Get Script --#
+            script.append("\n#----- Node Script -----#")
+            script.append(self.nodeScript[self.nodeVersion])
+            try:
+                pFile.writeFile(os.path.normpath(scriptFile), '\n'.join(script))
+            except:
+                raise IOError("!!! Can not write script: %s" % self.nodeName)
 
 
 class Modul(Node):
@@ -131,7 +244,6 @@ class Modul(Node):
 
     _nodeColor = (200, 200, 200, 255)
     _nodeIcon = 'modul.svg'
-    _hasExecCmd = False
 
     def __init__(self, nodeName=None):
         super(Modul, self).__init__(nodeName)
@@ -148,16 +260,23 @@ class SysData(Node):
 
     _nodeColor = (100, 255, 255, 255)
     _nodeIcon = 'sysData.svg'
-    _hasExecCmd = True
 
     def __init__(self, nodeName=None):
         super(SysData, self).__init__(nodeName)
         self.nodeType = 'sysData'
         self.nodeScript = {0: ''}
 
-    @property
-    def execCommand(self):
-        return studio.python27
+    @staticmethod
+    def execCommand(scriptFile):
+        """
+        Get node exec command
+
+        :param scriptFile: Node script file full path
+        :type scriptFile: str
+        :return: Node exec cmd
+        :rtype: str
+        """
+        return '%s %s' % (studio.python27, scriptFile)
 
 
 class CmdData(Node):
@@ -170,16 +289,31 @@ class CmdData(Node):
 
     _nodeColor = (60, 135, 255, 255)
     _nodeIcon = 'cmdData.svg'
-    _hasExecCmd = True
+    _launchers = dict(maya2014=studio.maya,
+                      mayaBatch2014=studio.mayaBatch,
+                      mayaPy2014=studio.mayaPy,
+                      mayaRender2014=studio.mayaRender,
+                      nuke5=studio.nuke5,
+                      nuke9=studio.nuke9)
 
     def __init__(self, nodeName=None):
         super(CmdData, self).__init__(nodeName)
         self.nodeType = 'cmdData'
         self.nodeScript = {0: ''}
+        self.nodeLauncher = {0: 'mayaPy2014'}
+        self.nodeLaunchArgs = {0: ''}
 
-    @property
-    def execCommand(self):
-        return "CmdData cmd"
+    @staticmethod
+    def execCommand(scriptFile):
+        """
+        Get node exec command
+
+        :param scriptFile: Node script file full path
+        :type scriptFile: str
+        :return: Node exec cmd
+        :rtype: str
+        """
+        return 'CmdDataCmd %s' % scriptFile
 
 
 class PurData(Node):
@@ -192,7 +326,6 @@ class PurData(Node):
 
     _nodeColor = (0, 125, 0, 255)
     _nodeIcon = 'purData.svg'
-    _hasExecCmd = False
 
     def __init__(self, nodeName=None):
         super(PurData, self).__init__(nodeName)
@@ -208,9 +341,8 @@ class Loop(Node):
     :type nodeName: str
     """
 
-    _nodeColor = (100, 220, 150, 255)
+    _nodeColor = (100, 255, 150, 255)
     _nodeIcon = 'loop.svg'
-    _hasExecCmd = False
 
     def __init__(self, nodeName=None):
         super(Loop, self).__init__(nodeName)
