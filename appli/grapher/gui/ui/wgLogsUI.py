@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgLogs.ui'
 #
-# Created: Sat Oct 03 02:07:09 2015
+# Created: Sat Oct 03 23:30:31 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -31,6 +31,7 @@ class Ui_wgLogs(object):
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.vlButtons = QtGui.QVBoxLayout()
         self.vlButtons.setSpacing(2)
+        self.vlButtons.setContentsMargins(2, -1, 2, -1)
         self.vlButtons.setObjectName(_fromUtf8("vlButtons"))
         self.pbGetJobs = QtGui.QPushButton(wgLogs)
         self.pbGetJobs.setMaximumSize(QtCore.QSize(16777215, 20))
@@ -42,8 +43,27 @@ class Ui_wgLogs(object):
         self.pbDelJobs.setMaximumSize(QtCore.QSize(16777215, 20))
         self.pbDelJobs.setObjectName(_fromUtf8("pbDelJobs"))
         self.vlButtons.addWidget(self.pbDelJobs)
+        self.line = QtGui.QFrame(wgLogs)
+        self.line.setFrameShape(QtGui.QFrame.HLine)
+        self.line.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line.setObjectName(_fromUtf8("line"))
+        self.vlButtons.addWidget(self.line)
+        self.cbWordWrap = QtGui.QCheckBox(wgLogs)
+        self.cbWordWrap.setChecked(True)
+        self.cbWordWrap.setObjectName(_fromUtf8("cbWordWrap"))
+        self.vlButtons.addWidget(self.cbWordWrap)
+        self.line_2 = QtGui.QFrame(wgLogs)
+        self.line_2.setFrameShape(QtGui.QFrame.HLine)
+        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_2.setObjectName(_fromUtf8("line_2"))
+        self.vlButtons.addWidget(self.line_2)
         spacerItem = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.vlButtons.addItem(spacerItem)
+        self.line_3 = QtGui.QFrame(wgLogs)
+        self.line_3.setFrameShape(QtGui.QFrame.HLine)
+        self.line_3.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_3.setObjectName(_fromUtf8("line_3"))
+        self.vlButtons.addWidget(self.line_3)
         self.cbShowXterm = QtGui.QCheckBox(wgLogs)
         self.cbShowXterm.setChecked(True)
         self.cbShowXterm.setObjectName(_fromUtf8("cbShowXterm"))
@@ -77,6 +97,7 @@ class Ui_wgLogs(object):
         wgLogs.setWindowTitle(_translate("wgLogs", "Logs", None))
         self.pbGetJobs.setText(_translate("wgLogs", "Get Jobs", None))
         self.pbDelJobs.setText(_translate("wgLogs", "Del Jobs", None))
+        self.cbWordWrap.setText(_translate("wgLogs", "Log Word Wrap", None))
         self.cbShowXterm.setText(_translate("wgLogs", "Show Xterm", None))
         self.cbWaitAtEnd.setText(_translate("wgLogs", "Wait At End", None))
 

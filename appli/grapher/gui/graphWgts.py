@@ -1,11 +1,9 @@
 import os, pprint
 from functools import partial
-from lib.qt import scriptEditor2
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
-from PyQt4.Qsci import QsciScintilla
 from lib.system import procFile as pFile
-from appli.grapher.gui.ui import graphNodeUI, nodeRenameUI, wgVariablesUI, wgScriptUI, wgLogsUI
+from appli.grapher.gui.ui import graphNodeUI, nodeRenameUI, wgVariablesUI, wgLogsUI
 
 
 class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
@@ -258,7 +256,7 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
             treeVarDict[n] = dict(state=item._wState.isChecked(),
                                   label=str(item._wLabel.text()),
                                   type=item._wType.currentIndex(),
-                                  value=str(item._wValue.text()),
+                                  value=eval(str(item._wValue.text())),
                                   comment=str(item._wComment.text()))
         #-- Result --#
         if asString:
@@ -293,7 +291,10 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
         item._wState.setChecked(varDict['state'])
         item._wLabel.setText(varDict['label'])
         item._wType.setCurrentIndex(varDict['type'])
-        item._wValue.setText(varDict['value'])
+        if isinstance(varDict['value'], str):
+            item._wValue.setText('"%s"' % varDict['value'])
+        else:
+            item._wValue.setText(str(varDict['value']))
         item._wComment.setText(varDict['comment'])
         self.on_stateButton(item)
 
@@ -371,8 +372,9 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
         newItems = []
         selItems = self.twVar.selectedItems() or []
         for item in selItems:
+            srcDatas = self.getVarDatas(self.twVar.indexOfTopLevelItem(item))
             newItem = self.on_addVar()
-            self.setDatas(newItem, self.getVarDatas(self.twVar.indexOfTopLevelItem(item)))
+            self.setDatas(newItem, srcDatas)
             newItems.append(newItem)
         self.twVar.clearSelection()
         for item in selItems:
@@ -490,7 +492,7 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
         newItem._wState.clicked.connect(partial(self.on_stateButton, newItem))
         newItem._wLabel = QtGui.QLineEdit()
         newItem._wType = QtGui.QComboBox()
-        newItem._wType.addItems(['auto', 'num', ' + ', ' - '])
+        newItem._wType.addItems([' = ', ' + '])
         newItem._wValue = QtGui.QLineEdit()
         newItem._wComment = QtGui.QLineEdit()
         return newItem
@@ -525,144 +527,6 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
         return newWidget
 
 
-class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
-    """
-    Node Script QWidget, child of NodeEditor
-
-    :param mainUi: Grapher main window
-    :type mainUi: GrapherUi
-    :param pWidget: Parent widget
-    :type: NodeEditor
-    """
-
-    def __init__(self, mainUi, pWidget):
-        self.mainUi = mainUi
-        self.pWidget = pWidget
-        self.log = self.mainUi.log
-        self.grapher = self.mainUi.grapher
-        super(Script, self).__init__()
-        self._setupWidget()
-
-    # noinspection PyUnresolvedReferences
-    def _setupWidget(self):
-        self.setupUi(self)
-        #-- Script Zone --#
-        self.scriptEditor = scriptEditor2.ScriptEditor()
-        self.vlScript.addWidget(self.scriptEditor)
-        #-- Script Options --#
-        self.cbLineNum.clicked.connect(self.on_lineNumber)
-        self.cbFolding.clicked.connect(self.on_folding)
-        self.cbCompletion.clicked.connect(self.on_completion)
-        self.cbTabGuides.clicked.connect(self.on_tabGuides)
-        self.cbWhiteSpace.clicked.connect(self.on_whiteSpace)
-        self.cbEdge.clicked.connect(self.on_edge)
-        #-- Externalize Script --#
-        self.pbPush.setIcon(self.mainUi.graphZone.foldIcon)
-        self.pbPush.clicked.connect(self.on_push)
-        self.pbPull.setIcon(self.mainUi.graphZone.pullIcon)
-        self.pbPull.clicked.connect(self.on_pull)
-
-    @property
-    def tmpScriptFile(self):
-        """
-        Get tmp script file
-
-        :return: Tmp script relative path
-        :rtype: str
-        """
-        if self.pWidget.node is not None:
-            return os.path.join('tmp', self.mainUi.user, 'externScripts', '%s.py' % self.pWidget.node.nodeName)
-
-    def on_lineNumber(self):
-        """
-        Command launched when 'Line Num' QCheckBox is clicked
-
-        Enable / disable line numbers
-        """
-        if self.cbLineNum.isChecked():
-            self.scriptEditor.setMarginWidth(0, self.scriptEditor.margeLine)
-        else:
-            self.scriptEditor.setMarginWidth(0, 0)
-
-    def on_folding(self):
-        """
-        Command launched when 'Folding' QCheckBox is clicked
-
-        Enable / disable code folding
-        """
-        if self.cbFolding.isChecked():
-            self.scriptEditor.setFolding(QsciScintilla.BoxedTreeFoldStyle)
-        else:
-            self.scriptEditor.setFolding(QsciScintilla.NoFoldStyle)
-
-    def on_completion(self):
-        """
-        Command launched when 'Completion' QCheckBox is clicked
-
-        Enable / disable code completion
-        """
-        if self.cbCompletion.isChecked():
-            self.scriptEditor.setAutoCompletionSource(QsciScintilla.AcsDocument)
-        else:
-            self.scriptEditor.setAutoCompletionSource(QsciScintilla.AcsNone)
-
-    def on_tabGuides(self):
-        """
-        Command launched when 'Tab Guides' QCheckBox is clicked
-
-        Enable / disable tab guides visiility
-        """
-        self.scriptEditor.setIndentationGuides(self.cbTabGuides.isChecked())
-
-    def on_whiteSpace(self):
-        """
-        Command launched when 'White Space' QCheckBox is clicked
-
-        Enable / disable white space visibility
-        """
-        if self.cbWhiteSpace.isChecked():
-            self.scriptEditor.setWhitespaceSize(self.scriptEditor.spaceSize)
-        else:
-            self.scriptEditor.setWhitespaceSize(0)
-
-    def on_edge(self):
-        if self.cbEdge.isChecked():
-            self.scriptEditor.setEdgeMode(QsciScintilla.EdgeLine)
-        else:
-            self.scriptEditor.setEdgeMode(QsciScintilla.EdgeNone)
-
-    def on_push(self):
-        """
-        Command launched when 'Push' QPushButton is clicked
-
-        Externalise script
-        """
-        if self.grapher._graphFile is not None:
-            self.log.detail(">>> Push script ...")
-            scriptPath = self.grapher.createFolders(os.path.dirname(self.tmpScriptFile))
-            if scriptPath is not None:
-                try:
-                    pFile.writeFile(self.tmpScriptFile, str(self.scriptEditor.getCode()))
-                    self.log.debug("Saved: %s" % pFile.conformPath(self.tmpScriptFile))
-                except:
-                    raise IOError("!!! Can not write tmpFile: %s !!!" % pFile.conformPath(self.tmpScriptFile))
-            editor = self.grapher.studio.pyCharm
-            os.system('%s %s' % (os.path.normpath(editor), os.path.normpath(self.tmpScriptFile)))
-
-    def on_pull(self):
-        """
-        Command launched when 'Pull' QPushButton is clicked
-
-        Update script
-        """
-        self.log.detail(">>> Pull script ...")
-        if self.tmpScriptFile is not None:
-            if os.path.exists(self.tmpScriptFile):
-                self.scriptEditor.setCode(''.join(pFile.readFile(self.tmpScriptFile)))
-                self.log.debug("Updated: %s" % pFile.conformPath(self.tmpScriptFile))
-                os.remove(self.tmpScriptFile)
-
-
 class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
 
     def __init__(self, mainUi):
@@ -679,12 +543,20 @@ class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
         self.setupUi(self)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
-        self.teLogs.setStyleSheet("background-color: rgb(35, 35, 35);"
-                                  "color: rgb(220, 220, 220);")
+        #-- Jobs --#
         self.twJobs.itemClicked.connect(self.updateLog)
         self.pbGetJobs.clicked.connect(self.on_getJobs)
         self.pbDelJobs.clicked.connect(self.on_delJobs)
+        self.cbWordWrap.clicked.connect(self.rf_wordWrap)
         self.cbShowXterm.clicked.connect(self.rf_waitVisibility)
+        #-- Logs --#
+        scriptFont = QtGui.QFont('Courier', 8, QtGui.QFont.Monospace)
+        scriptFont.setFixedPitch(True)
+        metrics = QtGui.QFontMetrics(scriptFont)
+        self.teLogs.setTabStopWidth(4 * metrics.width(' '))
+        self.teLogs.setFont(scriptFont)
+        self.teLogs.setStyleSheet("background-color: rgb(35, 35, 35);"
+                                  "color: rgb(220, 220, 220);")
 
     @property
     def showXterm(self):
@@ -705,6 +577,12 @@ class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
         :type: bool
         """
         return self.cbWaitAtEnd.isChecked()
+
+    def rf_wordWrap(self):
+        if self.cbWordWrap.isChecked():
+            self.teLogs.setWordWrapMode(QtGui.QTextOption.WrapAnywhere)
+        else:
+            self.teLogs.setWordWrapMode(QtGui.QTextOption.NoWrap)
 
     def rf_waitVisibility(self):
         self.cbWaitAtEnd.setEnabled(self.cbShowXterm.isChecked())

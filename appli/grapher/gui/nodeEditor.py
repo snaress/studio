@@ -1,9 +1,12 @@
+import os
 from PyQt4 import QtGui
 from functools import partial
-from lib.qt import textEditor
 from lib.qt import procQt as pQt
+from PyQt4.Qsci import QsciScintilla
 from appli.grapher.gui import graphWgts
-from appli.grapher.gui.ui import nodeEditorUI
+from lib.system import procFile as pFile
+from lib.qt import textEditor, scriptEditor2
+from appli.grapher.gui.ui import nodeEditorUI, wgScriptUI
 
 
 class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
@@ -45,7 +48,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.glVariables.addWidget(self.nodeVar, 0, 0)
         self.gbVariables.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbVariables, self.nodeVar))
         #-- Node Script --#
-        self.nodeScript = graphWgts.Script(self.mainUi, self)
+        self.nodeScript = Script(self.mainUi, self)
         self.vlScript.addWidget(self.nodeScript)
         #-- Node Trash --#
         self.teTrash.setStyleSheet("background-color: rgb(150, 150, 150)")
@@ -204,3 +207,141 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         if self.node is not None:
             self.clear()
             self.update()
+
+
+class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
+    """
+    Node Script QWidget, child of NodeEditor
+
+    :param mainUi: Grapher main window
+    :type mainUi: GrapherUi
+    :param pWidget: Parent widget
+    :type: NodeEditor
+    """
+
+    def __init__(self, mainUi, pWidget):
+        self.mainUi = mainUi
+        self.pWidget = pWidget
+        self.log = self.mainUi.log
+        self.grapher = self.mainUi.grapher
+        super(Script, self).__init__()
+        self._setupWidget()
+
+    # noinspection PyUnresolvedReferences
+    def _setupWidget(self):
+        self.setupUi(self)
+        #-- Script Zone --#
+        self.scriptEditor = scriptEditor2.ScriptEditor()
+        self.vlScript.addWidget(self.scriptEditor)
+        #-- Script Options --#
+        self.cbLineNum.clicked.connect(self.on_lineNumber)
+        self.cbFolding.clicked.connect(self.on_folding)
+        self.cbCompletion.clicked.connect(self.on_completion)
+        self.cbTabGuides.clicked.connect(self.on_tabGuides)
+        self.cbWhiteSpace.clicked.connect(self.on_whiteSpace)
+        self.cbEdge.clicked.connect(self.on_edge)
+        #-- Externalize Script --#
+        self.pbPush.setIcon(self.mainUi.graphZone.foldIcon)
+        self.pbPush.clicked.connect(self.on_push)
+        self.pbPull.setIcon(self.mainUi.graphZone.pullIcon)
+        self.pbPull.clicked.connect(self.on_pull)
+
+    @property
+    def tmpScriptFile(self):
+        """
+        Get tmp script file
+
+        :return: Tmp script relative path
+        :rtype: str
+        """
+        if self.pWidget.node is not None:
+            return os.path.join('tmp', self.mainUi.user, 'externScripts', '%s.py' % self.pWidget.node.nodeName)
+
+    def on_lineNumber(self):
+        """
+        Command launched when 'Line Num' QCheckBox is clicked
+
+        Enable / disable line numbers
+        """
+        if self.cbLineNum.isChecked():
+            self.scriptEditor.setMarginWidth(0, self.scriptEditor.margeLine)
+        else:
+            self.scriptEditor.setMarginWidth(0, 0)
+
+    def on_folding(self):
+        """
+        Command launched when 'Folding' QCheckBox is clicked
+
+        Enable / disable code folding
+        """
+        if self.cbFolding.isChecked():
+            self.scriptEditor.setFolding(QsciScintilla.BoxedTreeFoldStyle)
+        else:
+            self.scriptEditor.setFolding(QsciScintilla.NoFoldStyle)
+
+    def on_completion(self):
+        """
+        Command launched when 'Completion' QCheckBox is clicked
+
+        Enable / disable code completion
+        """
+        if self.cbCompletion.isChecked():
+            self.scriptEditor.setAutoCompletionSource(QsciScintilla.AcsDocument)
+        else:
+            self.scriptEditor.setAutoCompletionSource(QsciScintilla.AcsNone)
+
+    def on_tabGuides(self):
+        """
+        Command launched when 'Tab Guides' QCheckBox is clicked
+
+        Enable / disable tab guides visiility
+        """
+        self.scriptEditor.setIndentationGuides(self.cbTabGuides.isChecked())
+
+    def on_whiteSpace(self):
+        """
+        Command launched when 'White Space' QCheckBox is clicked
+
+        Enable / disable white space visibility
+        """
+        if self.cbWhiteSpace.isChecked():
+            self.scriptEditor.setWhitespaceSize(self.scriptEditor.spaceSize)
+        else:
+            self.scriptEditor.setWhitespaceSize(0)
+
+    def on_edge(self):
+        if self.cbEdge.isChecked():
+            self.scriptEditor.setEdgeMode(QsciScintilla.EdgeLine)
+        else:
+            self.scriptEditor.setEdgeMode(QsciScintilla.EdgeNone)
+
+    def on_push(self):
+        """
+        Command launched when 'Push' QPushButton is clicked
+
+        Externalise script
+        """
+        if self.grapher._graphFile is not None:
+            self.log.detail(">>> Push script ...")
+            scriptPath = self.grapher.createFolders(os.path.dirname(self.tmpScriptFile))
+            if scriptPath is not None:
+                try:
+                    pFile.writeFile(self.tmpScriptFile, str(self.scriptEditor.getCode()))
+                    self.log.debug("Saved: %s" % pFile.conformPath(self.tmpScriptFile))
+                except:
+                    raise IOError("!!! Can not write tmpFile: %s !!!" % pFile.conformPath(self.tmpScriptFile))
+            editor = self.grapher.studio.pyCharm
+            os.system('%s %s' % (os.path.normpath(editor), os.path.normpath(self.tmpScriptFile)))
+
+    def on_pull(self):
+        """
+        Command launched when 'Pull' QPushButton is clicked
+
+        Update script
+        """
+        self.log.detail(">>> Pull script ...")
+        if self.tmpScriptFile is not None:
+            if os.path.exists(self.tmpScriptFile):
+                self.scriptEditor.setCode(''.join(pFile.readFile(self.tmpScriptFile)))
+                self.log.debug("Updated: %s" % pFile.conformPath(self.tmpScriptFile))
+                os.remove(self.tmpScriptFile)
