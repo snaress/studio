@@ -8,6 +8,7 @@ class ScriptEditor(QsciScintilla):
         super(ScriptEditor, self).__init__(parent)
         self.font = QtGui.QFont('Courier', 10, QtGui.QFont.Normal)
         self.font.setStyleHint(QtGui.QFont.Monospace)
+        # self.font = self.font()
         self.fm = QtGui.QFontMetrics(self.font)
         self.markerNum = 8
         self.margeLine = self.fm.width("0000")
@@ -19,7 +20,6 @@ class ScriptEditor(QsciScintilla):
         #-- Line Numbers --#
         self.setMarginLineNumbers(0, True)
         self.setMarginWidth(0, self.margeLine)
-        self.setAutoIndent(True)
         #-- Edge --#
         self.setEdgeMode(QsciScintilla.EdgeLine)
         self.setEdgeColumn(80)
@@ -34,8 +34,10 @@ class ScriptEditor(QsciScintilla):
         #-- Tab --#
         self.setIndentationsUseTabs(True)
         self.setIndentationGuides(True)
-        self.setTabWidth(4)
+        self.setIndentationWidth(4)
+        self.setAutoIndent(True)
         self.setTabIndents(True)
+        self.setTabWidth(4)
         #-- White Space --#
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
         self.setWhitespaceVisibility(QsciScintilla.SC_PRINT_BLACKONWHITE)
