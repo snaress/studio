@@ -26,3 +26,6 @@ mayaBatch = os.path.join(mayaPath, "bin", "mayabatch.exe")
 mayaRender = os.path.join(mayaPath, "bin", "Render.exe")
 nukePath = os.path.join(appsPath, "Nuke9.0v1")
 nuke = os.path.join(nukePath, "nuke9.0.exe")
+
+nuke5 = os.path.join(appsPath, "Nuke5.0v2", "nuke5.0.exe")
+nuke9 = os.path.join(appsPath, "Nuke9.0v1", "nuke9.0.exe")
