@@ -8,11 +8,10 @@ class ScriptEditor(QsciScintilla):
         super(ScriptEditor, self).__init__(parent)
         self.font = QtGui.QFont('Courier', 10, QtGui.QFont.Normal)
         self.font.setStyleHint(QtGui.QFont.Monospace)
-        # self.font = self.font()
         self.fm = QtGui.QFontMetrics(self.font)
         self.markerNum = 8
         self.margeLine = self.fm.width("0000")
-        self.spaceSize = 2
+        self.spaceSize = 1
         self._setupWidget()
 
     # noinspection PyUnresolvedReferences
