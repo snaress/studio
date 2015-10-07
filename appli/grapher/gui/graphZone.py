@@ -280,6 +280,7 @@ class GraphZone(object):
                         newItem = self.grapher.tree.createItem(nodeType=nodeDict['nodeDict']['nodeType'],
                                                                nodeName=newNodeName,
                                                                nodeParent=selItems[0]._item._node.nodeName)
+                    newItem._node.setDatas(**nodeDict['nodeDict'])
                     #-- Parent Child Node --#
                     if newItem is not None:
                         items[newItem] = nodeDict['nodeDict']
@@ -297,6 +298,7 @@ class GraphZone(object):
                                 newChild = self.grapher.tree.createItem(nodeType=nodeDict['nodeChildren'][c]['nodeType'],
                                                                         nodeName=newChildName,
                                                                         nodeParent=nodeParent)
+                                newChild._node.setDatas(**nodeDict['nodeChildren'][c])
                                 items[newChild] = nodeDict
             #-- Clear CpBuffer --#
             if self.cpBuffer['_mode'] == 'branch':

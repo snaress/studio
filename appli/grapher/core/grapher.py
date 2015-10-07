@@ -555,7 +555,7 @@ class Grapher(object):
         """
         cmd = ''
         cmd += 'os.system("'
-        cmd += '%s' % node.execCommand(pFile.conformPath(nodeScriptFile))
+        cmd += '%s' % node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
         cmd += '")'
         return cmd
 
