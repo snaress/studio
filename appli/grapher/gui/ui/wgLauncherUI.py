@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\wgLauncher.ui'
 #
-# Created: Sun Oct 04 23:36:49 2015
+# Created: Wed Oct 07 02:10:59 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -60,10 +60,11 @@ class Ui_wgLauncher(object):
         self.lResult.setMaximumSize(QtCore.QSize(55, 16777215))
         self.lResult.setObjectName(_fromUtf8("lResult"))
         self.hlResult.addWidget(self.lResult)
-        self.lResultBal = QtGui.QLabel(wgLauncher)
-        self.lResultBal.setAlignment(QtCore.Qt.AlignCenter)
-        self.lResultBal.setObjectName(_fromUtf8("lResultBal"))
-        self.hlResult.addWidget(self.lResultBal)
+        self.lResultVal = QtGui.QLabel(wgLauncher)
+        self.lResultVal.setEnabled(True)
+        self.lResultVal.setAlignment(QtCore.Qt.AlignCenter)
+        self.lResultVal.setObjectName(_fromUtf8("lResultVal"))
+        self.hlResult.addWidget(self.lResultVal)
         self.gridLayout.addLayout(self.hlResult, 4, 0, 1, 1)
         self.hlLauncher = QtGui.QHBoxLayout()
         self.hlLauncher.setSpacing(0)
@@ -86,6 +87,7 @@ class Ui_wgLauncher(object):
         self.lLauncherArgs.setObjectName(_fromUtf8("lLauncherArgs"))
         self.hlLauncher.addWidget(self.lLauncherArgs)
         self.leArgs = QtGui.QLineEdit(wgLauncher)
+        self.leArgs.setEnabled(True)
         self.leArgs.setObjectName(_fromUtf8("leArgs"))
         self.hlLauncher.addWidget(self.leArgs)
         self.gridLayout.addLayout(self.hlLauncher, 2, 0, 1, 1)
@@ -101,7 +103,7 @@ class Ui_wgLauncher(object):
     def retranslateUi(self, wgLauncher):
         wgLauncher.setWindowTitle(_translate("wgLauncher", "Launcher", None))
         self.lResult.setText(_translate("wgLauncher", "Result: ", None))
-        self.lResultBal.setText(_translate("wgLauncher", "TextLabel", None))
+        self.lResultVal.setText(_translate("wgLauncher", "TextLabel", None))
         self.lLauncher.setText(_translate("wgLauncher", "Launcher: ", None))
         self.lLauncherArgs.setText(_translate("wgLauncher", "Args: ", None))
 

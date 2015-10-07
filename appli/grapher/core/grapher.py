@@ -370,6 +370,7 @@ class Grapher(object):
         """
         self.log.info("#--- Create Process Path ---#", newLinesBefor=1)
         self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'exec')))
+        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'launcher')))
         self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'tmpFiles')))
         self.createFolders(os.path.normpath(self.graphScriptPath))
         self.createFolders(os.path.normpath(self.logsPath), relative=False)
@@ -424,10 +425,13 @@ class Grapher(object):
             header.append("print '---> %s'" % v)
             header.append("from %s import %s" % (k, v))
         #-- Set Path --#
-        header.extend(["print ''",
-                       "print '#--- Set Path ---#'",
+        header.extend(["print ''", "print '#--- Set Path ---#'",
                        "os.chdir('%s')" % self.graphPath,
                        "print '--->', os.getcwd()"])
+        #-- Graph Var --#
+        header.extend(["print ''", "print '#--- Set Graph Var ---#'",
+                       graphNodes.Node.conformVarDict(self.variables),
+                       "print '---> Graph variables setted'"])
         #-- Start Duration --#
         header.append("GP_START_TIME = time.time()")
         #-- Result --#
@@ -451,13 +455,14 @@ class Grapher(object):
             parents = item.allParents()
             item._node.writeScript(nodeScriptFile, self.variables, parents)
             if item._node.nodeIsActive:
-                #-- Get Node Header --#
-                execTxt += self.__nodeHeader(item._node)
-                #-- Get Exec Command --#
-                if hasattr(item._node, 'execCommand'):
-                    nodeCmd = self.__nodeExecCommand(item._node, nodeScriptFile)
-                    execTxt += self.__nodeExecHeader(nodeCmd)
-                    execTxt += self.__nodeEnder(item._node)
+                if not item._node.nodeType == 'purData':
+                    #-- Get Node Header --#
+                    execTxt += self.__nodeHeader(item._node)
+                    #-- Get Exec Command --#
+                    if hasattr(item._node, 'execCommand'):
+                        nodeCmd = self.__nodeExecCommand(item._node, nodeScriptFile)
+                        execTxt += self.__nodeExecHeader(nodeCmd)
+                        execTxt += self.__nodeEnder(item._node)
         self.log.detail("\t >>> Parse graph tree done.")
         return execTxt
 
@@ -529,6 +534,9 @@ class Grapher(object):
                   "print '%s %s %s'" % ('#' * 10, node.nodeName, '#' * 10),
                   "print '%s%s%s'" % ('#' * 10, '#' * (len(node.nodeName) + 2), '#' * 10),
                   "print 'Date: %s -- Time: %s'" % (pFile.getDate(), pFile.getTime()),
+                  "print ''", "print '#--- Set Node Var ---#'",
+                  graphNodes.Node.conformVarDict(node.nodeVariables[node.nodeVersion]),
+                  "print '---> Node variables setted'", "print ''",
                   "GP_NODE_START_TIME = time.time()"]
         return '\n'.join(header)
 
@@ -561,7 +569,8 @@ class Grapher(object):
         :return: Node exec header
         :rtype: str
         """
-        header = ["\nprint '%s'" % pFile.conformPath(cmd),
+        header = ["\nprint '#--- Exec Cmd ---#'",
+                  "print '%s'" % pFile.conformPath(cmd),
                   "print ''", cmd]
         return '\n'.join(header)
 

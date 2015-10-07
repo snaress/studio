@@ -79,7 +79,10 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lResultBal">
+      <widget class="QLabel" name="lResultVal">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -172,7 +175,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leArgs"/>
+      <widget class="QLineEdit" name="leArgs">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

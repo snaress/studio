@@ -71,6 +71,8 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         """
         datas = dict(nodeComments=str(self.nodeComment.teText.toHtml()),
                      nodeVariables=self.nodeVar.getDatas(),
+                     nodeLauncher=str(self.nodeLauncher.cbLauncher.currentText()),
+                     nodeLaunchArgs=str(self.nodeLauncher.leArgs.text()),
                      nodeScript=str(self.nodeScript.scriptEditor.getCode()),
                      nodeTrash=str(self.teTrash.toPlainText()))
         return datas
@@ -80,8 +82,10 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         Clear all editor values
         """
         self.log.detail(">>> Clear NodeEditor")
-        for w in [self.leNodeName, self.lTypeValue, self.leVersionTitle, self.cbNodeVersion, self.nodeComment.teText,
-                  self.nodeVar.twVar, self.nodeScript.scriptEditor, self.teTrash]:
+        for w in [self.leNodeName, self.lTypeValue, self.leVersionTitle, self.cbNodeVersion,
+                  self.nodeComment.teText, self.nodeVar.twVar, self.nodeLauncher.cbLauncher,
+                  self.nodeLauncher.leArgs, self.nodeLauncher.lResultVal, self.nodeScript.scriptEditor,
+                  self.teTrash]:
             w.clear()
         self.refresh()
 
@@ -107,6 +111,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
             self.vfScript.setVisible(True)
             if hasattr(self.node, 'nodeLauncher'):
                 self.nodeLauncher.setVisible(True)
+                self.nodeLauncher.updateLaunchers()
             else:
                 self.nodeLauncher.setVisible(False)
             spacer = False
@@ -129,6 +134,9 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.nodeVar.buildTree(self.node.nodeVariables[self.node.nodeVersion])
         if hasattr(self.node, 'nodeScript'):
             self.nodeScript.scriptEditor.setCode(self.node.nodeScript[self.node.nodeVersion])
+            if hasattr(self.node, 'nodeLauncher'):
+                launcher = self.node.nodeLauncher[self.node.nodeVersion]
+                self.nodeLauncher.cbLauncher.setCurrentIndex(self.nodeLauncher.cbLauncher.findText(launcher))
         self.teTrash.setPlainText(self.node.nodeTrash[self.node.nodeVersion])
 
     def connectItem(self, item):
@@ -239,10 +247,15 @@ class Launcher(QtGui.QWidget, wgLauncherUI.Ui_wgLauncher):
     # noinspection PyUnresolvedReferences
     def _setupWidget(self):
         self.setupUi(self)
+        self.leArgs.setStyleSheet("background-color: rgb(35, 35, 35);"
+                                  "color: rgb(220, 220, 220);")
 
     def updateLaunchers(self):
+        """
+        Update launcher list
+        """
         self.cbLauncher.clear()
-
+        self.cbLauncher.addItems(sorted(self.pWidget.node._launchers.keys()))
 
 
 class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):

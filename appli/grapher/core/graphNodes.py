@@ -190,8 +190,8 @@ class Node(object):
                     else:
                         raise ValueError("!!! ERROR: %s value type not supported: %s" % (varDict['label'],
                                                                                          stored[varDict['label']]))
-        if var:
-            return '\n'.join(var)
+        #-- Result --#
+        return '\n'.join(var)
 
     def writeScript(self, scriptFile, graphVars, parents):
         """
@@ -276,7 +276,7 @@ class SysData(Node):
         :return: Node exec cmd
         :rtype: str
         """
-        return '%s %s' % (studio.python27, scriptFile)
+        return '%s %s' % (studio.python27, pFile.conformPath(os.path.realpath(scriptFile)))
 
 
 class CmdData(Node):
@@ -289,22 +289,21 @@ class CmdData(Node):
 
     _nodeColor = (60, 135, 255, 255)
     _nodeIcon = 'cmdData.svg'
-    _launchers = dict(maya2014=studio.maya,
-                      mayaBatch2014=studio.mayaBatch,
-                      mayaPy2014=studio.mayaPy,
-                      mayaRender2014=studio.mayaRender,
-                      nuke5=studio.nuke5,
-                      nuke9=studio.nuke9)
+    _launchers = dict(maya2014=pFile.conformPath(studio.maya),
+                      mayaBatch2014=pFile.conformPath(studio.mayaBatch),
+                      mayaPy2014=pFile.conformPath(studio.mayaPy),
+                      mayaRender2014=pFile.conformPath(studio.mayaRender),
+                      nuke5=pFile.conformPath(studio.nuke5),
+                      nuke9=pFile.conformPath(studio.nuke9))
 
     def __init__(self, nodeName=None):
         super(CmdData, self).__init__(nodeName)
         self.nodeType = 'cmdData'
         self.nodeScript = {0: ''}
-        self.nodeLauncher = {0: 'mayaPy2014'}
+        self.nodeLauncher = {0: 'mayaBatch2014'}
         self.nodeLaunchArgs = {0: ''}
 
-    @staticmethod
-    def execCommand(scriptFile):
+    def execCommand(self, scriptFile):
         """
         Get node exec command
 
@@ -313,7 +312,14 @@ class CmdData(Node):
         :return: Node exec cmd
         :rtype: str
         """
-        return 'CmdDataCmd %s' % scriptFile
+        launcher = self.nodeLauncher[self.nodeVersion]
+        launcherCmd = self._launchers[launcher]
+        if launcher in ['maya2014', 'mayaBatch2014']:
+            launchFile = scriptFile.replace('.py', '.mel')
+            melTxt = ['trace "toto";','python("execfile(%r)");' % pFile.conformPath(os.path.realpath(scriptFile))]
+            pFile.writeFile(launchFile, '\n'.join(melTxt))
+            return '%s -script %s' % (launcherCmd, pFile.conformPath(os.path.realpath(launchFile)))
+        return '%s %s' % (launcherCmd, pFile.conformPath(scriptFile))
 
 
 class PurData(Node):
