@@ -1,0 +1,2332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="4d765bcd-981b-4cb4-8d01-7fe6e79c44b3" name="Default" comment="" />
+    <list id="a6fc274b-028f-4405-a734-ba57553e8df6" name="ignore" comment="ignore">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="DELETED" beforePath="F:\rnd\workspace\studio\appli\grapher2\tools\__init__.py" afterPath="" />
+    </list>
+    <ignored path="studio.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <ignored path=".idea/" />
+    <ignored path="*.pyc" />
+    <file path="$PROJECT_DIR$/.idea/workspace.xml" ignored="false" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="DaemonCodeAnalyzer">
+    <disable_hints />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="studio" />
+  </component>
+  <component name="FileEditorManager">
+    <splitter split-orientation="horizontal" split-proportion="0.49841937">
+      <split-first>
+        <leaf>
+          <file leaf-file-name="grapherUi.py" pinned="false" current="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/appli/grapher/gui/grapherUi.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.34687155" vertical-offset="823" max-vertical-offset="1734">
+                  <caret line="369" column="42" selection-start-line="369" selection-start-column="42" selection-end-line="369" selection-end-column="42" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="graphZone.py" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/appli/grapher/gui/graphZone.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0" vertical-offset="119" max-vertical-offset="10081">
+                  <caret line="7" column="24" selection-start-line="7" selection-start-column="24" selection-end-line="7" selection-end-column="24" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="graphTree.py" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/appli/grapher/gui/graphTree.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0" vertical-offset="1258" max-vertical-offset="3281">
+                  <caret line="74" column="0" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="graphWgts.py" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/appli/grapher/gui/graphWgts.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0" vertical-offset="9469" max-vertical-offset="11067">
+                  <caret line="557" column="0" selection-start-line="557" selection-start-column="0" selection-end-line="558" selection-end-column="63" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="nodeEditor.py" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/appli/grapher/gui/nodeEditor.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0" vertical-offset="4794" max-vertical-offset="6834">
+                  <caret line="282" column="46" selection-start-line="282" selection-start-column="46" selection-end-line="282" selection-end-column="46" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file leaf-file-name="grapher.py" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/appli/grapher/core/grapher.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2584">
+                  <caret line="745" column="75" selection-start-line="745" selection-start-column="75" selection-end-line="745" selection-end-column="75" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="pScene.py" pinned="false" current="true" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/tools/maya/cmds/pScene.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.4478595" vertical-offset="0" max-vertical-offset="911">
+                  <caret line="118" column="0" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#0#14#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="graphNodes.py" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/appli/grapher/core/graphNodes.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0" vertical-offset="2346" max-vertical-offset="6137">
+                  <caret line="138" column="26" selection-start-line="138" selection-start-column="26" selection-end-line="138" selection-end-column="26" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
+  </component>
+  <component name="FindManager">
+    <FindUsagesManager>
+      <setting name="OPEN_NEW_TAB" value="true" />
+    </FindUsagesManager>
+  </component>
+  <component name="Git.Settings">
+    <option name="SYNC_SETTING" value="DONT" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="AUTO_COMMIT_ON_CHERRY_PICK" value="true" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="changedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/appli/fondation/gui/ui/__init__.py" />
+        <option value="$PROJECT_DIR$/lib/system/alias.txt" />
+        <option value="$PROJECT_DIR$/appli/grapherOld/graphTree.py" />
+        <option value="$PROJECT_DIR$/appli/factory/factory.py" />
+        <option value="$PROJECT_DIR$/appli/factory/factoryUi.py" />
+        <option value="$PROJECT_DIR$/appli/userManager/userManager.py" />
+        <option value="$PROJECT_DIR$/appli/userManager/userManagerUi.py" />
+        <option value="$PROJECT_DIR$/tools/maya/cmds/pRender.py" />
+        <option value="$PROJECT_DIR$/appli/fondation/__exe__.py" />
+        <option value="$PROJECT_DIR$/appli/userManager/__exe__.py" />
+        <option value="$PROJECT_DIR$/appli/fondation/__init__.py" />
+        <option value="$PROJECT_DIR$/appli/fondation/gui/graphNodes.py" />
+        <option value="$PROJECT_DIR$/appli/fondation/gui/toolsWgts.py" />
+        <option value="$PROJECT_DIR$/appli/fondation/gui/nodeEditor.py" />
+        <option value="$PROJECT_DIR$/appli/fondation/gui/graphWgts.py" />
+        <option value="$PROJECT_DIR$/appli/fondation/fondationUi.py" />
+        <option value="$PROJECT_DIR$/appli/fondation/gui/graphView.py" />
+        <option value="$PROJECT_DIR$/appli/grapherDev/gui/graphWgts.py" />
+        <option value="$PROJECT_DIR$/../../old/openassembler-master/OpenAssembler/Gui/Node/nodePainter.py" />
+        <option value="$PROJECT_DIR$/lib/system/procFile.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/dico.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/core/__init__.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/core/nodes.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/graphNodes.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/core/graphreCmds.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/grapherUi.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/graphView.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/core/grapherCmds.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/__exe__.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/_old/grapherUiOld.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/_old/graphViewOld.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/_old/graphTreeOld.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/graphTree.py" />
+        <option value="$PROJECT_DIR$/appli/grapherOld/grapherUi.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/__init__.py" />
+        <option value="$PROJECT_DIR$/lib/qt/procQt.py" />
+        <option value="$PROJECT_DIR$/appli/grapherOld/gpWidget.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/core/graphTree.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/core/varTree.py" />
+        <option value="$PROJECT_DIR$/lib/qt/scriptEditor.py" />
+        <option value="D:/prods/test/assets/tmp/Julien/externScripts/sysData_1.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/graphScene.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/toolsWgts.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/grapherUi.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/graphWgts.py" />
+        <option value="$PROJECT_DIR$/lib/env/studio.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/nodeEditor.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/core/graphNodes.py" />
+        <option value="$PROJECT_DIR$/lib/qt/scriptEditor2.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/core/grapher.py" />
+        <option value="$PROJECT_DIR$/appli/grapher/gui/graphZone.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1096" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+          <State>
+            <id>Python</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>PyOldStyleClassesInspection</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectReloadState">
+    <option name="STATE" value="0" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource ProjectPane="false" />
+      <autoscrollFromSource />
+      <sortByType />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tools" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tools" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="maya" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tools" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="maya" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cmds" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="lib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="env" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="appli" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="appli" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="grapher" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="studio" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="appli" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="grapher" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="gui" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="options.lastSelected" value="preferences.keymap" />
+    <property name="options.splitter.main.proportions" value="0.3" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
+    <property name="FullScreen" value="false" />
+    <property name="last_opened_file_path" value="F:/apps/Nuke9.0v1/plugins" />
+    <property name="recentsLimit" value="5" />
+  </component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings module-name="studio" is-module-sdk="true">
+        <option name="myUseModuleSdk" value="true" />
+        <option name="myModuleName" value="studio" />
+      </console-settings>
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\rnd\workspace\studio\appli\grapher\gui\icon\png" />
+      <recent name="F:\rnd\workspace\studio\appli\fondation\gui\src" />
+      <recent name="F:\rnd\workspace\studio\appli\grapher2\icon" />
+      <recent name="F:\rnd\workspace\studio\tools\maya\cloth\clothBox\icon" />
+      <recent name="F:\rnd\workspace\studio\tools\maya\cloth\clothCache\icon" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\rnd\workspace\studio\appli\grapher\gui\_old" />
+      <recent name="F:\rnd\workspace\studio\appli\grapher\core" />
+      <recent name="F:\rnd\workspace\studio\appli\grapher\gui\icon" />
+      <recent name="F:\rnd\workspace\studio\appli\grapher\gui\png" />
+      <recent name="F:\rnd\workspace\studio\appli\grapher\gui\icon\png" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.grapherUi">
+    <configuration default="false" name="grapherUi (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/appli/grapher" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="F:\rnd\workspace\studio\appli\grapher\gui\_old\grapherUiOld.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PyDebugRunner" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PyDebugRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="grapher" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/appli/grapher/core" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/appli/grapher/core/grapher.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="grapherUi" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/appli/grapher/gui" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/appli/grapher/gui/grapherUi.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PyDebugRunner" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PyDebugRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="graphNodes (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/appli/grapher/core" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/appli/grapher/core/graphNodes.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PyDebugRunner" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PyDebugRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="scriptEditor2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/lib/qt" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/lib/qt/scriptEditor2.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="testToRun" value="" />
+      <option name="keywords" value="" />
+      <option name="params" value="" />
+      <option name="USE_PARAM" value="false" />
+      <option name="USE_KEYWORD" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Nosetests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Attests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="studio" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="Python.grapherUi (1)" />
+      <item index="1" class="java.lang.String" itemvalue="Python.grapher" />
+      <item index="2" class="java.lang.String" itemvalue="Python.grapherUi" />
+      <item index="3" class="java.lang.String" itemvalue="Python.graphNodes (1)" />
+      <item index="4" class="java.lang.String" itemvalue="Python.scriptEditor2" />
+    </list>
+    <recent_temporary>
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.grapherUi" />
+        <item index="1" class="java.lang.String" itemvalue="Python.grapher" />
+        <item index="2" class="java.lang.String" itemvalue="Python.scriptEditor2" />
+        <item index="3" class="java.lang.String" itemvalue="Python.graphNodes (1)" />
+        <item index="4" class="java.lang.String" itemvalue="Python.grapherUi (1)" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="StructureViewFactory">
+    <option name="AUTOSCROLL_FROM_SOURCE" value="true" />
+    <option name="ACTIVE_ACTIONS" value=",SHOW_INHERITED,SHOW_FIELDS" />
+    <option name="SHOW_TOOLBAR" value="true" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration>C:\Users\Julien\AppData\Roaming\Subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4d765bcd-981b-4cb4-8d01-7fe6e79c44b3" name="Default" comment="" />
+      <changelist id="a6fc274b-028f-4405-a734-ba57553e8df6" name="ignore" comment="" />
+      <created>1414185883281</created>
+      <updated>1414185883281</updated>
+    </task>
+    <task id="LOCAL-00001" summary="first commit">
+      <created>1414186017757</created>
+      <updated>1414186017757</updated>
+    </task>
+    <task id="LOCAL-00002" summary="first commit">
+      <created>1414188782446</created>
+      <updated>1414188782446</updated>
+    </task>
+    <task id="LOCAL-00003" summary="first commit">
+      <created>1414188952346</created>
+      <updated>1414188952346</updated>
+    </task>
+    <task id="LOCAL-00004" summary="first commit">
+      <created>1414206915282</created>
+      <updated>1414206915282</updated>
+    </task>
+    <task id="LOCAL-00005" summary="first commit">
+      <created>1414207037491</created>
+      <updated>1414207037491</updated>
+    </task>
+    <task id="LOCAL-00006" summary="lib.system : first commit">
+      <created>1414292673471</created>
+      <updated>1414292673471</updated>
+    </task>
+    <task id="LOCAL-00007" summary="lib.qt : first commit">
+      <created>1414293931026</created>
+      <updated>1414293931026</updated>
+    </task>
+    <task id="LOCAL-00008" summary="env: first commit&#10;aliasSync: first commit">
+      <created>1414316138703</created>
+      <updated>1414316138703</updated>
+    </task>
+    <task id="LOCAL-00009" summary="lib.procQt : Add ConfirmDialog()&#10;Add PromptDialog()">
+      <created>1414321501726</created>
+      <updated>1414321501726</updated>
+    </task>
+    <task id="LOCAL-00010" summary="lib.procQt : Add ConfirmDialog()&#10;Add PromptDialog()">
+      <created>1414321527511</created>
+      <updated>1414321527511</updated>
+    </task>
+    <task id="LOCAL-00011" summary="lib.Qt : Add TextEditor()&#10;             Add ScriptEditor()&#10;             Add Preview()">
+      <created>1414330212137</created>
+      <updated>1414330212137</updated>
+    </task>
+    <task id="LOCAL-00012" summary="lib.Qt : Add PreviewUI()">
+      <created>1414330305932</created>
+      <updated>1414330305932</updated>
+    </task>
+    <task id="LOCAL-00013" summary="lib.system : Add Image()&#10;                     Update studio env ans alias&#10;">
+      <created>1414379800441</created>
+      <updated>1414379800441</updated>
+    </task>
+    <task id="LOCAL-00014" summary="lib.system.Image(): Add djvConvert function&#10;">
+      <created>1414542651483</created>
+      <updated>1414542651483</updated>
+    </task>
+    <task id="LOCAL-00015" summary="userManager: First commit&#10;">
+      <created>1414544255119</created>
+      <updated>1414544255119</updated>
+    </task>
+    <task id="LOCAL-00016" summary="alias: update&#10;">
+      <created>1414544284194</created>
+      <updated>1414544284194</updated>
+    </task>
+    <task id="LOCAL-00017" summary="lib: Update studio.py&#10;       Update alias.txt&#10;       Add on_sequence() to Preview()&#10;       Add createMovie() to procFile.Image()&#10;       &#10;">
+      <created>1414649212400</created>
+      <updated>1414649212400</updated>
+    </task>
+    <task id="LOCAL-00018" summary="appli.factory: First commit&#10;">
+      <created>1414649250176</created>
+      <updated>1414649250176</updated>
+    </task>
+    <task id="LOCAL-00019" summary="appli.factory: update&#10;">
+      <created>1416249485605</created>
+      <updated>1416249485605</updated>
+    </task>
+    <task id="LOCAL-00020" summary="lib.studio: Add prodPath&#10;">
+      <created>1416249538577</created>
+      <updated>1416249538577</updated>
+    </task>
+    <task id="LOCAL-00021" summary="procQt: Add deselectAllItems()&#10;">
+      <created>1416386233900</created>
+      <updated>1416386233900</updated>
+    </task>
+    <task id="LOCAL-00022" summary="grapher: first commit&#10;">
+      <created>1416386263659</created>
+      <updated>1416386263659</updated>
+    </task>
+    <task id="LOCAL-00023" summary="grapher: Update&#10;">
+      <created>1416719475619</created>
+      <updated>1416719475619</updated>
+    </task>
+    <task id="LOCAL-00024" summary="studio: Add maya var">
+      <created>1417045390845</created>
+      <updated>1417045390845</updated>
+    </task>
+    <task id="LOCAL-00025" summary="grapher: Update">
+      <created>1417045424721</created>
+      <updated>1417045424721</updated>
+    </task>
+    <task id="LOCAL-00026" summary="tools: Add packages">
+      <created>1417045491297</created>
+      <updated>1417045491297</updated>
+    </task>
+    <task id="LOCAL-00027" summary="env: Add mayapy&#10;system: Add maya alias">
+      <created>1417059072984</created>
+      <updated>1417059072984</updated>
+    </task>
+    <task id="LOCAL-00028" summary="toolManager: First Commit&#10;factory: First Commit">
+      <created>1417061583771</created>
+      <updated>1417061583771</updated>
+    </task>
+    <task id="LOCAL-00029" summary="factory: Update for maya">
+      <created>1417233320187</created>
+      <updated>1417233320187</updated>
+    </task>
+    <task id="LOCAL-00030" summary="grapher: update comment">
+      <created>1417233364395</created>
+      <updated>1417233364395</updated>
+    </task>
+    <task id="LOCAL-00031" summary="toolManager: Add dockControl">
+      <created>1417233407105</created>
+      <updated>1417233407105</updated>
+    </task>
+    <task id="LOCAL-00032" summary="mayaFactory: setupUi">
+      <created>1417233440353</created>
+      <updated>1417233440353</updated>
+    </task>
+    <task id="LOCAL-00033" summary="procMapping: First commit&#10;procScene: First commit">
+      <created>1417329907287</created>
+      <updated>1417329907287</updated>
+    </task>
+    <task id="LOCAL-00034" summary="mayaFactory: Update ShaderUi()">
+      <created>1417329945244</created>
+      <updated>1417329945244</updated>
+    </task>
+    <task id="LOCAL-00035" summary="factory: Update for mayaFactory&#10;mayaFactory: Update ShaderUi()">
+      <created>1417577355634</created>
+      <updated>1417577355634</updated>
+    </task>
+    <task id="LOCAL-00036" summary="procMapping: update getShadingEngine">
+      <created>1417577398476</created>
+      <updated>1417577398476</updated>
+    </task>
+    <task id="LOCAL-00037" summary="procMapping: Update getMatFromSg() for mentalRay shader">
+      <created>1417724919204</created>
+      <updated>1417724919204</updated>
+    </task>
+    <task id="LOCAL-00038" summary="procRender: First Commit">
+      <created>1417740403035</created>
+      <updated>1417740403035</updated>
+    </task>
+    <task id="LOCAL-00039" summary="factory: Update for mayaFactory&#10;mayaFactory: Update ShaderUi()&#10;                         Improve shader detection">
+      <created>1417751399839</created>
+      <updated>1417751399839</updated>
+    </task>
+    <task id="LOCAL-00040" summary="procMath: fix return">
+      <created>1417871204261</created>
+      <updated>1417871204261</updated>
+    </task>
+    <task id="LOCAL-00041" summary="procModeling: First commit">
+      <created>1417871225325</created>
+      <updated>1417871225325</updated>
+    </task>
+    <task id="LOCAL-00042" summary="maFile: First commit">
+      <created>1417888189139</created>
+      <updated>1417888189139</updated>
+    </task>
+    <task id="LOCAL-00043" summary="factory: Update shader transfert&#10;mayaFactory: Update ShaderUi()">
+      <created>1417888241772</created>
+      <updated>1417888241772</updated>
+    </task>
+    <task id="LOCAL-00044" summary="factory: Update shader transfert">
+      <created>1418088039711</created>
+      <updated>1418088039711</updated>
+    </task>
+    <task id="LOCAL-00045" summary="factory: Remove obsolete import">
+      <created>1418089373172</created>
+      <updated>1418089373172</updated>
+    </task>
+    <task id="LOCAL-00046" summary="factory: Update classDocs">
+      <created>1418090794987</created>
+      <updated>1418090794987</updated>
+    </task>
+    <task id="LOCAL-00047" summary="factory: Update reload">
+      <created>1418094335209</created>
+      <updated>1418094335209</updated>
+    </task>
+    <task id="LOCAL-00048" summary="toolManager: Fix dockControl cleaning">
+      <created>1418100044130</created>
+      <updated>1418100044130</updated>
+    </task>
+    <task id="LOCAL-00049" summary="procModeling.creeBox() : Add kwarg 'name=None'">
+      <created>1418185760747</created>
+      <updated>1418185760747</updated>
+    </task>
+    <task id="LOCAL-00050" summary="toolManager: Update ui">
+      <created>1418185795626</created>
+      <updated>1418185795626</updated>
+    </task>
+    <task id="LOCAL-00051" summary="camera.camPrez: First commit">
+      <created>1418201375936</created>
+      <updated>1418201375936</updated>
+    </task>
+    <task id="LOCAL-00052" summary="update tool launcher">
+      <created>1418232612264</created>
+      <updated>1418232612264</updated>
+    </task>
+    <task id="LOCAL-00053" summary="camPrezUi: update property">
+      <created>1418233016574</created>
+      <updated>1418233016574</updated>
+    </task>
+    <task id="LOCAL-00054" summary="procScene: add workspace command (wsToDict(), wsDictToStr())">
+      <created>1418356960650</created>
+      <updated>1418356960650</updated>
+    </task>
+    <task id="LOCAL-00055" summary="factory: Update classDoc">
+      <created>1418430647412</created>
+      <updated>1418430647413</updated>
+    </task>
+    <task id="LOCAL-00056" summary="procRender: Add ParamRender()">
+      <created>1418446544069</created>
+      <updated>1418446544069</updated>
+    </task>
+    <task id="LOCAL-00057" summary="camPrez: Update paramRender()">
+      <created>1418446663461</created>
+      <updated>1418446663461</updated>
+    </task>
+    <task id="LOCAL-00058" summary="studio, alias : Add mayaRender exePath">
+      <created>1418488702863</created>
+      <updated>1418488702863</updated>
+    </task>
+    <task id="LOCAL-00059" summary="alias sync: Remove env setter">
+      <created>1418537862137</created>
+      <updated>1418537862137</updated>
+    </task>
+    <task id="LOCAL-00060" summary="camPrez: Add render function">
+      <created>1418537891877</created>
+      <updated>1418537891877</updated>
+    </task>
+    <task id="LOCAL-00061" summary="remove env setter from launcher">
+      <created>1418537937484</created>
+      <updated>1418537937484</updated>
+    </task>
+    <task id="LOCAL-00062" summary="procRender.ParamRender(): Add Turtle options">
+      <created>1418537990588</created>
+      <updated>1418537990588</updated>
+    </task>
+    <task id="LOCAL-00063" summary="procScene.SaveSceneAs(): force=False">
+      <created>1418538031435</created>
+      <updated>1418538031435</updated>
+    </task>
+    <task id="LOCAL-00064" summary="procCloth: Add getClothNodeFromSel(); Add getClothNode()">
+      <created>1422065517556</created>
+      <updated>1422065517556</updated>
+    </task>
+    <task id="LOCAL-00065" summary="move procCloth, update">
+      <created>1422210401891</created>
+      <updated>1422210401891</updated>
+    </task>
+    <task id="LOCAL-00066" summary="vtxMap: First commit">
+      <created>1422210446487</created>
+      <updated>1422210446487</updated>
+    </task>
+    <task id="LOCAL-00067" summary="procCloth: Add getModelSelectedVtx()">
+      <created>1422232153713</created>
+      <updated>1422232153713</updated>
+    </task>
+    <task id="LOCAL-00068" summary="vtxMap: update">
+      <created>1422232174371</created>
+      <updated>1422232174371</updated>
+    </task>
+    <task id="LOCAL-00069" summary="vtxMap: Add VtxToolsUi">
+      <created>1422326397110</created>
+      <updated>1422326397110</updated>
+    </task>
+    <task id="LOCAL-00070" summary="procCloth: Add selectVtxOnModel(), paintVtxMap()">
+      <created>1422326482291</created>
+      <updated>1422326482291</updated>
+    </task>
+    <task id="LOCAL-00071" summary="procScene : Add findTypeInHistory()">
+      <created>1422582326898</created>
+      <updated>1422582326898</updated>
+    </task>
+    <task id="LOCAL-00072" summary="alias : Add alias sls (seqList)">
+      <created>1422582405998</created>
+      <updated>1422582405998</updated>
+    </task>
+    <task id="LOCAL-00073" summary="update proc for cloth,&#10;!!! WARNING: pCloth.getClothNode() revue entierement !!!">
+      <created>1422666107373</created>
+      <updated>1422666107373</updated>
+    </task>
+    <task id="LOCAL-00074" summary="refactor creeBox() -&gt; creeBoxOld()">
+      <created>1422726074090</created>
+      <updated>1422726074090</updated>
+    </task>
+    <task id="LOCAL-00075" summary="camPrezCmds() : refract creeBox()">
+      <created>1422743201554</created>
+      <updated>1422743201554</updated>
+    </task>
+    <task id="LOCAL-00076" summary="procMath: doc update">
+      <created>1422743295474</created>
+      <updated>1422743295474</updated>
+    </task>
+    <task id="LOCAL-00077" summary="procModeling: commit before removing old def">
+      <created>1422743359824</created>
+      <updated>1422743359824</updated>
+    </task>
+    <task id="LOCAL-00078" summary="procModeling: update doc">
+      <created>1422743489678</created>
+      <updated>1422743489678</updated>
+    </task>
+    <task id="LOCAL-00079" summary="procRigg: add functions&#10;getNextFreeMultiIndex()&#10;plugNode(),&#10;plugAttr(),&#10;transfertWrapConns()">
+      <created>1422744320123</created>
+      <updated>1422744320123</updated>
+    </task>
+    <task id="LOCAL-00080" summary="vtxMapUi: refonte">
+      <created>1422759864622</created>
+      <updated>1422759864622</updated>
+    </task>
+    <task id="LOCAL-00081" summary="procRigg: Update doc, update transfertWrapConns()">
+      <created>1422806412365</created>
+      <updated>1422806412365</updated>
+    </task>
+    <task id="LOCAL-00082" summary="procQt: Update doc, Add popupMenu()">
+      <created>1422816568265</created>
+      <updated>1422816568265</updated>
+    </task>
+    <task id="LOCAL-00083" summary="procQt: Update doc, add popupMenu()">
+      <created>1422828457023</created>
+      <updated>1422828457023</updated>
+    </task>
+    <task id="LOCAL-00084" summary="lib.env: remove env.py">
+      <created>1422828530621</created>
+      <updated>1422828530621</updated>
+    </task>
+    <task id="LOCAL-00085" summary="procCloth: update doc, add class FromMel()">
+      <created>1422828618576</created>
+      <updated>1422828618576</updated>
+    </task>
+    <task id="LOCAL-00086" summary="vtxMap: Refonte totale">
+      <created>1422830265307</created>
+      <updated>1422830265307</updated>
+    </task>
+    <task id="LOCAL-00087" summary="procFile: Update doc">
+      <created>1422834007468</created>
+      <updated>1422834007468</updated>
+    </task>
+    <task id="LOCAL-00088" summary="alias.txt: add sls, aliasHelp">
+      <created>1423100762665</created>
+      <updated>1423100762665</updated>
+    </task>
+    <task id="LOCAL-00089" summary="toolManager: Remove folder &quot;cmds&quot; from listing">
+      <created>1423272269766</created>
+      <updated>1423272269766</updated>
+    </task>
+    <task id="LOCAL-00090" summary="camPrezCmds: replace pMode by smc">
+      <created>1423319467403</created>
+      <updated>1423319467403</updated>
+    </task>
+    <task id="LOCAL-00091" summary="camPrezCmds: replace pMode by smc">
+      <created>1423319572954</created>
+      <updated>1423319572954</updated>
+    </task>
+    <task id="LOCAL-00092" summary="tools.maya.cmds: First Commit">
+      <created>1423409975723</created>
+      <updated>1423409975723</updated>
+    </task>
+    <task id="LOCAL-00093" summary="tools.maya.cmds: clean old lines">
+      <created>1423410103005</created>
+      <updated>1423410103005</updated>
+    </task>
+    <task id="LOCAL-00094" summary="update tools with new tools.maya.cmds commands">
+      <created>1423418120877</created>
+      <updated>1423418120877</updated>
+    </task>
+    <task id="LOCAL-00095" summary="cloth: Add function createNCloth()">
+      <created>1423437708878</created>
+      <updated>1423437708878</updated>
+    </task>
+    <task id="LOCAL-00096" summary="lib.system.seqList : First Commit">
+      <created>1423440754463</created>
+      <updated>1423440754463</updated>
+    </task>
+    <task id="LOCAL-00097" summary="updates to conform tools.maya.cmds">
+      <created>1423440800495</created>
+      <updated>1423440800495</updated>
+    </task>
+    <task id="LOCAL-00098" summary="tools.maya.cmds.cloth: Add createNRigid(), addPassiveToNSystem()">
+      <created>1423446156365</created>
+      <updated>1423446156365</updated>
+    </task>
+    <task id="LOCAL-00099" summary="alias: add shortName alias for prodManager(pmg), userManager(umg)">
+      <created>1424119819405</created>
+      <updated>1424119819405</updated>
+    </task>
+    <task id="LOCAL-00100" summary="Logger(): Add options to insert new lines">
+      <created>1424119886803</created>
+      <updated>1424119886804</updated>
+    </task>
+    <task id="LOCAL-00101" summary="prodManager: First Commit, mise en place project loader">
+      <created>1424139164162</created>
+      <updated>1424139164162</updated>
+    </task>
+    <task id="LOCAL-00102" summary="lib.system.alas: Add nuke alias">
+      <created>1424309310345</created>
+      <updated>1424309310345</updated>
+    </task>
+    <task id="LOCAL-00103" summary="doc">
+      <created>1424310181121</created>
+      <updated>1424310181121</updated>
+    </task>
+    <task id="LOCAL-00104" summary="prodManager: Mise en place project settings">
+      <created>1424311939514</created>
+      <updated>1424311939515</updated>
+    </task>
+    <task id="LOCAL-00105" summary="fixe doc error">
+      <created>1424559547872</created>
+      <updated>1424559547872</updated>
+    </task>
+    <task id="LOCAL-00106" summary="rename moveSelItems to moveSelItem">
+      <created>1424613999273</created>
+      <updated>1424613999273</updated>
+    </task>
+    <task id="LOCAL-00107" summary="prodManager: project settings: Mise en place General setiings, Tasks settings">
+      <created>1424614490428</created>
+      <updated>1424614490428</updated>
+    </task>
+    <task id="LOCAL-00108" summary="Remove tools.nuke.util.proc">
+      <created>1424614544007</created>
+      <updated>1424614544007</updated>
+    </task>
+    <task id="LOCAL-00109" summary="prodManager: project settings: Mise en place Trees setiings, Steps settings, merge settings dialog">
+      <created>1424657328921</created>
+      <updated>1424657328921</updated>
+    </task>
+    <task id="LOCAL-00110" summary="prodManager: project settings: Commit before refonte settings">
+      <created>1424992474942</created>
+      <updated>1424992474943</updated>
+    </task>
+    <task id="LOCAL-00111" summary="prodManager: project settings: Commit after refonte settings">
+      <created>1425163252342</created>
+      <updated>1425163252342</updated>
+    </task>
+    <task id="LOCAL-00112" summary="prodManager: project settings: Mise en place Tree setiings">
+      <created>1425259501750</created>
+      <updated>1425259501750</updated>
+    </task>
+    <task id="LOCAL-00113" summary="prodManager: Commit avant refonte treeWidget">
+      <created>1425684771007</created>
+      <updated>1425684771007</updated>
+    </task>
+    <task id="LOCAL-00114" summary="prodManager: treeWidget revue">
+      <created>1426309450970</created>
+      <updated>1426309450970</updated>
+    </task>
+    <task id="LOCAL-00115" summary="maya.cmds: Add new procedure">
+      <created>1426333079111</created>
+      <updated>1426333079111</updated>
+    </task>
+    <task id="LOCAL-00116" summary="tools.maya: update proc modules">
+      <created>1426334705971</created>
+      <updated>1426334705971</updated>
+    </task>
+    <task id="LOCAL-00117" summary="tools.maya.cmds: Delete old proc">
+      <created>1426334871763</created>
+      <updated>1426334871763</updated>
+    </task>
+    <task id="LOCAL-00118" summary="Nuke: Init nuke toolBar&#10;Add gizmo Reorder, RestoreHL">
+      <created>1426386316059</created>
+      <updated>1426386316059</updated>
+    </task>
+    <task id="LOCAL-00119" summary="set Replace Alpha default value to True">
+      <created>1426387899610</created>
+      <updated>1426387899611</updated>
+    </task>
+    <task id="LOCAL-00120" summary="prodManager: project settings: Mise en place Steps">
+      <created>1426461232390</created>
+      <updated>1426461232390</updated>
+    </task>
+    <task id="LOCAL-00121" summary="nuke.gizmo: Add Anim.waveMaker">
+      <created>1426469623435</created>
+      <updated>1426469623435</updated>
+    </task>
+    <task id="LOCAL-00122" summary="VtxMap: Add import export options">
+      <created>1426807616951</created>
+      <updated>1426807616951</updated>
+    </task>
+    <task id="LOCAL-00123" summary="VtxMap: Add user import export cmds">
+      <created>1426989881620</created>
+      <updated>1426989881620</updated>
+    </task>
+    <task id="LOCAL-00125" summary="prodManager: project settings: Add steps color; Mise en place main tree">
+      <created>1427073611829</created>
+      <updated>1427073611829</updated>
+    </task>
+    <task id="LOCAL-00126" summary="pRigg.findTypeInHistory(): return all matching objType instead of cloesest connected one">
+      <created>1427573482221</created>
+      <updated>1427573482221</updated>
+    </task>
+    <task id="LOCAL-00127" summary="tools.maya.cloth.clothEditor: First commit">
+      <created>1427597319137</created>
+      <updated>1427597319137</updated>
+    </task>
+    <task id="LOCAL-00128" summary="prodManager: Tab Info: Creation">
+      <created>1427597480382</created>
+      <updated>1427597480382</updated>
+    </task>
+    <task id="LOCAL-00129" summary="pScene: Add getNamespace()">
+      <created>1427684857125</created>
+      <updated>1427684857126</updated>
+    </task>
+    <task id="LOCAL-00130" summary="clothEditor: Mise en place 'vertexMap'">
+      <created>1427684926502</created>
+      <updated>1427684926502</updated>
+    </task>
+    <task id="LOCAL-00131" summary="clothEditor: Mise en place 'Preset'">
+      <created>1428362556579</created>
+      <updated>1428362556579</updated>
+    </task>
+    <task id="LOCAL-00132" summary="vtxMap: update tmLauncher">
+      <created>1428362612928</created>
+      <updated>1428362612928</updated>
+    </task>
+    <task id="LOCAL-00133" summary="pMode: Add polySelectTraverse()">
+      <created>1428856204182</created>
+      <updated>1428856204182</updated>
+    </task>
+    <task id="LOCAL-00134" summary="pRigg: Edit docStrings">
+      <created>1428856241496</created>
+      <updated>1428856241496</updated>
+    </task>
+    <task id="LOCAL-00135" summary="tools.maya.cmds: Add package 'bin'&#10;Add btnCtrn modul">
+      <created>1428883950646</created>
+      <updated>1428883950646</updated>
+    </task>
+    <task id="LOCAL-00136" summary="clothEditor: Add preset cmds">
+      <created>1428884013129</created>
+      <updated>1428884013129</updated>
+    </task>
+    <task id="LOCAL-00137" summary="btnCtrn: var name correction">
+      <created>1428884172865</created>
+      <updated>1428884172865</updated>
+    </task>
+    <task id="LOCAL-00138" summary="pCloth and pRigg: remove FromMel class">
+      <created>1428884340563</created>
+      <updated>1428884340563</updated>
+    </task>
+    <task id="LOCAL-00139" summary="pCloth: modif getModelSelVtx()">
+      <created>1429384898220</created>
+      <updated>1429384898220</updated>
+    </task>
+    <task id="LOCAL-00140" summary="clothEditor: Add preset storage">
+      <created>1429397146822</created>
+      <updated>1429397146822</updated>
+    </task>
+    <task id="LOCAL-00141" summary="pCloth: modif getModelSelVtx()">
+      <created>1429411055488</created>
+      <updated>1429411055488</updated>
+    </task>
+    <task id="LOCAL-00142" summary="clothEditor: Mise en place filesClass">
+      <created>1429490545330</created>
+      <updated>1429490545330</updated>
+    </task>
+    <task id="LOCAL-00143" summary="procQt: Doc">
+      <created>1430057218103</created>
+      <updated>1430057218103</updated>
+    </task>
+    <task id="LOCAL-00144" summary="clothEditor: Update filesClass">
+      <created>1430488509058</created>
+      <updated>1430488509058</updated>
+    </task>
+    <task id="LOCAL-00145" summary="clothEditor: Update filesClass, Add menu 'Options'">
+      <created>1431789755488</created>
+      <updated>1431789755488</updated>
+    </task>
+    <task id="LOCAL-00146" summary="remove vtxMap tool">
+      <created>1431789959079</created>
+      <updated>1431789959079</updated>
+    </task>
+    <task id="LOCAL-00147" summary="procMath: Add linear()&#10;pCloth: Update paintVtxMap()">
+      <created>1431811037767</created>
+      <updated>1431811037767</updated>
+    </task>
+    <task id="LOCAL-00148" summary="clothEditor: add vtxColor options">
+      <created>1431817693794</created>
+      <updated>1431817693794</updated>
+    </task>
+    <task id="LOCAL-00149" summary="procQt: Add CompileUi2()">
+      <created>1431990351236</created>
+      <updated>1431990351236</updated>
+    </task>
+    <task id="LOCAL-00150" summary="clothEditor: modif sceneNodes ui">
+      <created>1432245184955</created>
+      <updated>1432245184956</updated>
+    </task>
+    <task id="LOCAL-00151" summary="clothEditorWgts : remove  enumFilter()">
+      <created>1432245828713</created>
+      <updated>1432245828713</updated>
+    </task>
+    <task id="LOCAL-00152" summary="procMath: update vector3D()&#10;pScene: Add lockNode setter and getter">
+      <created>1432323078159</created>
+      <updated>1432323078159</updated>
+    </task>
+    <task id="LOCAL-00153" summary="clothEditor: modif lock methode">
+      <created>1432371112024</created>
+      <updated>1432371112024</updated>
+    </task>
+    <task id="LOCAL-00154" summary="pCloth: Add paintVtxColor()">
+      <created>1432372837190</created>
+      <updated>1432372837190</updated>
+    </task>
+    <task id="LOCAL-00155" summary="pCloth: Add exitVtxColor()">
+      <created>1432376465342</created>
+      <updated>1432376465342</updated>
+    </task>
+    <task id="LOCAL-00156" summary="clothEditor: Remove vertex paint options">
+      <created>1432376504075</created>
+      <updated>1432376504075</updated>
+    </task>
+    <task id="LOCAL-00157" summary="clothEditor: Add artisan flood smooth">
+      <created>1432408096117</created>
+      <updated>1432408096117</updated>
+    </task>
+    <task id="LOCAL-00158" summary="pCloth: remove unused import">
+      <created>1433169474301</created>
+      <updated>1433169474301</updated>
+    </task>
+    <task id="LOCAL-00159" summary="pRigg: Add createWrap()">
+      <created>1433343792939</created>
+      <updated>1433343792939</updated>
+    </task>
+    <task id="LOCAL-00160" summary="clothEditorUi.rf_filters(): Check if any namespace exists">
+      <created>1433343884896</created>
+      <updated>1433343884896</updated>
+    </task>
+    <task id="LOCAL-00161" summary="clothBox: First Commit">
+      <created>1433358179758</created>
+      <updated>1433358179758</updated>
+    </task>
+    <task id="LOCAL-00162" summary="clothCache: First Commit">
+      <created>1433358229327</created>
+      <updated>1433358229327</updated>
+    </task>
+    <task id="LOCAL-00163" summary="pMode: Add duplicateSelected(), createOutMesh()">
+      <created>1433630412880</created>
+      <updated>1433630412880</updated>
+    </task>
+    <task id="LOCAL-00164" summary="clothBox: Add solver option (unique or multi)">
+      <created>1433630466443</created>
+      <updated>1433630466443</updated>
+    </task>
+    <task id="LOCAL-00165" summary="grapher2: First commit">
+      <created>1434244068322</created>
+      <updated>1434244068322</updated>
+    </task>
+    <task id="LOCAL-00166" summary="grapher2: Reformat to grapher">
+      <created>1434286269299</created>
+      <updated>1434286269299</updated>
+    </task>
+    <task id="LOCAL-00167" summary="alias: add grapher">
+      <created>1434335893802</created>
+      <updated>1434335893802</updated>
+    </task>
+    <task id="LOCAL-00168" summary="grapher: Change connection plug">
+      <created>1434335968524</created>
+      <updated>1434335968524</updated>
+    </task>
+    <task id="LOCAL-00169" summary="grapher: Remove wgGraphZone.ui">
+      <created>1434510214179</created>
+      <updated>1434510214179</updated>
+    </task>
+    <task id="LOCAL-00170" summary="grapher: Add ToolsBar and DataZone">
+      <created>1434592053998</created>
+      <updated>1434592053998</updated>
+    </task>
+    <task id="LOCAL-00171" summary="CompileUi: v3 without os call">
+      <created>1434647037324</created>
+      <updated>1434647037324</updated>
+    </task>
+    <task id="LOCAL-00172" summary="alias: add grapher">
+      <created>1434647052794</created>
+      <updated>1434647052794</updated>
+    </task>
+    <task id="LOCAL-00173" summary="env.studio: update nuke launcher">
+      <created>1434768678297</created>
+      <updated>1434768678297</updated>
+    </task>
+    <task id="LOCAL-00174" summary="procQt: Update CompileUi2(), remove hardPath">
+      <created>1434768812947</created>
+      <updated>1434768812947</updated>
+    </task>
+    <task id="LOCAL-00175" summary="grapher: Refactor">
+      <created>1434799195273</created>
+      <updated>1434799195274</updated>
+    </task>
+    <task id="LOCAL-00176" summary="grapher: Refactor Ui">
+      <created>1434799222632</created>
+      <updated>1434799222632</updated>
+    </task>
+    <task id="LOCAL-00177" summary="grapher: Refactor Ui">
+      <created>1434799521810</created>
+      <updated>1434799521810</updated>
+    </task>
+    <task id="LOCAL-00178" summary="grapher: Refactor Ui">
+      <created>1434801145006</created>
+      <updated>1434801145006</updated>
+    </task>
+    <task id="LOCAL-00179" summary="grapher: Add docStrings, add dataZone">
+      <created>1434845466411</created>
+      <updated>1434845466411</updated>
+    </task>
+    <task id="LOCAL-00180" summary="Grapher: Add dataZone">
+      <created>1434931552574</created>
+      <updated>1434931552574</updated>
+    </task>
+    <task id="LOCAL-00181" summary="Grapher: Add dataZone connections group">
+      <created>1435028928585</created>
+      <updated>1435028928585</updated>
+    </task>
+    <task id="LOCAL-00182" summary="Grapher: icon bug">
+      <created>1435029404826</created>
+      <updated>1435029404826</updated>
+    </task>
+    <task id="LOCAL-00183" summary="Grapher: icon bug">
+      <created>1435029540103</created>
+      <updated>1435029540103</updated>
+    </task>
+    <task id="LOCAL-00184" summary="grapher: Add project options, fix some fit in bug">
+      <created>1435196720775</created>
+      <updated>1435196720775</updated>
+    </task>
+    <task id="LOCAL-00185" summary="grapher: add projectTree widget">
+      <created>1435531265638</created>
+      <updated>1435531265638</updated>
+    </task>
+    <task id="LOCAL-00186" summary="grapher: change default widget position">
+      <created>1435532557512</created>
+      <updated>1435532557512</updated>
+    </task>
+    <task id="LOCAL-00187" summary="grapher: remove line, use only link">
+      <created>1435888155083</created>
+      <updated>1435888155084</updated>
+    </task>
+    <task id="LOCAL-00188" summary="grapher: move connectNodeData from graphNode to dataZone">
+      <created>1435890461685</created>
+      <updated>1435890461685</updated>
+    </task>
+    <task id="LOCAL-00189" summary="grapher: add dropFromTree, load and save graph">
+      <created>1436144184504</created>
+      <updated>1436144184504</updated>
+    </task>
+    <task id="LOCAL-00190" summary="studio: add pycharm">
+      <created>1436231913004</created>
+      <updated>1436231913004</updated>
+    </task>
+    <task id="LOCAL-00191" summary="maya.plugins: add smoothDeformer">
+      <created>1436232075158</created>
+      <updated>1436232075158</updated>
+    </task>
+    <task id="LOCAL-00192" summary="grapher: add dataNode options">
+      <created>1436309971731</created>
+      <updated>1436309971731</updated>
+    </task>
+    <task id="LOCAL-00193" summary="grapher: Commit before refactor (nodeLabel -&gt; nodeName)&#10;creation du nodeId">
+      <created>1436473272821</created>
+      <updated>1436473272821</updated>
+    </task>
+    <task id="LOCAL-00194" summary="grapher: Refactor (nodeLabel -&gt; nodeName)&#10;commit before refactor (lineConnection, nodeLink)">
+      <created>1436985294140</created>
+      <updated>1436985294140</updated>
+    </task>
+    <task id="LOCAL-00195" summary="grapher: Refactor (lineConnection, nodeLink), check user folders">
+      <created>1437074450191</created>
+      <updated>1437074450191</updated>
+    </task>
+    <task id="LOCAL-00196" summary="grapher: user folder creation">
+      <created>1437085062075</created>
+      <updated>1437085062075</updated>
+    </task>
+    <task id="LOCAL-00197" summary="grapher: Commit avant refactor DataNodeConnection widgets">
+      <created>1437213631842</created>
+      <updated>1437213631842</updated>
+    </task>
+    <task id="LOCAL-00198" summary="grapher: Refactor DataNodeConnection widgets">
+      <created>1437214437885</created>
+      <updated>1437214437885</updated>
+    </task>
+    <task id="LOCAL-00199" summary="grapher: Add data nodeFile">
+      <created>1437348724604</created>
+      <updated>1437348724604</updated>
+    </task>
+    <task id="LOCAL-00200" summary="grapher: Add launch command">
+      <created>1437693372423</created>
+      <updated>1437693372423</updated>
+    </task>
+    <task id="LOCAL-00201" summary="grapher: Store nodeFile mode">
+      <created>1437910523928</created>
+      <updated>1437910523928</updated>
+    </task>
+    <task id="LOCAL-00202" summary="pCloth: createNCloth(), fix shading bug">
+      <created>1438037563717</created>
+      <updated>1438037563717</updated>
+    </task>
+    <task id="LOCAL-00203" summary="tools.maya.cloth: Update compile">
+      <created>1438222607804</created>
+      <updated>1438222607804</updated>
+    </task>
+    <task id="LOCAL-00204" summary="clothCache: Add namespace refresh option">
+      <created>1438222649461</created>
+      <updated>1438222649461</updated>
+    </task>
+    <task id="LOCAL-00205" summary="Refactor: clothCache -&gt; dynEval">
+      <created>1438370069139</created>
+      <updated>1438370069140</updated>
+    </task>
+    <task id="LOCAL-00206" summary="pScene: Add mayaWarning">
+      <created>1438386467285</created>
+      <updated>1438386467285</updated>
+    </task>
+    <task id="LOCAL-00207" summary="DynEval: Init nCache">
+      <created>1438405495585</created>
+      <updated>1438405495585</updated>
+    </task>
+    <task id="LOCAL-00208" summary="ClothBox: Add tool icon">
+      <created>1438454482679</created>
+      <updated>1438454482679</updated>
+    </task>
+    <task id="LOCAL-00209" summary="pCache: First commit&#10;pScene: Add getTimeRange()">
+      <created>1438470813242</created>
+      <updated>1438470813242</updated>
+    </task>
+    <task id="LOCAL-00210" summary="pCache: Updates&#10;pScene: DocStrings">
+      <created>1438485164773</created>
+      <updated>1438485164773</updated>
+    </task>
+    <task id="LOCAL-00211" summary="DynEval: Add cache file creation cmds">
+      <created>1438485216100</created>
+      <updated>1438485216100</updated>
+    </task>
+    <task id="LOCAL-00212" summary="pCache: Update nCacheFile">
+      <created>1438562604047</created>
+      <updated>1438562604047</updated>
+    </task>
+    <task id="LOCAL-00213" summary="DynEval: Cache list manager, Add append Cache cmds">
+      <created>1438562675245</created>
+      <updated>1438562675245</updated>
+    </task>
+    <task id="LOCAL-00214" summary="duplicateSelected: fix return">
+      <created>1438815267946</created>
+      <updated>1438815267947</updated>
+    </task>
+    <task id="LOCAL-00215" summary="Add newGeoCacheNode()">
+      <created>1438815322829</created>
+      <updated>1438815322829</updated>
+    </task>
+    <task id="LOCAL-00216" summary="Add materializeCacheFile()">
+      <created>1438894623127</created>
+      <updated>1438894623127</updated>
+    </task>
+    <task id="LOCAL-00217" summary="update delCacheNode() for nCloth et geo cahce node">
+      <created>1438907337602</created>
+      <updated>1438907337602</updated>
+    </task>
+    <task id="LOCAL-00218" summary="Add assignToSel() and deleteCache()">
+      <created>1438907412456</created>
+      <updated>1438907412456</updated>
+    </task>
+    <task id="LOCAL-00219" summary="pCache: Add backup options&#10;pScene: Add mayaError()">
+      <created>1439044569203</created>
+      <updated>1439044569203</updated>
+    </task>
+    <task id="LOCAL-00220" summary="Add geoCache cmd">
+      <created>1439044595194</created>
+      <updated>1439044595194</updated>
+    </task>
+    <task id="LOCAL-00221" summary="Add taggOk cmds">
+      <created>1439050024451</created>
+      <updated>1439050024451</updated>
+    </task>
+    <task id="LOCAL-00222" summary="Add CacheFileParser()">
+      <created>1439065128110</created>
+      <updated>1439065128110</updated>
+    </task>
+    <task id="LOCAL-00223" summary="Update CacheFileParser()">
+      <created>1439076692836</created>
+      <updated>1439076692836</updated>
+    </task>
+    <task id="LOCAL-00224" summary="docStrings">
+      <created>1439086080119</created>
+      <updated>1439086080119</updated>
+    </task>
+    <task id="LOCAL-00225" summary="Fix CacheFileParser().extractNClothParams(), Add docStrings">
+      <created>1439086191588</created>
+      <updated>1439086191588</updated>
+    </task>
+    <task id="LOCAL-00226" summary="Add CacheFileParams options">
+      <created>1439087430934</created>
+      <updated>1439087430934</updated>
+    </task>
+    <task id="LOCAL-00227" summary="Add makeDir(), docStrings">
+      <created>1439131122822</created>
+      <updated>1439131122822</updated>
+    </task>
+    <task id="LOCAL-00228" summary="Add archive options">
+      <created>1439135136076</created>
+      <updated>1439135136076</updated>
+    </task>
+    <task id="LOCAL-00229" summary="rigg: fix wrap missed apply">
+      <created>1439144720988</created>
+      <updated>1439144720988</updated>
+    </task>
+    <task id="LOCAL-00230" summary="test batch (wip)">
+      <created>1439161188086</created>
+      <updated>1439161188086</updated>
+    </task>
+    <task id="LOCAL-00231" summary="makeDir(): remove raise error">
+      <created>1439161229884</created>
+      <updated>1439161229884</updated>
+    </task>
+    <task id="LOCAL-00232" summary="Update logLevel: add 'detail' level">
+      <created>1439404473634</created>
+      <updated>1439404473634</updated>
+    </task>
+    <task id="LOCAL-00233" summary="fondation: First commit">
+      <created>1439427682255</created>
+      <updated>1439427682255</updated>
+    </task>
+    <task id="LOCAL-00234" summary="fondation: commit before remove hide/unhide">
+      <created>1439499804333</created>
+      <updated>1439499804333</updated>
+    </task>
+    <task id="LOCAL-00235" summary="commit avant refactor">
+      <created>1439644935804</created>
+      <updated>1439644935804</updated>
+    </task>
+    <task id="LOCAL-00236" summary="grapher: refactor ---&gt; grapherDev">
+      <created>1439649028728</created>
+      <updated>1439649028728</updated>
+    </task>
+    <task id="LOCAL-00237" summary="fondation: Commit before refactor ---&gt; grapher">
+      <created>1439649089821</created>
+      <updated>1439649089821</updated>
+    </task>
+    <task id="LOCAL-00238" summary="fondation: Commit Done: fondation ---&gt; grapher">
+      <created>1439649544023</created>
+      <updated>1439649544023</updated>
+    </task>
+    <task id="LOCAL-00239" summary="fondation: Commit done, start adding graphScene view">
+      <created>1439686631505</created>
+      <updated>1439686631505</updated>
+    </task>
+    <task id="LOCAL-00240" summary="procFile.Logger(): Add time to message">
+      <created>1439858599856</created>
+      <updated>1439858599856</updated>
+    </task>
+    <task id="LOCAL-00241" summary="Grapher: Add nodal zone (wip)">
+      <created>1439858696527</created>
+      <updated>1439858696527</updated>
+    </task>
+    <task id="LOCAL-00242" summary="Grapher: Update nodal zone (wip), dataObject on view">
+      <created>1440013565879</created>
+      <updated>1440013565879</updated>
+    </task>
+    <task id="LOCAL-00243" summary="Grapher: Update nodal zone with creation options&#10;Grapher.core: First commit">
+      <created>1440352864136</created>
+      <updated>1440352864136</updated>
+    </task>
+    <task id="LOCAL-00244" summary="fondation: refonte avec incorporation du core">
+      <created>1440368140286</created>
+      <updated>1440368140286</updated>
+    </task>
+    <task id="LOCAL-00245" summary="fondation: Add graphZone">
+      <created>1440382255521</created>
+      <updated>1440382255521</updated>
+    </task>
+    <task id="LOCAL-00246" summary="Grapher: Update nodal zone with creation options (addChild)">
+      <created>1440544864883</created>
+      <updated>1440544864883</updated>
+    </task>
+    <task id="LOCAL-00247" summary="Grapher: Add graphLink">
+      <created>1440629273754</created>
+      <updated>1440629273754</updated>
+    </task>
+    <task id="LOCAL-00248" summary="Grapher: Add position, delete and parent options">
+      <created>1440849138325</created>
+      <updated>1440849138325</updated>
+    </task>
+    <task id="LOCAL-00249" summary="Grapher: Add GraphSceneItem buttons">
+      <created>1441071653212</created>
+      <updated>1441071653212</updated>
+    </task>
+    <task id="LOCAL-00250" summary="Grapher: commit avant refactor GraphWidget2 ---&gt; GraphWidget">
+      <created>1441394416958</created>
+      <updated>1441394416958</updated>
+    </task>
+    <task id="LOCAL-00251" summary="Grapher: Refactor GraphWidget2 ---&gt; GraphWidget">
+      <created>1441396656794</created>
+      <updated>1441396656794</updated>
+    </task>
+    <task id="LOCAL-00252" summary="Grapher: GraphScene, Refresh Element Id">
+      <created>1441397061738</created>
+      <updated>1441397061738</updated>
+    </task>
+    <task id="LOCAL-00253" summary="Grapher: Update item params">
+      <created>1441456581408</created>
+      <updated>1441456581408</updated>
+    </task>
+    <task id="LOCAL-00254" summary="Grapher: Add enable item options">
+      <created>1442052493645</created>
+      <updated>1442052493645</updated>
+    </task>
+    <task id="LOCAL-00255" summary="Grapher: Fix enable child item options">
+      <created>1442056987991</created>
+      <updated>1442056987991</updated>
+    </task>
+    <task id="LOCAL-00256" summary="Grapher: Add copy / paste options">
+      <created>1442137872583</created>
+      <updated>1442137872583</updated>
+    </task>
+    <task id="LOCAL-00257" summary="Grapher: Add move nodes options">
+      <created>1442175411805</created>
+      <updated>1442175411806</updated>
+    </task>
+    <task id="LOCAL-00258" summary="Grapher: Add 'Rename Node'">
+      <created>1442530951916</created>
+      <updated>1442530951916</updated>
+    </task>
+    <task id="LOCAL-00259" summary="Grapher: Add connection to node editor, Add load and save cmds">
+      <created>1442795673631</created>
+      <updated>1442795673631</updated>
+    </task>
+    <task id="LOCAL-00260" summary="Grapher: Fix load cmd">
+      <created>1443056330125</created>
+      <updated>1443056330125</updated>
+    </task>
+    <task id="LOCAL-00261" summary="Grapher: Add delVersion">
+      <created>1443060553885</created>
+      <updated>1443060553885</updated>
+    </task>
+    <task id="LOCAL-00262" summary="Grapher: Add variables widget">
+      <created>1443142317681</created>
+      <updated>1443142317681</updated>
+    </task>
+    <task id="LOCAL-00263" summary="Grapher: Add variables widget functions, Add script widget">
+      <created>1443323832388</created>
+      <updated>1443323832388</updated>
+    </task>
+    <task id="LOCAL-00264" summary="alias: remove fondation">
+      <created>1443323899010</created>
+      <updated>1443323899010</updated>
+    </task>
+    <task id="LOCAL-00265" summary="Grapher: Add exec command">
+      <created>1443486397806</created>
+      <updated>1443486397806</updated>
+    </task>
+    <task id="LOCAL-00266" summary="studio: Add cmd.exe, python27">
+      <created>1443486452084</created>
+      <updated>1443486452084</updated>
+    </task>
+    <task id="LOCAL-00267" summary="grapherDev: Delete package">
+      <created>1443487130807</created>
+      <updated>1443487130807</updated>
+    </task>
+    <task id="LOCAL-00268" summary="scriptEditor2: First commit">
+      <created>1443578158770</created>
+      <updated>1443578158770</updated>
+    </task>
+    <task id="LOCAL-00269" summary="scriptEditor2: Add whiteSpaces visibility">
+      <created>1443578958278</created>
+      <updated>1443578958278</updated>
+    </task>
+    <task id="LOCAL-00270" summary="Grapher: replace scriptEditor ---&gt; scriptEditor2">
+      <created>1443581130665</created>
+      <updated>1443581130665</updated>
+    </task>
+    <task id="LOCAL-00271" summary="scriptEditor2: fix getCode()">
+      <created>1443581180298</created>
+      <updated>1443581180298</updated>
+    </task>
+    <task id="LOCAL-00272" summary="scriptEditor2: remote options">
+      <created>1443652361073</created>
+      <updated>1443652361073</updated>
+    </task>
+    <task id="LOCAL-00273" summary="scriptEditor2: edge color">
+      <created>1443653836588</created>
+      <updated>1443653836588</updated>
+    </task>
+    <task id="LOCAL-00274" summary="scriptEditor2: remove print">
+      <created>1443660305006</created>
+      <updated>1443660305006</updated>
+    </task>
+    <task id="LOCAL-00275" summary="Grapher: Add scriptEditor options">
+      <created>1443662164063</created>
+      <updated>1443662164063</updated>
+    </task>
+    <task id="LOCAL-00276" summary="Grapher: Add Jobs list and logs options">
+      <created>1443830281510</created>
+      <updated>1443830281510</updated>
+    </task>
+    <task id="LOCAL-00277" summary="Grapher: Add loop node">
+      <created>1443874723553</created>
+      <updated>1443874723553</updated>
+    </task>
+    <task id="LOCAL-00278" summary="scriptEditor2: Fix tab guides">
+      <created>1443974388189</created>
+      <updated>1443974388189</updated>
+    </task>
+    <task id="LOCAL-00279" summary="Grapher: Add comformVarDict(), move Script(): graphWgts ---&gt; nodeEditor">
+      <created>1443979016628</created>
+      <updated>1443979016628</updated>
+    </task>
+    <task id="LOCAL-00280" summary="studio: Add nuke5, nuke9">
+      <created>1444001591097</created>
+      <updated>1444001591097</updated>
+    </task>
+    <task id="LOCAL-00281" summary="Grapher: Add Launcher()">
+      <created>1444001627683</created>
+      <updated>1444001627683</updated>
+    </task>
+    <task id="LOCAL-00282" summary="scriptEditor2: white spaces size">
+      <created>1444180856039</created>
+      <updated>1444180856039</updated>
+    </task>
+    <task id="LOCAL-00283" summary="Grapher: Add Launcher command, args to do">
+      <created>1444180890334</created>
+      <updated>1444180890335</updated>
+    </task>
+    <task id="LOCAL-00284" summary="Grapher: fix pasted nodes datas transfert">
+      <created>1444245356380</created>
+      <updated>1444245356380</updated>
+    </task>
+    <option name="localTasksCounter" value="285" />
+    <servers />
+  </component>
+  <component name="TodoView" selected-index="4">
+    <todo-panel id="selected-file">
+      <are-packages-shown value="false" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="false" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="false" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="false" />
+    </todo-panel>
+    <todo-panel id="default-changelist">
+      <are-packages-shown value="false" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="false" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="1936" height="1096" extended-state="6" />
+    <editor active="false" />
+    <layout>
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3035144" sideWeight="0.5774499" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3035144" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3272921" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="true" weight="0.16649105" sideWeight="0.41001064" order="1" side_tool="true" content_ui="tabs" x="-582" y="42" width="579" height="1014" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.14857745" sideWeight="0.58998936" order="0" side_tool="false" content_ui="combo" x="-323" y="32" width="320" height="1003" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3940362" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3035144" sideWeight="0.42255005" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" weight="0.32481363" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="-1678" y="30" width="954" height="1041" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3258786" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32161874" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+    </layout>
+    <layout-to-restore>
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3056443" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3283582" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3226837" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3944563" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942432" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32622603" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942432" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3272921" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.15173867" sideWeight="0.41001064" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16649105" sideWeight="0.58998936" order="0" side_tool="false" content_ui="combo" x="-323" y="32" width="320" height="1003" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" weight="0.32481363" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="-751" y="38" width="745" height="1022" />
+    </layout-to-restore>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="false" />
+    <option name="myTodoPanelSettings">
+      <TodoPanelSettings />
+    </option>
+    <MESSAGE value="Grapher: Add delVersion" />
+    <MESSAGE value="Grapher: Add variables widget" />
+    <MESSAGE value="Grapher: Add variables widget functions, Add script widget" />
+    <MESSAGE value="alias: remove fondation" />
+    <MESSAGE value="Grapher: Add exec command" />
+    <MESSAGE value="studio: Add cmd.exe, python27" />
+    <MESSAGE value="???" />
+    <MESSAGE value="grapherDev: Delete package" />
+    <MESSAGE value="scriptEditor2: First commit" />
+    <MESSAGE value="scriptEditor2: Add whiteSpaces visibility" />
+    <MESSAGE value="Grapher: replace scriptEditor ---&gt; scriptEditor2" />
+    <MESSAGE value="scriptEditor2: fix getCode()" />
+    <MESSAGE value="scriptEditor2: remote options" />
+    <MESSAGE value="scriptEditor2: edge color" />
+    <MESSAGE value="scriptEditor2: remove print" />
+    <MESSAGE value="Grapher: Add scriptEditor options" />
+    <MESSAGE value="Grapher: Add Jobs list and logs options" />
+    <MESSAGE value="Grapher: Add loop node" />
+    <MESSAGE value="scriptEditor2: Fix tab guides" />
+    <MESSAGE value="Grapher: Add comformVarDict(), move Script(): graphWgts ---&gt; nodeEditor" />
+    <MESSAGE value="studio: Add nuke5, nuke9" />
+    <MESSAGE value="Grapher: Add Launcher()" />
+    <MESSAGE value="scriptEditor2: white spaces size" />
+    <MESSAGE value="Grapher: Add Launcher command, args to do" />
+    <MESSAGE value="Grapher: fix pasted nodes datas transfert" />
+    <option name="LAST_COMMIT_MESSAGE" value="Grapher: fix pasted nodes datas transfert" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints-dialog>
+        <breakpoints-dialog />
+      </breakpoints-dialog>
+      <option name="time" value="42" />
+    </breakpoint-manager>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/graphZone.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="459" max-vertical-offset="9945">
+          <caret line="27" column="21" selection-start-line="27" selection-start-column="13" selection-end-line="27" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/graphTree.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="85" max-vertical-offset="3281">
+          <caret line="5" column="6" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/graphWgts.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="9452" max-vertical-offset="10234">
+          <caret line="556" column="15" selection-start-line="556" selection-start-column="15" selection-end-line="556" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/nodeEditor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3587">
+          <caret line="159" column="31" selection-start-line="159" selection-start-column="31" selection-end-line="159" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/core/grapher.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="6545" max-vertical-offset="13345">
+          <caret line="385" column="45" selection-start-line="385" selection-start-column="45" selection-end-line="385" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/env/studio.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="323" max-vertical-offset="578">
+          <caret line="19" column="15" selection-start-line="19" selection-start-column="15" selection-end-line="19" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/system/procFile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="2856" max-vertical-offset="8959">
+          <caret line="168" column="14" selection-start-line="168" selection-start-column="14" selection-end-line="168" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/core/graphNodes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="901" max-vertical-offset="3281">
+          <caret line="53" column="43" selection-start-line="53" selection-start-column="43" selection-end-line="53" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/prodManager/pmSettings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="5066">
+          <caret line="9" column="4" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/factory/factory.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.2331691" vertical-offset="836" max-vertical-offset="1445">
+          <caret line="7" column="99" selection-start-line="7" selection-start-column="99" selection-end-line="7" selection-end-column="99" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/factory/__exe__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="911">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/prodManager/__exe__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="888">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/userManager/__exe__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.15542857" vertical-offset="0" max-vertical-offset="875">
+          <caret line="8" column="99" selection-start-line="8" selection-start-column="99" selection-end-line="8" selection-end-column="99" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/maya/cloth/dynEval/dynEvalWgts.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="3.9001098" vertical-offset="0" max-vertical-offset="4675">
+          <caret line="1165" column="51" selection-start-line="1165" selection-start-column="29" selection-end-line="1165" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/ui/grapherUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="898">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharm30/system/python_stubs/-762174762/PyQt4/QtGui/QTreeWidgetItem.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33150384" vertical-offset="480" max-vertical-offset="2839">
+          <caret line="90" column="8" selection-start-line="90" selection-start-column="8" selection-end-line="90" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../old/MayaNodeInterface/ui/nodeModule.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="196" max-vertical-offset="2499">
+          <caret line="197" column="45" selection-start-line="197" selection-start-column="45" selection-end-line="197" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../old/openassembler-master/OpenAssembler/Gui/Node/drawNode.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="153" max-vertical-offset="1139">
+          <caret line="16" column="34" selection-start-line="16" selection-start-column="21" selection-end-line="16" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../old/openassembler-master/OpenAssembler/Gui/Node/nodePainter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="109" max-vertical-offset="2754">
+          <caret line="41" column="27" selection-start-line="41" selection-start-column="27" selection-end-line="41" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/maya/cloth/clothEditor/clothEditorWgts.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.678572" vertical-offset="2472" max-vertical-offset="6137">
+          <caret line="602" column="33" selection-start-line="602" selection-start-column="33" selection-end-line="602" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/core/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="911">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/ui/nodeEditorUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="875">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/ui/graphNodeUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="875">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../old/bank-master/appli/grapher/grapherUi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="884">
+          <caret line="201" column="14" selection-start-line="201" selection-start-column="14" selection-end-line="201" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../old/bank-master/appli/grapher/nodeEditor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1275" max-vertical-offset="2210">
+          <caret line="297" column="42" selection-start-line="297" selection-start-column="42" selection-end-line="297" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../old/bank-master/appli/grapher/graphTree.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5225027" vertical-offset="1989" max-vertical-offset="3026">
+          <caret line="866" column="27" selection-start-line="866" selection-start-column="27" selection-end-line="866" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4403153" vertical-offset="0" max-vertical-offset="888">
+          <caret line="25" column="28" selection-start-line="25" selection-start-column="28" selection-end-line="25" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/qt/procQt.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4342857" vertical-offset="1337" max-vertical-offset="2686">
+          <caret line="427" column="0" selection-start-line="427" selection-start-column="0" selection-end-line="427" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/qt/ui/textEditorUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.597146" vertical-offset="0" max-vertical-offset="952">
+          <caret line="35" column="13" selection-start-line="35" selection-start-column="13" selection-end-line="35" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/qt/textEditor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1717">
+          <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapherOld/grapherUi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7382857" vertical-offset="0" max-vertical-offset="1275">
+          <caret line="145" column="37" selection-start-line="145" selection-start-column="37" selection-end-line="145" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapherOld/graphTree.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4665203" vertical-offset="51" max-vertical-offset="1734">
+          <caret line="65" column="23" selection-start-line="65" selection-start-column="17" selection-end-line="65" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapherOld/gpWidget.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4478595" vertical-offset="663" max-vertical-offset="2822">
+          <caret line="222" column="28" selection-start-line="222" selection-start-column="28" selection-end-line="222" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydev_monkey.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="598" max-vertical-offset="1139">
+          <caret line="209" column="0" selection-start-line="209" selection-start-column="0" selection-end-line="209" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="4465" max-vertical-offset="8534">
+          <caret line="1225" column="0" selection-start-line="1225" selection-start-column="0" selection-end-line="1226" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://D:/prods/test/assets/tmp/Julien/externScripts/sysData_1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.13062568" vertical-offset="0" max-vertical-offset="911">
+          <caret line="8" column="23" selection-start-line="8" selection-start-column="23" selection-end-line="8" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/__exe__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3358946" vertical-offset="0" max-vertical-offset="911">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/graphScene.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.7382857" vertical-offset="1224" max-vertical-offset="3621">
+          <caret line="171" column="80" selection-start-line="171" selection-start-column="80" selection-end-line="171" selection-end-column="80" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/toolsWgts.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.701427" vertical-offset="58" max-vertical-offset="1003">
+          <caret line="173" column="78" selection-start-line="173" selection-start-column="78" selection-end-line="173" selection-end-column="78" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/qt/scriptEditor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7622857" vertical-offset="183" max-vertical-offset="1445">
+          <caret line="83" column="0" selection-start-line="83" selection-start-column="0" selection-end-line="83" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/system/procFile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2271715" vertical-offset="0" max-vertical-offset="1632">
+          <caret line="90" column="0" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/env/studio.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5551802" vertical-offset="0" max-vertical-offset="888">
+          <caret line="29" column="52" selection-start-line="29" selection-start-column="52" selection-end-line="29" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/graphWgts.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1163" max-vertical-offset="2380">
+          <caret line="557" column="0" selection-start-line="557" selection-start-column="0" selection-end-line="558" selection-end-column="63" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/qt/scriptEditor2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.11486486" vertical-offset="272" max-vertical-offset="1275">
+          <caret line="11" column="26" selection-start-line="11" selection-start-column="26" selection-end-line="11" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/nodeEditor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1649">
+          <caret line="282" column="46" selection-start-line="282" selection-start-column="46" selection-end-line="282" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/graphTree.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="782">
+          <caret line="74" column="0" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/core/graphNodes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="459" max-vertical-offset="2771">
+          <caret line="138" column="26" selection-start-line="138" selection-start-column="26" selection-end-line="138" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/graphZone.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="153" max-vertical-offset="1275">
+          <caret line="7" column="24" selection-start-line="7" selection-start-column="24" selection-end-line="7" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/gui/grapherUi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.34687155" vertical-offset="823" max-vertical-offset="1734">
+          <caret line="369" column="42" selection-start-line="369" selection-start-column="42" selection-end-line="369" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appli/grapher/core/grapher.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2584">
+          <caret line="745" column="75" selection-start-line="745" selection-start-column="75" selection-end-line="745" selection-end-column="75" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/maya/cmds/pScene.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4478595" vertical-offset="0" max-vertical-offset="911">
+          <caret line="118" column="0" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ScopeChooserConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>
+
