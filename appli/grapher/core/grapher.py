@@ -460,7 +460,7 @@ class Grapher(object):
                     execTxt += self.__nodeHeader(item._node)
                     #-- Get Exec Command --#
                     if hasattr(item._node, 'execCommand'):
-                        nodeCmd = self.__nodeExecCommand(item._node, nodeScriptFile)
+                        nodeCmd = item._node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
                         execTxt += self.__nodeExecHeader(nodeCmd)
                         execTxt += self.__nodeEnder(item._node)
         self.log.detail("\t >>> Parse graph tree done.")
@@ -541,25 +541,6 @@ class Grapher(object):
         return '\n'.join(header)
 
     @staticmethod
-    def __nodeExecCommand(node, nodeScriptFile):
-        """
-        Get given node exec command
-
-        :param node: Graph node
-        :type node: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData |
-                    graphNodes.PurData | graphNodes.Loop
-        :param nodeScriptFile: Node script file full path
-        :type nodeScriptFile: str
-        :return: Node exec header
-        :rtype: str
-        """
-        cmd = ''
-        cmd += 'os.system("'
-        cmd += '%s' % node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
-        cmd += '")'
-        return cmd
-
-    @staticmethod
     def __nodeExecHeader(cmd):
         """
         Get node exec header
@@ -570,7 +551,7 @@ class Grapher(object):
         :rtype: str
         """
         header = ["\nprint '#--- Exec Cmd ---#'",
-                  "print '%s'" % pFile.conformPath(cmd),
+                  'print %r' % pFile.conformPath(cmd),
                   "print ''", cmd]
         return '\n'.join(header)
 

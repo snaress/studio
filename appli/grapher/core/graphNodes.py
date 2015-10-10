@@ -1,4 +1,4 @@
-import os, pprint
+import os, pprint, collections
 from lib.env import studio
 from lib.system import procFile as pFile
 
@@ -276,7 +276,7 @@ class SysData(Node):
         :return: Node exec cmd
         :rtype: str
         """
-        return '%s %s' % (studio.python27, pFile.conformPath(os.path.realpath(scriptFile)))
+        return "os.system('%s %s')" % (studio.python27, pFile.conformPath(scriptFile))
 
 
 class CmdData(Node):
@@ -289,12 +289,12 @@ class CmdData(Node):
 
     _nodeColor = (60, 135, 255, 255)
     _nodeIcon = 'cmdData.svg'
-    _launchers = dict(maya2014=pFile.conformPath(studio.maya),
-                      mayaBatch2014=pFile.conformPath(studio.mayaBatch),
-                      mayaPy2014=pFile.conformPath(studio.mayaPy),
-                      mayaRender2014=pFile.conformPath(studio.mayaRender),
-                      nuke5=pFile.conformPath(studio.nuke5),
-                      nuke9=pFile.conformPath(studio.nuke9))
+    _launchers = collections.OrderedDict([('maya2014', pFile.conformPath(studio.maya)),
+                                          ('mayaBatch2014', pFile.conformPath(studio.mayaBatch)),
+                                          ('mayaPy2014', pFile.conformPath(studio.mayaPy)),
+                                          ('mayaRender2014', pFile.conformPath(studio.mayaRender)),
+                                          ('nuke5', pFile.conformPath(studio.nuke5)),
+                                          ('nuke9', pFile.conformPath(studio.nuke9))])
 
     def __init__(self, nodeName=None):
         super(CmdData, self).__init__(nodeName)
@@ -314,12 +314,25 @@ class CmdData(Node):
         """
         launcher = self.nodeLauncher[self.nodeVersion]
         launcherCmd = self._launchers[launcher]
+        #-- Init Command --#
+        cmd = ""
+        cmd += "os.system('"
+        cmd += "%s" % launcherCmd
+        #-- Add Launcher Arguments --#
+        if self.nodeLaunchArgs[self.nodeVersion]:
+            cmd += " ' + %s + '" % self.nodeLaunchArgs[self.nodeVersion]
+        #-- Mel Launcher --#
         if launcher in ['maya2014', 'mayaBatch2014']:
             launchFile = scriptFile.replace('.py', '.mel')
-            melTxt = ['trace "toto";','python("execfile(%r)");' % pFile.conformPath(os.path.realpath(scriptFile))]
+            melTxt = ['python("execfile(%r)");' % pFile.conformPath(scriptFile)]
             pFile.writeFile(launchFile, '\n'.join(melTxt))
-            return '%s -script %s' % (launcherCmd, pFile.conformPath(os.path.realpath(launchFile)))
-        return '%s %s' % (launcherCmd, pFile.conformPath(scriptFile))
+            cmd += " -script %s" % pFile.conformPath(launchFile)
+            cmd += "')"
+            return cmd
+        #-- Py Launcher --#
+        cmd += " %s" % pFile.conformPath(scriptFile)
+        cmd += "')"
+        return cmd
 
 
 class PurData(Node):

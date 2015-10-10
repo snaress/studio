@@ -137,6 +137,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
             if hasattr(self.node, 'nodeLauncher'):
                 launcher = self.node.nodeLauncher[self.node.nodeVersion]
                 self.nodeLauncher.cbLauncher.setCurrentIndex(self.nodeLauncher.cbLauncher.findText(launcher))
+                self.nodeLauncher.leArgs.setText(self.node.nodeLaunchArgs[self.node.nodeVersion])
         self.teTrash.setPlainText(self.node.nodeTrash[self.node.nodeVersion])
 
     def connectItem(self, item):
@@ -255,7 +256,7 @@ class Launcher(QtGui.QWidget, wgLauncherUI.Ui_wgLauncher):
         Update launcher list
         """
         self.cbLauncher.clear()
-        self.cbLauncher.addItems(sorted(self.pWidget.node._launchers.keys()))
+        self.cbLauncher.addItems(self.pWidget.node._launchers.keys())
 
 
 class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
