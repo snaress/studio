@@ -228,6 +228,7 @@
     <addaction name="miXterm"/>
     <addaction name="separator"/>
     <addaction name="miExecGraph"/>
+    <addaction name="miExecNode"/>
    </widget>
    <addaction name="menuFiles"/>
    <addaction name="menuGraph"/>
@@ -487,6 +488,11 @@
    </property>
    <property name="text">
     <string>Logs</string>
+   </property>
+  </action>
+  <action name="miExecNode">
+   <property name="text">
+    <string>Exec Node</string>
    </property>
   </action>
  </widget>

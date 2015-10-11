@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\graphNode.ui'
 #
-# Created: Sat Sep 05 10:30:23 2015
+# Created: Sat Oct 10 23:26:36 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgGraphNode(object):
     def setupUi(self, wgGraphNode):
         wgGraphNode.setObjectName(_fromUtf8("wgGraphNode"))
-        wgGraphNode.resize(200, 28)
+        wgGraphNode.resize(379, 28)
         wgGraphNode.setMinimumSize(QtCore.QSize(150, 0))
         self.gridLayout = QtGui.QGridLayout(wgGraphNode)
         self.gridLayout.setMargin(0)
@@ -74,7 +74,7 @@ class Ui_wgGraphNode(object):
         font.setWeight(75)
         self.lNodeName.setFont(font)
         self.lNodeName.setAlignment(QtCore.Qt.AlignCenter)
-        self.lNodeName.setMargin(0)
+        self.lNodeName.setMargin(2)
         self.lNodeName.setIndent(-1)
         self.lNodeName.setObjectName(_fromUtf8("lNodeName"))
         self.hlNode.addWidget(self.lNodeName)
@@ -104,6 +104,10 @@ class Ui_wgGraphNode(object):
         self.label_2.setText(_fromUtf8(""))
         self.label_2.setObjectName(_fromUtf8("label_2"))
         self.hlNode.addWidget(self.label_2)
+        self.pbExec = QtGui.QPushButton(wgGraphNode)
+        self.pbExec.setMaximumSize(QtCore.QSize(40, 16))
+        self.pbExec.setObjectName(_fromUtf8("pbExec"))
+        self.hlNode.addWidget(self.pbExec)
         self.line_4 = QtGui.QFrame(wgGraphNode)
         self.line_4.setFrameShape(QtGui.QFrame.VLine)
         self.line_4.setFrameShadow(QtGui.QFrame.Sunken)
@@ -141,4 +145,5 @@ class Ui_wgGraphNode(object):
     def retranslateUi(self, wgGraphNode):
         wgGraphNode.setWindowTitle(_translate("wgGraphNode", "Graph Node", None))
         self.lNodeName.setText(_translate("wgGraphNode", "None", None))
+        self.pbExec.setText(_translate("wgGraphNode", "Exec", None))
 

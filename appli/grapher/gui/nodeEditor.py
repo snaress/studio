@@ -71,6 +71,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         """
         datas = dict(nodeComments=str(self.nodeComment.teText.toHtml()),
                      nodeVariables=self.nodeVar.getDatas(),
+                     nodeExecMode=self.nodeLauncher.cbExecMode.isChecked(),
                      nodeLauncher=str(self.nodeLauncher.cbLauncher.currentText()),
                      nodeLaunchArgs=str(self.nodeLauncher.leArgs.text()),
                      nodeScript=str(self.nodeScript.scriptEditor.getCode()),
@@ -84,7 +85,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.log.detail(">>> Clear NodeEditor")
         for w in [self.leNodeName, self.lTypeValue, self.leVersionTitle, self.cbNodeVersion,
                   self.nodeComment.teText, self.nodeVar.twVar, self.nodeLauncher.cbLauncher,
-                  self.nodeLauncher.leArgs, self.nodeLauncher.lResultVal, self.nodeScript.scriptEditor,
+                  self.nodeLauncher.leArgs, self.nodeScript.scriptEditor,
                   self.teTrash]:
             w.clear()
         self.refresh()
@@ -109,9 +110,14 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.vfScript.setVisible(False)
         if hasattr(self.node, 'nodeScript'):
             self.vfScript.setVisible(True)
-            if hasattr(self.node, 'nodeLauncher'):
+            if not self.node.nodeType == 'purData':
                 self.nodeLauncher.setVisible(True)
-                self.nodeLauncher.updateLaunchers()
+                self.nodeLauncher.vfExecMode.setVisible(True)
+                if hasattr(self.node, 'nodeLauncher'):
+                    self.nodeLauncher.vfLauncher.setVisible(True)
+                    self.nodeLauncher.updateLaunchers()
+                else:
+                    self.nodeLauncher.vfLauncher.setVisible(False)
             else:
                 self.nodeLauncher.setVisible(False)
             spacer = False
@@ -138,6 +144,8 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
                 launcher = self.node.nodeLauncher[self.node.nodeVersion]
                 self.nodeLauncher.cbLauncher.setCurrentIndex(self.nodeLauncher.cbLauncher.findText(launcher))
                 self.nodeLauncher.leArgs.setText(self.node.nodeLaunchArgs[self.node.nodeVersion])
+            if hasattr(self.node, 'nodeExecMode'):
+                self.nodeLauncher.cbExecMode.setChecked(self.node.nodeExecMode[self.node.nodeVersion])
         self.teTrash.setPlainText(self.node.nodeTrash[self.node.nodeVersion])
 
     def connectItem(self, item):
@@ -248,6 +256,7 @@ class Launcher(QtGui.QWidget, wgLauncherUI.Ui_wgLauncher):
     # noinspection PyUnresolvedReferences
     def _setupWidget(self):
         self.setupUi(self)
+        self.cbExecMode.clicked.connect(self.on_execMode)
         self.leArgs.setStyleSheet("background-color: rgb(35, 35, 35);"
                                   "color: rgb(220, 220, 220);")
 
@@ -258,6 +267,17 @@ class Launcher(QtGui.QWidget, wgLauncherUI.Ui_wgLauncher):
         self.cbLauncher.clear()
         self.cbLauncher.addItems(self.pWidget.node._launchers.keys())
 
+    def on_execMode(self):
+        """
+        Command launched when 'Exec Mode' QCheckBox is clicked
+
+        Enable / Disable node exec button
+        """
+        self.pWidget.node.nodeExecMode[self.pWidget.node.nodeVersion] = self.cbExecMode.isChecked()
+        if self.mainUi.graphZone.currentGraphMode == 'tree':
+            self.pWidget.item._widget.rf_execButton()
+        else:
+            self.pWidget.item._widget.widget().rf_execButton()
 
 class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
     """

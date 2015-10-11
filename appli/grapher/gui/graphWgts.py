@@ -30,9 +30,13 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
         self.pbEnable.clicked.connect(self.set_enabled)
         self.pbExpand.clicked.connect(self.set_expanded)
         self.pbExpand.setVisible(False)
+        self.pbExec.setVisible(False)
+        self.pbExec.clicked.connect(self.on_execButton)
+        self.pbExec.setStyleSheet("background-color: rgb(255, 80, 80)")
         self.rf_nodeColor()
         self.rf_enableIcon()
         self.rf_expandIcon()
+        self.rf_execButton()
 
     @property
     def isEnabled(self):
@@ -90,6 +94,15 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
             else:
                 self.pbExpand.setIcon(self.mainUi.graphZone.expandIcon)
 
+    def rf_execButton(self):
+        """
+        refresh exec button visibility
+        """
+        if hasattr(self._item._node, 'nodeExecMode'):
+            self.pbExec.setVisible(self._item._node.nodeExecMode[self._item._node.nodeVersion])
+        else:
+            self.pbExec.setVisible(False)
+
     def set_nodeColor(self, rgba):
         """
         Set graphNode color (used for highlighting selected items)
@@ -133,6 +146,14 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
             self._item.setExpanded(state)
             self.pItem.setExpanded(state)
             self.rf_expandIcon()
+
+    def on_execButton(self):
+        """
+        Command launched when 'Exec' QPushButton is clicked
+
+        Exec node
+        """
+        self.mainUi.on_miExecNode(item=self.pItem)
 
 
 class NodeRenamer(QtGui.QDialog, nodeRenameUI.Ui_dialNodeRename):
@@ -622,11 +643,12 @@ class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
         Import jobs for current graphFile
         """
         self.twJobs.clear()
-        logFiles = os.listdir(self.mainUi.grapher.logsPath) or []
+        logPath = os.path.join(self.mainUi.grapher.graphTmpPath, 'logs')
+        logFiles = os.listdir(logPath) or []
         for logFile in logFiles:
-            self.addJob(os.path.join(self.mainUi.grapher.logsPath, logFile))
+            self.addJob(os.path.join(logPath, logFile))
         if not logFiles:
-            self.log.info("No log files to import: %s" % self.mainUi.grapher.logsPath)
+            self.log.info("No log files to import: %s" % pFile.conformPath(logPath))
 
     def on_delJobs(self):
         """

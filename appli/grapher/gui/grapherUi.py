@@ -108,6 +108,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         #-- Exec --#
         self.miExecGraph.triggered.connect(self.on_miExecGraph)
         self.miExecGraph.setShortcut('Alt+E')
+        self.miExecNode.triggered.connect(partial(self.on_miExecNode, item=None))
+        self.miExecNode.setShortcut('Shift+E')
 
     # noinspection PyUnresolvedReferences
     def _menuDisplay(self):
@@ -368,6 +370,28 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         logFile = self.grapher.execGraph(xTerm=self.graphLogs.showXterm, wait=self.graphLogs.waitAtEnd)
         if not self.graphLogs.cbShowXterm.isChecked():
             self.graphLogs.addJob(logFile)
+
+    def on_miExecNode(self, item=None):
+        """
+        Command launched when 'Exec Node' QMenuItem is triggered
+
+        Exec Node
+        :param item: Item to execute
+        :type item: str
+        """
+        self.log.detail(">>> Launch menuItem 'Exec Node' ...")
+        if item is None:
+            items = self.graphZone.currentGraph.selectedItems() or []
+            if not len(items) == 1:
+                self.log.error("!!! Only one node should be selected !!!")
+                return
+            else:
+                item = items[0]
+        if hasattr(item._item._node, 'nodeExecMode'):
+            logFile = self.grapher.execNode(item._item, xTerm=self.graphLogs.showXterm,
+                                                        wait=self.graphLogs.waitAtEnd)
+            if not self.graphLogs.cbShowXterm.isChecked():
+                self.graphLogs.addJob(logFile)
 
     def on_miToolsOrientChanged(self, orient=False, force=False):
         """

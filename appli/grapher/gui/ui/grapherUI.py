@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Sat Oct 03 00:03:12 2015
+# Created: Sat Oct 10 23:52:11 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -214,6 +214,8 @@ class Ui_mwGrapher(object):
         self.miLogs = QtGui.QAction(mwGrapher)
         self.miLogs.setCheckable(True)
         self.miLogs.setObjectName(_fromUtf8("miLogs"))
+        self.miExecNode = QtGui.QAction(mwGrapher)
+        self.miExecNode.setObjectName(_fromUtf8("miExecNode"))
         self.menuToolBarOrient.addAction(self.miBarHorizontal)
         self.menuToolBarOrient.addAction(self.miBarVertical)
         self.menuToolTabOrient.addAction(self.miTabNorth)
@@ -249,6 +251,7 @@ class Ui_mwGrapher(object):
         self.menuExec.addAction(self.miXterm)
         self.menuExec.addSeparator()
         self.menuExec.addAction(self.miExecGraph)
+        self.menuExec.addAction(self.miExecNode)
         self.menubar.addAction(self.menuFiles.menuAction())
         self.menubar.addAction(self.menuGraph.menuAction())
         self.menubar.addAction(self.menuExec.menuAction())
@@ -308,4 +311,5 @@ class Ui_mwGrapher(object):
         self.miDebugLvl.setText(_translate("mwGrapher", "debug", None))
         self.miDetailLvl.setText(_translate("mwGrapher", "detail", None))
         self.miLogs.setText(_translate("mwGrapher", "Logs", None))
+        self.miExecNode.setText(_translate("mwGrapher", "Exec Node", None))
 

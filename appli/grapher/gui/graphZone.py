@@ -234,13 +234,13 @@ class GraphZone(object):
             self.log.debug("Storing selected nodes ...")
             #-- Store Selected Nodes --#
             for n, item in enumerate(selItems):
-                nodeDict = item._item.getDatas()
+                nodeDict = eval(item._item.getDatas(asString=True)) # Clone: asString=False
                 self.cpBuffer[n] = dict(nodeName=item._item._node.nodeName, nodeChildren={}, nodeDict=nodeDict)
                 if _mode == 'branch':
                     if item._item._children:
                         #-- Store Children --#
                         for c, child in enumerate(item._item.allChildren()):
-                            self.cpBuffer[n]['nodeChildren'][c] = child.getDatas()
+                            self.cpBuffer[n]['nodeChildren'][c] = eval(child.getDatas(asString=True))
             #-- Delete For cut --#
             if rm:
                 self.deleteGraphNodes(selItems)

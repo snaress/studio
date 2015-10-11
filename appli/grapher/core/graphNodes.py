@@ -97,6 +97,8 @@ class Node(object):
                 self.nodeLauncher[newIndex] = self.nodeLauncher[curIndex]
             if hasattr(self, 'nodeLaunchArgs'):
                 self.nodeLaunchArgs[newIndex] = self.nodeLaunchArgs[curIndex]
+            if hasattr(self, 'nodeExecMode'):
+                self.nodeExecMode[newIndex] = self.nodeExecMode[curIndex]
         self.nodeVersion = newIndex
         return self.nodeVersion
 
@@ -127,6 +129,8 @@ class Node(object):
                     self.nodeLauncher.pop(curIndex)
                 if hasattr(self, 'nodeLaunchArgs'):
                     self.nodeLaunchArgs.pop(curIndex)
+                if hasattr(self, 'nodeExecMode'):
+                    self.nodeExecMode.pop(curIndex)
             return newIndex
 
     @staticmethod
@@ -264,6 +268,7 @@ class SysData(Node):
     def __init__(self, nodeName=None):
         super(SysData, self).__init__(nodeName)
         self.nodeType = 'sysData'
+        self.nodeExecMode = {0: False}
         self.nodeScript = {0: ''}
 
     @staticmethod
@@ -299,9 +304,10 @@ class CmdData(Node):
     def __init__(self, nodeName=None):
         super(CmdData, self).__init__(nodeName)
         self.nodeType = 'cmdData'
-        self.nodeScript = {0: ''}
+        self.nodeExecMode = {0: False}
         self.nodeLauncher = {0: 'mayaBatch2014'}
         self.nodeLaunchArgs = {0: ''}
+        self.nodeScript = {0: ''}
 
     def execCommand(self, scriptFile):
         """

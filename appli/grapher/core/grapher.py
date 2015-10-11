@@ -73,7 +73,6 @@ class Grapher(object):
         self.comment = ""
         self.variables = dict()
         self.tree = GraphTree(self)
-        self.createFolders(os.path.join(self.userPath, 'logs'), relative=False)
 
     @property
     def graphPath(self):
@@ -124,23 +123,6 @@ class Grapher(object):
         :rtype: str
         """
         return self._graphFile
-
-    @property
-    def logsPath(self):
-        """
-        Get grapher logs path
-
-        :return: Logs path
-        :rtype: str
-        """
-        rootKey = 'prods'
-        rootIndex = os.path.normpath(self.graphPath).split(os.sep).index(rootKey)
-        folders = os.path.normpath(self.graphPath).split(os.sep)[rootIndex + 1:]
-        logPath = os.path.join(self.userPath, 'logs')
-        for fld in folders:
-            logPath = os.path.join(logPath, fld)
-        logPath = os.path.join(logPath, 'GP_%s' % self.graphName)
-        return logPath
 
     @property
     def graphTmpPath(self):
@@ -364,16 +346,44 @@ class Grapher(object):
         self._execScript(execFile, logFile, xTerm, wait)
         return logFile
 
+    def execNode(self, item, xTerm=True, wait=True):
+        """
+        Execute Node
+
+        :param item: GraphItem to execute
+        :type item: GraphItem
+        :param xTerm: Enable xTerm
+        :type xTerm: bool
+        :param wait: Wait at end
+        :type wait: bool
+        :return: Log file full path
+        :rtype: str
+        """
+        #-- Init --#
+        self.log.info("########## EXEC NODE ##########", newLinesBefor=1)
+        self.log.info("xTerm: %s" % xTerm)
+        self.log.info("wait: %s" % wait)
+        _date = pFile.getDate()
+        _time = pFile.getTime()
+        #-- Compile --#
+        self._createProcessPaths()
+        execFile, logFile = self._createProcessFiles(_date, _time)
+        execTxt = self._initExecScript(execFile, _date, _time)
+        execTxt = self._collecteNodeDatas(item, execTxt)
+        execTxt += self._endExecScript()
+        self._writeExecFile(execFile, execTxt)
+        self._execScript(execFile, logFile, xTerm, wait)
+        return logFile
+
     def _createProcessPaths(self):
         """
         Create process directories
         """
         self.log.info("#--- Create Process Path ---#", newLinesBefor=1)
         self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'exec')))
-        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'launcher')))
+        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'logs')))
         self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'tmpFiles')))
         self.createFolders(os.path.normpath(self.graphScriptPath))
-        self.createFolders(os.path.normpath(self.logsPath), relative=False)
         self.log.detail("\t >>> Create process path done.")
 
     def _createProcessFiles(self, _date, _time):
@@ -389,7 +399,7 @@ class Grapher(object):
         """
         self.log.info("#--- Create Process Files ---#", newLinesBefor=1)
         execFile = os.path.join(self.graphTmpPath, 'exec', '%s--%s--%s.py' % (self.user, _date, _time))
-        logFile = os.path.join(self.logsPath, '%s--%s--%s.txt' % (self.user, _date, _time))
+        logFile = os.path.join(self.graphTmpPath, 'logs', '%s--%s--%s.txt' % (self.user, _date, _time))
         self.log.detail("\t >>> Create process files done.")
         return execFile, logFile
 
@@ -450,24 +460,53 @@ class Grapher(object):
         self.log.info("#--- Parse Graph Tree ---#", newLinesBefor=1)
         for item in self.tree.allItems():
             self.log.detail("\t ---> %s" % item._node.nodeName)
-            #-- Write Script File --#
+            #-- Write Script Files --#
             nodeScriptFile = os.path.join(self.graphScriptPath, '%s.py' % item._node.nodeName)
             parents = item.allParents()
             item._node.writeScript(nodeScriptFile, self.variables, parents)
+            #-- Write Exec File --#
             if item._node.nodeIsActive:
-                if not item._node.nodeType == 'purData':
-                    #-- Get Node Header --#
-                    execTxt += self.__nodeHeader(item._node)
-                    #-- Get Exec Command --#
-                    if hasattr(item._node, 'execCommand'):
-                        nodeCmd = item._node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
-                        execTxt += self.__nodeExecHeader(nodeCmd)
-                        execTxt += self.__nodeEnder(item._node)
+                if not hasattr(item._node, 'nodeExecMode') or not item._node.nodeExecMode[item._node.nodeVersion]:
+                    if not item._node.nodeType == 'purData':
+                        execTxt += self.__nodeHeader(item._node)
+                        if hasattr(item._node, 'execCommand'):
+                            nodeCmd = item._node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
+                            execTxt += self.__nodeExecHeader(nodeCmd)
+                            execTxt += self.__nodeEnder(item._node)
         self.log.detail("\t >>> Parse graph tree done.")
         return execTxt
 
-    @staticmethod
-    def _endExecScript():
+    def _collecteNodeDatas(self, item, execTxt):
+        """
+        Collecte node datas to store in exec script
+
+        :param item: GraphItem to execute
+        :type item: GraphItem
+        :param execTxt: Exec script
+        :type execTxt: str
+        :return: Updated Exec script
+        :rtype: str
+        """
+        self.log.info("#--- Parse Node Branch ---#", newLinesBefor=1)
+        #-- Write Script Files --#
+        nodeScriptFile = None
+        for gpItem in self.tree.allItems():
+            self.log.detail("\t ---> %s" % gpItem._node.nodeName)
+            scriptFile = os.path.join(self.graphScriptPath, '%s.py' % gpItem._node.nodeName)
+            parents = gpItem.allParents()
+            gpItem._node.writeScript(scriptFile, self.variables, parents)
+            if gpItem._node.nodeName == item._node.nodeName:
+                nodeScriptFile = scriptFile
+        #-- Write Exec File --#
+        execTxt += self.__nodeHeader(item._node)
+        if hasattr(item._node, 'execCommand'):
+            nodeCmd = item._node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
+            execTxt += self.__nodeExecHeader(nodeCmd)
+            execTxt += self.__nodeEnder(item._node)
+        self.log.detail("\t >>> Parse graph tree done.")
+        return execTxt
+
+    def _endExecScript(self):
         """
         Store exec script last lines
 
@@ -475,6 +514,9 @@ class Grapher(object):
         :rtype: str
         """
         header = ["\nprint ''", "print ''", "print ''", "print ''", "print ''",
+                  "if os.path.exists(%r):" % pFile.conformPath(os.path.join(self.graphPath, 'Keyboard')),
+                  "    print '>>> Clean unknown folders: Keyboard ...'",
+                  "    os.rmdir(%r)" % pFile.conformPath(os.path.join(self.graphPath, 'Keyboard')),
                   "print '%s%s%s'" % ('=' * 20, '=' * 13, '=' * 20),
                   "print '%s GRAPHER END %s'" % ('=' * 20, '=' * 20),
                   "print '%s%s%s'" % ('=' * 20, '=' * 13, '=' * 20),
