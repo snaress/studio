@@ -43,24 +43,26 @@ def saveSceneAs(sceneName, force=False, keepCurrentName=False):
     """ Save scene with given name
         :param sceneName: Scene absolut path
         :type sceneName: str
-        :param force: Force opening
+        :param force: Force Saving
         :type force: bool
         :param keepCurrentName: Keep original scene name
-        :type keepCurrentName: bool """
+        :type keepCurrentName: bool
+        :return: Saved file
+        :rtype: str """
     currentSceneName = mc.file(q=True, sn=True)
     mc.file(rn=sceneName)
     ext = os.path.splitext(sceneName)[-1]
+    print "Saving Maya Scene: %s" % sceneName
     if ext == '.ma':
-        print "Saving Maya Scene from ascii file: %s" % sceneName
-        mc.file(s=True, type="mayaAscii", f=force)
+        result = mc.file(s=True, type="mayaAscii", f=force)
     elif ext == '.mb':
-        print "Saving Maya Scene from binary file: %s" % sceneName
-        mc.file(s=True, type="mayaBinary", f=force)
+        result = mc.file(s=True, type="mayaBinary", f=force)
     else:
         raise IOError, "Error: Unrecognize extention: %s" % ext
     if keepCurrentName:
         print "Keep Scene Name: %s" % currentSceneName
         mc.file(rn=currentSceneName)
+    return result
 
 def exportSel(sceneName, force=True):
     """ Save selection with given name
