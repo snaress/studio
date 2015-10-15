@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\nodeEditor.ui'
 #
-# Created: Thu Oct 01 00:39:38 2015
+# Created: Sun Oct 11 03:39:14 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -196,11 +196,9 @@ class Ui_wgNodeEditor(object):
         self.hlNodeBtns = QtGui.QHBoxLayout()
         self.hlNodeBtns.setSpacing(1)
         self.hlNodeBtns.setObjectName(_fromUtf8("hlNodeBtns"))
-        self.pbClose = QtGui.QPushButton(wgNodeEditor)
-        self.pbClose.setMinimumSize(QtCore.QSize(60, 20))
-        self.pbClose.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.pbClose.setObjectName(_fromUtf8("pbClose"))
-        self.hlNodeBtns.addWidget(self.pbClose)
+        self.pbExec = QtGui.QPushButton(wgNodeEditor)
+        self.pbExec.setObjectName(_fromUtf8("pbExec"))
+        self.hlNodeBtns.addWidget(self.pbExec)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hlNodeBtns.addItem(spacerItem1)
         self.pbSave = QtGui.QPushButton(wgNodeEditor)
@@ -211,6 +209,11 @@ class Ui_wgNodeEditor(object):
         self.pbCancel.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.pbCancel.setObjectName(_fromUtf8("pbCancel"))
         self.hlNodeBtns.addWidget(self.pbCancel)
+        self.pbClose = QtGui.QPushButton(wgNodeEditor)
+        self.pbClose.setMinimumSize(QtCore.QSize(60, 20))
+        self.pbClose.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.pbClose.setObjectName(_fromUtf8("pbClose"))
+        self.hlNodeBtns.addWidget(self.pbClose)
         self.gridLayout.addLayout(self.hlNodeBtns, 5, 0, 1, 1)
 
         self.retranslateUi(wgNodeEditor)
@@ -229,7 +232,8 @@ class Ui_wgNodeEditor(object):
         self.gbComment.setTitle(_translate("wgNodeEditor", "Comment", None))
         self.gbVariables.setTitle(_translate("wgNodeEditor", "Variables", None))
         self.gbTrash.setTitle(_translate("wgNodeEditor", "Trash", None))
-        self.pbClose.setText(_translate("wgNodeEditor", "Close", None))
+        self.pbExec.setText(_translate("wgNodeEditor", "Exec", None))
         self.pbSave.setText(_translate("wgNodeEditor", "Save", None))
         self.pbCancel.setText(_translate("wgNodeEditor", "Cancel", None))
+        self.pbClose.setText(_translate("wgNodeEditor", "Close", None))
 

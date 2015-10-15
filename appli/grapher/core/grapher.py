@@ -50,7 +50,7 @@ import os, pprint
 from appli import grapher
 from lib.env import studio
 from lib.system import procFile as pFile
-from appli.grapher.core import graphNodes
+from appli.grapher.core import graphTree, graphNodes
 
 
 class Grapher(object):
@@ -72,7 +72,8 @@ class Grapher(object):
         self.studio = studio
         self.comment = ""
         self.variables = dict()
-        self.tree = GraphTree(self)
+        self.tree = graphTree.GraphTree(self)
+        self.gpExec = GrapherExec(self)
 
     @property
     def graphPath(self):
@@ -315,40 +316,22 @@ class Grapher(object):
         except:
             raise IOError("!!! Can not write file %s !!!" % self.graphFullPath)
 
-    #===============================================================================================#
-    #======================================== EXEC COMMANDS ========================================#
-    #===============================================================================================#
 
-    def execGraph(self, xTerm=True, wait=True):
-        """
-        Execute graph
+class GrapherExec(object):
+    """
+    Grapher exec functions, child of Grapher
 
-        :param xTerm: Enable xTerm
-        :type xTerm: bool
-        :param wait: Wait at end
-        :type wait: bool
-        :return: Log file full path
-        :rtype: str
-        """
-        #-- Init --#
-        self.log.info("########## EXEC GRAPH ##########", newLinesBefor=1)
-        self.log.info("xTerm: %s" % xTerm)
-        self.log.info("wait: %s" % wait)
-        _date = pFile.getDate()
-        _time = pFile.getTime()
-        #-- Compile --#
-        self._createProcessPaths()
-        execFile, logFile = self._createProcessFiles(_date, _time)
-        execTxt = self._initExecScript(execFile, _date, _time)
-        execTxt = self._collecteGraphDatas(execTxt)
-        execTxt += self._endExecScript()
-        self._writeExecFile(execFile, execTxt)
-        self._execScript(execFile, logFile, xTerm, wait)
-        return logFile
+    :param grapher: Main parent grapher
+    :type grapher: Grapher
+    """
 
-    def execNode(self, item, xTerm=True, wait=True):
+    def __init__(self, grapher):
+        self.grapher = grapher
+        self.log = self.grapher.log
+
+    def execGraph(self, item=None, xTerm=True, wait=True):
         """
-        Execute Node
+        Execute graph tree. If item is None, execute all active nodes.
 
         :param item: GraphItem to execute
         :type item: GraphItem
@@ -359,34 +342,51 @@ class Grapher(object):
         :return: Log file full path
         :rtype: str
         """
-        #-- Init --#
-        self.log.info("########## EXEC NODE ##########", newLinesBefor=1)
-        self.log.info("xTerm: %s" % xTerm)
-        self.log.info("wait: %s" % wait)
         _date = pFile.getDate()
         _time = pFile.getTime()
+        #-- Init --#
+        if item is None:
+            self.log.info("########## EXEC GRAPH ##########", newLinesBefor=1)
+        else:
+            self.log.info("########## EXEC NODE ##########", newLinesBefor=1)
+        self.log.info("Date: %s -- Time: %s" % (_date, _time))
+        self.log.info("xTerm: %s" % xTerm)
+        self.log.info("wait: %s" % wait)
         #-- Compile --#
-        self._createProcessPaths()
-        execFile, logFile = self._createProcessFiles(_date, _time)
-        execTxt = self._initExecScript(execFile, _date, _time)
-        execTxt = self._collecteNodeDatas(item, execTxt)
-        execTxt += self._endExecScript()
-        self._writeExecFile(execFile, execTxt)
-        self._execScript(execFile, logFile, xTerm, wait)
+        self.createProcessPaths()
+        self.createScriptFiles()
+        execFile, logFile = self.createProcessFiles(_date, _time)
+        execTxt = self.execFileHeader(execFile, _date, _time)
+        execTxt = self.collecteDatas(execTxt, item)
+        execTxt += self.execFileEnder()
+        self.writeExecFile(execFile, execTxt)
+        self.executeFile(execFile, logFile, xTerm, wait)
         return logFile
 
-    def _createProcessPaths(self):
+    def createProcessPaths(self):
         """
         Create process directories
         """
         self.log.info("#--- Create Process Path ---#", newLinesBefor=1)
-        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'exec')))
-        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'logs')))
-        self.createFolders(os.path.normpath(os.path.join(self.graphTmpPath, 'tmpFiles')))
-        self.createFolders(os.path.normpath(self.graphScriptPath))
+        self.grapher.createFolders(os.path.normpath(os.path.join(self.grapher.graphTmpPath, 'exec')))
+        self.grapher.createFolders(os.path.normpath(os.path.join(self.grapher.graphTmpPath, 'logs')))
+        self.grapher.createFolders(os.path.normpath(os.path.join(self.grapher.graphTmpPath, 'tmpFiles')))
+        self.grapher.createFolders(os.path.normpath(self.grapher.graphScriptPath))
         self.log.detail("\t >>> Create process path done.")
 
-    def _createProcessFiles(self, _date, _time):
+    def createScriptFiles(self):
+        """
+        Create script files
+        """
+        self.log.info("#--- create Script Files ---#", newLinesBefor=1)
+        for item in self.grapher.tree.allItems():
+            self.log.detail("\t ---> %s" % item._node.nodeName)
+            nodeScriptFile = os.path.join(self.grapher.graphScriptPath, '%s.py' % item._node.nodeName)
+            parents = item.allParents()
+            item._node.writeScript(nodeScriptFile, self.grapher.variables, parents)
+        self.log.detail("\t >>> Create script files done.")
+
+    def createProcessFiles(self, _date, _time):
         """
         Create process files
 
@@ -398,14 +398,16 @@ class Grapher(object):
         :rtype: str && str
         """
         self.log.info("#--- Create Process Files ---#", newLinesBefor=1)
-        execFile = os.path.join(self.graphTmpPath, 'exec', '%s--%s--%s.py' % (self.user, _date, _time))
-        logFile = os.path.join(self.graphTmpPath, 'logs', '%s--%s--%s.txt' % (self.user, _date, _time))
+        execFile = os.path.join(self.grapher.graphTmpPath, 'exec',
+                                '%s--%s--%s.py' % (self.grapher.user, _date, _time))
+        logFile = os.path.join(self.grapher.graphTmpPath, 'logs',
+                               '%s--%s--%s.txt' % (self.grapher.user, _date, _time))
         self.log.detail("\t >>> Create process files done.")
         return execFile, logFile
 
-    def _initExecScript(self, execFile, _date, _time):
+    def execFileHeader(self, execFile, _date, _time):
         """
-        Store exec script init
+        Store exec script header
 
         :param execFile: ExecFile full path
         :type execFile: str
@@ -422,7 +424,7 @@ class Grapher(object):
                   "print '%s GRAPHER %s'" % ("#" * 20, "#" * 20),
                   "print '%s%s%s'" % ("#" * 20, "#" * 9, "#" * 20),
                   "print 'Date: %s -- Time: %s'" % (_date, _time),
-                  "print 'GraphFile: %s'" % pFile.conformPath(self.graphFullPath),
+                  "print 'GraphFile: %s'" % pFile.conformPath(self.grapher.graphFullPath),
                   "print 'ExecFile: %s'" % pFile.conformPath(execFile),
                   "print ''", "print '#--- Import ---#'"]
         #-- Import --#
@@ -436,11 +438,11 @@ class Grapher(object):
             header.append("from %s import %s" % (k, v))
         #-- Set Path --#
         header.extend(["print ''", "print '#--- Set Path ---#'",
-                       "os.chdir('%s')" % self.graphPath,
+                       "os.chdir('%s')" % self.grapher.graphPath,
                        "print '--->', os.getcwd()"])
         #-- Graph Var --#
         header.extend(["print ''", "print '#--- Set Graph Var ---#'",
-                       graphNodes.Node.conformVarDict(self.variables),
+                       graphNodes.Node.conformVarDict(self.grapher.variables),
                        "print '---> Graph variables setted'"])
         #-- Start Duration --#
         header.append("GP_START_TIME = time.time()")
@@ -448,120 +450,60 @@ class Grapher(object):
         self.log.detail("\t >>> Init exec script done.")
         return '\n'.join(header)
 
-    def _collecteGraphDatas(self, execTxt):
-        """
-        Collecte graph datas to store in exec script
-
-        :param execTxt: Exec script
-        :type execTxt: str
-        :return: Updated Exec script
-        :rtype: str
-        """
-        self.log.info("#--- Parse Graph Tree ---#", newLinesBefor=1)
-        for item in self.tree.allItems():
-            self.log.detail("\t ---> %s" % item._node.nodeName)
-            #-- Write Script Files --#
-            nodeScriptFile = os.path.join(self.graphScriptPath, '%s.py' % item._node.nodeName)
-            parents = item.allParents()
-            item._node.writeScript(nodeScriptFile, self.variables, parents)
-            #-- Write Exec File --#
-            if item._node.nodeIsActive:
-                if not hasattr(item._node, 'nodeExecMode') or not item._node.nodeExecMode[item._node.nodeVersion]:
-                    if not item._node.nodeType == 'purData':
-                        execTxt += self.__nodeHeader(item._node)
-                        if hasattr(item._node, 'execCommand'):
-                            nodeCmd = item._node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
-                            execTxt += self.__nodeExecHeader(nodeCmd)
-                            execTxt += self.__nodeEnder(item._node)
-        self.log.detail("\t >>> Parse graph tree done.")
-        return execTxt
-
-    def _collecteNodeDatas(self, item, execTxt):
+    def collecteDatas(self, execTxt, item=None):
         """
         Collecte node datas to store in exec script
 
-        :param item: GraphItem to execute
-        :type item: GraphItem
         :param execTxt: Exec script
         :type execTxt: str
+        :param item: GraphItem to execute
+        :type item: graphItem.GraphItem
         :return: Updated Exec script
         :rtype: str
         """
-        self.log.info("#--- Parse Node Branch ---#", newLinesBefor=1)
-        #-- Write Script Files --#
-        nodeScriptFile = None
-        for gpItem in self.tree.allItems():
-            self.log.detail("\t ---> %s" % gpItem._node.nodeName)
-            scriptFile = os.path.join(self.graphScriptPath, '%s.py' % gpItem._node.nodeName)
-            parents = gpItem.allParents()
-            gpItem._node.writeScript(scriptFile, self.variables, parents)
-            if gpItem._node.nodeName == item._node.nodeName:
-                nodeScriptFile = scriptFile
-        #-- Write Exec File --#
-        execTxt += self.__nodeHeader(item._node)
-        if hasattr(item._node, 'execCommand'):
-            nodeCmd = item._node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
-            execTxt += self.__nodeExecHeader(nodeCmd)
-            execTxt += self.__nodeEnder(item._node)
-        self.log.detail("\t >>> Parse graph tree done.")
-        return execTxt
+        self.log.info("#--- Collecte Datas ---#", newLinesBefor=1)
+        nodeTxt = execTxt
+        #-- Mode Graph --#
+        if item is None:
+            self.log.detail("\t Mode Graph")
+            for item in self.grapher.tree.allItems():
+                if item._node.nodeIsActive:
+                    if not hasattr(item._node, 'nodeExecMode') or not item._node.nodeExecMode[item._node.nodeVersion]:
+                        if not item._node.nodeType == 'purData':
+                            nodeTxt = self.execFileDatas(nodeTxt, item)
+        #-- Mode Node --#
+        else:
+            self.log.detail("\t Mode Node")
+            parents = item.allParents()
+            parents.reverse()
+            for parent in parents:
+                nodeTxt = self.execFileDatas(nodeTxt, parent)
+            nodeTxt = self.execFileDatas(nodeTxt, item)
+        #-- Result --#
+        self.log.detail("\t >>> Collecte datas done.")
+        return nodeTxt
 
-    def _endExecScript(self):
+    def execFileDatas(self, execTxt, item):
         """
-        Store exec script last lines
+        Store exec script datas
 
-        :return: Script end header
-        :rtype: str
-        """
-        header = ["\nprint ''", "print ''", "print ''", "print ''", "print ''",
-                  "if os.path.exists(%r):" % pFile.conformPath(os.path.join(self.graphPath, 'Keyboard')),
-                  "    print '>>> Clean unknown folders: Keyboard ...'",
-                  "    os.rmdir(%r)" % pFile.conformPath(os.path.join(self.graphPath, 'Keyboard')),
-                  "print '%s%s%s'" % ('=' * 20, '=' * 13, '=' * 20),
-                  "print '%s GRAPHER END %s'" % ('=' * 20, '=' * 20),
-                  "print '%s%s%s'" % ('=' * 20, '=' * 13, '=' * 20),
-                  "print 'Date: %s -- Time: %s' % (procFile.getDate(), procFile.getTime())",
-                  "print 'Duration: %s' % procFile.secondsToStr(time.time() - GP_START_TIME)"]
-        return '\n'.join(header)
-
-    def _writeExecFile(self, execFile, execTxt):
-        """
-        Write exec file
-
-        :param execFile: ExecFile full path
-        :type execFile: str
         :param execTxt: Exec script
         :type execTxt: str
+        :param item: GraphItem to execute
+        :type item: graphItem.GraphItem
+        :return: Node datas
+        :rtype: str
         """
-        self.log.info("#--- Write Exec File ---#", newLinesBefor=1)
-        try:
-            pFile.writeFile(execFile, execTxt)
-            self.log.info("execFile saved: %s" % pFile.conformPath(execFile))
-        except:
-            raise IOError("!!! Can not write execFile: %s !!!" % pFile.conformPath(execFile))
-        self.log.detail("\t >>> Write exec file done.")
-
-    def _execScript(self, execFile, logFile, xTerm, wait):
-        """
-        Execute script file
-
-        :param execFile: ExecFile full path
-        :type execFile: str
-        :param logFile: LogFile full path
-        :type logFile: str
-        :param xTerm: Enable 'Show XTerm'
-        :type xTerm: bool
-        :param wait: Enable 'Wait At End'
-        :type wait: bool
-        """
-        self.log.info("#--- Launch Exec File ---#", newLinesBefor=1)
-        cmd = self.__execCommand(execFile, logFile, xTerm=xTerm, wait=wait)
-        self.log.info("cmd: %s" % cmd)
-        os.system(cmd)
-        self.log.detail("\t >>> Exec file launched.")
+        execTxt += self.nodeHeader(item._node)
+        if hasattr(item._node, 'execCommand'):
+            nodeScriptFile = os.path.join(self.grapher.graphScriptPath, '%s.py' % item._node.nodeName)
+            nodeCmd = item._node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
+            execTxt += self.nodeCommand(nodeCmd)
+            execTxt += self.nodeEnder(item._node)
+        return execTxt
 
     @staticmethod
-    def __nodeHeader(node):
+    def nodeHeader(node):
         """
         Get node header
 
@@ -583,9 +525,9 @@ class Grapher(object):
         return '\n'.join(header)
 
     @staticmethod
-    def __nodeExecHeader(cmd):
+    def nodeCommand(cmd):
         """
-        Get node exec header
+        Get node command
 
         :param cmd: Node exec command
         :type cmd: str
@@ -598,9 +540,9 @@ class Grapher(object):
         return '\n'.join(header)
 
     @staticmethod
-    def __nodeEnder(node):
+    def nodeEnder(node):
         """
-        Get node end process header
+        Get node ender
 
         :param node: Graph node
         :type node: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData |
@@ -614,7 +556,61 @@ class Grapher(object):
                   "print 'Duration: %s' % procFile.secondsToStr(time.time() - GP_NODE_START_TIME)"]
         return '\n'.join(header)
 
-    def __execCommand(self, execFile, logFile, xTerm=True, wait=True):
+    def execFileEnder(self):
+        """
+        Store exec script last lines
+
+        :return: Script end header
+        :rtype: str
+        """
+        header = ["\nprint ''", "print ''", "print ''", "print ''", "print ''",
+                  "if os.path.exists(%r):" % pFile.conformPath(os.path.join(self.grapher.graphPath, 'Keyboard')),
+                  "    print '>>> Clean unknown folders: Keyboard ...'",
+                  "    os.rmdir(%r)" % pFile.conformPath(os.path.join(self.grapher.graphPath, 'Keyboard')),
+                  "print '%s%s%s'" % ('=' * 20, '=' * 13, '=' * 20),
+                  "print '%s GRAPHER END %s'" % ('=' * 20, '=' * 20),
+                  "print '%s%s%s'" % ('=' * 20, '=' * 13, '=' * 20),
+                  "print 'Date: %s -- Time: %s' % (procFile.getDate(), procFile.getTime())",
+                  "print 'Duration: %s' % procFile.secondsToStr(time.time() - GP_START_TIME)"]
+        return '\n'.join(header)
+
+    def writeExecFile(self, execFile, execTxt):
+        """
+        Write exec file
+
+        :param execFile: ExecFile full path
+        :type execFile: str
+        :param execTxt: Exec script
+        :type execTxt: str
+        """
+        self.log.info("#--- Write Exec File ---#", newLinesBefor=1)
+        try:
+            pFile.writeFile(execFile, execTxt)
+            self.log.info("execFile saved: %s" % pFile.conformPath(execFile))
+        except:
+            raise IOError("!!! Can not write execFile: %s !!!" % pFile.conformPath(execFile))
+        self.log.detail("\t >>> Write exec file done.")
+
+    def executeFile(self, execFile, logFile, xTerm, wait):
+        """
+        Execute script file
+
+        :param execFile: ExecFile full path
+        :type execFile: str
+        :param logFile: LogFile full path
+        :type logFile: str
+        :param xTerm: Enable 'Show XTerm'
+        :type xTerm: bool
+        :param wait: Enable 'Wait At End'
+        :type wait: bool
+        """
+        self.log.info("#--- Launch Exec File ---#", newLinesBefor=1)
+        cmd = self.execCommand(execFile, logFile, xTerm=xTerm, wait=wait)
+        self.log.info("cmd: %s" % cmd)
+        os.system(cmd)
+        self.log.detail("\t >>> Exec file launched.")
+
+    def execCommand(self, execFile, logFile, xTerm=True, wait=True):
         """
         Get exec command
 
@@ -631,11 +627,11 @@ class Grapher(object):
         """
         cmd = ''
         #-- Start Options --#
-        cmd += 'start "%s" ' % self.graphFile
+        cmd += 'start "%s" ' % self.grapher.graphFile
         if not xTerm:
             cmd += '/B '
         #-- Batch Options --#
-        cmd += '"%s" ' % os.path.normpath(self.studio.cmdExe)
+        cmd += '"%s" ' % os.path.normpath(self.grapher.studio.cmdExe)
         if wait:
             if xTerm:
                 cmd += '/K '
@@ -644,409 +640,10 @@ class Grapher(object):
         else:
             cmd += '/C '
         #-- Command Options --#
-        cmd += '"%s ' % os.path.normpath(self.studio.python27)
-        cmd += '%s" ' % os.path.normpath(os.path.join(self.graphPath, pFile.conformPath(execFile)))
+        cmd += '"%s ' % os.path.normpath(self.grapher.studio.python27)
+        cmd += '%s" ' % os.path.normpath(os.path.join(self.grapher.graphPath, pFile.conformPath(execFile)))
         #-- Log File --#
         if not xTerm:
             cmd += '>>%s 2>&1' % logFile
         #-- Result --#
         return cmd
-
-
-class GraphTree(object):
-    """
-    Grapher tree, child of Grapher
-
-    :param grapher: Grapher core
-    :type grapher: grapher.Grapher
-    """
-
-    def __init__(self, grapher=None):
-        self.gp = grapher
-        self.log = self.gp.log
-        self.log.info("#-- Init Graph Tree --#", newLinesBefor=1)
-        self._topItems = []
-
-    def getDatas(self, asString=False):
-        """
-        GraphTree datas as dict or string
-
-        :param asString: Return string instead of dict
-        :type asString: bool
-        :return: Tree contents
-        :rtype: dict | str
-        """
-        treeDict = dict()
-        #-- Parse Datas --#
-        for n, item in enumerate(self.allItems()):
-            treeDict[n] = item.getDatas()
-        #-- Return Datas --#
-        if asString:
-            return pprint.pformat(treeDict)
-        return treeDict
-
-    def topItems(self, asString=False):
-        """
-        Get tree top items
-
-        :param asString: Return list of strings instead of objects
-        :type asString: bool
-        :return: Tree top nodes
-        :rtype: list
-        """
-        #-- Return String List --#
-        if asString:
-            topItems = []
-            for item in self._topItems:
-                topItems.append(item._node.nodeName)
-            return topItems
-        #-- Return Object List --#
-        return self._topItems
-
-    def topItemIndex(self, topItem):
-        """
-        Get given topItem index
-
-        :param topItem: Top GraphItem
-        :type topItem: GraphItem
-        :return: Top item index
-        :rtype: int
-        """
-        for n, tItem in enumerate(self.topItems()):
-            if tItem == topItem:
-                return n
-
-    def allItems(self, asString=False):
-        """
-        Get tree all items
-
-        :param asString: Return list of strings instead of objects
-        :type asString: bool
-        :return: Tree top nodes
-        :rtype: list
-        """
-        items = []
-        #-- Get Items --#
-        for topItem in self.topItems():
-            items.append(topItem)
-            items.extend(topItem.allChildren())
-        #-- Return String List --#
-        if asString:
-            allItems = []
-            for item in items:
-                allItems.append(item._node.nodeName)
-            return allItems
-        #-- Return Object List --#
-        return items
-
-    def getItemFromNodeName(self, nodeName):
-        """
-        Get item from given node name
-
-        :param nodeName: Node name
-        :type nodeName: str
-        :return: Tree item
-        :rtype: GraphItem
-        """
-        for item in self.allItems():
-            if item._node.nodeName == nodeName:
-                return item
-
-    def buildTree(self, treeDict):
-        """
-        Build tree from given tree datas
-
-        :param treeDict: Tree datas
-        :type treeDict: dict
-        """
-        for n in sorted(treeDict.keys()):
-            newItem = self.createItem(nodeType=treeDict[n]['nodeType'],
-                                      nodeName=treeDict[n]['nodeName'],
-                                      nodeParent=treeDict[n]['parent'])
-            # noinspection PyUnresolvedReferences
-            newItem._node.setDatas(**treeDict[n])
-
-    def createItem(self, nodeType='modul', nodeName=None, nodeParent=None):
-        """
-        Create and add new tree item
-
-        :param nodeType: 'modul', 'sysData', 'cmdData', 'pyData'
-        :type nodeType: str
-        :param nodeName: New node name
-        :type nodeName: str
-        :param nodeParent: New node parent
-        :type nodeParent: str | Modul | SysData | CmdData | PyData
-        :return: New tree item
-        :rtype: Modul | SysData | CmdData | PyData
-        """
-        if nodeName is None:
-            nodeName = '%s_1' % nodeType
-        newNodeName = self.gp.conformNewNodeName(nodeName)
-        newItem = self._addItem(self._newItem(nodeType, newNodeName), parent=nodeParent)
-        return newItem
-
-    def _newItem(self, nodeType, nodeName):
-        """
-        Create new tree item
-
-        :param nodeType: 'modul', 'sysData', 'cmdData', 'pyData'
-        :type nodeType: str
-        :param nodeName: New node name
-        :type nodeName: str
-        :return: New tree item
-        :rtype: Modul | SysData | CmdData | PurData | Loop
-        """
-        if nodeType == 'modul':
-            return GraphItem(self, graphNodes.Modul(nodeName))
-        elif nodeType == 'sysData':
-            return GraphItem(self, graphNodes.SysData(nodeName))
-        elif nodeType == 'cmdData':
-            return  GraphItem(self, graphNodes.CmdData(nodeName))
-        elif nodeType == 'purData':
-            return GraphItem(self, graphNodes.PurData(nodeName))
-        elif nodeType == 'loop':
-            return GraphItem(self, graphNodes.Loop(nodeName))
-
-    # noinspection PyUnresolvedReferences
-    def _addItem(self, item, parent=None):
-        """
-        Add given item to tree
-
-        :param item: Tree item
-        :rtype: Modul | SysData | CmdData | PyData | Loop
-        :param parent: New node parent
-        :type parent: str | Modul | SysData | CmdData | PyData | Loop
-        :return: New tree item
-        :rtype: Modul | SysData | CmdData | PyData | Loop
-        """
-        if parent is None:
-            self.log.detail("\t ---> Parent %s to world" % item._node.nodeName)
-            self._topItems.append(item)
-        else:
-            if isinstance(parent, str):
-                parent = self.getItemFromNodeName(parent)
-            self.log.detail("\t ---> Parent %s to %s" % (item._node.nodeName, parent._node.nodeName))
-            parent._children.append(item)
-            item._parent = parent
-        return item
-
-    def printData(self):
-        """
-        Print tree datas
-        """
-        print self.getDatas(asString=True)
-
-
-class GraphItem(object):
-    """
-    Grapher tree item, child of Grapher.GraphTree
-
-    :param treeObject: Grapher tree
-    :type treeObject: GraphTree
-    :param nodeObject: Grapher node
-    :type nodeObject: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData | graphNodes.PyData
-    """
-
-    def __init__(self, treeObject, nodeObject):
-        self._tree = treeObject
-        self.log = self._tree.log
-        self.log.debug("#-- Init Graph Item: %s (%s) --#" % (nodeObject.nodeName,
-                                                             nodeObject.nodeType), newLinesBefor=1)
-        self._node = nodeObject
-        self._parent = None
-        self._children = []
-
-    def getDatas(self, asString=False):
-        """
-        Get graphItem datas as dict or string
-
-        :param asString: Return string instead of dict
-        :type asString: bool
-        :return: Item contents
-        :rtype: dict | str
-        """
-        #-- Parse Datas --#
-        nodeDatas = self._node.getDatas()
-        nodeDatas['parent'] = self.parent
-        #-- Return Datas --#
-        if asString:
-            return pprint.pformat(nodeDatas)
-        return nodeDatas
-
-    @property
-    def parent(self):
-        """
-        Get parent node name
-
-        :return: Node parent
-        :rtype: str
-        """
-        if self._parent is None:
-            nodeParent = None
-        else:
-            nodeParent = self._parent._node.nodeName
-        return nodeParent
-
-    @property
-    def children(self):
-        """
-        Get node children
-
-        :return: Node Children
-        :rtype: list
-        """
-        children = []
-        for child in self._children:
-            children.append(child.nodeName)
-        return children
-
-    def allChildren(self, depth=-1):
-        """
-        Get node all children
-
-        :param depth: Number of recursion (-1 = infinite)
-        :type depth: int
-        :return: Node children
-        :rtype: list
-        """
-        children = []
-        #-- Recurse Function --#
-        def recurse(currentItem, depth):
-            children.append(currentItem)
-            if depth != 0:
-                for child in currentItem._children:
-                    recurse(child, depth-1)
-        #-- Get Top Child --#
-        for childItem in self._children:
-            recurse(childItem, depth)
-        #-- Result --#
-        return children
-
-    def allParents(self, depth=-1):
-        """
-        Get node all parents
-
-        :param depth: Number of recursion (-1 = infinite)
-        :type depth: int
-        :return: Node parents
-        :rtype: list
-        """
-        parents = []
-        def recurse(currentItem, depth):
-            parents.append(currentItem)
-            if depth != 0:
-                if currentItem._parent is not None:
-                    recurse(currentItem._parent, depth-1)
-        if self._parent is not None:
-            recurse(self._parent, depth)
-        return parents
-
-    def childItemIndex(self, childItem):
-        """
-        Get given chilItem index
-
-        :param childItem: Child GraphItem
-        :type childItem: GraphItem
-        :return: Child item index
-        :rtype: int
-        """
-        for n, cItem in enumerate(self._children):
-            if cItem == childItem:
-                return n
-
-    def setParent(self, graphItem):
-        """
-        Parent item to given GraphItem
-
-        :param graphItem: Parent item
-        :type graphItem: GraphItem
-        """
-        #-- Remove From Parent Children list --#
-        if self._parent is not None:
-            if self._parent._children:
-                self._parent._children.remove(self)
-        #-- Parent To Given GraphItem --#
-        self._parent = graphItem
-        self._parent._children.append(self)
-
-    def setEnabled(self, state):
-        """
-        Enable item with given state
-
-        :param state: Enable state
-        :type state: bool
-        """
-        self._node.nodeIsEnabled = state
-        self._node.nodeIsActive = state
-        for child in self.allChildren():
-            if child._node.nodeIsEnabled:
-                if child._parent is not None:
-                    if not child._parent._node.nodeIsActive:
-                        child._node.nodeIsActive = False
-                    else:
-                        child._node.nodeIsActive = state
-                else:
-                    child._node.nodeIsActive = state
-            else:
-                child._node.nodeIsActive = False
-
-    def setExpanded(self, state):
-        """
-        Expand item with given state
-
-        :param state: Expand state
-        :type state: bool
-        """
-        self._node.nodeIsExpanded = state
-        if not state:
-            for child in self.allChildren():
-                child._node.nodeIsExpanded = state
-
-    def move(self, side):
-        newIndex = self._getNewIndex(side)
-        if newIndex is not None:
-            if self._parent is None:
-                self._tree._topItems.pop(self._tree.topItemIndex(self))
-                self._tree._topItems.insert(newIndex, self)
-            else:
-                self._parent._children.pop(self._parent.childItemIndex(self))
-                self._parent._children.insert(newIndex, self)
-
-    def _getNewIndex(self, side):
-        """
-        Get new insertion index
-
-        :param side: 'up', 'down'
-        :type side: str
-        :return: New index
-        :rtype: int
-        """
-        #-- Get Current Index --#
-        if self._parent is None:
-            index = self._tree.topItemIndex(self)
-            iCount = len(self._tree._topItems)
-        else:
-            index = self._parent.childItemIndex(self)
-            iCount = len(self._parent._children)
-        #- Side Up New Index --#
-        if side == 'up':
-            if index > 0:
-                newIndex = index - 1
-            else:
-                newIndex = None
-        #-- Side Down New Index --#
-        else:
-            if index < (iCount - 1):
-                newIndex = index + 1
-            else:
-                newIndex = None
-        return newIndex
-
-    def delete(self):
-        """
-        Delete GraphItem
-        """
-        if self._parent is None:
-            self._tree._topItems.remove(self)
-        else:
-            self._parent._children.remove(self)

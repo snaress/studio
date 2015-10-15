@@ -423,21 +423,9 @@
       <number>1</number>
      </property>
      <item>
-      <widget class="QPushButton" name="pbClose">
-       <property name="minimumSize">
-        <size>
-         <width>60</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
+      <widget class="QPushButton" name="pbExec">
        <property name="text">
-        <string>Close</string>
+        <string>Exec</string>
        </property>
       </widget>
      </item>
@@ -477,6 +465,25 @@
        </property>
        <property name="text">
         <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbClose">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Close</string>
        </property>
       </widget>
      </item>

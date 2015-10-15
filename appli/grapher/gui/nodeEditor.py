@@ -31,7 +31,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.log.debug("\t ---> Setup NodeEditor Widget.")
         self.setupUi(self)
         self.gridLayout.setMargin(0)
-        self.gridLayout.setSpacing(1)
+        self.gridLayout.setSpacing(0)
         #-- Node Id --#
         self.leVersionTitle.returnPressed.connect(self.on_versionTitle)
         self.pbSwitch.clicked.connect(self.on_switchVersion)
@@ -56,6 +56,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.teTrash.setStyleSheet("background-color: rgb(150, 150, 150)")
         self.gbTrash.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbTrash, self.teTrash))
         #-- Node Buttons --#
+        self.pbExec.clicked.connect(self.on_exec)
         self.pbSave.clicked.connect(self.on_save)
         self.pbCancel.clicked.connect(self.on_cancel)
         self.pbClose.clicked.connect(self.close)
@@ -101,6 +102,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.nodeLauncher.setVisible(False)
         self.vfScript.setVisible(False)
         self.vfSpacer.setVisible(True)
+        self.pbExec.setVisible(False)
 
     def updateVisibility(self):
         """
@@ -118,6 +120,10 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
                     self.nodeLauncher.updateLaunchers()
                 else:
                     self.nodeLauncher.vfLauncher.setVisible(False)
+                if hasattr(self.node, 'nodeExecMode'):
+                    self.pbExec.setVisible(True)
+                else:
+                    self.pbExec.setVisible(False)
             else:
                 self.nodeLauncher.setVisible(False)
             spacer = False
@@ -215,6 +221,15 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
             self.fdDelVersion = pQt.ConfirmDialog(mess, ['Delete'], [self.delVersion])
             self.fdDelVersion.exec_()
 
+    def on_exec(self):
+        """
+        Command launched when 'Exec' QPushButton is clicked.
+
+        Exec node
+        """
+        if self.item is not None:
+            self.mainUi.on_miExecNode(item=self.item)
+
     def on_save(self):
         """
         Command launched when 'Save' QPushButton is clicked.
@@ -278,6 +293,7 @@ class Launcher(QtGui.QWidget, wgLauncherUI.Ui_wgLauncher):
             self.pWidget.item._widget.rf_execButton()
         else:
             self.pWidget.item._widget.widget().rf_execButton()
+
 
 class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
     """

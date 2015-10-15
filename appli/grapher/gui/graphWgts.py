@@ -313,7 +313,7 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
         item._wLabel.setText(varDict['label'])
         item._wType.setCurrentIndex(varDict['type'])
         if isinstance(varDict['value'], str):
-            item._wValue.setText('"%s"' % varDict['value'])
+            item._wValue.setText('%r' % varDict['value'])
         else:
             item._wValue.setText(str(varDict['value']))
         item._wComment.setText(varDict['comment'])

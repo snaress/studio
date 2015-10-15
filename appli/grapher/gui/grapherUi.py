@@ -367,7 +367,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Exec Graph
         """
         self.log.detail(">>> Launch menuItem 'Exec Graph' ...")
-        logFile = self.grapher.execGraph(xTerm=self.graphLogs.showXterm, wait=self.graphLogs.waitAtEnd)
+        logFile = self.grapher.gpExec.execGraph(xTerm=self.graphLogs.showXterm, wait=self.graphLogs.waitAtEnd)
         if not self.graphLogs.cbShowXterm.isChecked():
             self.graphLogs.addJob(logFile)
 
@@ -388,8 +388,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
             else:
                 item = items[0]
         if hasattr(item._item._node, 'nodeExecMode'):
-            logFile = self.grapher.execNode(item._item, xTerm=self.graphLogs.showXterm,
-                                                        wait=self.graphLogs.waitAtEnd)
+            logFile = self.grapher.gpExec.execGraph(item._item, xTerm=self.graphLogs.showXterm,
+                                                                wait=self.graphLogs.waitAtEnd)
             if not self.graphLogs.cbShowXterm.isChecked():
                 self.graphLogs.addJob(logFile)
 

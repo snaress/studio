@@ -153,7 +153,10 @@ class Node(object):
                 #-- Type Init --#
                 if varDict['type'] == 0:
                     if isinstance(varDict['value'], str):
-                        var.append("%s = %r" % (varDict['label'], varDict['value']))
+                        if '+' in varDict['value'] or '%' in varDict['value']:
+                            var.append("%s = eval(%r)" % (varDict['label'], varDict['value']))
+                        else:
+                            var.append("%s = %r" % (varDict['label'], varDict['value']))
                     else:
                         var.append("%s = %s" % (varDict['label'], varDict['value']))
                 #-- Type Add --#
@@ -164,7 +167,10 @@ class Node(object):
                             var.append("%s.extend(%s)" % (varDict['label'], varDict['value']))
                         else:
                             if isinstance(varDict['value'], basestring):
-                                var.append("%s.append(%r)" % (varDict['label'], varDict['value']))
+                                if '+' in varDict['value'] or '%' in varDict['value']:
+                                    var.append("%s.append(eval(%r))" % (varDict['label'], varDict['value']))
+                                else:
+                                    var.append("%s.append(%r)" % (varDict['label'], varDict['value']))
                             else:
                                 var.append("%s.append(%s)" % (varDict['label'], varDict['value']))
                     #-- Add Dict --#
