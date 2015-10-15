@@ -6,7 +6,7 @@ from PyQt4.Qsci import QsciScintilla
 from appli.grapher.gui import graphWgts
 from lib.system import procFile as pFile
 from lib.qt import textEditor, scriptEditor2
-from appli.grapher.gui.ui import nodeEditorUI, wgLauncherUI, wgScriptUI
+from appli.grapher.gui.ui import nodeEditorUI, wgLauncherUI, wgLoopUI, wgScriptUI
 
 
 class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
@@ -47,6 +47,9 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.nodeVar = graphWgts.Variables(self.mainUi, self)
         self.glVariables.addWidget(self.nodeVar, 0, 0)
         self.gbVariables.clicked.connect(partial(self.mainUi.rf_nodeGroupVisibility, self.gbVariables, self.nodeVar))
+        #-- Node Loop --#
+        self.nodeLoop = Loop(self.mainUi, self)
+        self.vlLoop.addWidget(self.nodeLoop)
         #-- Node Script --#
         self.nodeLauncher = Launcher(self.mainUi, self)
         self.vlScript.addWidget(self.nodeLauncher)
@@ -100,6 +103,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
         self.mainUi.rf_nodeGroupVisibility(self.gbVariables, self.nodeVar)
         self.mainUi.rf_nodeGroupVisibility(self.gbTrash, self.teTrash)
         self.nodeLauncher.setVisible(False)
+        self.vfLoop.setVisible(False)
         self.vfScript.setVisible(False)
         self.vfSpacer.setVisible(True)
         self.pbExec.setVisible(False)
@@ -127,6 +131,10 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
             else:
                 self.nodeLauncher.setVisible(False)
             spacer = False
+        self.vfLoop.setVisible(False)
+        if hasattr(self.node, 'nodeLoopMode'):
+            self.vfLoop.setVisible(True)
+            spacer = True
         self.vfSpacer.setVisible(spacer)
 
     def update(self):
@@ -295,6 +303,50 @@ class Launcher(QtGui.QWidget, wgLauncherUI.Ui_wgLauncher):
             self.pWidget.item._widget.widget().rf_execButton()
 
 
+class Loop(QtGui.QWidget, wgLoopUI.Ui_wgLoop):
+    """
+    Node Loop QWidget, child of NodeEditor
+
+    :param mainUi: Grapher main window
+    :type mainUi: GrapherUi
+    :param pWidget: Parent widget
+    :type: NodeEditor
+    """
+
+    def __init__(self, mainUi, pWidget):
+        self.mainUi = mainUi
+        self.pWidget = pWidget
+        self.log = self.mainUi.log
+        super(Loop, self).__init__()
+        self._setupWidget()
+
+    # noinspection PyUnresolvedReferences
+    def _setupWidget(self):
+        self.setupUi(self)
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setSpacing(0)
+        #-- Loop Mode --#
+        self.rbLoopRange.clicked.connect(self.updateVisibility)
+        self.rbLoopList.clicked.connect(self.updateVisibility)
+        self.rbLoopSingle.clicked.connect(self.updateVisibility)
+        #-- Updates --#
+        self.updateVisibility()
+
+    def updateVisibility(self):
+        """
+        Update widget visibility
+        """
+        self.qfLoopRange.setVisible(False)
+        self.qfLoopList.setVisible(False)
+        self.qfLoopSingle.setVisible(False)
+        if self.rbLoopRange.isChecked():
+            self.qfLoopRange.setVisible(True)
+        elif self.rbLoopList.isChecked():
+            self.qfLoopList.setVisible(True)
+        elif self.rbLoopSingle.isChecked():
+            self.qfLoopSingle.setVisible(True)
+
+
 class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
     """
     Node Script QWidget, child of NodeEditor
@@ -396,6 +448,11 @@ class Script(QtGui.QWidget, wgScriptUI.Ui_wgScript):
             self.scriptEditor.setWhitespaceSize(0)
 
     def on_edge(self):
+        """
+        Command launched when 'Edge' QCheckBox is clicked
+
+        Enable / disable edge limit
+        """
         if self.cbEdge.isChecked():
             self.scriptEditor.setEdgeMode(QsciScintilla.EdgeLine)
         else:

@@ -99,6 +99,8 @@ class Node(object):
                 self.nodeLaunchArgs[newIndex] = self.nodeLaunchArgs[curIndex]
             if hasattr(self, 'nodeExecMode'):
                 self.nodeExecMode[newIndex] = self.nodeExecMode[curIndex]
+        if hasattr(self, 'nodeLoopMode'):
+            self.nodeLoopMode[newIndex] = self.nodeLoopMode[curIndex]
         self.nodeVersion = newIndex
         return self.nodeVersion
 
@@ -131,6 +133,8 @@ class Node(object):
                     self.nodeLaunchArgs.pop(curIndex)
                 if hasattr(self, 'nodeExecMode'):
                     self.nodeExecMode.pop(curIndex)
+            if hasattr(self, 'nodeLoopMode'):
+                self.nodeLoopMode.pop(curIndex)
             return newIndex
 
     @staticmethod
@@ -378,3 +382,4 @@ class Loop(Node):
     def __init__(self, nodeName=None):
         super(Loop, self).__init__(nodeName)
         self.nodeType = 'loop'
+        self.nodeLoopMode = {0: 'range'}

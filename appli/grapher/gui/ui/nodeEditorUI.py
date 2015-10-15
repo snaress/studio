@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\nodeEditor.ui'
 #
-# Created: Sun Oct 11 03:39:14 2015
+# Created: Thu Oct 15 03:54:06 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wgNodeEditor(object):
     def setupUi(self, wgNodeEditor):
         wgNodeEditor.setObjectName(_fromUtf8("wgNodeEditor"))
-        wgNodeEditor.resize(444, 803)
+        wgNodeEditor.resize(496, 833)
         self.gridLayout = QtGui.QGridLayout(wgNodeEditor)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.hlNodeName = QtGui.QHBoxLayout()
@@ -148,6 +148,18 @@ class Ui_wgNodeEditor(object):
         self.glVariables.setMargin(0)
         self.glVariables.setSpacing(0)
         self.glVariables.setObjectName(_fromUtf8("glVariables"))
+        self.vfLoop = QtGui.QFrame(self.splitter)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.vfLoop.sizePolicy().hasHeightForWidth())
+        self.vfLoop.setSizePolicy(sizePolicy)
+        self.vfLoop.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.vfLoop.setObjectName(_fromUtf8("vfLoop"))
+        self.vlLoop = QtGui.QVBoxLayout(self.vfLoop)
+        self.vlLoop.setSpacing(0)
+        self.vlLoop.setMargin(0)
+        self.vlLoop.setObjectName(_fromUtf8("vlLoop"))
         self.vfScript = QtGui.QFrame(self.splitter)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -165,7 +177,7 @@ class Ui_wgNodeEditor(object):
         self.vlSpacer = QtGui.QVBoxLayout(self.vfSpacer)
         self.vlSpacer.setSpacing(0)
         self.vlSpacer.setObjectName(_fromUtf8("vlSpacer"))
-        spacerItem = QtGui.QSpacerItem(18, 230, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        spacerItem = QtGui.QSpacerItem(18, 500, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.vlSpacer.addItem(spacerItem)
         self.gbTrash = QtGui.QGroupBox(self.splitter)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
