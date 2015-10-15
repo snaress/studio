@@ -31,10 +31,10 @@ def importScene(sceneName, force=True):
         :type force: bool """
     ext = os.path.splitext(sceneName)[-1]
     if ext == '.ma':
-        print "Importing Maya Scene from ascii file: %s" % sceneName
+        print "Importing Maya Scene: %s" % sceneName
         mc.file(sceneName, i=True, type="mayaAscii", pr=True, lrd="all", f=force)
     elif ext == '.mb':
-        print "Importing Maya Scene from binary file: %s" % sceneName
+        print "Importing Maya Scene: %s" % sceneName
         mc.file(sceneName, i=True, type="mayaBinary", pr=True, lrd="all", f=force)
     else:
         raise IOError, "Error: Unrecognize extention: %s" % ext
