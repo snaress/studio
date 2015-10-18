@@ -99,8 +99,8 @@ class Node(object):
                 self.nodeLaunchArgs[newIndex] = self.nodeLaunchArgs[curIndex]
             if hasattr(self, 'nodeExecMode'):
                 self.nodeExecMode[newIndex] = self.nodeExecMode[curIndex]
-        if hasattr(self, 'nodeLoopMode'):
-            self.nodeLoopMode[newIndex] = self.nodeLoopMode[curIndex]
+        if hasattr(self, 'nodeLoopParams'):
+            self.nodeLoopParams[newIndex] = self.nodeLoopParams[curIndex]
         self.nodeVersion = newIndex
         return self.nodeVersion
 
@@ -133,8 +133,8 @@ class Node(object):
                     self.nodeLaunchArgs.pop(curIndex)
                 if hasattr(self, 'nodeExecMode'):
                     self.nodeExecMode.pop(curIndex)
-            if hasattr(self, 'nodeLoopMode'):
-                self.nodeLoopMode.pop(curIndex)
+            if hasattr(self, 'nodeLoopParams'):
+                self.nodeLoopParams.pop(curIndex)
             return newIndex
 
     @staticmethod
@@ -382,4 +382,28 @@ class Loop(Node):
     def __init__(self, nodeName=None):
         super(Loop, self).__init__(nodeName)
         self.nodeType = 'loop'
-        self.nodeLoopMode = {0: 'range'}
+        self.nodeLoopParams = {0: {'remote': False, 'mode': 'Incremental',
+                                   'type': 'Range', 'iterator': 'i', 'checkFiles': 'tmpCheck',
+                                   'loopStart': 1, 'loopStop': 100, 'loopStep': 1,
+                                   'loopList': [], 'loopSingle': 1}}
+
+    # noinspection PyTypeChecker
+    def loopCommand(self):
+        """
+        Get node loop command
+
+        :return: Node loop cmd
+        :rtype: str
+        """
+        if self.nodeLoopParams[self.nodeVersion]['type'] == 'Range':
+            loop = "for %s in range(%s, (%s + 1), %s):" % (self.nodeLoopParams[self.nodeVersion]['iterator'],
+                                                           self.nodeLoopParams[self.nodeVersion]['loopStart'],
+                                                           self.nodeLoopParams[self.nodeVersion]['loopStop'],
+                                                           self.nodeLoopParams[self.nodeVersion]['loopStep'])
+        elif self.nodeLoopParams[self.nodeVersion]['type'] == 'List':
+            loop = "for %s in %s:" % (self.nodeLoopParams[self.nodeVersion]['iterator'],
+                                      self.nodeLoopParams[self.nodeVersion]['loopList'])
+        else:
+            loop = "for %s in [%s]:" % (self.nodeLoopParams[self.nodeVersion]['iterator'],
+                                        self.nodeLoopParams[self.nodeVersion]['loopSingle'])
+        return loop

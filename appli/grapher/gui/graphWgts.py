@@ -351,7 +351,8 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
         """
         Command launched when right mouse button is clicked
 
-        :param point: Qt position
+        :param point: Cursor position
+        :type point: QtGui.QPoint
         """
         self.menu.exec_(self.mapToGlobal(point))
 

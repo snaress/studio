@@ -2,6 +2,7 @@ import os
 from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
+from lib.system import procFile as pFile
 from appli.grapher.gui import graphTree, graphScene, graphWgts, nodeEditor
 
 
@@ -104,7 +105,9 @@ class GraphZone(object):
                 6: {'type': 'item', 'title': 'Del Selected', 'key': 'Del', 'cmd': self.on_miDelSelected},
                 7: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
                 8: {'type': 'item', 'title': 'Refresh Graph', 'key': 'F5', 'cmd': self.on_miRefresh},
-                9: {'type': 'item', 'title': 'Unselect All', 'key': 'Esc', 'cmd': self.on_miUnselectAll},}
+                9: {'type': 'item', 'title': 'Unselect All', 'key': 'Esc', 'cmd': self.on_miUnselectAll},
+                10: {'type': 'sep', 'title': None, 'key': None, 'cmd': None},
+                11: {'type': 'item', 'title': 'Clear CheckFiles', 'key': 'Ctrl+Del', 'cmd': self.on_miDelCheckFiles}}
 
     def treeMenuActions(self):
         """
@@ -153,8 +156,24 @@ class GraphZone(object):
                                                   childDict['key'], childDict['cmd'])
                 #-- Add Item --#
                 elif menuDict[n]['type'] in ['item', 'sep']:
-                    self.newMenuItem(QMenu, menuDict[n]['type'], menuDict[n]['title'],
-                                            menuDict[n]['key'], menuDict[n]['cmd'])
+                    #-- Loop Override --#
+                    if menuDict[n]['title'] == 'Clear CheckFiles':
+                        if self.currentGraphMode == 'tree':
+                            selItems = self.graphTree.selectedItems() or []
+                        else:
+                            selItems = self.graphScene.getSelectedNodes()
+                        if selItems:
+                            for item in selItems:
+                                if item._item._node.nodeType == 'loop':
+                                    self.newMenuItem(QMenu, menuDict[n]['type'], menuDict[n]['title'],
+                                                            menuDict[n]['key'], menuDict[n]['cmd'])
+                                    break
+                        else:
+                            continue
+                    #-- Others --#
+                    else:
+                        self.newMenuItem(QMenu, menuDict[n]['type'], menuDict[n]['title'],
+                                                menuDict[n]['key'], menuDict[n]['cmd'])
 
     @staticmethod
     def newMenuItem(QMenu, _type, title, key, cmd):
@@ -530,6 +549,32 @@ class GraphZone(object):
             self.deleteGraphNodes(self.graphTree.selectedItems())
         else:
             self.deleteGraphNodes(self.graphScene.getSelectedNodes())
+
+    def on_miDelCheckFiles(self):
+        self.log.detail(">>> Launch menuItem 'Clear CheckFiles' ...")
+        #-- Get Selected Items --#
+        if self.currentGraphMode == 'tree':
+            selItems = self.graphTree.selectedItems() or []
+        else:
+            selItems = self.graphScene.getSelectedNodes()
+        #-- Get CheckFile BaseName --#
+        loopChecks = dict()
+        for item in selItems:
+            node = item._item._node
+            if node.nodeType == 'loop':
+                self.log.debug("Loop found: %s" % node.nodeName)
+                loopChecks[node.nodeName] = node.nodeLoopParams[node.nodeVersion]['checkFiles']
+        #-- Clear CheckFiles --#
+        if loopChecks.keys():
+            tmpPath = pFile.conformPath(os.path.join(self.grapher.graphTmpPath, 'tmpFiles'))
+            for tmpFile in os.listdir(tmpPath):
+                for k, v in loopChecks.iteritems():
+                    if tmpFile.startswith('%s.' % v) and tmpFile.endswith('.py'):
+                        try:
+                            os.remove(pFile.conformPath(os.path.join(tmpPath, tmpFile)))
+                            self.log.detail("\t ---> %s" % tmpFile)
+                        except:
+                            self.log.warning("\t !!! Can not delete %s" % tmpFile)
 
 
 class GraphView(QtGui.QGraphicsView):

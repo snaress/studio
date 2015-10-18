@@ -1,4 +1,4 @@
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from appli.grapher.gui import graphWgts
 
@@ -20,6 +20,7 @@ class GraphTree(QtGui.QTreeWidget):
         self.log.debug("\t Init GraphTree Widget.")
         self.graphZone = graphZone
         self.grapher = self.graphZone.grapher
+        self.menu = QtGui.QMenu()
         self._setupWidget()
 
     # noinspection PyUnresolvedReferences
@@ -35,6 +36,8 @@ class GraphTree(QtGui.QTreeWidget):
         self.setColumnCount(12)
         self.setIndentation(0)
         self.rf_graphColumns()
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.connect(self, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'), self.on_popupMenu)
 
     def rf_graphColumns(self):
         """
@@ -101,6 +104,16 @@ class GraphTree(QtGui.QTreeWidget):
         QTreeWidgetItem._column = 0
         self.setItemWidget(QTreeWidgetItem, QTreeWidgetItem._column, QTreeWidgetItem._widget)
         self.rf_graphColumns()
+
+    def on_popupMenu(self, point):
+        """
+        Build and launch popup menu
+
+        :param point: Cursor position
+        :type point: QtGui.QPoint
+        """
+        self.graphZone.buildMenu(self.menu)
+        self.menu.exec_(self.mapToGlobal(point))
 
 
 class GraphItem(QtGui.QTreeWidgetItem):

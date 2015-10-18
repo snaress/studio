@@ -1,4 +1,4 @@
-import os
+import os, pprint
 from PyQt4 import QtGui
 from functools import partial
 from lib.qt import procQt as pQt
@@ -78,6 +78,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
                      nodeExecMode=self.nodeLauncher.cbExecMode.isChecked(),
                      nodeLauncher=str(self.nodeLauncher.cbLauncher.currentText()),
                      nodeLaunchArgs=str(self.nodeLauncher.leArgs.text()),
+                     nodeLoopParams=self.nodeLoop.getDatas(),
                      nodeScript=str(self.nodeScript.scriptEditor.getCode()),
                      nodeTrash=str(self.teTrash.toPlainText()))
         return datas
@@ -132,7 +133,7 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
                 self.nodeLauncher.setVisible(False)
             spacer = False
         self.vfLoop.setVisible(False)
-        if hasattr(self.node, 'nodeLoopMode'):
+        if hasattr(self.node, 'nodeLoopParams'):
             self.vfLoop.setVisible(True)
             spacer = True
         self.vfSpacer.setVisible(spacer)
@@ -160,6 +161,9 @@ class NodeEditor(QtGui.QWidget, nodeEditorUI.Ui_wgNodeEditor):
                 self.nodeLauncher.leArgs.setText(self.node.nodeLaunchArgs[self.node.nodeVersion])
             if hasattr(self.node, 'nodeExecMode'):
                 self.nodeLauncher.cbExecMode.setChecked(self.node.nodeExecMode[self.node.nodeVersion])
+        if hasattr(self.node, 'nodeLoopParams'):
+            self.nodeLoop.setDatas(self.node.nodeLoopParams[self.node.nodeVersion])
+            self.nodeLoop.updateVisibility()
         self.teTrash.setPlainText(self.node.nodeTrash[self.node.nodeVersion])
 
     def connectItem(self, item):
@@ -331,6 +335,71 @@ class Loop(QtGui.QWidget, wgLoopUI.Ui_wgLoop):
         self.rbLoopSingle.clicked.connect(self.updateVisibility)
         #-- Updates --#
         self.updateVisibility()
+
+    def getDatas(self, asString=False):
+        """
+        Get loop params
+
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: Loop params
+        :rtype: dict | str
+        """
+        loopParams = dict()
+        #-- Mode --#
+        if self.rbIncremental.isChecked():
+            loopParams['mode'] = 'Incremental'
+        elif self.rbSequential.isChecked():
+            loopParams['mode'] = 'Sequential'
+        #-- Type --#
+        if self.rbLoopRange.isChecked():
+            loopParams['type'] = 'Range'
+        elif self.rbLoopList.isChecked():
+            loopParams['type'] = 'List'
+        elif self.rbLoopSingle.isChecked():
+            loopParams['type'] = 'Single'
+        #-- Others --#
+        loopParams['remote'] = self.cbRemote.isChecked()
+        loopParams['iterator'] = str(self.leLoopIter.text())
+        loopParams['checkFiles'] = str(self.leLoopCheckFile.text())
+        loopParams['loopStart'] = str(self.leRangeStart.text())
+        loopParams['loopStop'] = str(self.leRangeStop.text())
+        loopParams['loopStep'] = str(self.leRangeStep.text())
+        loopParams['loopList'] = str(self.leLoopList.text())
+        loopParams['loopSingle'] = str(self.leLoopSingle.text())
+        #-- Result --#
+        if asString:
+            return pprint.pformat(loopParams)
+        return loopParams
+
+    def setDatas(self, loopParams):
+        """
+        Set loop params
+
+        :param loopParams: Loop datas
+        :type loopParams: dict
+        """
+        #-- Mode --#
+        if loopParams['mode'] == 'Incremental':
+            self.rbIncremental.setChecked(True)
+        elif loopParams['mode'] == 'Sequential':
+            self.rbSequential.setChecked(True)
+        #-- Type --#
+        if loopParams['type'] == 'Range':
+            self.rbLoopRange.setChecked(True)
+        elif loopParams['type'] == 'List':
+            self.rbLoopList.setChecked(True)
+        elif loopParams['type'] == 'Single':
+            self.rbLoopSingle.setChecked(True)
+        #-- Others --#
+        self.cbRemote.setChecked(loopParams['remote'])
+        self.leLoopIter.setText(loopParams['iterator'])
+        self.leLoopCheckFile.setText(loopParams['checkFiles'])
+        self.leRangeStart.setText(str(loopParams['loopStart']))
+        self.leRangeStop.setText(str(loopParams['loopStop']))
+        self.leRangeStep.setText(str(loopParams['loopStep']))
+        self.leLoopList.setText(str(loopParams['loopList']))
+        self.leLoopSingle.setText(str(loopParams['loopSingle']))
 
     def updateVisibility(self):
         """

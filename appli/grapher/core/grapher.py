@@ -328,6 +328,7 @@ class GrapherExec(object):
     def __init__(self, grapher):
         self.grapher = grapher
         self.log = self.grapher.log
+        self.nodeCompiler = NodeCompiler(self.grapher)
 
     def execGraph(self, item=None, xTerm=True, wait=True):
         """
@@ -357,7 +358,7 @@ class GrapherExec(object):
         self.createScriptFiles()
         execFile, logFile = self.createProcessFiles(_date, _time)
         execTxt = self.execFileHeader(execFile, _date, _time)
-        execTxt = self.collecteDatas(execTxt, item)
+        execTxt = self.nodeCompiler.collecteDatas(execTxt, item)
         execTxt += self.execFileEnder()
         self.writeExecFile(execFile, execTxt)
         self.executeFile(execFile, logFile, xTerm, wait)
@@ -429,7 +430,8 @@ class GrapherExec(object):
                   "print ''", "print '#--- Import ---#'"]
         #-- Import --#
         importDict = dict(imp=['os', 'sys', 'time'],
-                          impFrom={'lib.system': 'procFile'})
+                          impFrom={'lib.system': 'procFile',
+                                   'appli.grapher.core': 'grapher'})
         for m in importDict['imp']:
             header.append("print '---> %s'" % m)
             header.append("import %s" % m)
@@ -448,112 +450,6 @@ class GrapherExec(object):
         header.append("GP_START_TIME = time.time()")
         #-- Result --#
         self.log.detail("\t >>> Init exec script done.")
-        return '\n'.join(header)
-
-    def collecteDatas(self, execTxt, item=None):
-        """
-        Collecte node datas to store in exec script
-
-        :param execTxt: Exec script
-        :type execTxt: str
-        :param item: GraphItem to execute
-        :type item: graphItem.GraphItem
-        :return: Updated Exec script
-        :rtype: str
-        """
-        self.log.info("#--- Collecte Datas ---#", newLinesBefor=1)
-        nodeTxt = execTxt
-        #-- Mode Graph --#
-        if item is None:
-            self.log.detail("\t Mode Graph")
-            for item in self.grapher.tree.allItems():
-                if item._node.nodeIsActive:
-                    if not hasattr(item._node, 'nodeExecMode') or not item._node.nodeExecMode[item._node.nodeVersion]:
-                        if not item._node.nodeType == 'purData':
-                            nodeTxt = self.execFileDatas(nodeTxt, item)
-        #-- Mode Node --#
-        else:
-            self.log.detail("\t Mode Node")
-            parents = item.allParents()
-            parents.reverse()
-            for parent in parents:
-                nodeTxt = self.execFileDatas(nodeTxt, parent)
-            nodeTxt = self.execFileDatas(nodeTxt, item)
-        #-- Result --#
-        self.log.detail("\t >>> Collecte datas done.")
-        return nodeTxt
-
-    def execFileDatas(self, execTxt, item):
-        """
-        Store exec script datas
-
-        :param execTxt: Exec script
-        :type execTxt: str
-        :param item: GraphItem to execute
-        :type item: graphItem.GraphItem
-        :return: Node datas
-        :rtype: str
-        """
-        execTxt += self.nodeHeader(item._node)
-        if hasattr(item._node, 'execCommand'):
-            nodeScriptFile = os.path.join(self.grapher.graphScriptPath, '%s.py' % item._node.nodeName)
-            nodeCmd = item._node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
-            execTxt += self.nodeCommand(nodeCmd)
-            execTxt += self.nodeEnder(item._node)
-        return execTxt
-
-    @staticmethod
-    def nodeHeader(node):
-        """
-        Get node header
-
-        :param node: Graph node
-        :type node: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData |
-                    graphNodes.PurData | graphNodes.Loop
-        :return: Node header
-        :rtype: str
-        """
-        header = ["\nprint ''", "print ''", "print ''", "print ''", "print ''",
-                  "print '%s%s%s'" % ('#' * 10, '#' * (len(node.nodeName) + 2), '#' * 10),
-                  "print '%s %s %s'" % ('#' * 10, node.nodeName, '#' * 10),
-                  "print '%s%s%s'" % ('#' * 10, '#' * (len(node.nodeName) + 2), '#' * 10),
-                  "print 'Date: %s -- Time: %s'" % (pFile.getDate(), pFile.getTime()),
-                  "print ''", "print '#--- Set Node Var ---#'",
-                  graphNodes.Node.conformVarDict(node.nodeVariables[node.nodeVersion]),
-                  "print '---> Node variables setted'", "print ''",
-                  "GP_NODE_START_TIME = time.time()"]
-        return '\n'.join(header)
-
-    @staticmethod
-    def nodeCommand(cmd):
-        """
-        Get node command
-
-        :param cmd: Node exec command
-        :type cmd: str
-        :return: Node exec header
-        :rtype: str
-        """
-        header = ["\nprint '#--- Exec Cmd ---#'",
-                  'print %r' % pFile.conformPath(cmd),
-                  "print ''", cmd]
-        return '\n'.join(header)
-
-    @staticmethod
-    def nodeEnder(node):
-        """
-        Get node ender
-
-        :param node: Graph node
-        :type node: graphNodes.Modul | graphNodes.SysData | graphNodes.CmdData |
-                    graphNodes.PurData | graphNodes.Loop
-        :return: Node end process header
-        :rtype: str
-        """
-        header = ["\nprint ''", "print ''",
-                  "print '%s Node End: %s %s'" % ('=' * 20, node.nodeName, '=' * 20),
-                  "print 'Date: %s -- Time: %s' % (procFile.getDate(), procFile.getTime())",
-                  "print 'Duration: %s' % procFile.secondsToStr(time.time() - GP_NODE_START_TIME)"]
         return '\n'.join(header)
 
     def execFileEnder(self):
@@ -647,3 +543,224 @@ class GrapherExec(object):
             cmd += '>>%s 2>&1' % logFile
         #-- Result --#
         return cmd
+
+
+class NodeCompiler(object):
+    """
+    Grapher node compiler functions, child of GrapherExec
+
+    :param grapher: Main parent grapher
+    :type grapher: Grapher
+    """
+
+    def __init__(self, grapher):
+        self.grapher = grapher
+        self.log = self.grapher.log
+
+    @staticmethod
+    def getTab(item):
+        """
+        Get tab text to insert
+
+        :param item: GraphItem to execute
+        :type item: graphTree.GraphItem
+        :return: Tab text
+        :rtype: str
+        """
+        tab = ''
+        for pItem in item.allParents():
+            if pItem._node.nodeType == 'loop':
+                tab += '    '
+        return tab
+
+    @staticmethod
+    def getVarsStr(item, tab):
+        """
+        Get readable variable string text
+
+        :param item: GraphItem to execute
+        :type item: graphTree.GraphItem
+        :param tab: Tab text
+        :type tab: str
+        :return: Variable string
+        :rtype: str
+        """
+        varDict = graphNodes.Node.conformVarDict(item._node.nodeVariables[item._node.nodeVersion])
+        if not tab:
+            return varDict
+        else:
+            lines = varDict.split('\n')
+            if not lines:
+                return varDict
+            else:
+                varLines = []
+                for line in lines:
+                    varLines.append("%s%s" % (tab, line))
+                return '\n'.join(varLines)
+
+    def collecteDatas(self, execTxt, item=None):
+        """
+        Collecte node datas to store in exec script
+
+        :param execTxt: Exec script
+        :type execTxt: str
+        :param item: GraphItem to execute
+        :type item: graphTree.GraphItem
+        :return: Updated Exec script
+        :rtype: str
+        """
+        self.log.info("#--- Collecte Datas ---#", newLinesBefor=1)
+        nodeTxt = execTxt
+        #-- Get Graph Items --#
+        if item is None:
+            self.log.detail("\t Mode Graph")
+            graphItems = self.grapher.tree.allItems()
+            force = False
+        else:
+            self.log.detail("\t Mode Node")
+            graphItems = item.allParents()
+            graphItems.reverse()
+            graphItems.append(item)
+            force =True
+        #-- Parse Graph Items --#
+        for item in graphItems:
+            if item._node.nodeIsActive:
+                if not hasattr(item._node, 'nodeExecMode') or not item._node.nodeExecMode[item._node.nodeVersion] or force:
+                    if not item._node.nodeType == 'purData':
+                        nodeTxt += self.nodeHeader(item)
+                        if hasattr(item._node, 'nodeLoopParams'):
+                            nodeTxt += self.loopDatas(item)
+                        if hasattr(item._node, 'execCommand'):
+                            nodeTxt = self.execFileDatas(nodeTxt, item)
+        #-- Result --#
+        self.log.detail("\t >>> Collecte datas done.")
+        return nodeTxt
+
+    def nodeHeader(self, item):
+        """
+        Get node header
+
+        :param item: GraphItem to execute
+        :type item: graphTree.GraphItem
+        :return: Node header
+        :rtype: str
+        """
+        tab = self.getTab(item)
+        dateLine = "print 'Date: %s -- Time: %s' % (procFile.getDate(), procFile.getTime())"
+        varStr = self.getVarsStr(item, tab)
+        header = ["\n%sprint ''" % tab, "%sprint ''" % tab, "%sprint ''" % tab, "%sprint ''" % tab,
+                  "%sprint '%s%s%s'" % (tab, '#' * 10, '#' * (len(item._node.nodeName) + 2), '#' * 10),
+                  "%sprint '%s %s %s'" % (tab, '#' * 10, item._node.nodeName, '#' * 10),
+                  "%sprint '%s%s%s'" % (tab, '#' * 10, '#' * (len(item._node.nodeName) + 2), '#' * 10),
+                  "%s%s" % (tab, dateLine),
+                  "%sprint ''" % tab, "%sprint '#--- Set Node Var ---#'" % tab,
+                  varStr,
+                  "%sprint '---> Node variables setted'" % tab, "%sprint ''" %tab,
+                  "%sGP_NODE_START_TIME = time.time()" % tab]
+        return '\n'.join(header)
+
+    def loopDatas(self, item):
+        """
+        Store loop params
+
+        :param item: GraphItem to execute
+        :type item: graphItem.GraphItem
+        :return: loop string
+        :rtype: str
+        """
+        tab = self.getTab(item)
+        iterator = item._node.nodeLoopParams[item._node.nodeVersion]['iterator']
+        checkFile = item._node.nodeLoopParams[item._node.nodeVersion]['checkFiles']
+        tmpPath = pFile.conformPath(os.path.join(self.grapher.graphTmpPath, 'tmpFiles'))
+        tmpFile = "procFile.conformPath(os.path.join('%s', '%s.' + %s + '.py'))" % (tmpPath, checkFile, iterator)
+        loopTxt = ["\n%sprint '#--- Set Loop Params ---#'" % tab,
+                   "%s%s" % (tab, item._node.loopCommand()),
+                   "%s    print ''" % tab, "%s    print ''" % tab,
+                   "%s    print '%s'" % (tab, '-' * 80),
+                   "%s    print 'LoopNode: %s'" % (tab, item._node.nodeName),
+                   "%s    print 'Iterator: %s'" % (tab, iterator),
+                   "%s    print 'Iterator:', %s" % (tab, iterator),
+                   "%s    print '%s'" % (tab, '-' * 80),
+                   "%s    print '#--- Check TmpFile ---#'" % tab,
+                   "%s    checkTmpFile = %s" % (tab, tmpFile),
+                   "%s    print 'tmpFile:', checkTmpFile" % tab,
+                   "%s    if os.path.exists(checkTmpFile):" % tab,
+                   "%s        print '---> tmpFile found, skipp iter !'" % tab,
+                   "%s        continue" % tab,
+                   "%s    print '---> Create tmpFile !'" % tab,
+                   "%s    grapher.createCheckFile(checkTmpFile, %r, %s)" % (tab, iterator, iterator)]
+        return '\n'.join(loopTxt)
+
+    def execFileDatas(self, execTxt, item):
+        """
+        Store exec script datas
+
+        :param execTxt: Exec script
+        :type execTxt: str
+        :param item: GraphItem to execute
+        :type item: graphItem.GraphItem
+        :return: Exec string
+        :rtype: str
+        """
+        nodeScriptFile = os.path.join(self.grapher.graphScriptPath, '%s.py' % item._node.nodeName)
+        nodeCmd = item._node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
+        execTxt += self.nodeCommand(nodeCmd, item)
+        execTxt += self.nodeEnder(item)
+        return execTxt
+
+    def nodeCommand(self, cmd, item):
+        """
+        Get node command
+
+        :param cmd: Node exec command
+        :type cmd: str
+        :param item: GraphItem to execute
+        :type item: graphItem.GraphItem
+        :return: Node exec header
+        :rtype: str
+        """
+        tab = self.getTab(item)
+        header = ["\n%sprint '#--- Exec Cmd ---#'" % tab,
+                  '%sprint %r' % (tab, pFile.conformPath(cmd)),
+                  "%sprint ''" % tab, "%s%s" % (tab, cmd)]
+        return '\n'.join(header)
+
+    def nodeEnder(self, item):
+        """
+        Get node ender
+
+        :param item: GraphItem to execute
+        :type item: graphItem.GraphItem
+        :return: Node end process header
+        :rtype: str
+        """
+        tab = self.getTab(item)
+        dateLine = "print 'Date: %s -- Time: %s' % (procFile.getDate(), procFile.getTime())"
+        timeLine = "print 'Duration: %s' % procFile.secondsToStr(time.time() - GP_NODE_START_TIME)"
+        header = ["\n%sprint ''" % tab, "%sprint ''" % tab,
+                  "%sprint '%s Node End: %s %s'" % (tab, '=' * 20, item._node.nodeName, '=' * 20),
+                  "%s%s" % (tab, dateLine), "%s%s" % (tab, timeLine)]
+        return '\n'.join(header)
+
+
+def createCheckFile(tmpCheckFile, iterator, iter):
+    """
+    Create loop check file
+
+    :param tmpCheckFile: Loop check file relative path
+    :type tmpCheckFile: str
+    :param iterator: Loop iterator
+    :type iterator: str
+    :param iter: Current loop iter
+    :type iter: str | int
+    """
+    txt = ["Date = %r" % pFile.getDate(),
+           "Time = %r" % pFile.getTime(),
+           "Station = %r" % os.environ['COMPUTERNAME'],
+           "User = %r" % os.environ['USERNAME'],
+           "Iter = %s" % dict(iterator=iterator, iter=iter)]
+    try:
+        pFile.writeFile(tmpCheckFile, '\n'.join(txt))
+        print "Check file written:", tmpCheckFile
+    except:
+        raise IOError("!!! Can Not write check file: %s !!!" % tmpCheckFile)
