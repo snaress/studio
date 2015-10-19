@@ -156,24 +156,8 @@ class GraphZone(object):
                                                   childDict['key'], childDict['cmd'])
                 #-- Add Item --#
                 elif menuDict[n]['type'] in ['item', 'sep']:
-                    #-- Loop Override --#
-                    if menuDict[n]['title'] == 'Clear CheckFiles':
-                        if self.currentGraphMode == 'tree':
-                            selItems = self.graphTree.selectedItems() or []
-                        else:
-                            selItems = self.graphScene.getSelectedNodes()
-                        if selItems:
-                            for item in selItems:
-                                if item._item._node.nodeType == 'loop':
-                                    self.newMenuItem(QMenu, menuDict[n]['type'], menuDict[n]['title'],
-                                                            menuDict[n]['key'], menuDict[n]['cmd'])
-                                    break
-                        else:
-                            continue
-                    #-- Others --#
-                    else:
-                        self.newMenuItem(QMenu, menuDict[n]['type'], menuDict[n]['title'],
-                                                menuDict[n]['key'], menuDict[n]['cmd'])
+                    self.newMenuItem(QMenu, menuDict[n]['type'], menuDict[n]['title'],
+                                            menuDict[n]['key'], menuDict[n]['cmd'])
 
     @staticmethod
     def newMenuItem(QMenu, _type, title, key, cmd):

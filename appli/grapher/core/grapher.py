@@ -558,20 +558,21 @@ class NodeCompiler(object):
         self.log = self.grapher.log
 
     @staticmethod
-    def getTab(item):
+    def getParentLoops(item):
         """
-        Get tab text to insert
+        Get parent loop nodes
 
         :param item: GraphItem to execute
         :type item: graphTree.GraphItem
-        :return: Tab text
-        :rtype: str
+        :return: Parent loop nodes
+        :rtype: list
         """
-        tab = ''
+        loopNodes = []
         for pItem in item.allParents():
             if pItem._node.nodeType == 'loop':
-                tab += '    '
-        return tab
+                loopNodes.append(pItem)
+        loopNodes.reverse()
+        return loopNodes
 
     @staticmethod
     def getVarsStr(item, tab):
@@ -597,6 +598,20 @@ class NodeCompiler(object):
                 for line in lines:
                     varLines.append("%s%s" % (tab, line))
                 return '\n'.join(varLines)
+
+    def getTab(self, item):
+        """
+        Get tab text to insert
+
+        :param item: GraphItem to execute
+        :type item: graphTree.GraphItem
+        :return: Tab text
+        :rtype: str
+        """
+        tab = ''
+        for n in range(len(self.getParentLoops(item))):
+            tab += '    '
+        return tab
 
     def collecteDatas(self, execTxt, item=None):
         """
@@ -631,7 +646,7 @@ class NodeCompiler(object):
                         if hasattr(item._node, 'nodeLoopParams'):
                             nodeTxt += self.loopDatas(item)
                         if hasattr(item._node, 'execCommand'):
-                            nodeTxt = self.execFileDatas(nodeTxt, item)
+                            nodeTxt += self.execFileDatas2(item)
         #-- Result --#
         self.log.detail("\t >>> Collecte datas done.")
         return nodeTxt
@@ -682,14 +697,50 @@ class NodeCompiler(object):
                    "%s    print 'Iterator:', %s" % (tab, iterator),
                    "%s    print '%s'" % (tab, '-' * 80),
                    "%s    print '#--- Check TmpFile ---#'" % tab,
-                   "%s    checkTmpFile = %s" % (tab, tmpFile),
-                   "%s    print 'tmpFile:', checkTmpFile" % tab,
-                   "%s    if os.path.exists(checkTmpFile):" % tab,
+                   "%s    %s_tmpFile = %s" % (tab, item._node.nodeName, tmpFile),
+                   "%s    print 'tmpFile:', %s_tmpFile" % (tab, item._node.nodeName),
+                   "%s    if os.path.exists(%s_tmpFile):" % (tab, item._node.nodeName),
                    "%s        print '---> tmpFile found, skipp iter !'" % tab,
                    "%s        continue" % tab,
                    "%s    print '---> Create tmpFile !'" % tab,
-                   "%s    grapher.createCheckFile(checkTmpFile, %r, %s)" % (tab, iterator, iterator)]
+                   "%s    grapher.createCheckFile(%s_tmpFile, %r, %r, %s)" % (tab, item._node.nodeName,
+                                                                              item._node.nodeName,
+                                                                              iterator, iterator)]
         return '\n'.join(loopTxt)
+
+    def execFileDatas2(self, item):
+        """
+        Store exec script datas
+
+        :param item: GraphItem to execute
+        :type item: graphItem.GraphItem
+        :return: Exec string
+        :rtype: str
+        """
+        tab = self.getTab(item)
+        nodeScriptFile = os.path.join(os.path.realpath(self.grapher.graphScriptPath), '%s.py' % item._node.nodeName)
+        nodeCmd, melFileNeeded = item._node.execCommand2(pFile.conformPath(nodeScriptFile))
+        nodeTxt = ["\n%sprint ''" % tab, "%sprint '#--- Exec Cmd ---#'" % tab]
+        if melFileNeeded:
+            loopNodes = self.getParentLoops(item)
+            if not loopNodes:
+                melFile = os.path.join(self.grapher.graphTmpPath, 'tmpFiles', '%s.mel' % item._node.nodeName)
+                nodeCmd = "%s -script %s')" % (nodeCmd, pFile.conformPath(os.path.realpath(melFile)))
+                melTxt = ['python("execfile(%r)");' % pFile.conformPath(nodeScriptFile)]
+                melTxt = '\n'.join(melTxt)
+                nodeTxt.extend(["%sprint 'Create mel script file %s'" % (tab, pFile.conformPath(melFile)),
+                                "%stry:" % tab,
+                                "%s    procFile.writeFile(%r, %r)" % (tab, pFile.conformPath(melFile), melTxt),
+                                "%s    print '----> MelFile written: %s'" % (tab, pFile.conformPath(melFile)),
+                                "%sexcept:" % tab,
+                                "%s    raise IOError('!!! Can not write MelFile: %s !!!')" % (tab, melFile),
+                                "%sprint ''" % tab])
+            else:
+                print 'loop'
+        nodeTxt.extend(["%sprint %r" % (tab, pFile.conformPath(nodeCmd)),
+                        "%sprint ''" % tab, "%s%s" % (tab, nodeCmd)])
+        nodeTxt += self.nodeEnder(item)
+        return '\n'.join(nodeTxt)
 
     def execFileDatas(self, execTxt, item):
         """
@@ -720,7 +771,7 @@ class NodeCompiler(object):
         :rtype: str
         """
         tab = self.getTab(item)
-        header = ["\n%sprint '#--- Exec Cmd ---#'" % tab,
+        header = ["\n%sprint ''" % tab, "%sprint '#--- Exec Cmd ---#'" % tab,
                   '%sprint %r' % (tab, pFile.conformPath(cmd)),
                   "%sprint ''" % tab, "%s%s" % (tab, cmd)]
         return '\n'.join(header)
@@ -743,7 +794,7 @@ class NodeCompiler(object):
         return '\n'.join(header)
 
 
-def createCheckFile(tmpCheckFile, iterator, iter):
+def createCheckFile(tmpCheckFile, loopNodeName, iterator, iter):
     """
     Create loop check file
 
@@ -754,13 +805,19 @@ def createCheckFile(tmpCheckFile, iterator, iter):
     :param iter: Current loop iter
     :type iter: str | int
     """
-    txt = ["Date = %r" % pFile.getDate(),
-           "Time = %r" % pFile.getTime(),
-           "Station = %r" % os.environ['COMPUTERNAME'],
-           "User = %r" % os.environ['USERNAME'],
-           "Iter = %s" % dict(iterator=iterator, iter=iter)]
+    #-- Get CheckFile Text --#
+    txt = ["Date = %r" % pFile.getDate(), "Time = %r" % pFile.getTime(),
+           "Station = %r" % os.environ['COMPUTERNAME'], "User = %r" % os.environ['USERNAME'],
+           "LoopNode = %r" % loopNodeName, "Iterator = %r" % iterator]
+    if isinstance(iter, str):
+        txt.append("Iter = %r" % iter)
+    else:
+        txt.append("Iter = %s" % iter)
+    #-- Write CheckFile Text --#
     try:
         pFile.writeFile(tmpCheckFile, '\n'.join(txt))
         print "Check file written:", tmpCheckFile
     except:
         raise IOError("!!! Can Not write check file: %s !!!" % tmpCheckFile)
+
+# def createMelLauncher(tmpMelFile, scriptFile, iterator, iter):

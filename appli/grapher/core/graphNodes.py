@@ -319,6 +319,32 @@ class CmdData(Node):
         self.nodeLaunchArgs = {0: ''}
         self.nodeScript = {0: ''}
 
+    def execCommand2(self, scriptFile):
+        """
+        Get node exec command
+
+        :param scriptFile: Node script file full path
+        :type scriptFile: str
+        :return: Node exec cmd, melFileNeeded
+        :rtype: str, bool
+        """
+        launcher = self.nodeLauncher[self.nodeVersion]
+        launcherCmd = self._launchers[launcher]
+        #-- Init Command --#
+        cmd = ""
+        cmd += "os.system('"
+        cmd += "%s" % launcherCmd
+        #-- Add Launcher Arguments --#
+        if self.nodeLaunchArgs[self.nodeVersion]:
+            cmd += " ' + %s + '" % self.nodeLaunchArgs[self.nodeVersion]
+        #-- Mel Launcher --#
+        if launcher in ['maya2014', 'mayaBatch2014']:
+            return cmd, True
+        #-- Py Launcher --#
+        cmd += " %s" % pFile.conformPath(scriptFile)
+        cmd += "')"
+        return cmd, False
+
     def execCommand(self, scriptFile):
         """
         Get node exec command
@@ -395,15 +421,19 @@ class Loop(Node):
         :return: Node loop cmd
         :rtype: str
         """
+        #-- Mode Range --#
         if self.nodeLoopParams[self.nodeVersion]['type'] == 'Range':
             loop = "for %s in range(%s, (%s + 1), %s):" % (self.nodeLoopParams[self.nodeVersion]['iterator'],
                                                            self.nodeLoopParams[self.nodeVersion]['loopStart'],
                                                            self.nodeLoopParams[self.nodeVersion]['loopStop'],
                                                            self.nodeLoopParams[self.nodeVersion]['loopStep'])
+        #-- Mode List --#
         elif self.nodeLoopParams[self.nodeVersion]['type'] == 'List':
             loop = "for %s in %s:" % (self.nodeLoopParams[self.nodeVersion]['iterator'],
                                       self.nodeLoopParams[self.nodeVersion]['loopList'])
+        #-- Mode Single --#
         else:
             loop = "for %s in [%s]:" % (self.nodeLoopParams[self.nodeVersion]['iterator'],
                                         self.nodeLoopParams[self.nodeVersion]['loopSingle'])
+        #++ Result --#
         return loop
