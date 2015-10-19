@@ -50,7 +50,7 @@ import os, pprint
 from appli import grapher
 from lib.env import studio
 from lib.system import procFile as pFile
-from appli.grapher.core import graphTree, graphNodes
+from appli.grapher.core import grapherCmds, graphTree, graphNodes
 
 
 class Grapher(object):
@@ -370,6 +370,7 @@ class GrapherExec(object):
         """
         self.log.info("#--- Create Process Path ---#", newLinesBefor=1)
         self.grapher.createFolders(os.path.normpath(os.path.join(self.grapher.graphTmpPath, 'exec')))
+        self.grapher.createFolders(os.path.normpath(os.path.join(self.grapher.graphTmpPath, 'launcher')))
         self.grapher.createFolders(os.path.normpath(os.path.join(self.grapher.graphTmpPath, 'logs')))
         self.grapher.createFolders(os.path.normpath(os.path.join(self.grapher.graphTmpPath, 'tmpFiles')))
         self.grapher.createFolders(os.path.normpath(self.grapher.graphScriptPath))
@@ -381,10 +382,11 @@ class GrapherExec(object):
         """
         self.log.info("#--- create Script Files ---#", newLinesBefor=1)
         for item in self.grapher.tree.allItems():
-            self.log.detail("\t ---> %s" % item._node.nodeName)
-            nodeScriptFile = os.path.join(self.grapher.graphScriptPath, '%s.py' % item._node.nodeName)
-            parents = item.allParents()
-            item._node.writeScript(nodeScriptFile, self.grapher.variables, parents)
+            if hasattr(item._node, 'nodeScript'):
+                self.log.detail("\t ---> %s" % item._node.nodeName)
+                nodeScriptFile = os.path.join(self.grapher.graphScriptPath, '%s.py' % item._node.nodeName)
+                parents = item.allParents()
+                item._node.writeScript(nodeScriptFile, self.grapher.variables, parents)
         self.log.detail("\t >>> Create script files done.")
 
     def createProcessFiles(self, _date, _time):
@@ -431,7 +433,7 @@ class GrapherExec(object):
         #-- Import --#
         importDict = dict(imp=['os', 'sys', 'time'],
                           impFrom={'lib.system': 'procFile',
-                                   'appli.grapher.core': 'grapher'})
+                                   'appli.grapher.core': 'grapherCmds'})
         for m in importDict['imp']:
             header.append("print '---> %s'" % m)
             header.append("import %s" % m)
@@ -444,6 +446,7 @@ class GrapherExec(object):
                        "print '--->', os.getcwd()"])
         #-- Graph Var --#
         header.extend(["print ''", "print '#--- Set Graph Var ---#'",
+                       "gpCmds = grapherCmds",
                        graphNodes.Node.conformVarDict(self.grapher.variables),
                        "print '---> Graph variables setted'"])
         #-- Start Duration --#
@@ -646,7 +649,7 @@ class NodeCompiler(object):
                         if hasattr(item._node, 'nodeLoopParams'):
                             nodeTxt += self.loopDatas(item)
                         if hasattr(item._node, 'execCommand'):
-                            nodeTxt += self.execFileDatas2(item)
+                            nodeTxt += self.execFileDatas(item)
         #-- Result --#
         self.log.detail("\t >>> Collecte datas done.")
         return nodeTxt
@@ -687,28 +690,24 @@ class NodeCompiler(object):
         iterator = item._node.nodeLoopParams[item._node.nodeVersion]['iterator']
         checkFile = item._node.nodeLoopParams[item._node.nodeVersion]['checkFiles']
         tmpPath = pFile.conformPath(os.path.join(self.grapher.graphTmpPath, 'tmpFiles'))
-        tmpFile = "procFile.conformPath(os.path.join('%s', '%s.' + %s + '.py'))" % (tmpPath, checkFile, iterator)
+        tmpFile = "procFile.conformPath(os.path.join('%s', '%s.' + str(%s) + '.py'))" % (tmpPath, checkFile, iterator)
         loopTxt = ["\n%sprint '#--- Set Loop Params ---#'" % tab,
                    "%s%s" % (tab, item._node.loopCommand()),
                    "%s    print ''" % tab, "%s    print ''" % tab,
                    "%s    print '%s'" % (tab, '-' * 80),
                    "%s    print 'LoopNode: %s'" % (tab, item._node.nodeName),
                    "%s    print 'Iterator: %s'" % (tab, iterator),
-                   "%s    print 'Iterator:', %s" % (tab, iterator),
+                   "%s    print 'Iter:', %s" % (tab, iterator),
                    "%s    print '%s'" % (tab, '-' * 80),
-                   "%s    print '#--- Check TmpFile ---#'" % tab,
                    "%s    %s_tmpFile = %s" % (tab, item._node.nodeName, tmpFile),
-                   "%s    print 'tmpFile:', %s_tmpFile" % (tab, item._node.nodeName),
-                   "%s    if os.path.exists(%s_tmpFile):" % (tab, item._node.nodeName),
-                   "%s        print '---> tmpFile found, skipp iter !'" % tab,
-                   "%s        continue" % tab,
-                   "%s    print '---> Create tmpFile !'" % tab,
-                   "%s    grapher.createCheckFile(%s_tmpFile, %r, %r, %s)" % (tab, item._node.nodeName,
-                                                                              item._node.nodeName,
-                                                                              iterator, iterator)]
+                   "%s    result = gpCmds.makeCheckFile(%s_tmpFile, %r, %r, %s)" % (tab, item._node.nodeName,
+                                                                                    item._node.nodeName,
+                                                                                    iterator, iterator),
+                   "%s    if result == 'exists':" % tab,
+                   "%s        continue" % tab]
         return '\n'.join(loopTxt)
 
-    def execFileDatas2(self, item):
+    def execFileDatas(self, item):
         """
         Store exec script datas
 
@@ -717,64 +716,56 @@ class NodeCompiler(object):
         :return: Exec string
         :rtype: str
         """
+        #-- Get Node Exec Info --#
         tab = self.getTab(item)
         nodeScriptFile = os.path.join(os.path.realpath(self.grapher.graphScriptPath), '%s.py' % item._node.nodeName)
-        nodeCmd, melFileNeeded = item._node.execCommand2(pFile.conformPath(nodeScriptFile))
-        nodeTxt = ["\n%sprint ''" % tab, "%sprint '#--- Exec Cmd ---#'" % tab]
-        if melFileNeeded:
-            loopNodes = self.getParentLoops(item)
-            if not loopNodes:
-                melFile = os.path.join(self.grapher.graphTmpPath, 'tmpFiles', '%s.mel' % item._node.nodeName)
+        nodeCmd, melFileNeeded = item._node.execCommand(pFile.conformPath(nodeScriptFile))
+        nodeTxt = ["\n%sprint ''" % tab, "%sprint '#--- Make Launcher ---#'" % tab]
+        loopNodes = self.getParentLoops(item)
+        #-- Mode No Loop --#
+        if not loopNodes:
+            if melFileNeeded:
+                #-- Create Unique Mel Launcher --#
+                melFile = os.path.join(self.grapher.graphTmpPath, 'launcher', '%s.mel' % item._node.nodeName)
                 nodeCmd = "%s -script %s')" % (nodeCmd, pFile.conformPath(os.path.realpath(melFile)))
-                melTxt = ['python("execfile(%r)");' % pFile.conformPath(nodeScriptFile)]
-                melTxt = '\n'.join(melTxt)
-                nodeTxt.extend(["%sprint 'Create mel script file %s'" % (tab, pFile.conformPath(melFile)),
-                                "%stry:" % tab,
-                                "%s    procFile.writeFile(%r, %r)" % (tab, pFile.conformPath(melFile), melTxt),
-                                "%s    print '----> MelFile written: %s'" % (tab, pFile.conformPath(melFile)),
-                                "%sexcept:" % tab,
-                                "%s    raise IOError('!!! Can not write MelFile: %s !!!')" % (tab, melFile),
-                                "%sprint ''" % tab])
+                nodeTxt.extend(["%sprint 'Create launcher file %s'" % (tab, pFile.conformPath(melFile)),
+                                "%sgpCmds.makeLauncher(%r, %r)" % (tab, pFile.conformPath(melFile),
+                                                                   pFile.conformPath(nodeScriptFile))])
+        #-- Mode Loop --#
+        else:
+            #-- Get Loop File Info --#
+            loopChecks = "["
+            launchFile = '"%s' % os.path.join(os.path.realpath(self.grapher.graphTmpPath), 'launcher')
+            launchFile += '/%s' % item._node.nodeName
+            for loop in loopNodes:
+                loopChecks += " %s_tmpFile," % loop._node.nodeName
+                launchFile += '." + str(%s) + "' % loop._node.nodeLoopParams[loop._node.nodeVersion]['iterator']
+            loopChecks += " ]"
+            #-- Create Launcher --#
+            if melFileNeeded:
+                #-- Create Sequential Mel Launcher --#
+                launchFile += '.mel"'
+                nodeCmd, melFileNeeded = item._node.execCommand(pFile.conformPath(launchFile))
+                nodeCmd = "%s -script" % nodeCmd
             else:
-                print 'loop'
-        nodeTxt.extend(["%sprint %r" % (tab, pFile.conformPath(nodeCmd)),
+                #-- Create Sequential Py Launcher --#
+                launchFile += '.py"'
+                nodeCmd, melFileNeeded = item._node.execCommand(pFile.conformPath(launchFile), remote=True)
+            nodeCmd += " %s' % launchFile)"
+            #-- Edit Node Exec Launcher --#
+            nodeTxt.extend(["%slaunchFile = %s" % (tab, pFile.conformPath(launchFile)),
+                            "%sprint 'Create launcher file %s'" % (tab, pFile.conformPath(launchFile)),
+                            "%sgpCmds.makeLauncher(launchFile, %r, loopChecks=%s)" % (tab,
+                                                                                pFile.conformPath(nodeScriptFile),
+                                                                                loopChecks)])
+        #-- Edit Node Exec Command --#
+        nodeTxt.extend(["\n%sprint ''" % tab, "%sprint '#--- Exec Cmd ---#'" % tab,
+                        "%sprint %r" % (tab, pFile.conformPath(nodeCmd)),
                         "%sprint ''" % tab, "%s%s" % (tab, nodeCmd)])
-        nodeTxt += self.nodeEnder(item)
+        #-- Node Exec Timer --#
+        nodeTxt.append(self.nodeEnder(item))
+        #-- Result --#
         return '\n'.join(nodeTxt)
-
-    def execFileDatas(self, execTxt, item):
-        """
-        Store exec script datas
-
-        :param execTxt: Exec script
-        :type execTxt: str
-        :param item: GraphItem to execute
-        :type item: graphItem.GraphItem
-        :return: Exec string
-        :rtype: str
-        """
-        nodeScriptFile = os.path.join(self.grapher.graphScriptPath, '%s.py' % item._node.nodeName)
-        nodeCmd = item._node.execCommand(pFile.conformPath(os.path.realpath(nodeScriptFile)))
-        execTxt += self.nodeCommand(nodeCmd, item)
-        execTxt += self.nodeEnder(item)
-        return execTxt
-
-    def nodeCommand(self, cmd, item):
-        """
-        Get node command
-
-        :param cmd: Node exec command
-        :type cmd: str
-        :param item: GraphItem to execute
-        :type item: graphItem.GraphItem
-        :return: Node exec header
-        :rtype: str
-        """
-        tab = self.getTab(item)
-        header = ["\n%sprint ''" % tab, "%sprint '#--- Exec Cmd ---#'" % tab,
-                  '%sprint %r' % (tab, pFile.conformPath(cmd)),
-                  "%sprint ''" % tab, "%s%s" % (tab, cmd)]
-        return '\n'.join(header)
 
     def nodeEnder(self, item):
         """
@@ -792,32 +783,3 @@ class NodeCompiler(object):
                   "%sprint '%s Node End: %s %s'" % (tab, '=' * 20, item._node.nodeName, '=' * 20),
                   "%s%s" % (tab, dateLine), "%s%s" % (tab, timeLine)]
         return '\n'.join(header)
-
-
-def createCheckFile(tmpCheckFile, loopNodeName, iterator, iter):
-    """
-    Create loop check file
-
-    :param tmpCheckFile: Loop check file relative path
-    :type tmpCheckFile: str
-    :param iterator: Loop iterator
-    :type iterator: str
-    :param iter: Current loop iter
-    :type iter: str | int
-    """
-    #-- Get CheckFile Text --#
-    txt = ["Date = %r" % pFile.getDate(), "Time = %r" % pFile.getTime(),
-           "Station = %r" % os.environ['COMPUTERNAME'], "User = %r" % os.environ['USERNAME'],
-           "LoopNode = %r" % loopNodeName, "Iterator = %r" % iterator]
-    if isinstance(iter, str):
-        txt.append("Iter = %r" % iter)
-    else:
-        txt.append("Iter = %s" % iter)
-    #-- Write CheckFile Text --#
-    try:
-        pFile.writeFile(tmpCheckFile, '\n'.join(txt))
-        print "Check file written:", tmpCheckFile
-    except:
-        raise IOError("!!! Can Not write check file: %s !!!" % tmpCheckFile)
-
-# def createMelLauncher(tmpMelFile, scriptFile, iterator, iter):

@@ -282,16 +282,20 @@ class SysData(Node):
         self.nodeScript = {0: ''}
 
     @staticmethod
-    def execCommand(scriptFile):
+    def execCommand(scriptFile, remote=False):
         """
         Get node exec command
 
         :param scriptFile: Node script file full path
         :type scriptFile: str
-        :return: Node exec cmd
-        :rtype: str
+        :param remote: Remote state
+        :type remote: bool
+        :return: Node exec cmd, melFileNeeded
+        :rtype: str, bool
         """
-        return "os.system('%s %s')" % (studio.python27, pFile.conformPath(scriptFile))
+        if remote:
+            return "os.system('%s" % studio.python27, False
+        return "os.system('%s %s')" % (studio.python27, pFile.conformPath(scriptFile)), False
 
 
 class CmdData(Node):
@@ -319,7 +323,7 @@ class CmdData(Node):
         self.nodeLaunchArgs = {0: ''}
         self.nodeScript = {0: ''}
 
-    def execCommand2(self, scriptFile):
+    def execCommand(self, scriptFile):
         """
         Get node exec command
 
@@ -344,37 +348,6 @@ class CmdData(Node):
         cmd += " %s" % pFile.conformPath(scriptFile)
         cmd += "')"
         return cmd, False
-
-    def execCommand(self, scriptFile):
-        """
-        Get node exec command
-
-        :param scriptFile: Node script file full path
-        :type scriptFile: str
-        :return: Node exec cmd
-        :rtype: str
-        """
-        launcher = self.nodeLauncher[self.nodeVersion]
-        launcherCmd = self._launchers[launcher]
-        #-- Init Command --#
-        cmd = ""
-        cmd += "os.system('"
-        cmd += "%s" % launcherCmd
-        #-- Add Launcher Arguments --#
-        if self.nodeLaunchArgs[self.nodeVersion]:
-            cmd += " ' + %s + '" % self.nodeLaunchArgs[self.nodeVersion]
-        #-- Mel Launcher --#
-        if launcher in ['maya2014', 'mayaBatch2014']:
-            launchFile = scriptFile.replace('.py', '.mel')
-            melTxt = ['python("execfile(%r)");' % pFile.conformPath(scriptFile)]
-            pFile.writeFile(launchFile, '\n'.join(melTxt))
-            cmd += " -script %s" % pFile.conformPath(launchFile)
-            cmd += "')"
-            return cmd
-        #-- Py Launcher --#
-        cmd += " %s" % pFile.conformPath(scriptFile)
-        cmd += "')"
-        return cmd
 
 
 class PurData(Node):
@@ -408,7 +381,7 @@ class Loop(Node):
     def __init__(self, nodeName=None):
         super(Loop, self).__init__(nodeName)
         self.nodeType = 'loop'
-        self.nodeLoopParams = {0: {'remote': False, 'mode': 'Incremental',
+        self.nodeLoopParams = {0: {'remote': False, 'packet': 5, 'pool': 'default', 'mode': 'Incremental',
                                    'type': 'Range', 'iterator': 'i', 'checkFiles': 'tmpCheck',
                                    'loopStart': 1, 'loopStop': 100, 'loopStep': 1,
                                    'loopList': [], 'loopSingle': 1}}

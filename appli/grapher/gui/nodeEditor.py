@@ -329,6 +329,8 @@ class Loop(QtGui.QWidget, wgLoopUI.Ui_wgLoop):
         self.setupUi(self)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
+        #-- Loop Remote --#
+        self.cbRemote.clicked.connect(self.updateVisibility)
         #-- Loop Mode --#
         self.rbLoopRange.clicked.connect(self.updateVisibility)
         self.rbLoopList.clicked.connect(self.updateVisibility)
@@ -360,6 +362,8 @@ class Loop(QtGui.QWidget, wgLoopUI.Ui_wgLoop):
             loopParams['type'] = 'Single'
         #-- Others --#
         loopParams['remote'] = self.cbRemote.isChecked()
+        loopParams['packet'] = self.sbPacket.value()
+        loopParams['pool'] = str(self.lePool.text())
         loopParams['iterator'] = str(self.leLoopIter.text())
         loopParams['checkFiles'] = str(self.leLoopCheckFile.text())
         loopParams['loopStart'] = str(self.leRangeStart.text())
@@ -393,6 +397,8 @@ class Loop(QtGui.QWidget, wgLoopUI.Ui_wgLoop):
             self.rbLoopSingle.setChecked(True)
         #-- Others --#
         self.cbRemote.setChecked(loopParams['remote'])
+        self.sbPacket.setValue(loopParams['packet'])
+        self.lePool.setText(str(loopParams['pool']))
         self.leLoopIter.setText(loopParams['iterator'])
         self.leLoopCheckFile.setText(loopParams['checkFiles'])
         self.leRangeStart.setText(str(loopParams['loopStart']))
@@ -408,6 +414,7 @@ class Loop(QtGui.QWidget, wgLoopUI.Ui_wgLoop):
         self.qfLoopRange.setVisible(False)
         self.qfLoopList.setVisible(False)
         self.qfLoopSingle.setVisible(False)
+        self.hfRemoteOptions.setVisible(self.cbRemote.isChecked())
         if self.rbLoopRange.isChecked():
             self.qfLoopRange.setVisible(True)
         elif self.rbLoopList.isChecked():

@@ -176,6 +176,7 @@ class NodeRenamer(QtGui.QDialog, nodeRenameUI.Ui_dialNodeRename):
     def _setupUi(self):
         self.setupUi(self)
         self.lCurrentNodeVal.setText(self.item._item._node.nodeName)
+        self.leNewName.setText(self.item._item._node.nodeName)
         self.leNewName.textChanged.connect(self.updateResult)
         self.pbOk.clicked.connect(self.accept)
         self.pbCancel.clicked.connect(self.close)
