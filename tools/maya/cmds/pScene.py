@@ -9,46 +9,63 @@ except:
 
 
 def getMayaMainWindow():
-    """ Get maya main window
-        :return: Maya main window
-        :rtype: QtCore.QObject """
+    """
+    Get maya main window
+
+    :return: Maya main window
+    :rtype: QtCore.QObject
+    """
     return sip.wrapinstance(long(mOpen.MQtUtil.mainWindow()), QtCore.QObject)
 
 def loadScene(sceneName, force=True):
-    """ Open given maya scene
-        :param sceneName: Scene absolut path
-        :type sceneName: str
-        :param force: Force opening
-        :type force: bool """
+    """
+    Open given maya scene
+
+    :param sceneName: Scene absolut path
+    :type sceneName: str
+    :param force: Force opening
+    :type force: bool
+    """
     print "Opening Maya Scene: %s" % sceneName
     mc.file(sceneName, o=True, f=force)
 
-def importScene(sceneName, force=True):
-    """ Import given scene
-        :param sceneName: Scene absolut path
-        :type sceneName: str
-        :param force: Force opening
-        :type force: bool """
-    ext = os.path.splitext(sceneName)[-1]
-    if ext == '.ma':
-        print "Importing Maya Scene: %s" % sceneName
-        mc.file(sceneName, i=True, type="mayaAscii", pr=True, lrd="all", f=force)
-    elif ext == '.mb':
-        print "Importing Maya Scene: %s" % sceneName
-        mc.file(sceneName, i=True, type="mayaBinary", pr=True, lrd="all", f=force)
-    else:
-        raise IOError, "Error: Unrecognize extention: %s" % ext
+def importScene(sceneName):
+    """
+    Import given scene
+
+    :param sceneName: Scene absolut path
+    :type sceneName: str
+    :param force: Force opening
+    :type force: bool
+    """
+    print "Importing Maya Scene: %s" % sceneName
+    mc.file(sceneName, i=True)
+
+def referenceScene(sceneName, namespace):
+    """
+    Reference given maya scene
+
+    :param sceneName: Scene absolut path
+    :type sceneName: str
+    :param namespace: Reference namespace
+    :type namespace: str
+    """
+    print "Referencing Maya Scene: %s" % sceneName
+    return mc.file(sceneName, r=True, ns=namespace)
 
 def saveSceneAs(sceneName, force=False, keepCurrentName=False):
-    """ Save scene with given name
-        :param sceneName: Scene absolut path
-        :type sceneName: str
-        :param force: Force Saving
-        :type force: bool
-        :param keepCurrentName: Keep original scene name
-        :type keepCurrentName: bool
-        :return: Saved file
-        :rtype: str """
+    """
+    Save scene with given name
+
+    :param sceneName: Scene absolut path
+    :type sceneName: str
+    :param force: Force Saving
+    :type force: bool
+    :param keepCurrentName: Keep original scene name
+    :type keepCurrentName: bool
+    :return: Saved file
+    :rtype: str
+    """
     currentSceneName = mc.file(q=True, sn=True)
     mc.file(rn=sceneName)
     ext = os.path.splitext(sceneName)[-1]
@@ -65,11 +82,14 @@ def saveSceneAs(sceneName, force=False, keepCurrentName=False):
     return result
 
 def exportSel(sceneName, force=True):
-    """ Save selection with given name
-        :param sceneName: Scene absolut path
-        :type sceneName: str
-        :param force: (bool) : Force opening
-        :type force: bool """
+    """
+    Save selection with given name
+
+    :param sceneName: Scene absolut path
+    :type sceneName: str
+    :param force: (bool) : Force opening
+    :type force: bool
+    """
     ext = os.path.splitext(sceneName)[-1]
     if ext == '.ma':
         print "Saving Maya Scene from ascii file: %s" % sceneName
@@ -81,9 +101,12 @@ def exportSel(sceneName, force=True):
         print "Error: Unrecognize extention: %s" % ext
 
 def wsToDict():
-    """ Store workspace info to dict
-        :return: Workspace info
-        :rtype: dict """
+    """
+    Store workspace info to dict
+
+    :return: Workspace info
+    :rtype: dict
+    """
     wsDict = {'projectName': mc.workspace(q=True, fn=True).split('/')[-1],
               'projectPath': mc.workspace(q=True, fn=True), 'fileRules': {}}
     fr = mc.workspace(q=True, fr=True)
@@ -92,11 +115,14 @@ def wsToDict():
     return wsDict
 
 def wsDictToStr(wsDict=None):
-    """ Convert workspace dict to string
-        :param wsDict: Workspace info (If None, use current workspace)
-        :type wsDict: dict
-        :return: Workspace info
-        :rtype: str """
+    """
+    Convert workspace dict to string
+
+    :param wsDict: Workspace info (If None, use current workspace)
+    :type wsDict: dict
+    :return: Workspace info
+    :rtype: str
+    """
     if wsDict is None:
         wsDict = wsToDict
     txt = ["#-- Workspace Info --#",
@@ -107,12 +133,15 @@ def wsDictToStr(wsDict=None):
     return '\n'.join(txt)
 
 def getNamespace(nodeName, returnList=False):
-    """ Get given node namespace
-        :param nodeName: Node full name
-        :type nodeName: str
-        :param returnList: Return result as list instead of str
-        :return: Node namespace, Node name
-        :rtype: (str | list, str) """
+    """
+    Get given node namespace
+
+    :param nodeName: Node full name
+    :type nodeName: str
+    :param returnList: Return result as list instead of str
+    :return: Node namespace, Node name
+    :rtype: (str | list, str)
+    """
     if ':' in nodeName:
         if returnList:
             return nodeName.split(':')[:-1], nodeName.split(':')[-1]
@@ -123,6 +152,7 @@ def getNamespace(nodeName, returnList=False):
 def getTimeRange():
     """
     Get scene time range
+
     :return: time range info
     :rtype: dict
     """
@@ -132,23 +162,29 @@ def getTimeRange():
             'timeRangeStop': mc.playbackOptions(q=True, aet=True)}
 
 def attrIsLocked(nodeFullName):
-    """ Check if given node attribute is locked
-        :param nodeFullName: 'nodeName.nodeAttr'
-        :type nodeFullName: str
-        :return: Attribute lock state
-        :rtype: bool """
+    """
+    Check if given node attribute is locked
+
+    :param nodeFullName: 'nodeName.nodeAttr'
+    :type nodeFullName: str
+    :return: Attribute lock state
+    :rtype: bool
+    """
     if mc.objExists(nodeFullName):
         return mc.getAttr(nodeFullName, l=True)
     print "!!! WARNING: Node not found: %s !!!" % nodeFullName
 
 def setAttrLock(nodeFullName, state):
-    """ Set given nodeAttr lock on or off
-        :param nodeFullName: 'nodeName.nodeAttr'
-        :type nodeFullName: str
-        :param state: Attribute lock state
-        :type state: bool
-        :return: True if success, else False
-        :rtype: bool """
+    """
+    Set given nodeAttr lock on or off
+
+    :param nodeFullName: 'nodeName.nodeAttr'
+    :type nodeFullName: str
+    :param state: Attribute lock state
+    :type state: bool
+    :return: True if success, else False
+    :rtype: bool
+    """
     if mc.objExists(nodeFullName):
         try:
             mc.setAttr(nodeFullName, l=state)
@@ -161,6 +197,7 @@ def setAttrLock(nodeFullName, state):
 def mayaWarning(message):
     """
     Display maya warning
+
     :param message: Warning to print
     :type message: str
     """
@@ -169,6 +206,7 @@ def mayaWarning(message):
 def mayaError(message):
     """
     Display maya error
+
     :param message: Error to print
     :type message: str
     """
