@@ -27,16 +27,23 @@ class ItemWidget(QtGui.QWidget, graphNodeUI.Ui_wgGraphNode):
     def _setupWidget(self):
         self.log.detail("\t ---> Setup Graph Widget --#")
         self.setupUi(self)
-        self.pbEnable.clicked.connect(self.set_enabled)
         self.pbExpand.clicked.connect(self.set_expanded)
         self.pbExpand.setVisible(False)
         self.pbExec.setVisible(False)
         self.pbExec.clicked.connect(self.on_execButton)
         self.pbExec.setStyleSheet("background-color: rgb(255, 80, 80)")
         self.rf_nodeColor()
-        self.rf_enableIcon()
         self.rf_expandIcon()
         self.rf_execButton()
+        #-- Check if node has enable state --#
+        if self._item._node.nodeType == 'purData':
+            self.pbEnable.setVisible(False)
+        elif hasattr(self._item._node, 'nodeExecMode') and self._item._node.nodeExecMode[self._item._node.nodeVersion]:
+            self.pbEnable.setVisible(False)
+        else:
+            self.pbEnable.setVisible(True)
+            self.pbEnable.clicked.connect(self.set_enabled)
+            self.rf_enableIcon()
 
     @property
     def isEnabled(self):

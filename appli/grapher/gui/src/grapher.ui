@@ -230,8 +230,62 @@
     <addaction name="miExecGraph"/>
     <addaction name="miExecNode"/>
    </widget>
+   <widget class="QMenu" name="menuBank">
+    <property name="title">
+     <string>Bank</string>
+    </property>
+    <widget class="QMenu" name="menuNodes">
+     <property name="title">
+      <string>Nodes</string>
+     </property>
+     <widget class="QMenu" name="menuStudioNodes">
+      <property name="title">
+       <string>Studio</string>
+      </property>
+     </widget>
+     <widget class="QMenu" name="menuProdsNodes">
+      <property name="title">
+       <string>Prods</string>
+      </property>
+     </widget>
+     <widget class="QMenu" name="menuUsersNodes">
+      <property name="title">
+       <string>Users</string>
+      </property>
+     </widget>
+     <addaction name="menuStudioNodes"/>
+     <addaction name="menuProdsNodes"/>
+     <addaction name="menuUsersNodes"/>
+    </widget>
+    <widget class="QMenu" name="menuScripts">
+     <property name="title">
+      <string>Scripts</string>
+     </property>
+     <widget class="QMenu" name="menuStudioScripts">
+      <property name="title">
+       <string>Studio</string>
+      </property>
+     </widget>
+     <widget class="QMenu" name="menuProdsScripts">
+      <property name="title">
+       <string>Prods</string>
+      </property>
+     </widget>
+     <widget class="QMenu" name="menuUsersScripts">
+      <property name="title">
+       <string>Users</string>
+      </property>
+     </widget>
+     <addaction name="menuStudioScripts"/>
+     <addaction name="menuProdsScripts"/>
+     <addaction name="menuUsersScripts"/>
+    </widget>
+    <addaction name="menuNodes"/>
+    <addaction name="menuScripts"/>
+   </widget>
    <addaction name="menuFiles"/>
    <addaction name="menuGraph"/>
+   <addaction name="menuBank"/>
    <addaction name="menuExec"/>
    <addaction name="menuDisplay"/>
    <addaction name="menuHelp"/>
@@ -493,6 +547,36 @@
   <action name="miExecNode">
    <property name="text">
     <string>Exec Node</string>
+   </property>
+  </action>
+  <action name="actionDede">
+   <property name="text">
+    <string>dede</string>
+   </property>
+  </action>
+  <action name="actionDede_2">
+   <property name="text">
+    <string>dede</string>
+   </property>
+  </action>
+  <action name="actionDede_3">
+   <property name="text">
+    <string>dede</string>
+   </property>
+  </action>
+  <action name="actionDede_4">
+   <property name="text">
+    <string>dede</string>
+   </property>
+  </action>
+  <action name="actionDede_5">
+   <property name="text">
+    <string>dede</string>
+   </property>
+  </action>
+  <action name="actionDede_6">
+   <property name="text">
+    <string>dede</string>
    </property>
   </action>
  </widget>
