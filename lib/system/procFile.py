@@ -5,6 +5,7 @@ from lib.env import studio
 def conformPath(path):
     """
     Comform path separator with '/'
+
     :param path: Path to conform
     :type path: str
     :return: Conformed path
@@ -12,11 +13,14 @@ def conformPath(path):
     """
     return path.replace('\\', '/')
 
-def pathToDict(path):
+def pathToDict(path, conformed=False):
     """
     Translate directory contents to dict
+
     :param path: Absolut path
     :type path: str
+    :param conformed: Conform path before storing
+    :type conformed: bool
     :return: Path contents
     :rtype: dict
     """
@@ -24,13 +28,18 @@ def pathToDict(path):
         raise IOError, "!!! ERROR: Path not found!!!\n%s" % path
     pathDict = {'_order': []}
     for root, flds, files in os.walk(path):
-        pathDict['_order'].append(root)
-        pathDict[root] = {'folders': flds, 'files': files}
+        if conformed:
+            rootPath = conformPath(root)
+        else:
+            rootPath = root
+        pathDict['_order'].append(rootPath)
+        pathDict[rootPath] = {'folders': flds, 'files': files}
     return pathDict
 
 def makeDir(directory, verbose=False):
     """
     Create given directory
+
     :param directory: Full directory path
     :type directory: str
     :param verbose: Enable verbose
@@ -52,6 +61,7 @@ def makeDir(directory, verbose=False):
 def mkPathFolders(rootPath, absPath, sep=None):
     """
     Create absPath folders not in rootPath
+
     :param rootPath: Root path
     :type rootPath: str
     :param absPath: Absolut Path
@@ -77,6 +87,7 @@ def mkPathFolders(rootPath, absPath, sep=None):
 def readFile(filePath):
     """
     Get text from file
+
     :param filePath: File absolut path
     :type filePath: str
     :return: Text line by line
@@ -92,6 +103,7 @@ def readFile(filePath):
 def readPyFile(filePath, keepBuiltin=False):
     """
     Get text from pyFile
+
     :param filePath: Python file absolut path
     :type filePath: str
     :param keepBuiltin: Keep builtins key
@@ -113,6 +125,7 @@ def readPyFile(filePath, keepBuiltin=False):
 def writeFile(filePath, textToWrite, add=False):
     """
     Create and edit text file. If file already exists, it is overwritten
+
     :param filePath: File absolut path
     :type filePath: str
     :param textToWrite: Text to edit in file
@@ -137,6 +150,7 @@ def writeFile(filePath, textToWrite, add=False):
 def fileSizeFormat(_bytes, precision=2):
     """
     Returns a humanized string for a given amount of bytes
+
     :param _bytes: File size in bytes
     :type _bytes: int
     :param precision: Precision after coma
@@ -154,6 +168,7 @@ def fileSizeFormat(_bytes, precision=2):
 def secondsToStr(seconds):
     """
     Convert number of seconds into humanized string
+
     :param seconds: Number of seconds
     :type seconds: int
     :return: Humanized string
@@ -169,6 +184,7 @@ def secondsToStr(seconds):
 def getDate():
     """
     Get current date
+
     :return: yyyy_mm_dd
     :rtype: str
     """
@@ -177,6 +193,7 @@ def getDate():
 def getTime():
     """
     Get current time
+
     :return: hh_mm_ss
     :rtype: str
     """
@@ -186,6 +203,7 @@ def getTime():
 class Logger(object):
     """
     Print given message using log levels
+
     :param title: Log title
     :type title: str
     :param level: Log level ('critical', 'error', 'warning', 'info', 'debug', 'detail')
@@ -201,6 +219,7 @@ class Logger(object):
     def critical(self, message, newLinesBefor=0, newLinesAfter=0):
         """
         Print given message with critical level
+
         :param message: Message to print
         :type message: str
         :param newLinesBefor: New lines to insert befor message
@@ -216,6 +235,7 @@ class Logger(object):
     def error(self, message, newLinesBefor=0, newLinesAfter=0):
         """
         Print given message with error level
+
         :param message: Message to print
         :type message: str
         :param newLinesBefor: New lines to insert befor message
@@ -231,6 +251,7 @@ class Logger(object):
     def warning(self, message, newLinesBefor=0, newLinesAfter=0):
         """
         Print given message with warning level
+
         :param message: Message to print
         :type message: str
         :param newLinesBefor: New lines to insert befor message
@@ -246,6 +267,7 @@ class Logger(object):
     def info(self, message, newLinesBefor=0, newLinesAfter=0):
         """
         Print given message with info level
+
         :param message: Message to print
         :type message: str
         :param newLinesBefor: New lines to insert befor message
@@ -261,6 +283,7 @@ class Logger(object):
     def debug(self, message, newLinesBefor=0, newLinesAfter=0):
         """
         Print given message with debug level
+
         :param message: Message to print
         :type message: str
         :param newLinesBefor: New lines to insert befor message
@@ -276,6 +299,7 @@ class Logger(object):
     def detail(self, message, newLinesBefor=0, newLinesAfter=0):
         """
         Print given message with detail level
+
         :param message: Message to print
         :type message: str
         :param newLinesBefor: New lines to insert befor message
@@ -292,6 +316,7 @@ class Logger(object):
     def currentTime(self):
         """
         Get current time
+
         :return: Current time
         :rtype: str
         """
@@ -301,6 +326,7 @@ class Logger(object):
     def _addNewLines(newLines):
         """
         Print new empty lines
+
         :param newLines: Number of new lines to print
         :type newLines: int
         """
@@ -312,10 +338,13 @@ class Logger(object):
 
 
 class Image(object):
-    """ Class to manipulate image or get info from file
-        Usage: ima = Image()
-               r = ima.getInfo(filePath, options=['-fp'], returnAs='dict')
-               r.resizeIma(fileIn, fileOut, resize=(200, 200), ratio=True, force=True, printCmd=True, extern=True) """
+    """
+    Class to manipulate image or get info from file
+
+    Usage: ima = Image()
+           r = ima.getInfo(filePath, options=['-fp'], returnAs='dict')
+           r.resizeIma(fileIn, fileOut, resize=(200, 200), ratio=True, force=True, printCmd=True, extern=True)
+    """
 
     ffmpeg = studio.ffmpeg
     djvInfo = studio.djvInfo
