@@ -214,7 +214,7 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
     :param mainUi: Grapher main window
     :type mainUi: GrapherUi
     :param pWidget: Parent widget
-    :type: GrapherUi | NodeEditor
+    :type pWidget: GrapherUi | NodeEditor
     """
 
     def __init__(self, mainUi, pWidget):
@@ -558,6 +558,12 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
 
 
 class Logs(QtGui.QWidget, wgLogsUI.Ui_wgLogs):
+    """
+    Grapher logs QWidget, child of mainUi
+
+    :param mainUi: Grapher main window
+    :type mainUi: GrapherUi
+    """
 
     def __init__(self, mainUi):
         self.mainUi = mainUi

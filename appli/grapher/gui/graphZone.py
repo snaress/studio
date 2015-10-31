@@ -296,7 +296,11 @@ class GraphZone(object):
                                 if nodeDict['nodeChildren'][c]['parent'] == self.cpBuffer[n]['nodeName']:
                                     nodeParent = newNodeName
                                 else:
-                                    nodeParent = renameDict[nodeDict['nodeChildren'][c]['parent']]
+                                    _name = nodeDict['nodeChildren'][c]['parent']
+                                    if _name in renameDict.keys():
+                                        nodeParent = renameDict[_name]
+                                    else:
+                                        nodeParent = newNodeName
                                 nodeDict['nodeChildren'][c]['parent'] = nodeParent
                                 newChild = self.grapher.tree.createItem(nodeType=nodeDict['nodeChildren'][c]['nodeType'],
                                                                         nodeName=newChildName,

@@ -67,8 +67,9 @@ class Grapher(object):
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="Grapher", level=logLvl)
         self.log.info("#-- Init Grapher Core --#", newLinesBefor=1)
+        self.binPath = grapher.binPath
         self.user = grapher.user
-        self.userPath = os.path.join(grapher.binPath, 'users', self.user)
+        self.userPath = os.path.join(grapher.binPath, 'pref', 'users', self.user)
         self.studio = studio
         self.comment = ""
         self.variables = dict()

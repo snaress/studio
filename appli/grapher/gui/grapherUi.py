@@ -6,7 +6,7 @@ from lib.qt import procQt, textEditor
 from lib.system import procFile as pFile
 from appli.grapher.gui.ui import grapherUI
 from appli.grapher.core.grapher import Grapher
-from appli.grapher.gui import graphZone, toolsWgts, nodeEditor, graphWgts
+from appli.grapher.gui import graphZone, toolsWgts, nodeEditor, graphWgts, graphBank
 
 
 class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
@@ -123,6 +123,8 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.miGraphScene.setShortcut('Tab')
         self.miLogs.triggered.connect(self.on_miLogs)
         self.miLogs.setShortcut('L')
+        self.miBank.triggered.connect(self.on_miBank)
+        self.miBank.setShortcut('B')
         #-- SubMenu 'Tools Bar Orient' --#
         self.miBarHorizontal.triggered.connect(partial(self.on_miToolsOrientChanged,
                                                        orient='horizontal', force=True))
@@ -205,6 +207,23 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         Check if user path and files, needed by Grapher, exists
         """
         self.log.info("Check user path ...")
+        #-- Folders --#
+        bankDir = os.path.join(self.grapher.binPath, 'bank')
+        bankProdsDir = os.path.join(bankDir, 'prods')
+        bankStudioDir = os.path.join(bankDir, 'studio')
+        bankUsersDir = os.path.join(bankDir, 'users')
+        bankUserDir = os.path.join(bankUsersDir, self.user)
+        prefDir = os.path.join(self.grapher.binPath, 'pref')
+        prefUsersDir = os.path.join(prefDir, 'users')
+        prefUserDir = os.path.join(prefUsersDir, self.user)
+        for fldDir in [bankDir, bankProdsDir, bankStudioDir, bankUsersDir, bankUserDir,
+                       prefDir, prefUsersDir, prefUserDir]:
+            if not os.path.exists(fldDir):
+                try:
+                    os.mkdir(fldDir)
+                    self.log.info("Create user folder: %s" % fldDir)
+                except:
+                    raise IOError("!!! Can not create user folder: %s !!!" % fldDir)
         #-- User Files --#
         if not os.path.exists(self.userFile):
             userDatas = ["recentFiles = []"]
@@ -244,6 +263,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.grapher.load(str(graphFile))
         self.updateUi()
         self.graphZone.refreshGraph()
+        self.addToRecentFiles()
 
     def saveAs(self):
         """
@@ -470,6 +490,16 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail(">>> Launch menuItem 'Logs' ...")
         self.vfLogs.setVisible(self.miLogs.isChecked())
+
+    def on_miBank(self):
+        """
+        Command launched when 'Bank' QMenuItem is triggered
+
+        Open bank widget
+        """
+        self.log.detail(">>> Launch menuItem 'Bank' ...")
+        self.bank = graphBank.Bank(self)
+        self.bank.show()
 
     def on_miToolsIconOnly(self):
         """

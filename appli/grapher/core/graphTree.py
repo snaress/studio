@@ -246,7 +246,7 @@ class GraphItem(object):
         """
         children = []
         for child in self._children:
-            children.append(child.nodeName)
+            children.append(child._node.nodeName)
         return children
 
     def allChildren(self, depth=-1):
