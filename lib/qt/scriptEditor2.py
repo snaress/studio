@@ -31,11 +31,11 @@ class ScriptEditor(QsciScintilla):
         self.markerDefine(QsciScintilla.RightArrow, self.markerNum)
         self.setMarkerBackgroundColor(QtGui.QColor(255, 0, 0), self.markerNum)
         #-- Tab --#
-        self.setIndentationsUseTabs(True)
+        self.setIndentationsUseTabs(False)
         self.setIndentationGuides(True)
         self.setIndentationWidth(4)
         self.setAutoIndent(True)
-        self.setTabIndents(True)
+        self.setTabIndents(False)
         self.setTabWidth(4)
         #-- White Space --#
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
