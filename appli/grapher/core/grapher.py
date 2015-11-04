@@ -50,7 +50,7 @@ import os, pprint
 from appli import grapher
 from lib.env import studio
 from lib.system import procFile as pFile
-from appli.grapher.core import grapherCmds, graphTree, graphNodes
+from appli.grapher.core import graphTree, graphNodes
 
 
 class Grapher(object):
@@ -145,6 +145,23 @@ class Grapher(object):
         :rtype: str
         """
         return os.path.join('scripts', 'GP_%s' % self.graphName)
+
+    @property
+    def internalVar(self):
+        """
+        Get Grapher internal variables
+
+        :return: Internal var
+        :rtype: dict
+        """
+        return dict(GP_NAME=self.graphName,
+                    GP_PATH=self.graphPath,
+                    GP_FILE=self.graphFile,
+                    GP_FULL_PATH=self.graphFullPath,
+                    GP_TMP_DIR=pFile.conformPath(self.graphTmpPath),
+                    GP_TMP_PATH=pFile.conformPath(os.path.realpath(self.graphTmpPath)),
+                    GP_SCRIPT_DIR=pFile.conformPath(self.graphScriptPath),
+                    GP_SCRIPT_PATH=pFile.conformPath(os.path.realpath(self.graphScriptPath)))
 
     def getDatas(self, asString=False):
         """
@@ -432,7 +449,7 @@ class GrapherExec(object):
                   "print 'ExecFile: %s'" % pFile.conformPath(execFile),
                   "print ''", "print '#--- Import ---#'"]
         #-- Import --#
-        importDict = dict(imp=['os', 'sys', 'time'],
+        importDict = dict(imp=['os', 'sys', 'time', 'traceback'],
                           impFrom={'lib.system': 'procFile',
                                    'appli.grapher.core': 'grapherCmds'})
         for m in importDict['imp']:
@@ -445,9 +462,14 @@ class GrapherExec(object):
         header.extend(["print ''", "print '#--- Set Path ---#'",
                        "os.chdir('%s')" % self.grapher.graphPath,
                        "print '--->', os.getcwd()"])
+        #-- Internal Var --#
+        header.extend(["print ''", "print '#--- Set Grapher Internal Var ---#'"])
+        for k, v in self.grapher.internalVar.iteritems():
+            header.append("%s = %r" % (k, v))
+        header.extend(["gpCmds = grapherCmds",
+                       "print '---> Grapher internal variables setted'"])
         #-- Graph Var --#
         header.extend(["print ''", "print '#--- Set Graph Var ---#'",
-                       "gpCmds = grapherCmds",
                        graphNodes.Node.conformVarDict(self.grapher.variables),
                        "print '---> Graph variables setted'"])
         #-- Start Duration --#

@@ -142,6 +142,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
     # noinspection PyUnresolvedReferences
     def _menuHelp(self):
         self.log.debug("\t ---> Menu Help ...")
+        self.miInternalVar.triggered.connect(self.on_miInternalVar)
         #-- Datas --#
         self.miGrapherDatas.triggered.connect(self.on_miGrapherDatas)
         self.miTreeDatas.triggered.connect(self.on_miTreeDatas)
@@ -509,6 +510,15 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         """
         self.log.detail(">>> Launch menuItem 'Tools Icon Only' ...")
         self.graphTools.toolsAspect()
+
+    def on_miInternalVar(self):
+        """
+        Command launched when 'Internal Var' QMenuItem is triggered
+
+        Print grapher internal variables
+        """
+        self.log.detail(">>> Launch menuItem 'Internal Var' ...")
+        print pprint.pformat(self.grapher.internalVar)
 
     def on_miGrapherDatas(self):
         """

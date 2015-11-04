@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\grapher\gui\src\grapher.ui'
 #
-# Created: Thu Oct 29 16:50:48 2015
+# Created: Wed Nov 04 02:56:46 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -218,6 +218,8 @@ class Ui_mwGrapher(object):
         self.miExecNode.setObjectName(_fromUtf8("miExecNode"))
         self.miBank = QtGui.QAction(mwGrapher)
         self.miBank.setObjectName(_fromUtf8("miBank"))
+        self.miInternalVar = QtGui.QAction(mwGrapher)
+        self.miInternalVar.setObjectName(_fromUtf8("miInternalVar"))
         self.menuToolBarOrient.addAction(self.miBarHorizontal)
         self.menuToolBarOrient.addAction(self.miBarVertical)
         self.menuToolTabOrient.addAction(self.miTabNorth)
@@ -238,6 +240,7 @@ class Ui_mwGrapher(object):
         self.menuPrintDatas.addAction(self.miGrapherDatas)
         self.menuPrintDatas.addAction(self.miTreeDatas)
         self.menuPrintDatas.addAction(self.miNodeDatas)
+        self.menuHelp.addAction(self.miInternalVar)
         self.menuHelp.addAction(self.menuPrintDatas.menuAction())
         self.menuHelp.addAction(self.menuVerbose.menuAction())
         self.menuFiles.addAction(self.miLoad)
@@ -316,4 +319,5 @@ class Ui_mwGrapher(object):
         self.miLogs.setText(_translate("mwGrapher", "Logs", None))
         self.miExecNode.setText(_translate("mwGrapher", "Exec Node", None))
         self.miBank.setText(_translate("mwGrapher", "Bank", None))
+        self.miInternalVar.setText(_translate("mwGrapher", "Internal Var", None))
 

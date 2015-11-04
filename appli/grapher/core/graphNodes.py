@@ -9,9 +9,12 @@ class Node(object):
 
     :param nodeName: Node Name
     :type nodeName: str
+    :param graphObj: Grapher parent
+    :type graphObj: grapher.Grapher
     """
 
-    def __init__(self, nodeName=None):
+    def __init__(self, nodeName=None, graphObj=None):
+        self.gp = graphObj
         self.nodeName = nodeName
         self.nodeIsEnabled = True
         self.nodeIsActive = True
@@ -222,6 +225,10 @@ class Node(object):
             script = []
             if not self.nodeType == 'purData':
                 #-- Get Graph Var --#
+                script.append("\n#----- Internal Vars -----#")
+                for k, v in self.gp.internalVar.iteritems():
+                    script.append("%s = %r" % (k, v))
+                #-- Get Graph Var --#
                 script.append("\n#----- Grapher Vars -----#")
                 varStr = self.conformVarDict(graphVars)
                 if varStr is not None:
@@ -254,13 +261,15 @@ class Modul(Node):
 
     :param nodeName: Node Name
     :type nodeName: str
+    :param graphObj: Grapher parent
+    :type graphObj: grapher.Grapher
     """
 
     _nodeColor = (200, 200, 200, 255)
     _nodeIcon = 'modul.svg'
 
-    def __init__(self, nodeName=None):
-        super(Modul, self).__init__(nodeName)
+    def __init__(self, nodeName=None, graphObj=None):
+        super(Modul, self).__init__(nodeName, graphObj)
         self.nodeType = 'modul'
 
 
@@ -270,13 +279,15 @@ class SysData(Node):
 
     :param nodeName: Node Name
     :type nodeName: str
+    :param graphObj: Grapher parent
+    :type graphObj: grapher.Grapher
     """
 
     _nodeColor = (100, 255, 255, 255)
     _nodeIcon = 'sysData.svg'
 
-    def __init__(self, nodeName=None):
-        super(SysData, self).__init__(nodeName)
+    def __init__(self, nodeName=None, graphObj=None):
+        super(SysData, self).__init__(nodeName, graphObj)
         self.nodeType = 'sysData'
         self.nodeExecMode = {0: False}
         self.nodeScript = {0: ''}
@@ -304,6 +315,8 @@ class CmdData(Node):
 
     :param nodeName: Node Name
     :type nodeName: str
+    :param graphObj: Grapher parent
+    :type graphObj: grapher.Grapher
     """
 
     _nodeColor = (60, 135, 255, 255)
@@ -315,8 +328,8 @@ class CmdData(Node):
                                           ('nuke5', pFile.conformPath(studio.nuke5)),
                                           ('nuke9', pFile.conformPath(studio.nuke9))])
 
-    def __init__(self, nodeName=None):
-        super(CmdData, self).__init__(nodeName)
+    def __init__(self, nodeName=None, graphObj=None):
+        super(CmdData, self).__init__(nodeName, graphObj)
         self.nodeType = 'cmdData'
         self.nodeExecMode = {0: False}
         self.nodeLauncher = {0: 'mayaBatch2014'}
@@ -356,13 +369,15 @@ class PurData(Node):
 
     :param nodeName: Node Name
     :type nodeName: str
+    :param graphObj: Grapher parent
+    :type graphObj: grapher.Grapher
     """
 
     _nodeColor = (0, 125, 0, 255)
     _nodeIcon = 'purData.svg'
 
-    def __init__(self, nodeName=None):
-        super(PurData, self).__init__(nodeName)
+    def __init__(self, nodeName=None, graphObj=None):
+        super(PurData, self).__init__(nodeName, graphObj)
         self.nodeType = 'purData'
         self.nodeScript = {0: ''}
 
@@ -373,13 +388,15 @@ class Loop(Node):
 
     :param nodeName: Node Name
     :type nodeName: str
+    :param graphObj: Grapher parent
+    :type graphObj: grapher.Grapher
     """
 
     _nodeColor = (100, 255, 150, 255)
     _nodeIcon = 'loop.svg'
 
-    def __init__(self, nodeName=None):
-        super(Loop, self).__init__(nodeName)
+    def __init__(self, nodeName=None, graphObj=None):
+        super(Loop, self).__init__(nodeName, graphObj)
         self.nodeType = 'loop'
         self.nodeLoopParams = {0: {'remote': False, 'packet': 5, 'pool': 'default', 'mode': 'Incremental',
                                    'type': 'Range', 'iterator': 'i', 'checkFiles': 'tmpCheck',

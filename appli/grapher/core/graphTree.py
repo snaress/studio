@@ -146,15 +146,15 @@ class GraphTree(object):
         :rtype: Modul | SysData | CmdData | PurData | Loop
         """
         if nodeType == 'modul':
-            return GraphItem(self, graphNodes.Modul(nodeName))
+            return GraphItem(self, graphNodes.Modul(nodeName, self.gp))
         elif nodeType == 'sysData':
-            return GraphItem(self, graphNodes.SysData(nodeName))
+            return GraphItem(self, graphNodes.SysData(nodeName, self.gp))
         elif nodeType == 'cmdData':
-            return  GraphItem(self, graphNodes.CmdData(nodeName))
+            return  GraphItem(self, graphNodes.CmdData(nodeName, self.gp))
         elif nodeType == 'purData':
-            return GraphItem(self, graphNodes.PurData(nodeName))
+            return GraphItem(self, graphNodes.PurData(nodeName, self.gp))
         elif nodeType == 'loop':
-            return GraphItem(self, graphNodes.Loop(nodeName))
+            return GraphItem(self, graphNodes.Loop(nodeName, self.gp))
 
     # noinspection PyUnresolvedReferences
     def _addItem(self, item, parent=None):

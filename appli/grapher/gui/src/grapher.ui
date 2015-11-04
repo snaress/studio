@@ -198,6 +198,7 @@
       <string>Verbose</string>
      </property>
     </widget>
+    <addaction name="miInternalVar"/>
     <addaction name="menuPrintDatas"/>
     <addaction name="menuVerbose"/>
    </widget>
@@ -499,6 +500,11 @@
   <action name="miBank">
    <property name="text">
     <string>Bank</string>
+   </property>
+  </action>
+  <action name="miInternalVar">
+   <property name="text">
+    <string>Internal Var</string>
    </property>
   </action>
  </widget>
