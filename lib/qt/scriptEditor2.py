@@ -34,8 +34,8 @@ class ScriptEditor(QsciScintilla):
         self.setIndentationsUseTabs(False)
         self.setIndentationGuides(True)
         self.setIndentationWidth(4)
-        self.setAutoIndent(True)
-        self.setTabIndents(False)
+        self.setAutoIndent(False)
+        self.setTabIndents(True)
         self.setTabWidth(4)
         #-- White Space --#
         self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
