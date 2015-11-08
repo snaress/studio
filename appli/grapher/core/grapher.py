@@ -154,7 +154,8 @@ class Grapher(object):
         :return: Internal var
         :rtype: dict
         """
-        return dict(GP_NAME=self.graphName,
+        return dict(GP_USER=os.environ['Username'],
+                    GP_NAME=self.graphName,
                     GP_PATH=self.graphPath,
                     GP_FILE=self.graphFile,
                     GP_FULL_PATH=self.graphFullPath,
@@ -450,14 +451,15 @@ class GrapherExec(object):
                   "print ''", "print '#--- Import ---#'"]
         #-- Import --#
         importDict = dict(imp=['os', 'sys', 'time', 'traceback'],
-                          impFrom={'lib.system': 'procFile',
-                                   'appli.grapher.core': 'grapherCmds'})
+                          impFrom={0: {'lib.system': 'procFile'},
+                                   1: {'appli.grapher.core': 'grapherCmds'}})
         for m in importDict['imp']:
             header.append("print '---> %s'" % m)
             header.append("import %s" % m)
-        for k, v in importDict['impFrom'].iteritems():
-            header.append("print '---> %s'" % v)
-            header.append("from %s import %s" % (k, v))
+        for n in sorted(importDict['impFrom'].keys()):
+            for k, v in importDict['impFrom'][n].iteritems():
+                header.append("print '---> %s'" % v)
+                header.append("from %s import %s" % (k, v))
         #-- Set Path --#
         header.extend(["print ''", "print '#--- Set Path ---#'",
                        "os.chdir('%s')" % self.grapher.graphPath,
@@ -725,9 +727,10 @@ class NodeCompiler(object):
                    "%s    %s_tmpFile = %s" % (tab, item._node.nodeName, tmpFile),
                    "%s    result = gpCmds.makeCheckFile(%s_tmpFile, %r, %r, %s)" % (tab, item._node.nodeName,
                                                                                     item._node.nodeName,
-                                                                                    iterator, iterator),
-                   "%s    if result == 'exists':" % tab,
-                   "%s        continue" % tab]
+                                                                                    iterator, iterator)]
+        if not item._node.nodeLoopParams[item._node.nodeVersion]['type'] == 'Single':
+            loopTxt.extend(["%s    if result == 'exists':" % tab,
+                            "%s        continue" % tab])
         return '\n'.join(loopTxt)
 
     def execFileDatas(self, item):

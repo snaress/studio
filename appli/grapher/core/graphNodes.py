@@ -90,7 +90,7 @@ class Node(object):
         """
         curIndex = self.nodeVersion
         newIndex = int(sorted(self.nodeVersions.keys())[-1] + 1)
-        self.nodeVersions[newIndex] = "New version"
+        self.nodeVersions[newIndex] = "New Version"
         self.nodeComments[newIndex] = self.nodeComments[curIndex]
         self.nodeVariables[newIndex] = self.nodeVariables[curIndex]
         self.nodeTrash[newIndex] = self.nodeTrash[curIndex]

@@ -324,7 +324,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         if self.grapher._graphFile is not None:
             root = self.grapher.graphPath
         else:
-            root = 'D:/prods'
+            root = 'E:/prods'
         self.fdLoadGraph = procQt.fileDialog(fdFileMode='ExistingFile', fdRoot=root, fdFilters=['*.gp.py'],
                                              fdCmd=self.load)
         self.fdLoadGraph.exec_()
@@ -352,7 +352,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         if self.grapher._graphFile is not None:
             root = self.grapher.graphPath
         else:
-            root = 'D:/prods'
+            root = 'E:/prods'
         self.fdSaveGraph = procQt.fileDialog(fdMode='save', fdRoot=root, fdFilters=['*.gp.py'],
                                              fdCmd=self.saveAs)
         self.fdSaveGraph.exec_()

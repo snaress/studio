@@ -351,6 +351,7 @@ class Variables(QtGui.QWidget, wgVariablesUI.Ui_wgVariables):
         :param varDict: Variable datas
         :type varDict: dict
         """
+        self.twVar.clear()
         for n, d in sorted(varDict.iteritems()):
             newItem = self.on_addVar()
             self.setDatas(newItem, d)
