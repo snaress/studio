@@ -8,6 +8,15 @@ except:
     pass
 
 
+def getAllNucleus():
+    """
+    Get all nucleus in scene
+
+    :return: Nucleus nodes
+    :rtype: list
+    """
+    return mc.ls(type='nucleus')
+
 def getClothNode(nodeName):
     """ Try to find cloth node connected to given object
         :param nodeName: Transform or Mesh node name

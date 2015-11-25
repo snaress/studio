@@ -1,6 +1,8 @@
+import pprint
 from tools.maya.cmds import pMode, pRigg, pCloth
 try:
     import maya.cmds as mc
+    import pymel.core as pm
 except:
     pass
 
@@ -418,3 +420,117 @@ def storeConstraint(dynConst, constName, solverMethod):
     const = mc.rename(dynConst, constName)
     mc.parent(const, constGrp)
     print "\t ---> %s" % const
+
+def decomposeRigg():
+    import pprint
+    print "\n########## DECOMPOSE CLOTH RIGG ##########"
+    riggDict = dict()
+    nInd = 0
+    for nucleus in getAllNucleus():
+        print "\n#--- %s ---#" % nucleus
+        riggDict[nInd] = {nucleus: dict()}
+        riggDict[nInd][nucleus] = dict(nCloth={}, nRigid={}, dynamicConstraint={})
+        links = pm.listConnections(nucleus, s=True, d=False, p=True, c=True)
+        #-- Parse Nucleus Connections --#
+        for link in links:
+            #-- Src Info --#
+            src = link[0]
+            srcAttr = '.'.join(src.split('.')[1:])
+            #-- Dst Info --#
+            dst = link[1]
+            dstShape = dst.split('.')[0]
+            dstAttr = '.'.join(dst.split('.')[1:])
+            nodeType = mc.nodeType(dstShape)
+            #-- Parse nBase nodes --#
+            if nodeType in ['nCloth', 'nRigid', 'dynamicConstraint']:
+                dstNode = mc.listRelatives(dstShape, p=True)[0]
+                lInd = len(riggDict[nInd][nucleus][nodeType])
+                riggDict[nInd][nucleus][nodeType][lInd] = {dstNode: {'shapeName': dstShape,
+                                                                     'nucleusLink': {'srcAttr': srcAttr,
+                                                                                     'dstAttr': dstAttr}}}
+        nInd += 1
+    print pprint.pformat(riggDict)
+
+
+
+
+
+
+class RiggChild(object):
+
+    def __init__(self, nodeName, nodeType):
+        self.nodeType
+
+
+
+class RiggRoot(object):
+
+    def __init__(self, nodeName):
+        self.nodeType = 'nucleus'
+        self.nodeName = nodeName
+        self.nClothNodes = []
+        self.nRigidNodes = []
+        self.nConstraints = []
+
+
+class RiggDescriptor(object):
+
+    def __init__(self):
+        self.roots = list()
+
+    @property
+    def allNucleus(self):
+        """
+        Get all nucleus in scene
+
+        :return: Nucleus nodes
+        :rtype: list
+        """
+        return mc.ls(type='nucleus')
+
+    def addRoot(self, nodeName):
+        newRoot = RiggRoot(nodeName)
+        self.roots.append(newRoot)
+        return newRoot
+
+    def decomposeRigg(self):
+        print "\n########## DECOMPOSE CLOTH RIGG ##########"
+        #-- Parse Scene --#
+        for nucleus in self.allNucleus:
+            print "\n#--- %s ---#" % nucleus
+            rootNode = self.addRoot(nucleus)
+
+            # self.root[nInd] = {nucleus: dict(nCloth={}, nRigid={}, dynamicConstraint={})}
+            # links = pm.listConnections(nucleus, s=True, d=False, p=True, c=True)
+            #
+            # #-- Parse Nucleus Connections --#
+            # for link in links:
+            #
+            #     #-- Src Info --#
+            #     src = link[0]
+            #     srcAttr = '.'.join(src.split('.')[1:])
+            #
+            #     #-- Dst Info --#
+            #     dst = link[1]
+            #     dstShape = dst.split('.')[0]
+            #     dstAttr = '.'.join(dst.split('.')[1:])
+            #     nodeType = mc.nodeType(dstShape)
+            #
+            #     #-- Parse nBase nodes --#
+            #     if nodeType in ['nCloth', 'nRigid', 'dynamicConstraint']:
+            #         print "Parse %s"
+            #         dstNode = mc.listRelatives(dstShape, p=True)[0]
+            #         lInd = len(self.root[nInd][nucleus][nodeType])
+            #         self.root[nInd][nucleus][nodeType][lInd] = {dstNode: {'shapeName': dstShape,
+            #                                                               'nucleusLink': {'srcAttr': srcAttr,
+            #                                                                               'dstAttr': dstAttr}}}
+
+
+    def __repr__(self):
+        root = dict()
+        for n, rootNode in enumerate(self.roots):
+            root[n] = {rootNode.nodeName}
+        # return self.root
+
+    def printRepr(self):
+        print pprint.pformat(self.__repr__())
