@@ -214,7 +214,16 @@ class Logger(object):
         self.levels = ['critical', 'error', 'warning', 'info', 'debug', 'detail']
         self.title = title
         self.level = level
-        self.lvlIndex = self.levels.index(self.level)
+
+    @property
+    def lvlIndex(self):
+        """
+        Get current level index
+
+        :return: Current level index
+        :rtype: int
+        """
+        return self.levels.index(self.level)
 
     def critical(self, message, newLinesBefor=0, newLinesAfter=0):
         """
