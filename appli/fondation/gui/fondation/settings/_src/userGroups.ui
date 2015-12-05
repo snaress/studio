@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>wg_tsUserGroups</class>
+ <widget class="QWidget" name="wg_tsUserGroups">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>574</width>
+    <height>623</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>User Groups</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QFrame" name="qf_userGroups">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QVBoxLayout" name="vl_userGroups">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+          <underline>true</underline>
+         </font>
+        </property>
+        <property name="text">
+         <string>User Groups:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="hl_groups">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QVBoxLayout" name="vl_groupsEdit">
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <property name="topMargin">
+           <number>26</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="hl_moveGrp">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QPushButton" name="pb_upGrp">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pb_dnGrp">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pb_addGrp">
+            <property name="maximumSize">
+             <size>
+              <width>55</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pb_delGrp">
+            <property name="maximumSize">
+             <size>
+              <width>55</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="text">
+             <string>Del</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pb_editGrp">
+            <property name="maximumSize">
+             <size>
+              <width>55</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="text">
+             <string>Edit</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pb_styleGrp">
+            <property name="maximumSize">
+             <size>
+              <width>55</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="text">
+             <string>Style</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTreeWidget" name="tw_groups">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="indentation">
+           <number>0</number>
+          </property>
+          <property name="itemsExpandable">
+           <bool>false</bool>
+          </property>
+          <property name="expandsOnDoubleClick">
+           <bool>false</bool>
+          </property>
+          <attribute name="headerStretchLastSection">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string notr="true">Code</string>
+           </property>
+           <property name="textAlignment">
+            <set>AlignHCenter|AlignVCenter|AlignCenter</set>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Name</string>
+           </property>
+           <property name="textAlignment">
+            <set>AlignHCenter|AlignVCenter|AlignCenter</set>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Style</string>
+           </property>
+           <property name="textAlignment">
+            <set>AlignHCenter|AlignVCenter|AlignCenter</set>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="hl_grpApply">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pb_grpApply">
+          <property name="maximumSize">
+           <size>
+            <width>60</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Apply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pb_grpCancel">
+          <property name="maximumSize">
+           <size>
+            <width>60</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Cancel</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QFrame" name="qf_users">
+     <layout class="QVBoxLayout" name="vl_users">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QTreeWidget" name="tw_users">
+        <column>
+         <property name="text">
+          <string notr="true">2</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>pb_upGrp</tabstop>
+  <tabstop>pb_dnGrp</tabstop>
+  <tabstop>pb_addGrp</tabstop>
+  <tabstop>pb_delGrp</tabstop>
+  <tabstop>pb_editGrp</tabstop>
+  <tabstop>pb_styleGrp</tabstop>
+  <tabstop>tw_groups</tabstop>
+  <tabstop>tw_users</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

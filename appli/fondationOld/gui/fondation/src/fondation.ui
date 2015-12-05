@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mw_fondation</class>
+ <widget class="QMainWindow" name="mw_fondation">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Fondation</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout"/>
+    </item>
+    <item row="0" column="1">
+     <widget class="QToolBox" name="toolBox">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="page">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>774</width>
+         <height>487</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>Page 1</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>98</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>Page 2</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="m_settings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="mi_fondationSettings"/>
+    <addaction name="mi_projectSettings"/>
+   </widget>
+   <widget class="QMenu" name="m_help">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="mi_showToolTips"/>
+   </widget>
+   <widget class="QMenu" name="m_project">
+    <property name="title">
+     <string>Project</string>
+    </property>
+    <addaction name="mi_newProject"/>
+    <addaction name="mi_loadProject"/>
+   </widget>
+   <addaction name="m_project"/>
+   <addaction name="m_settings"/>
+   <addaction name="m_help"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="mi_newProject">
+   <property name="text">
+    <string>New Project</string>
+   </property>
+  </action>
+  <action name="mi_loadProject">
+   <property name="text">
+    <string>Load Project</string>
+   </property>
+  </action>
+  <action name="actionClose_Project">
+   <property name="text">
+    <string>Close Project</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="mi_projectSettings">
+   <property name="text">
+    <string>Project Settings</string>
+   </property>
+  </action>
+  <action name="mi_fondationSettings">
+   <property name="text">
+    <string>Fondation Settings</string>
+   </property>
+  </action>
+  <action name="mi_showToolTips">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show ToolTips</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
