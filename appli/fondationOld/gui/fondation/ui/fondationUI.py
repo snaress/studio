@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\fondation\src\fondation.ui'
 #
-# Created: Fri Dec 04 04:04:26 2015
+# Created: Fri Dec 04 21:42:08 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -41,7 +41,7 @@ class Ui_mw_fondation(object):
         self.page.setObjectName(_fromUtf8("page"))
         self.toolBox.addItem(self.page, _fromUtf8(""))
         self.page_2 = QtGui.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0, 0, 774, 487))
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 98, 28))
         self.page_2.setObjectName(_fromUtf8("page_2"))
         self.toolBox.addItem(self.page_2, _fromUtf8(""))
         self.gridLayout.addWidget(self.toolBox, 0, 1, 1, 1)
@@ -71,8 +71,12 @@ class Ui_mw_fondation(object):
         self.mi_projectSettings.setObjectName(_fromUtf8("mi_projectSettings"))
         self.mi_fondationSettings = QtGui.QAction(mw_fondation)
         self.mi_fondationSettings.setObjectName(_fromUtf8("mi_fondationSettings"))
+        self.mi_showToolTips = QtGui.QAction(mw_fondation)
+        self.mi_showToolTips.setCheckable(True)
+        self.mi_showToolTips.setObjectName(_fromUtf8("mi_showToolTips"))
         self.m_settings.addAction(self.mi_fondationSettings)
         self.m_settings.addAction(self.mi_projectSettings)
+        self.m_help.addAction(self.mi_showToolTips)
         self.m_project.addAction(self.mi_newProject)
         self.m_project.addAction(self.mi_loadProject)
         self.menubar.addAction(self.m_project.menuAction())
@@ -96,4 +100,5 @@ class Ui_mw_fondation(object):
         self.actionQuit.setText(_translate("mw_fondation", "Quit", None))
         self.mi_projectSettings.setText(_translate("mw_fondation", "Project Settings", None))
         self.mi_fondationSettings.setText(_translate("mw_fondation", "Fondation Settings", None))
+        self.mi_showToolTips.setText(_translate("mw_fondation", "Show ToolTips", None))
 

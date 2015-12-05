@@ -1,8 +1,8 @@
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.fondation.gui.fondation import tsUserGroupsUi
-from appli.fondation.gui.fondation.ui import toolSettingsUI
+from appli.fondationOld.gui.fondation import tsUserGroupsUi
+from appli.fondationOld.gui.fondation.ui import toolSettingsUI
 
 
 class ToolSettingsUi(QtGui.QMainWindow, toolSettingsUI.Ui_mw_toolSettings):
@@ -36,7 +36,7 @@ class ToolSettingsUi(QtGui.QMainWindow, toolSettingsUI.Ui_mw_toolSettings):
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
         self._initWidgets()
-        self.storeToolSettings()
+        self.fondation.storeSettings()
         self.buildCategoryTree()
         self.tw_category.clicked.connect(self.on_category)
         self.qf_settingsWidget.setVisible(False)
@@ -48,13 +48,6 @@ class ToolSettingsUi(QtGui.QMainWindow, toolSettingsUI.Ui_mw_toolSettings):
         self.wgUserGrps = tsUserGroupsUi.UserGroupsUi(self)
         self.vl_settingsWidget.addWidget(self.wgUserGrps)
         self.wgUserGrps.setVisible(False)
-
-    def storeToolSettings(self):
-        """
-        Store tool settings file
-        """
-        self.log.detail("Store tool settings file ...")
-        self.toolSettings = pFile.readPyFile(self.fondation.settingsFile)
 
     @property
     def category(self):

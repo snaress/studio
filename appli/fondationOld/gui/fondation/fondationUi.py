@@ -1,9 +1,9 @@
 import sys, os
 from PyQt4 import QtGui
 from lib.system import procFile as pFile
-from appli.fondation.core import fondation
-from appli.fondation.gui.fondation import toolSettingsUi
-from appli.fondation.gui.fondation.ui import fondationUI
+from appli.fondationOld.core import fondation
+from appli.fondationOld.gui.fondation import toolSettingsUi
+from appli.fondationOld.gui.fondation.ui import fondationUI
 
 
 class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mw_fondation):
@@ -48,6 +48,16 @@ class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mw_fondation):
         #-- Check UserGrp --#
         if not self.fondation.userGrps._user.userGroup in ['ADMIN', 'DEV']:
             self.mi_fondationSettings.setEnabled(False)
+
+    @property
+    def showToolTips(self):
+        """
+        Get 'Show ToolTips' state
+
+        :return: ToolTips state
+        :rtype: bool
+        """
+        return self.mi_showToolTips.isChecked()
 
     def on_miFondationSettings(self):
         """

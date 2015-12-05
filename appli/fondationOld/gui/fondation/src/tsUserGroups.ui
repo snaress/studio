@@ -58,8 +58,53 @@
            <number>6</number>
           </property>
           <property name="topMargin">
-           <number>0</number>
+           <number>26</number>
           </property>
+          <item>
+           <layout class="QHBoxLayout" name="hl_moveGrp">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QPushButton" name="pb_upGrp">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pb_dnGrp">
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
           <item>
            <spacer name="verticalSpacer_3">
             <property name="orientation">
@@ -82,7 +127,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Create new user group</string>
+             <string/>
             </property>
             <property name="text">
              <string>Add</string>
@@ -98,7 +143,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Delete selected group</string>
+             <string/>
             </property>
             <property name="text">
              <string>Del</string>
@@ -127,7 +172,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Edit selected group</string>
+             <string/>
             </property>
             <property name="text">
              <string>Edit</string>
@@ -143,7 +188,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Update style auto</string>
+             <string/>
             </property>
             <property name="text">
              <string>Style</string>
@@ -189,14 +234,6 @@
           <attribute name="headerStretchLastSection">
            <bool>false</bool>
           </attribute>
-          <column>
-           <property name="text">
-            <string>Id</string>
-           </property>
-           <property name="textAlignment">
-            <set>AlignHCenter|AlignVCenter|AlignCenter</set>
-           </property>
-          </column>
           <column>
            <property name="text">
             <string notr="true">Code</string>
@@ -251,6 +288,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>pb_upGrp</tabstop>
+  <tabstop>pb_dnGrp</tabstop>
+  <tabstop>pb_addGrp</tabstop>
+  <tabstop>pb_delGrp</tabstop>
+  <tabstop>pb_editGrp</tabstop>
+  <tabstop>pb_styleGrp</tabstop>
+  <tabstop>tw_groups</tabstop>
+  <tabstop>tw_users</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
