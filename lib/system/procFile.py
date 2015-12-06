@@ -1,4 +1,4 @@
-import os, math, time, subprocess
+import os, math, time, subprocess, pprint
 from lib.env import studio
 
 
@@ -100,6 +100,9 @@ def readFile(filePath):
     fileId.close()
     return getText
 
+def readDictFile(filePath):
+    return eval(''.join(readFile(filePath)))
+
 def readPyFile(filePath, keepBuiltin=False):
     """
     Get text from pyFile
@@ -121,6 +124,19 @@ def readPyFile(filePath, keepBuiltin=False):
         if '__builtins__' in params.keys():
             params.pop('__builtins__')
             return params
+
+def writeDictFile(filePath, dictToPrint):
+    """
+    Create readable text file from given dict
+
+    :param filePath: File absolut path
+    :type filePath: str
+    :param dictToPrint: Dict to translate and print
+    :type dictToPrint: dict
+    """
+    fileId = open(filePath, 'w')
+    fileId.write(pprint.pformat(dictToPrint))
+    fileId.close()
 
 def writeFile(filePath, textToWrite, add=False):
     """
