@@ -1,9 +1,9 @@
-import os
+import os, pprint
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from appli.fondation.gui.fondation.settings import userGroupsUi
-from appli.fondation.gui.fondation.settings._ui import settingsUI, userGroupsUI
+from appli.fondation.gui.fondation.settings._ui import settingsUI
 
 
 class SettingsUi(QtGui.QMainWindow, settingsUI.Ui_mw_toolSettings):
@@ -20,19 +20,30 @@ class SettingsUi(QtGui.QMainWindow, settingsUI.Ui_mw_toolSettings):
 
     def __init__(self, mainUi, logLvl='info'):
         self.log.level = logLvl
+        self.log.info("########## Launching Tool Settings Ui ##########", newLinesBefor=1)
         self.mainUi = mainUi
         self.fondation = self.mainUi.fondation
         super(SettingsUi, self).__init__()
         self.iconEnable = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'enable.png'))
         self.iconDisable = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'disable.png'))
+        self._initSettings()
         self._setupUi()
+
+    def _initSettings(self):
+        """
+        Init Fondation settings
+        """
+        self.log.detail("#===== Init Fondation Settings =====#")
+        self.fondation.storeSettings()
+        self.fondation.userGrps.collecteUsers(userName=self.fondation.__user__)
+        self.fondation.userGrps.buildGroupsFromSettings()
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
         """
         Setup QtGui ToolSettings Ui
         """
-        self.log.detail("#===== Setup ToolSettings Ui =====#", newLinesBefor=1)
+        self.log.detail("#===== Setup ToolSettings Ui =====#")
         self.setupUi(self)
         self.setWindowTitle("Fondation | ToolSettings | %s" % self.fondation.__user__)
         self.gridLayout.setMargin(0)
@@ -42,8 +53,9 @@ class SettingsUi(QtGui.QMainWindow, settingsUI.Ui_mw_toolSettings):
         self.tw_category.clicked.connect(self.on_category)
         self.qf_settingsWidget.setVisible(False)
         self.pb_save.setIcon(self.iconEnable)
+        self.pb_save.clicked.connect(self.on_saveSettings)
         self.pb_close.setIcon(self.iconDisable)
-        self.pb_close.clicked.connect(self.close)
+        self.pb_close.clicked.connect(self.on_closeSettings)
 
     def _initWidgets(self):
         """
@@ -70,6 +82,39 @@ class SettingsUi(QtGui.QMainWindow, settingsUI.Ui_mw_toolSettings):
                                               1: {'users': {'widget': self.wgUserGrps.qf_users,
                                                             'code': 'users',
                                                             'label': 'Users'}}}}}}
+
+    def getEditedItems(self):
+        """
+        Get edited subCategory items
+
+        :return: Edited subCategory items
+        :rtype: list
+        """
+        editedItems = []
+        for item in pQt.getAllItems(self.tw_category):
+            if item.itemType == 'subCategory':
+                state = getattr(item.parent().itemWidget, '__%sEdited__' % item.itemCode)
+                if state:
+                    editedItems.append(item)
+        return editedItems
+
+    def rf_editedItemStyle(self):
+        """
+        Refresh catecory style
+        """
+        for item in pQt.getAllItems(self.tw_category):
+            if item.itemType == 'subCategory':
+                state = getattr(item.parent().itemWidget, '__%sEdited__' % item.itemCode)
+                if state:
+                    editedFont = QtGui.QFont()
+                    editedFont.setItalic(True)
+                    item.setFont(0, editedFont)
+                    item.setTextColor(0, QtGui.QColor(50, 50, 255))
+                else:
+                    editedFont = QtGui.QFont()
+                    editedFont.setItalic(False)
+                    item.setFont(0, editedFont)
+                    item.setTextColor(0, QtGui.QColor(0, 0, 0))
 
     def buildCategoryTree(self):
         """
@@ -142,3 +187,54 @@ class SettingsUi(QtGui.QMainWindow, settingsUI.Ui_mw_toolSettings):
                     else:
                         item.itemWidget.setVisible(False)
                 selItems[0].parent().itemWidget.rf_widget(selItems[0].itemCode)
+
+    def on_saveSettings(self):
+        """
+        Command launched when 'Save' QPushButton is clicked
+
+        Save settings to disk
+        """
+        self.log.debug("#--- Save Settings ---#")
+        for item in self.getEditedItems():
+            self.log.detail("---> %s | %s" % (item.parent().itemCode, item.itemCode))
+            if item.parent().itemCode == 'userGroups':
+                ugObj = item.parent().itemWidget.userGrps
+                if item.itemCode == 'groups':
+                    ugObj.pushGroupsToSettings()
+            setattr(item.parent().itemWidget, '__%sEdited__' % item.itemCode, False)
+        self.fondation.writeSettings()
+        self.rf_editedItemStyle()
+
+    def on_closeSettings(self):
+        """
+        Command launched when 'Close' QPushButton is clicked
+
+        Close settings ui
+        """
+        #-- Check Edited Widget --#
+        editedItems = self.getEditedItems()
+        if editedItems:
+            message = ["!!! Warning !!!",
+                       "Unsaved category detected:"]
+            for item in editedItems:
+                message.append("---> %s" % item.itemLabel)
+            self.cd_closeSettings = pQt.ConfirmDialog('\n'.join(message), ['Save', 'Discard'],
+                                                      [self._saveSettings, self._discardSettings])
+            self.cd_closeSettings.exec_()
+        #-- Close Settings --#
+        else:
+            self.close()
+
+    def _saveSettings(self):
+        """
+        Save action confirmed
+        """
+        self.on_saveSettings()
+        self.close()
+
+    def _discardSettings(self):
+        """
+        Discard action confirmed
+        """
+        self._initSettings()
+        self.close()

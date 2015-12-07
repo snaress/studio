@@ -55,7 +55,21 @@ class Fondation(object):
         :return: Fondation settings
         :rtype: dict
         """
-        self.settings = pFile.readPyFile(self.settingsFile)
+        self.settings = pFile.readDictFile(self.settingsFile)
+
+    def writeSettings(self):
+        """
+        Write settings file
+        """
+        self.log.debug("Writing settings file ...")
+        #-- Write File --#
+        try:
+            pFile.writeDictFile(self.settingsFile, self.settings)
+            self.log.debug("---> Settings file successfully written: %s" % self.settingsFile)
+        except:
+            mess = "!!! Can not write settingsFile: %s !!!" % self.settingsFile
+            self.log.error(mess)
+            raise IOError(mess)
 
     def createDefaultSettingsFile(self):
         """

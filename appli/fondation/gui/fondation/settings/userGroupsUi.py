@@ -13,6 +13,7 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
     :param pWidget : Parent widget
     :type pWidget: SettingsUi
     """
+
     __groupsEdited__ = False
     __usersEdited__ = False
 
@@ -41,8 +42,8 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
         self.setupUi(self)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
-        self.setMaximumHeight(300)
         self._setupGroupsWidget()
+        self._setupUsersWidget()
 
     def rf_widget(self, categoryCode):
         """
@@ -53,6 +54,16 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
         """
         if categoryCode == 'groups':
             self.buildGroupsTree()
+        elif categoryCode == 'users':
+            self.buildUsersTree()
+
+    @staticmethod
+    def rf_treeColumns(treeWidget):
+        """
+        Refresh tree column size
+        """
+        for n in range(treeWidget.columnCount()):
+            treeWidget.resizeColumnToContents(n)
 
     #=================================== GROUPS ===================================#
 
@@ -61,8 +72,6 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
         """
         Setup QtGui Groups Widget
         """
-        #-- Tree Widget --#
-        self.rf_groupsTreeColumns()
         #-- Add Icons --#
         self.pb_upGrp.setIcon(self.iconUp)
         self.pb_dnGrp.setIcon(self.iconDn)
@@ -78,8 +87,11 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
         self.pb_editGrp.clicked.connect(self.on_editGroup)
         self.pb_styleGrp.clicked.connect(self.on_styleGroup)
         self.pb_grpApply.setIcon(self.iconApply)
+        self.pb_grpApply.clicked.connect(self.on_applyGroups)
         self.pb_grpCancel.setIcon(self.iconCancel)
-        #-- ToolTips --#
+        self.pb_grpCancel.clicked.connect(self.on_cancelGroups)
+        #-- Refresh --#
+        self.rf_treeColumns(self.tw_groups)
         self.rf_groupsToolTips()
 
     def getGroupsDatas(self, asString=False):
@@ -95,17 +107,12 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
         for n, item in enumerate(pQt.getTopItems(self.tw_groups)):
             for k, v in item.__dict__.iteritems():
                 if k.startswith('grp'):
+                    if not n in datas.keys():
+                        datas[n] = dict()
                     datas[n][k] = v
         if asString:
             return pprint.pformat(datas)
         return datas
-
-    def rf_groupsTreeColumns(self):
-        """
-        Refresh tree column size
-        """
-        for n in range(self.tw_groups.columnCount()):
-            self.tw_groups.resizeColumnToContents(n)
 
     def rf_groupsToolTips(self):
         """
@@ -118,6 +125,8 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
             self.pb_delGrp.setToolTip("Delete selected group")
             self.pb_editGrp.setToolTip("Edit selected group")
             self.pb_styleGrp.setToolTip("Update style auto")
+            self.pb_grpApply.setToolTip("Apply datas to Fondation object")
+            self.pb_grpApply.setToolTip("Restore datas from Fondation object")
         else:
             wList = [self.pb_upGrp, self.pb_dnGrp, self.pb_addGrp, self.pb_delGrp, self.pb_editGrp, self.pb_styleGrp]
             for widget in wList:
@@ -137,14 +146,14 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
                 rgb = (pMath.linear(0, (N / 2), 255, 0, n), pMath.linear(0, (N / 2), 0, 255, n), 0)
             else:
                 rgb = (0, pMath.linear((N / 2), N, 255, 0, n), pMath.linear((N / 2), N, 0, 255, n))
-            item.rgb = rgb
+            item.grpColor = rgb
             item.setBackgroundColor((self.tw_groups.columnCount() - 1), QtGui.QColor(rgb[0], rgb[1], rgb[2]))
 
     def buildGroupsTree(self):
         """
         Build groups tree widget
         """
-        self.log.detail("#----- Refresh UserGroups/Groups widget -----#")
+        self.log.detail("#----- Refresh UserGroups / Groups widget -----#")
         self.tw_groups.clear()
         if self.userGrps._groups:
             for grpObj in self.userGrps._groups:
@@ -153,20 +162,28 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
         else:
             defaultItem1 = self.new_groupItem('ADMIN', 'Administrator', (255, 0, 0))
             self.tw_groups.addTopLevelItem(defaultItem1)
-        self.rf_groupsTreeColumns()
+        self.rf_treeColumns(self.tw_groups)
 
-    def new_groupItem(self, grpCode, grpName, grpColor):
+    def new_groupItem(self, grpCode, grpName, grpColor, item=None):
         """
-        Create group tree item widget
+        Create or update group tree item widget
 
         :param grpCode: Group code
         :type grpCode: str
         :param grpName: Group name
         :type grpName: str
+        :param grpColor: Group color
+        :type grpColor: tuple
+        :param item: Update given tree item instead of create a new one
+        :type item: QtGui.QTreeWidgetItem
         :return: New group item
         :rtype: QtGui.QTreeWidgetItem
         """
-        newItem = QtGui.QTreeWidgetItem()
+        #-- Create Item --#
+        if item is None:
+            newItem = QtGui.QTreeWidgetItem()
+        else:
+            newItem = item
         #-- Store Datas --#
         newItem.grpCode = grpCode
         newItem.grpName = grpName
@@ -180,6 +197,22 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
             newItem.setTextAlignment(n, 5)
         #-- Result --#
         return newItem
+
+    def upd_groupItem(self, item, grpCode, grpName, grpColor):
+        """
+        Update group tree item widget
+
+        :param item: Group tree item
+        :type item: QtGui.QTreeWidgetItem
+        :param grpCode: Group code
+        :type grpCode: str
+        :param grpName: Group name
+        :type grpName: str
+        :param grpColor: Group color
+        :type grpColor: tuple
+        """
+        self.log.detail("Updating Group item: %s" % grpCode)
+        self.new_groupItem(grpCode, grpName, grpColor, item=item)
 
     def on_moveGroup(self, side):
         """
@@ -208,7 +241,6 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
                 for item in pQt.getTopItems(self.tw_groups):
                     if item == movedItem:
                         self.tw_groups.setItemSelected(movedItem, True)
-                self.__groupsEdited__ = True
 
     def on_addGroup(self):
         """
@@ -219,7 +251,6 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
         self.log.detail(">>> Launch 'Add Group' <<<")
         newItem = self.new_groupItem('None', 'None', (0, 0, 0))
         self.tw_groups.addTopLevelItem(newItem)
-        self.__groupsEdited__ = True
 
     def on_delGroup(self):
         """
@@ -231,7 +262,6 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
         selItems = self.tw_groups.selectedItems() or []
         if selItems:
             self.tw_groups.takeTopLevelItem(self.tw_groups.indexOfTopLevelItem(selItems[0]))
-            self.__groupsEdited__ = True
 
     def on_editGroup(self):
         """
@@ -253,7 +283,6 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
         """
         self.log.detail(">>> Launch 'Style Group' <<<")
         self.rf_groupsStyle()
-        self.__groupsEdited__ = True
 
     def on_applyGroups(self):
         """
@@ -262,8 +291,69 @@ class UserGroupsUi(QtGui.QWidget, userGroupsUI.Ui_wg_tsUserGroups):
         Store datas to Fondation.UserGroups object
         """
         self.log.detail(">>> Launch 'Apply Groups' <<<")
+        self.userGrps.buildGroupsFromDict(self.getGroupsDatas())
+        self.__groupsEdited__ = True
+        self.pWidget.rf_editedItemStyle()
 
+    def on_cancelGroups(self):
+        """
+        Command launched when 'Cancel' QPushButton is clicked
 
+        Restore datas from Fondation.UserGroups object
+        """
+        self.log.detail(">>> Launch 'Cancel Groups' <<<")
+        self.buildGroupsTree()
+
+    #=================================== USERS ===================================#
+
+    # noinspection PyUnresolvedReferences
+    def _setupUsersWidget(self):
+        """
+        Setup QtGui Users Widget
+        """
+        #-- Add Icons --#
+        self.pb_addUser.setIcon(self.iconAdd)
+        self.pb_delUser.setIcon(self.iconDel)
+        self.pb_editUser.setIcon(self.iconEdit)
+        self.pb_userApply.setIcon(self.iconApply)
+        self.pb_userCancel.setIcon(self.iconCancel)
+        #-- Refresh --#
+        self.rf_treeColumns(self.tw_users)
+
+    def buildUsersTree(self):
+        """
+        Build groups tree widget
+        """
+        self.log.detail("#----- Refresh UserGroups / Users widget -----#")
+        self.tw_users.clear()
+        self.userGrps.collecteUsers(clearUsers=True)
+        userItems = []
+        for user in self.userGrps._users:
+            newItem = self.new_userItem(**user.getDatas())
+            userItems.append(newItem)
+        self.tw_users.addTopLevelItems(userItems)
+
+    def new_userItem(self, **kwargs):
+        """
+        Create user tree item widget
+
+        :param kwargs: User datas (key must starts with 'user')
+        :type kwargs: dict
+        :return: New user item
+        :rtype: QtGui.QTreeWidgetItem
+        """
+        newItem = QtGui.QTreeWidgetItem()
+        #-- Store Datas --#
+        for k, v in kwargs.iteritems():
+            if k.startswith('user'):
+                setattr(newItem, k, v)
+        #-- Edit Item --#
+        newItem.setText(1, str(newItem.userName))
+        newItem.setText(2, str(newItem.userFirstName))
+        newItem.setText(3, str(newItem.userLastName))
+        for n in range(self.tw_users.columnCount()):
+            newItem.setTextAlignment(n, 5)
+        return newItem
 
 
 class GroupsDialog(QtGui.QDialog, ugGroupsDialUI.Ui_dial_groups):
@@ -286,7 +376,6 @@ class GroupsDialog(QtGui.QDialog, ugGroupsDialUI.Ui_dial_groups):
         self.rf_dialog()
         #-- Color --#
         self.pb_userGrpStyle.clicked.connect(self.on_color)
-        self.pb_userGrpStyle.setShortcut("H")
         self.sb_styleR.editingFinished.connect(self.on_rgb)
         self.sb_styleG.editingFinished.connect(self.on_rgb)
         self.sb_styleB.editingFinished.connect(self.on_rgb)
@@ -295,6 +384,22 @@ class GroupsDialog(QtGui.QDialog, ugGroupsDialUI.Ui_dial_groups):
         self.pb_save.clicked.connect(self.on_save)
         self.pb_cancel.setIcon(self.parent().iconCancel)
         self.pb_cancel.clicked.connect(self.close)
+        #-- ToolTips --#
+        self.rf_toolTips()
+
+    def rf_toolTips(self):
+        """
+        Refresh dialog toolTips
+        """
+        if self.parent().pWidget.mainUi.showToolTips:
+            self.sb_styleR.setToolTip("Red color value (0, 255)")
+            self.sb_styleG.setToolTip("Green color value (0, 255)")
+            self.sb_styleB.setToolTip("Blue color value (0, 255)")
+            self.pb_userGrpStyle.setToolTip("Click to pick a color")
+        else:
+            wList = [self.sb_styleR, self.sb_styleG, self.sb_styleB, self.pb_userGrpStyle]
+            for widget in wList:
+                widget.setToolTip('')
 
     def rf_dialog(self):
         """
@@ -341,22 +446,24 @@ class GroupsDialog(QtGui.QDialog, ugGroupsDialUI.Ui_dial_groups):
         """
         #-- Get Datas --#
         excludes = ['', ' ', 'None']
-        grpCode = self.le_userGrpCode.text()
-        grpName = self.le_userGrpName.text()
+        grpCode = str(self.le_userGrpCode.text())
+        grpName = str(self.le_userGrpName.text())
         grpColor = (self.sb_styleR.value(), self.sb_styleG.value(), self.sb_styleB.value())
         #-- Check Datas --#
         if grpCode in excludes or grpName in excludes:
             message = "!!! 'code' or 'name' invalid: %s -- %s !!!" % (grpCode, grpName)
             pQt.errorDialog(message, self)
             raise AttributeError(message)
+        #-- Check New Code Name --#
+        if not grpCode == self.selItem.grpCode:
+            grpDatas = self.parent().getGroupsDatas()
+            for n in grpDatas.keys():
+                if grpCode == grpDatas[n]['grpCode']:
+                    message = "!!! %s already exists !!!" % grpCode
+                    pQt.errorDialog(message, self)
+                    raise AttributeError(message)
         #-- Edit Group --#
-        self.selItem.grpCode = grpCode
-        self.selItem.grpName = grpName
-        self.selItem.grpColor = grpColor
-        self.selItem.setText(0, grpCode)
-        self.selItem.setText(1, grpName)
-        self.selItem.setBackgroundColor((self.parent().tw_groups.columnCount() - 1),
-                                        QtGui.QColor(grpColor[0], grpColor[1], grpColor[2]))
+        self.parent().upd_groupItem(self.selItem, grpCode, grpName, grpColor)
         #-- Quit --#
-        self.parent().rf_groupsTreeColumns()
+        self.parent().rf_treeColumns(self.parent().tw_groups)
         self.close()

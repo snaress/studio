@@ -18,7 +18,30 @@ class Group(object):
         self.grpName = None
         self.grpColor = None
 
+    def getDatas(self, asString=False):
+        """
+        Get group datas
+
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: Group datas
+        :rtype: dict | str
+        """
+        datas = dict()
+        for k, v in self.__dict__.iteritems():
+            if k.startswith('grp'):
+                datas[k] = v
+        if asString:
+            return pprint.pformat(datas)
+        return datas
+
     def setDatas(self, **kwargs):
+        """
+        Set group datas
+
+        :param kwargs: Group datas (key must start with 'grp')
+        :type kwargs: dict
+        """
         for k, v in kwargs.iteritems():
             if k.startswith('grp'):
                 setattr(self, k, v)
@@ -216,6 +239,23 @@ class UserGroups(object):
             grpList.append(grp.grpCode)
         return grpList
 
+    def getGroupsDatas(self, asString=False):
+        """
+        Get groups datas
+
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: Group datas
+        :rtype: dict | str
+        """
+        grpDict = dict()
+        for n, grpObj in enumerate(self._groups):
+            grpDict[n] = grpObj.getDatas(asString=asString)
+        #-- Result --#
+        if asString:
+            return pprint.pformat(grpDict)
+        return grpDict
+
     def getUserObjFromName(self, userName):
         """
         Get user object from given userName
@@ -244,7 +284,7 @@ class UserGroups(object):
         """
         self.log.debug("Collecting users ...")
         if clearUsers:
-            print self.log.debug("Clean users list")
+            self.log.debug("Clean users list")
             self._users = []
         #-- Collecte Users --#
         userObjects = []
@@ -260,6 +300,8 @@ class UserGroups(object):
                 #-- Add User Object --#
                 userObj = User(user, parent=self)
                 userObj.setDatas(fromUserFile=True)
+                if user == self.fondation.__user__:
+                    self._user = userObj
                 self._users.append(userObj)
                 userObjects.append(userObj)
                 self.log.detail("---> User Object %r added" % user)
@@ -330,8 +372,37 @@ class UserGroups(object):
         self._users.append(userObj)
         return userObj
 
+    def buildGroupsFromSettings(self):
+        """
+        Populate _groups from settings
+        """
+        if 'userGroups' in self.fondation.settings.keys():
+            if 'groups' in self.fondation.settings['userGroups'].keys():
+                self.buildGroupsFromDict(self.fondation.settings['userGroups']['groups'])
+
     def buildGroupsFromDict(self, grpDict):
+        """
+        Populate _groups from fiven dict
+
+        :param grpDict: Groups dict
+        :type grpDict: dict
+        """
         self._groups = []
         for n in sorted(grpDict.keys()):
             newGroup = Group(parent=self)
-            newGroup.setDatas(grpDict[n])
+            newGroup.setDatas(**grpDict[n])
+            self._groups.append(newGroup)
+
+    def pushGroupsToSettings(self):
+        self.log.debug("Push groups datas to settings ...")
+        #-- Refresh Settings --#
+        self.log.detail("---> Refresh settings ...")
+        self.fondation.storeSettings()
+        #-- Check Keys --#
+        if not 'userGroups' in self.fondation.settings:
+            self.log.detail("---> Add 'userGroups' ...")
+            self.fondation.settings['userGroups'] = dict()
+        if not 'groups' in self.fondation.settings['userGroups']:
+            self.log.detail("---> Add 'groups' to 'userGroups' ...")
+            self.fondation.settings['userGroups']['groups'] = dict()
+        self.fondation.settings['userGroups']['groups'] = self.getGroupsDatas()
