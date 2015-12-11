@@ -16,4 +16,3 @@ print '#%s#' % ('-'*(60+len(toolName)))
 pQt.CompileUi2(uiDir=os.path.join(toolPath, '_src'),
                uiDest=os.path.join(toolPath, '_ui'))
 print '%s\n' % ('#'*(62+len(toolName)))
-
