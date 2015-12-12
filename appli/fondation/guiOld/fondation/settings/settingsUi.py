@@ -1,9 +1,11 @@
-import os, pprint
+import os
+
 from PyQt4 import QtGui
+
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.fondation.gui.fondation.settings import userGroupsUi
-from appli.fondation.gui.fondation.settings._ui import settingsUI
+from appli.fondation.guiOld.fondation.settings import userGroupsUi
+from appli.fondation.guiOld.fondation.settings._ui import settingsUI
 
 
 class SettingsUi(QtGui.QMainWindow, settingsUI.Ui_mw_toolSettings):

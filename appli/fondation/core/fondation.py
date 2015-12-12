@@ -1,4 +1,4 @@
-import os, pprint
+import os
 from lib.system import procFile as pFile
 from appli.fondation.core import userGroups
 
@@ -15,8 +15,7 @@ class Fondation(object):
     __user__ = os.environ['USERNAME']
     __rootPath__ = "E:/fondation"
     __prodsPath__ = pFile.conformPath(os.path.join(__rootPath__, 'prods'))
-    __bankPath__ = pFile.conformPath(os.path.join(__rootPath__, '_bank'))
-    __settingsPath__ = pFile.conformPath(os.path.join(__bankPath__, '_settings'))
+    __settingsPath__ = pFile.conformPath(os.path.join(__rootPath__, 'settings'))
 
     def __init__(self, logLvl='info'):
         self.log.level = logLvl
@@ -32,7 +31,7 @@ class Fondation(object):
         self.log.detail("#===== Setup Fondation Core =====#", newLinesBefor=1)
         #-- Create Tool Paths --#
         self.log.debug("#--- Check Paths ---#")
-        self.createPath([self.__rootPath__, self.__prodsPath__, self.__bankPath__, self.__settingsPath__])
+        self.createPath([self.__rootPath__, self.__prodsPath__, self.__settingsPath__])
         #-- Check Settings File --#
         if not os.path.exists(self.settingsFile):
             self.createDefaultSettingsFile()
@@ -76,8 +75,12 @@ class Fondation(object):
         Create Fondation settings file
         """
         self.log.detail("Write settings file ...")
+        datasDict = {'userGroups': {'groups': {0: {'grpCode': 'ADMIN',
+                                                   'grpName': 'Administrator',
+                                                   'grpGrade': 0,
+                                                   'grpColor': (255, 0, 0)}}}}
         try:
-            pFile.writeFile(self.settingsFile, ' ')
+            pFile.writeDictFile(self.settingsFile, datasDict)
             self.log.debug("---> Tool settings file successfully written: %s" % self.settingsFile)
         except:
             mess = "!!! Can not write tool settings file: %s !!!" % os.path.basename(self.settingsFile)

@@ -1,8 +1,8 @@
-import sys, os
+import os, sys
 from PyQt4 import QtGui
 from lib.system import procFile as pFile
 from appli.fondation.core import fondation
-from appli.fondation.gui.fondation.settings import settingsUi
+from appli.fondation.gui.fondation import toolSettingsUi
 from appli.fondation.gui.fondation._ui import fondationUI
 
 
@@ -66,7 +66,7 @@ class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mw_fondation):
 
         Launch Tool Settings Ui
         """
-        self.toolSettingsUi = settingsUi.SettingsUi(self, logLvl=self.log.level)
+        self.toolSettingsUi = toolSettingsUi.ToolSettings(self, logLvl=self.log.level)
         self.toolSettingsUi.show()
 
 

@@ -10,13 +10,30 @@ class Group(object):
     :type parent: UserGroups
     """
 
+    __attrPrefix__ = 'grp'
+
     def __init__(self, parent=None):
         self._parent = parent
         self.log = self._parent.log
         #-- Datas --#
         self.grpCode = None
         self.grpName = None
+        self.grpGrade = 9
         self.grpColor = None
+
+    @property
+    def attributes(self):
+        """
+        List all attributes
+
+        :return: Attributes
+        :rtype: list
+        """
+        attrs = []
+        for attr in self.__dict__.keys():
+            if attr.startswith(self.__attrPrefix__):
+                attrs.append(attr)
+        return attrs
 
     def getDatas(self, asString=False):
         """
@@ -28,9 +45,9 @@ class Group(object):
         :rtype: dict | str
         """
         datas = dict()
-        for k, v in self.__dict__.iteritems():
-            if k.startswith('grp'):
-                datas[k] = v
+        for attr in self.attributes:
+            datas[attr] = getattr(self, attr)
+        #-- Result --#
         if asString:
             return pprint.pformat(datas)
         return datas
@@ -43,7 +60,7 @@ class Group(object):
         :type kwargs: dict
         """
         for k, v in kwargs.iteritems():
-            if k.startswith('grp'):
+            if k.startswith(self.__attrPrefix__):
                 setattr(self, k, v)
 
 
@@ -56,6 +73,8 @@ class User(object):
     :param parent: Parent object
     :type parent: UserGroups
     """
+
+    __attrPrefix__ = 'user'
 
     def __init__(self, userName, parent=None):
         self._parent = parent
@@ -85,7 +104,7 @@ class User(object):
         :return: User path
         :rtype: str
         """
-        return pFile.conformPath(os.path.join(self._parent.bankPath, self.userPrefixFolder, self.userName))
+        return pFile.conformPath(os.path.join(self._parent.usersPath, self.userPrefixFolder, self.userName))
 
     @property
     def userFile(self):
@@ -97,6 +116,20 @@ class User(object):
         """
         return pFile.conformPath(os.path.join(self.userPath, '%s.py' % self.userName))
 
+    @property
+    def attributes(self):
+        """
+        List all attributes
+
+        :return: Attributes
+        :rtype: list
+        """
+        attrs = []
+        for attr in self.__dict__.keys():
+            if attr.startswith(self.__attrPrefix__):
+                attrs.append(attr)
+        return attrs
+
     def getDatas(self, asString=False):
         """
         Get user datas
@@ -107,52 +140,43 @@ class User(object):
         :rtype: dict | str
         """
         datas = dict()
-        for k, v in self.__dict__.iteritems():
-            if k.startswith('user'):
-                datas[k] = v
+        for attr in self.attributes:
+            datas[attr] = getattr(self, attr)
+        #-- Result --#
         if asString:
             return pprint.pformat(datas)
         return datas
 
-    def setDatas(self, datas=None, fromUserFile=False):
+    def setDatas(self, **kwargs):
         """
         Set user datas
 
-        :param datas: Datas dict to use if not using userFile
-        :type datas: dict
-        :param fromUserFile: Use userFile instead of given datas
-        :type fromUserFile: bool
+        :param kwargs: User datas (key must start with 'user')
+        :type kwargs: dict
         """
-        #-- Get Datas From File --#
-        if fromUserFile:
-            datas = pFile.readPyFile(self.userFile)
-        #-- Set Datas --#
-        if datas is not None:
-            for k, v in datas.iteritems():
+        for k, v in kwargs.iteritems():
+            if k.startswith(self.__attrPrefix__):
                 setattr(self, k, v)
-        else:
-            self.log.warning("!!! Datas can not be None, setDatas command skipped: %s !!!" % self.userName)
+
+    def setDatasFromUserFile(self):
+        """
+        Set user datas from userFile
+        """
+        datas = pFile.readDictFile(self.userFile)
+        self.setDatas(**datas)
 
     def writeFile(self):
         """
         Write user file
         """
         self.log.debug("#--- Write User File: %s ---#" % self.userName)
-        #-- Translate Datas --#
-        self.log.detail("Translate datas ...")
-        txt = []
-        for k, v in self.getDatas().iteritems():
-            if isinstance(v, str):
-                txt.append("%s = %r" % (k, v))
-            else:
-                txt.append("%s = %s" % (k, v))
         #-- Check Path --#
         self.log.detail("Check user path ...")
-        self.fondation.createPath(self.userPath, recursive=True, root=self._parent.bankPath)
+        self.fondation.createPath(self.userPath, recursive=True, root=self._parent.usersPath)
         #-- Write File --#
         self.log.detail("Write user file ...")
         try:
-            pFile.writeFile(self.userFile, '\n'.join(txt))
+            pFile.writeDictFile(self.userFile, self.getDatas())
             self.log.debug("---> User file successfully written: %s" % self.userFile)
         except:
             mess = "!!! Can not write userFile: %s !!!" % self.userName
@@ -171,7 +195,7 @@ class UserGroups(object):
     """
 
     log = pFile.Logger(title="UserGrp")
-    __bankDir__ = 'users'
+    __usersDir__ = 'users'
     __install__ = False
 
     def __init__(self, fdtObj, logLvl='info'):
@@ -191,27 +215,27 @@ class UserGroups(object):
         self.log.detail("#===== Setup UserGroups Core =====#", newLinesBefor=1)
         #-- Create Tool Paths --#
         self.log.debug("#--- Check Paths ---#")
-        if not os.path.exists(self.bankPath):
+        if not os.path.exists(self.usersPath):
             self.__install__ = True
-            self.fondation.createPath([self.bankPath])
+            self.fondation.createPath([self.usersPath])
         #-- Check User --#
         self.log.debug("#--- Check User ---#")
         self.collecteUsers(userName=self.fondation.__user__)
         if not self.fondation.__user__ in self.users:
-            self.createNewUser()
+            self.newUser()
         #-- Store User Data --#
         self.log.debug("#--- Store User Datas ---#")
         self._user = self.getUserObjFromName(self.fondation.__user__)
 
     @property
-    def bankPath(self):
+    def usersPath(self):
         """
         Get users bank path
 
         :return: Users bank path
         :rtype: str
         """
-        return pFile.conformPath(os.path.join(self.fondation.__bankPath__, self.__bankDir__))
+        return pFile.conformPath(os.path.join(self.fondation.__rootPath__, self.__usersDir__))
 
     @property
     def users(self):
@@ -299,7 +323,7 @@ class UserGroups(object):
                     self._users.remove(userCheck)
                 #-- Add User Object --#
                 userObj = User(user, parent=self)
-                userObj.setDatas(fromUserFile=True)
+                userObj.setDatasFromUserFile()
                 if user == self.fondation.__user__:
                     self._user = userObj
                 self._users.append(userObj)
@@ -326,12 +350,12 @@ class UserGroups(object):
             if userName is not None:
                 indexList = userName[0].lower()
             else:
-                indexList = os.listdir(self.bankPath) or []
+                indexList = os.listdir(self.usersPath) or []
         #-- Collecte Index --#
         userList = []
         indexPath = None
         for index in indexList:
-            indexPath = pFile.conformPath(os.path.join(self.bankPath, index))
+            indexPath = pFile.conformPath(os.path.join(self.usersPath, index))
             if len(index) == 1 and os.path.isdir(indexPath):
                 #-- Get User List --#
                 if userName is not None:
@@ -341,7 +365,7 @@ class UserGroups(object):
         #-- Result --#
         return userList, indexPath
 
-    def createNewUser(self, userName=None, forceUpdate=False):
+    def newUser(self, userName=None, forceUpdate=False):
         """
         Create new user
 
@@ -371,6 +395,26 @@ class UserGroups(object):
         userObj.writeFile()
         self._users.append(userObj)
         return userObj
+
+    def newGroup(self, grpCode, **kwargs):
+        """
+        Create new group
+        :param grpCode: Group code
+        :type grpCode: str
+        :param kwargs: Group datas (key must ends with '_grp')
+        :type kwargs: dict
+        :return: Group object
+        :rtype: Group
+        """
+        #-- Check GrpName --#
+        if grpCode in self.groups:
+            mess = "!!! Group code %r already exists !!!" % grpCode
+            self.log.error(mess)
+            raise AttributeError(mess)
+        #-- Create Group --#
+        grpObj = Group(parent=self)
+        grpObj.setDatas(grpCode=grpCode, **kwargs)
+        return grpObj
 
     def buildGroupsFromSettings(self):
         """

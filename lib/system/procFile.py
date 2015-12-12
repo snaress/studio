@@ -101,7 +101,19 @@ def readFile(filePath):
     return getText
 
 def readDictFile(filePath):
-    return eval(''.join(readFile(filePath)))
+    """
+    Read dict pyFile
+
+    :param filePath: File absolut path
+    :type filePath: str
+    :return: Translated dictionnary
+    :rtype: dict
+    """
+    fileLines = ''.join(readFile(filePath))
+    if not fileLines in ['', ' ']:
+        return eval(''.join(fileLines))
+    else:
+        return dict()
 
 def readPyFile(filePath, keepBuiltin=False):
     """
