@@ -236,12 +236,15 @@ class Logger(object):
     :type title: str
     :param level: Log level ('critical', 'error', 'warning', 'info', 'debug', 'detail')
     :type level: str
+    :param showTime: Add current time in log header
+    :type showTime: bool
     """
 
-    def __init__(self, title='LOG', level='info'):
+    def __init__(self, title='LOG', level='info', showTime=False):
         self.levels = ['critical', 'error', 'warning', 'info', 'debug', 'detail']
         self.title = title
         self.level = level
+        self.showTime = showTime
 
     @property
     def lvlIndex(self):
@@ -253,101 +256,67 @@ class Logger(object):
         """
         return self.levels.index(self.level)
 
-    def critical(self, message, newLinesBefor=0, newLinesAfter=0):
+    def printLog(self, message, newLinesBefore, newLinesAfter, level):
+        """
+        Print given message with given level
+
+        :param message: Message to print
+        :type message: str
+        :param newLinesBefore: New lines to insert befor message
+        :type newLinesBefore: int
+        :param newLinesAfter: New lines to insert after message
+        :type newLinesAfter: int
+        :param level: Log level 'critical', 'error', 'warning', 'info', 'debug', 'detail')
+        :type level: str
+        """
+        self._addNewLines(newLinesBefore)
+        if self.showTime:
+            print "| %s | %s | %s | %s" % (self.title, level, self.currentTime, message)
+        else:
+            print "| %s | %s | %s" % (self.title, level, message)
+        self._addNewLines(newLinesAfter)
+
+    def critical(self, message, newLinesBefore=0, newLinesAfter=0):
         """
         Print given message with critical level
-
-        :param message: Message to print
-        :type message: str
-        :param newLinesBefor: New lines to insert befor message
-        :type newLinesBefor: int
-        :param newLinesAfter: New lines to insert after message
-        :type newLinesAfter: int
         """
         if self.lvlIndex >= 0:
-            self._addNewLines(newLinesBefor)
-            print "| %s | Critical | %s | %s" % (self.title, self.currentTime, message)
-            self._addNewLines(newLinesAfter)
+            self.printLog(message, newLinesBefore, newLinesAfter, 'Critical')
 
-    def error(self, message, newLinesBefor=0, newLinesAfter=0):
+    def error(self, message, newLinesBefore=0, newLinesAfter=0):
         """
         Print given message with error level
-
-        :param message: Message to print
-        :type message: str
-        :param newLinesBefor: New lines to insert befor message
-        :type newLinesBefor: int
-        :param newLinesAfter: New lines to insert after message
-        :type newLinesAfter: int
         """
         if self.lvlIndex >= 1:
-            self._addNewLines(newLinesBefor)
-            print "| %s | Error | %s | %s" % (self.title, self.currentTime, message)
-            self._addNewLines(newLinesAfter)
+            self.printLog(message, newLinesBefore, newLinesAfter, 'Error')
 
-    def warning(self, message, newLinesBefor=0, newLinesAfter=0):
+    def warning(self, message, newLinesBefore=0, newLinesAfter=0):
         """
         Print given message with warning level
-
-        :param message: Message to print
-        :type message: str
-        :param newLinesBefor: New lines to insert befor message
-        :type newLinesBefor: int
-        :param newLinesAfter: New lines to insert after message
-        :type newLinesAfter: int
         """
         if self.lvlIndex >= 2:
-            self._addNewLines(newLinesBefor)
-            print "| %s | Warning | %s | %s" % (self.title, self.currentTime, message)
-            self._addNewLines(newLinesAfter)
+            self.printLog(message, newLinesBefore, newLinesAfter, 'Warning')
 
-    def info(self, message, newLinesBefor=0, newLinesAfter=0):
+    def info(self, message, newLinesBefore=0, newLinesAfter=0):
         """
         Print given message with info level
-
-        :param message: Message to print
-        :type message: str
-        :param newLinesBefor: New lines to insert befor message
-        :type newLinesBefor: int
-        :param newLinesAfter: New lines to insert after message
-        :type newLinesAfter: int
         """
         if self.lvlIndex >= 3:
-            self._addNewLines(newLinesBefor)
-            print "| %s | Info | %s | %s" % (self.title, self.currentTime, message)
-            self._addNewLines(newLinesAfter)
+            self.printLog(message, newLinesBefore, newLinesAfter, 'Info')
 
-    def debug(self, message, newLinesBefor=0, newLinesAfter=0):
+    def debug(self, message, newLinesBefore=0, newLinesAfter=0):
         """
         Print given message with debug level
-
-        :param message: Message to print
-        :type message: str
-        :param newLinesBefor: New lines to insert befor message
-        :type newLinesBefor: int
-        :param newLinesAfter: New lines to insert after message
-        :type newLinesAfter: int
         """
         if self.lvlIndex >= 4:
-            self._addNewLines(newLinesBefor)
-            print "| %s | Debug | %s | %s" % (self.title, self.currentTime, message)
-            self._addNewLines(newLinesAfter)
+            self.printLog(message, newLinesBefore, newLinesAfter, 'Debug')
 
-    def detail(self, message, newLinesBefor=0, newLinesAfter=0):
+    def detail(self, message, newLinesBefore=0, newLinesAfter=0):
         """
         Print given message with detail level
-
-        :param message: Message to print
-        :type message: str
-        :param newLinesBefor: New lines to insert befor message
-        :type newLinesBefor: int
-        :param newLinesAfter: New lines to insert after message
-        :type newLinesAfter: int
         """
         if self.lvlIndex >= 5:
-            self._addNewLines(newLinesBefor)
-            print "| %s | Detail | %s | %s" % (self.title, self.currentTime, message)
-            self._addNewLines(newLinesAfter)
+            self.printLog(message, newLinesBefore, newLinesAfter, 'Detail')
 
     @property
     def currentTime(self):
