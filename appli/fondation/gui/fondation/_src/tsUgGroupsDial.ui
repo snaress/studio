@@ -430,9 +430,11 @@
  <tabstops>
   <tabstop>le_userGrpCode</tabstop>
   <tabstop>le_userGrpName</tabstop>
+  <tabstop>cb_grade</tabstop>
   <tabstop>sb_styleR</tabstop>
   <tabstop>sb_styleG</tabstop>
   <tabstop>sb_styleB</tabstop>
+  <tabstop>pb_userGrpStyle</tabstop>
   <tabstop>pb_save</tabstop>
   <tabstop>pb_cancel</tabstop>
  </tabstops>

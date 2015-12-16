@@ -13,7 +13,7 @@ class GraphTree(object):
     def __init__(self, grapher=None):
         self.gp = grapher
         self.log = self.gp.log
-        self.log.info("#-- Init Graph Tree --#", newLinesBefor=1)
+        self.log.info("#-- Init Graph Tree --#", newLinesBefore=1)
         self._topItems = []
 
     def getDatas(self, asString=False):
@@ -200,7 +200,7 @@ class GraphItem(object):
         self._tree = treeObject
         self.log = self._tree.log
         self.log.debug("#-- Init Graph Item: %s (%s) --#" % (nodeObject.nodeName,
-                                                             nodeObject.nodeType), newLinesBefor=1)
+                                                             nodeObject.nodeType), newLinesBefore=1)
         self._node = nodeObject
         self._parent = None
         self._children = []

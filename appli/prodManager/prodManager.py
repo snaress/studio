@@ -12,7 +12,7 @@ class ProdManager(object):
 
     def __init__(self, prodId=None, logLvl='info'):
         self._log = pFile.Logger(title="ProdManager", level=logLvl)
-        self._log.info("########## ProdManager ##########", newLinesBefor=1)
+        self._log.info("########## ProdManager ##########", newLinesBefore=1)
         self._prodId = prodId
         self.binPath = pm.binPath
         self.project = Project(self)
@@ -193,7 +193,7 @@ class Project(object):
 
     def printParams(self):
         """ Print current project params """
-        self._log.info("########## PROJECT PARAMS ##########", newLinesBefor=1)
+        self._log.info("########## PROJECT PARAMS ##########", newLinesBefore=1)
         txt = self.paramsToTxt()
         print '\n'.join(txt)
 
@@ -219,7 +219,7 @@ class Project(object):
 
     def printAllProject(self):
         """ Print all projects in data base """
-        self._log.info("########## PRODMANAGER PROJECT LIST ##########", newLinesBefor=1)
+        self._log.info("########## PRODMANAGER PROJECT LIST ##########", newLinesBefore=1)
         projectsDict = self.getAllProjects()
         for project in sorted(projectsDict.keys()):
             txt = ["#-- %s --#" % project]

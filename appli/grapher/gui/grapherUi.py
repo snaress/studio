@@ -31,7 +31,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
 
     # noinspection PyUnresolvedReferences
     def _setupUi(self):
-        self.log.info("#-- Setup Main Ui --#", newLinesBefor=1)
+        self.log.info("#-- Setup Main Ui --#", newLinesBefore=1)
         self.setupUi(self)
         self.varBuffer = None
         self.gridLayout.setMargin(0)
@@ -43,7 +43,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
 
     # noinspection PyUnresolvedReferences
     def _initWidgets(self):
-        self.log.info("#-- Init Widgets --#", newLinesBefor=1)
+        self.log.info("#-- Init Widgets --#", newLinesBefore=1)
         #-- Node Comment --#
         self.graphComment = textEditor.TextEditor()
         self.graphComment.bLoadFile.setEnabled(False)
@@ -69,7 +69,7 @@ class GrapherUi(QtGui.QMainWindow, grapherUI.Ui_mwGrapher):
         self.vlLogs.addWidget(self.graphLogs)
 
     def _initMenu(self):
-        self.log.info("#-- Init Menus --#", newLinesBefor=1)
+        self.log.info("#-- Init Menus --#", newLinesBefore=1)
         self._menuFiles()
         self._menuGraph()
         self._menuExec()

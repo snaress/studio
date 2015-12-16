@@ -212,7 +212,7 @@ class UserGroups(object):
         """
         Setup UserGroups core object
         """
-        self.log.detail("#===== Setup UserGroups Core =====#", newLinesBefor=1)
+        self.log.detail("#===== Setup UserGroups Core =====#", newLinesBefore=1)
         #-- Create Tool Paths --#
         self.log.debug("#--- Check Paths ---#")
         if not os.path.exists(self.usersPath):

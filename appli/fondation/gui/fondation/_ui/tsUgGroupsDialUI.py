@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\fondation\_src\tsUgGroupsDial.ui'
 #
-# Created: Sat Dec 12 01:59:25 2015
+# Created: Sun Dec 13 19:17:38 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -169,10 +169,12 @@ class Ui_dial_groups(object):
         self.retranslateUi(dial_groups)
         QtCore.QMetaObject.connectSlotsByName(dial_groups)
         dial_groups.setTabOrder(self.le_userGrpCode, self.le_userGrpName)
-        dial_groups.setTabOrder(self.le_userGrpName, self.sb_styleR)
+        dial_groups.setTabOrder(self.le_userGrpName, self.cb_grade)
+        dial_groups.setTabOrder(self.cb_grade, self.sb_styleR)
         dial_groups.setTabOrder(self.sb_styleR, self.sb_styleG)
         dial_groups.setTabOrder(self.sb_styleG, self.sb_styleB)
-        dial_groups.setTabOrder(self.sb_styleB, self.pb_save)
+        dial_groups.setTabOrder(self.sb_styleB, self.pb_userGrpStyle)
+        dial_groups.setTabOrder(self.pb_userGrpStyle, self.pb_save)
         dial_groups.setTabOrder(self.pb_save, self.pb_cancel)
 
     def retranslateUi(self, dial_groups):

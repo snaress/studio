@@ -15,7 +15,7 @@ class ProjectSettingsUi(QtGui.QMainWindow, settingsUI.Ui_mwSettings):
 
     def __init__(self, mainUi, logLvl='info'):
         self.log = pFile.Logger(title="Settings", level=logLvl)
-        self.log.info("########## PROJECT SETTINGS ##########", newLinesBefor=1)
+        self.log.info("########## PROJECT SETTINGS ##########", newLinesBefore=1)
         self.mainUi = mainUi
         self.pm = self.mainUi.pm
         super(ProjectSettingsUi, self).__init__()

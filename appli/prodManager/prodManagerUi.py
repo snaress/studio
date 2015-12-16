@@ -14,7 +14,7 @@ class ProdLoaderUi(QtGui.QMainWindow, prodLoaderUI.Ui_mwProdLoader):
 
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="ProdLoader", level=logLvl)
-        self.log.info("########## ProdManager Loader ##########", newLinesBefor=1)
+        self.log.info("########## ProdManager Loader ##########", newLinesBefore=1)
         self.pm = prodManager.ProdManager(logLvl=logLvl)
         super(ProdLoaderUi, self).__init__()
         self._setupUi()
@@ -137,7 +137,7 @@ class NewProjectUi(QtGui.QDialog, newProjectUI.Ui_newProject):
 
     def __init__(self, mainUi, logLvl='info'):
         self.log = pFile.Logger(title="PL-NewProject", level=logLvl)
-        self.log.info("########## ProdManager New Project ##########", newLinesBefor=1)
+        self.log.info("########## ProdManager New Project ##########", newLinesBefore=1)
         self.mainUi = mainUi
         self.pm = self.mainUi.pm
         super(NewProjectUi, self).__init__()
@@ -244,7 +244,7 @@ class ProdManagerUi(QtGui.QMainWindow, prodManagerUI.Ui_mwProdManager):
     def __init__(self, prodId=None, logLvl='info'):
         self.log = pFile.Logger(title="ProdManagerUi", level=logLvl)
         self.pm = prodManager.ProdManager(prodId=prodId, logLvl=logLvl)
-        self.log.info("########## ProdManager UI ##########", newLinesBefor=1)
+        self.log.info("########## ProdManager UI ##########", newLinesBefore=1)
         self.iconPath = pFile.conformPath(pmPack.iconPath)
         super(ProdManagerUi, self).__init__()
         self._setupUi()

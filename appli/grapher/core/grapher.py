@@ -66,7 +66,7 @@ class Grapher(object):
 
     def __init__(self, logLvl='info'):
         self.log = pFile.Logger(title="Grapher", level=logLvl)
-        self.log.info("#-- Init Grapher Core --#", newLinesBefor=1)
+        self.log.info("#-- Init Grapher Core --#", newLinesBefore=1)
         self.binPath = grapher.binPath
         self.user = grapher.user
         self.userPath = os.path.join(grapher.binPath, 'pref', 'users', self.user)
@@ -366,9 +366,9 @@ class GrapherExec(object):
         _time = pFile.getTime()
         #-- Init --#
         if item is None:
-            self.log.info("########## EXEC GRAPH ##########", newLinesBefor=1)
+            self.log.info("########## EXEC GRAPH ##########", newLinesBefore=1)
         else:
-            self.log.info("########## EXEC NODE ##########", newLinesBefor=1)
+            self.log.info("########## EXEC NODE ##########", newLinesBefore=1)
         self.log.info("Date: %s -- Time: %s" % (_date, _time))
         self.log.info("xTerm: %s" % xTerm)
         self.log.info("wait: %s" % wait)
@@ -387,7 +387,7 @@ class GrapherExec(object):
         """
         Create process directories
         """
-        self.log.info("#--- Create Process Path ---#", newLinesBefor=1)
+        self.log.info("#--- Create Process Path ---#", newLinesBefore=1)
         self.grapher.createFolders(os.path.normpath(os.path.join(self.grapher.graphTmpPath, 'exec')))
         self.grapher.createFolders(os.path.normpath(os.path.join(self.grapher.graphTmpPath, 'launcher')))
         self.grapher.createFolders(os.path.normpath(os.path.join(self.grapher.graphTmpPath, 'logs')))
@@ -399,7 +399,7 @@ class GrapherExec(object):
         """
         Create script files
         """
-        self.log.info("#--- create Script Files ---#", newLinesBefor=1)
+        self.log.info("#--- create Script Files ---#", newLinesBefore=1)
         for item in self.grapher.tree.allItems():
             if hasattr(item._node, 'nodeScript'):
                 self.log.detail("\t ---> %s" % item._node.nodeName)
@@ -419,7 +419,7 @@ class GrapherExec(object):
         :return: ExecFile full path, LogFile full path
         :rtype: str && str
         """
-        self.log.info("#--- Create Process Files ---#", newLinesBefor=1)
+        self.log.info("#--- Create Process Files ---#", newLinesBefore=1)
         execFile = os.path.join(self.grapher.graphTmpPath, 'exec',
                                 '%s--%s--%s.py' % (self.grapher.user, _date, _time))
         logFile = os.path.join(self.grapher.graphTmpPath, 'logs',
@@ -440,7 +440,7 @@ class GrapherExec(object):
         :return: Script header
         :rtype: str
         """
-        self.log.info("#--- Init Exec Script ---#", newLinesBefor=1)
+        self.log.info("#--- Init Exec Script ---#", newLinesBefore=1)
         #-- Init --#
         header = ["print '%s%s%s'" % ("#" * 20, "#" * 9, "#" * 20),
                   "print '%s GRAPHER %s'" % ("#" * 20, "#" * 20),
@@ -507,7 +507,7 @@ class GrapherExec(object):
         :param execTxt: Exec script
         :type execTxt: str
         """
-        self.log.info("#--- Write Exec File ---#", newLinesBefor=1)
+        self.log.info("#--- Write Exec File ---#", newLinesBefore=1)
         try:
             pFile.writeFile(execFile, execTxt)
             self.log.info("execFile saved: %s" % pFile.conformPath(execFile))
@@ -528,7 +528,7 @@ class GrapherExec(object):
         :param wait: Enable 'Wait At End'
         :type wait: bool
         """
-        self.log.info("#--- Launch Exec File ---#", newLinesBefor=1)
+        self.log.info("#--- Launch Exec File ---#", newLinesBefore=1)
         cmd = self.execCommand(execFile, logFile, xTerm=xTerm, wait=wait)
         self.log.info("cmd: %s" % cmd)
         os.system(cmd)
@@ -652,7 +652,7 @@ class NodeCompiler(object):
         :return: Updated Exec script
         :rtype: str
         """
-        self.log.info("#--- Collecte Datas ---#", newLinesBefor=1)
+        self.log.info("#--- Collecte Datas ---#", newLinesBefore=1)
         nodeTxt = execTxt
         #-- Get Graph Items --#
         if item is None:

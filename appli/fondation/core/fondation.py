@@ -19,7 +19,7 @@ class Fondation(object):
 
     def __init__(self, logLvl='info'):
         self.log.level = logLvl
-        self.log.info("########## Launching Fondation ##########", newLinesBefor=1)
+        self.log.info("########## Launching Fondation ##########", newLinesBefore=1)
         self.settings = dict()
         self._setup()
         self.userGrps = userGroups.UserGroups(self, logLvl=self.log.level)
@@ -28,7 +28,7 @@ class Fondation(object):
         """
         Setup Fondation core object
         """
-        self.log.detail("#===== Setup Fondation Core =====#", newLinesBefor=1)
+        self.log.detail("#===== Setup Fondation Core =====#", newLinesBefore=1)
         #-- Create Tool Paths --#
         self.log.debug("#--- Check Paths ---#")
         self.createPath([self.__rootPath__, self.__prodsPath__, self.__settingsPath__])

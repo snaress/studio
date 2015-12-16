@@ -19,7 +19,7 @@ class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mw_fondation):
 
     def __init__(self, logLvl='info'):
         self.log.level = logLvl
-        self.log.info("########## Launching Fondation Ui ##########", newLinesBefor=1)
+        self.log.info("########## Launching Fondation Ui ##########", newLinesBefore=1)
         self.fondation = fondation.Fondation(logLvl=self.log.level)
         super(FondationUi, self).__init__()
         self.iconToolTip = QtGui.QIcon(os.path.join(self.iconPath, 'toolTip.png'))
@@ -30,7 +30,7 @@ class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mw_fondation):
         """
         Setup QtGui Fondation Ui
         """
-        self.log.detail("#===== Setup Fondation Ui =====#", newLinesBefor=1)
+        self.log.detail("#===== Setup Fondation Ui =====#", newLinesBefore=1)
         self.setupUi(self)
         self.setWindowTitle("Fondation | %s" % self.fondation.__user__)
         self.gridLayout.setMargin(0)

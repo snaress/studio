@@ -363,6 +363,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tw_tree</tabstop>
+  <tabstop>pb_itemUp</tabstop>
+  <tabstop>pb_itemDn</tabstop>
+  <tabstop>pb_add</tabstop>
+  <tabstop>pb_del</tabstop>
+  <tabstop>pb_edit1</tabstop>
+  <tabstop>pb_edit2</tabstop>
+  <tabstop>pb_apply</tabstop>
+  <tabstop>pb_cancel</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

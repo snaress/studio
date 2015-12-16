@@ -59,7 +59,7 @@ class GraphTree(QtGui.QTreeWidget):
         :return: New item
         :rtype: QtGui.QTreeWidgetItem
         """
-        self.log.debug("#-- + Creating %s Node + : %s --#" % (nodeType, nodeName), newLinesBefor=1)
+        self.log.debug("#-- + Creating %s Node + : %s --#" % (nodeType, nodeName), newLinesBefore=1)
         #-- Create New Item --#
         grapherItem = self.grapher.tree.getItemFromNodeName(nodeName)
         newItem = GraphItem(self.mainUi, grapherItem)

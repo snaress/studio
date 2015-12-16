@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\common\_src\treeWidgetSettings.ui'
 #
-# Created: Wed Dec 09 23:06:56 2015
+# Created: Sun Dec 13 19:17:38 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -165,6 +165,14 @@ class Ui_wg_treeWidget(object):
 
         self.retranslateUi(wg_treeWidget)
         QtCore.QMetaObject.connectSlotsByName(wg_treeWidget)
+        wg_treeWidget.setTabOrder(self.tw_tree, self.pb_itemUp)
+        wg_treeWidget.setTabOrder(self.pb_itemUp, self.pb_itemDn)
+        wg_treeWidget.setTabOrder(self.pb_itemDn, self.pb_add)
+        wg_treeWidget.setTabOrder(self.pb_add, self.pb_del)
+        wg_treeWidget.setTabOrder(self.pb_del, self.pb_edit1)
+        wg_treeWidget.setTabOrder(self.pb_edit1, self.pb_edit2)
+        wg_treeWidget.setTabOrder(self.pb_edit2, self.pb_apply)
+        wg_treeWidget.setTabOrder(self.pb_apply, self.pb_cancel)
 
     def retranslateUi(self, wg_treeWidget):
         wg_treeWidget.setWindowTitle(_translate("wg_treeWidget", "TreeWidget Settings", None))

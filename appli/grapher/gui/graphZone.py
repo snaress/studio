@@ -191,7 +191,7 @@ class GraphZone(object):
         :param treeDict: Tree params
         :type treeDict: dict
         """
-        self.log.debug("#-- Build Graph --#" , newLinesBefor=1)
+        self.log.debug("#-- Build Graph --#" , newLinesBefore=1)
         #-- Clear Before Build --#
         if clear:
             self.currentGraph.clear()

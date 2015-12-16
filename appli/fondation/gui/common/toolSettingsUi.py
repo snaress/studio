@@ -7,7 +7,7 @@ from appli.fondation.gui.common._ui import toolSettingsDialogUI
 
 class ToolSettings(QtGui.QMainWindow, toolSettingsDialogUI.Ui_mw_toolSettings):
     """
-    ToolSettings common Class: Contains template settings.
+    ToolSettings common Class: Contain settings templates.
     """
 
     iconPath = "%s/_lib/icon/png" % '/'.join(pFile.conformPath(os.path.dirname(__file__)).split('/')[:-1])
@@ -45,12 +45,10 @@ class ToolSettings(QtGui.QMainWindow, toolSettingsDialogUI.Ui_mw_toolSettings):
         self.setWindowTitle("ToolSettings | %s" % self.fondation.__user__)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
-        #-- Add Icons --#
         self.pb_save.setIcon(self.iconEnable)
         self.pb_save.clicked.connect(self.on_save)
         self.pb_close.setIcon(self.iconDisable)
         self.pb_close.clicked.connect(self.on_close)
-        #-- Connect --#
         self.tw_category.clicked.connect(self.on_category)
         self._initWidgets()
         self.buildCategoryTree()

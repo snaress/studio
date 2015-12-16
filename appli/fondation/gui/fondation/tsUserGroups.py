@@ -3,10 +3,16 @@ from PyQt4 import QtGui
 from lib.qt import procQt as pQt
 from lib.system import procMath as pMath
 from appli.fondation.gui.common import treeWidgetUi
-from appli.fondation.gui.fondation._ui import tsUgGroupsDialUI
+from appli.fondation.gui.fondation._ui import tsUgGroupsDialUI, tsUgUsersDialUI
 
 
 class Groups(treeWidgetUi.TreeWidgetSettings):
+    """
+    ToolSettings Groups Class: Contains UserGroups settings, child of ToolSettings
+
+    :param pWidget: Parent widget
+    :type mainUi: ToolSettings
+    """
 
     __edited__ = False
 
@@ -113,6 +119,9 @@ class Groups(treeWidgetUi.TreeWidgetSettings):
         if selItems:
             self.dialGroup = GroupsDialog(selItems[0], parent=self)
             self.dialGroup.exec_()
+        else:
+            message = "!!! Select at least one group item !!!"
+            pQt.errorDialog(message, self)
 
     def on_editItem2(self):
         """
@@ -158,6 +167,14 @@ class Groups(treeWidgetUi.TreeWidgetSettings):
 
 
 class GroupsDialog(QtGui.QDialog, tsUgGroupsDialUI.Ui_dial_groups):
+    """
+    ToolSettings Groups Dialog: UserGroups edition, child of Groups
+
+    :param selItem: Selected group item
+    :type selItem: QtGui.QTreeWidgetItem
+    :param parent: Parent Ui
+    :type parent: Groups
+    """
 
     def __init__(self, selItem, parent=None):
         self.selItem = selItem
@@ -185,15 +202,32 @@ class GroupsDialog(QtGui.QDialog, tsUgGroupsDialUI.Ui_dial_groups):
         self.pb_save.clicked.connect(self.on_save)
         self.pb_cancel.setIcon(self.parent().iconCancel)
         self.pb_cancel.clicked.connect(self.close)
-        #-- ToolTips --#
+        #-- Refresh --#
         self.rf_dialog()
         self.rf_toolTips()
+
+    def rf_dialog(self):
+        """
+        Refresh dialog values
+        """
+        self.le_userGrpCode.setText(str(self.selItem.itemObj.grpCode))
+        self.le_userGrpName.setText(str(self.selItem.itemObj.grpName))
+        self.cb_grade.setCurrentIndex(self.selItem.itemObj.grpGrade)
+        self.pb_userGrpStyle.setStyleSheet("background-color: rgb(%s, %s, %s)" % (self.selItem.itemObj.grpColor[0],
+                                                                                  self.selItem.itemObj.grpColor[1],
+                                                                                  self.selItem.itemObj.grpColor[2]))
+        self.sb_styleR.setValue(self.selItem.itemObj.grpColor[0])
+        self.sb_styleG.setValue(self.selItem.itemObj.grpColor[1])
+        self.sb_styleB.setValue(self.selItem.itemObj.grpColor[2])
 
     def rf_toolTips(self):
         """
         Refresh dialog toolTips
         """
         if self.parent().pWidget.mainUi.showToolTips:
+            self.le_userGrpCode.setToolTip("Group code ('ADMIN', 'DEV')")
+            self.le_userGrpName.setToolTip("Group name")
+            self.cb_grade.setToolTip("Group grade index")
             self.sb_styleR.setToolTip("Red color value (0, 255)")
             self.sb_styleG.setToolTip("Green color value (0, 255)")
             self.sb_styleB.setToolTip("Blue color value (0, 255)")
@@ -202,20 +236,6 @@ class GroupsDialog(QtGui.QDialog, tsUgGroupsDialUI.Ui_dial_groups):
             wList = [self.sb_styleR, self.sb_styleG, self.sb_styleB, self.pb_userGrpStyle]
             for widget in wList:
                 widget.setToolTip('')
-
-    def rf_dialog(self):
-        """
-        Refresh dialog values
-        """
-        self.le_userGrpCode.setText(self.selItem.itemObj.grpCode)
-        self.le_userGrpName.setText(self.selItem.itemObj.grpName)
-        self.cb_grade.setCurrentIndex(self.selItem.itemObj.grpGrade)
-        self.pb_userGrpStyle.setStyleSheet("background-color: rgb(%s, %s, %s)" % (self.selItem.itemObj.grpColor[0],
-                                                                                  self.selItem.itemObj.grpColor[1],
-                                                                                  self.selItem.itemObj.grpColor[2]))
-        self.sb_styleR.setValue(self.selItem.itemObj.grpColor[0])
-        self.sb_styleG.setValue(self.selItem.itemObj.grpColor[1])
-        self.sb_styleB.setValue(self.selItem.itemObj.grpColor[2])
 
     def on_color(self):
         """
@@ -274,6 +294,12 @@ class GroupsDialog(QtGui.QDialog, tsUgGroupsDialUI.Ui_dial_groups):
 
 
 class Users(treeWidgetUi.TreeWidgetSettings):
+    """
+    ToolSettings Users Class: Contains User settings, child of ToolSettings
+
+    :param pWidget: Parent widget
+    :type mainUi: ToolSettings
+    """
 
     __edited__ = False
 
@@ -291,7 +317,8 @@ class Users(treeWidgetUi.TreeWidgetSettings):
         self.qf_moveItem.setVisible(False)
         self.pb_edit2.setVisible(False)
         self.qf_treeEdit_R.setVisible(False)
-        self.rf_headers('Photo', 'User Name', 'Group', 'First Name', 'Last Name')
+        self.tw_tree.header().setStretchLastSection(False)
+        self.rf_headers('User Name', 'Group', 'First Name', 'Last Name', 'Photo')
         self.rf_treeColumns()
 
     def _setupIcons(self):
@@ -300,6 +327,18 @@ class Users(treeWidgetUi.TreeWidgetSettings):
         """
         super(Users, self)._setupIcons()
         self.pb_edit1.setText("Edit")
+
+    def rf_toolTips(self):
+        """
+        Refresh widgets toolTips
+        """
+        super(Users, self).rf_toolTips()
+        if self.mainUi.showToolTips:
+            self.pb_add.setToolTip("Create new user")
+            self.pb_del.setToolTip("Delete selected User")
+            self.pb_edit1.setToolTip("Edit selected User")
+            self.pb_apply.setToolTip("Apply datas to Fondation object")
+            self.pb_cancel.setToolTip("Restore datas from Fondation object")
 
     def buildTree(self):
         """
@@ -315,22 +354,6 @@ class Users(treeWidgetUi.TreeWidgetSettings):
             self.tw_tree.addTopLevelItems(userItems)
         self.rf_treeColumns()
 
-    def new_treeItem(self, itemObj):
-        """
-        Create or update group tree item widget
-
-        :param itemObj: Group core object
-        :type itemObj: appli.fondation.core.fondation.userGroups.Group
-        :return: New group item
-        :rtype: QtGui.QTreeWidgetItem
-        """
-        newItem = QtGui.QTreeWidgetItem()
-        newItem.itemObj = itemObj
-        self.ud_treeItem(newItem)
-        for n in range((self.tw_tree.columnCount() - 2)):
-            newItem.setTextAlignment(n, 5)
-        return newItem
-
     def ud_treeItem(self, item, **kwargs):
         """
         Update item datas and settings
@@ -342,7 +365,111 @@ class Users(treeWidgetUi.TreeWidgetSettings):
         """
         super(Users, self).ud_treeItem(item, **kwargs)
         #-- Edit Item --#
-        item.setText(1, str(item.itemObj.userName))
-        item.setText(2, str(item.itemObj.userGroup))
-        item.setText(3, str(item.itemObj.userFirstName))
-        item.setText(4, str(item.itemObj.userLastName))
+        item.setText(0, str(item.itemObj.userName))
+        item.setText(1, str(item.itemObj.userGroup))
+        item.setText(2, str(item.itemObj.userFirstName))
+        item.setText(3, str(item.itemObj.userLastName))
+
+    def on_editItem1(self):
+        """
+        Command launched when 'Edit' QPushButton is clicked
+
+        Launch Group editing dialog
+        """
+        super(Users, self).on_editItem1()
+        selItems = self.tw_tree.selectedItems() or []
+        if selItems:
+            self.dialUser = UsersDialog(selItems[0], parent=self)
+            self.dialUser.exec_()
+        else:
+            message = "!!! Select at least one user item !!!"
+            pQt.errorDialog(message, self)
+
+
+class UsersDialog(QtGui.QDialog, tsUgUsersDialUI.Ui_dial_users):
+    """
+    ToolSettings Users Dialog: User edition, child of Users
+
+    :param selItem: Selected user item
+    :type selItem: QtGui.QTreeWidgetItem
+    :param parent: Parent Ui
+    :type parent: Users
+    """
+
+    def __init__(self, selItem, parent=None):
+        self.selItem = selItem
+        self.log = parent.log
+        super(UsersDialog, self).__init__(parent)
+        self._setupUi()
+
+    # noinspection PyUnresolvedReferences
+    def _setupUi(self):
+        """
+        Setup QtGui Users dialog
+        """
+        self.log.detail("#----- Setup UsersDialog Ui -----#")
+        self.setupUi(self)
+        #-- Edit --#
+        self.pb_save.setIcon(self.parent().iconApply)
+        self.pb_save.clicked.connect(self.on_save)
+        self.pb_cancel.setIcon(self.parent().iconCancel)
+        self.pb_cancel.clicked.connect(self.close)
+        #-- Refresh --#
+        self.rf_dialog()
+        self.rf_toolTips()
+
+    def rf_dialog(self):
+        """
+        Refresh dialog values
+        """
+        self.le_userName.setText(str(self.selItem.itemObj.userName))
+        self.cb_userGroup.addItems(self.parent().userGrps.groups)
+        self.cb_userGroup.setCurrentIndex(self.cb_userGroup.findText(self.selItem.itemObj.userGroup))
+        self.le_userFirstName.setText(str(self.selItem.itemObj.userFirstName))
+        self.le_userLastName.setText(str(self.selItem.itemObj.userLastName))
+
+    def rf_toolTips(self):
+        """
+        Refresh dialog toolTips
+        """
+        if self.parent().pWidget.mainUi.showToolTips:
+            self.le_userName.setToolTip("User login")
+            self.cb_userGroup.setToolTip("User group")
+            self.le_userFirstName.setToolTip("User first name")
+            self.le_userLastName.setToolTip("User last name")
+        else:
+            wList = [self.le_userName, self.cb_userGroup, self.le_userFirstName, self.le_userLastName]
+            for widget in wList:
+                widget.setToolTip('')
+
+    def on_save(self):
+        """
+        Command launched when 'Save' QPushButton is clicked
+
+        Save group datas
+        """
+        #-- Get Datas --#
+        excludes = ['', ' ', 'None']
+        userName = str(self.le_userName.text())
+        userGroup = str(self.cb_userGroup.currentText())
+        userFirstName = str(self.le_userFirstName.text())
+        userLastName = str(self.le_userLastName.text())
+        #-- Check Datas --#
+        if userName in excludes:
+            message = "!!! 'userName' invalid: %s !!!" % userName
+            pQt.errorDialog(message, self)
+            raise AttributeError(message)
+        #-- Check New Code Name --#
+        if not userName == self.selItem.itemObj.userName:
+            userDatas = self.parent().getDatas()
+            for n in userDatas.keys():
+                if userName == userDatas[n]['userName']:
+                    message = "!!! %s already exists !!!" % userName
+                    pQt.errorDialog(message, self)
+                    raise AttributeError(message)
+        #-- Edit Group --#
+        self.parent().ud_treeItem(self.selItem, userName=userName, userGroup=userGroup, userFirstName=userFirstName,
+                                  userLastName=userLastName)
+        #-- Quit --#
+        self.parent().rf_treeColumns()
+        self.close()

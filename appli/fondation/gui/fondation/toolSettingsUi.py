@@ -18,7 +18,7 @@ class ToolSettings(toolSettingsUi.ToolSettings):
     def __init__(self, mainUi, logLvl='info'):
         self.mainUi = mainUi
         self.log.level = logLvl
-        self.log.info("########## Launching Tool Settings Ui ##########", newLinesBefor=1)
+        self.log.info("########## Launching Tool Settings Ui ##########", newLinesBefore=1)
         self.fondation = self.mainUi.fondation
         self.userGrps = self.fondation.userGrps
         super(ToolSettings, self).__init__()
@@ -53,19 +53,39 @@ class ToolSettings(toolSettingsUi.ToolSettings):
         :return: Category datas
         :rtype: dict
         """
-        return {0: {'userGroups': {'code': 'userGroups',
-                                   'label': 'User Groups',
-                                   'subCat': {0: {'groups': {'widget': self.wgGroups,
-                                                             'code': 'groups',
-                                                             'label': 'Groups'}},
-                                              1: {'users': {'widget': self.wgUsers,
-                                                            'code': 'users',
-                                                            'label': 'Users'}}}}},
-                1: {'projectStructure': {'code': 'projectStructure',
-                                         'label': 'Project Structure',
-                                         'subCat': {1: {'entity': {'widget': None,
-                                                                   'code': 'entity',
-                                                                   'label': 'Entity'}}}}}}
+        return {0: self._userGroups,
+                1: self._structure}
+
+    @property
+    def _userGroups(self):
+        """
+        Get UserGroups category
+
+        :return: UserGroups category
+        :rtype: dict
+        """
+        return {'userGroups': {'code': 'userGroups',
+                               'label': 'User Groups',
+                               'subCat': {0: {'groups': {'widget': self.wgGroups,
+                                                         'code': 'groups',
+                                                         'label': 'Groups'}},
+                                          1: {'users': {'widget': self.wgUsers,
+                                                        'code': 'users',
+                                                        'label': 'Users'}}}}}
+
+    @property
+    def _structure(self):
+        """
+        Get Structure category
+
+        :return: Structure category
+        :rtype: dict
+        """
+        return {'structure': {'code': 'projectStructure',
+                              'label': 'Project Structure',
+                              'subCat': {1: {'entity': {'widget': None,
+                                                        'code': 'entity',
+                                                        'label': 'Entity'}}}}}
 
     def on_save(self):
         """
