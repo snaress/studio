@@ -90,13 +90,13 @@ class ToolSettings(QtGui.QMainWindow, toolSettingsDialogUI.Ui_mw_toolSettings):
                         editedFont.setItalic(True)
                         editedFont.setBold(True)
                         item.setFont(0, editedFont)
-                        item.setTextColor(0, QtGui.QColor(20, 20, 255))
+                        item.setTextColor(0, QtGui.QColor(100, 150, 255))
                     else:
                         editedFont = QtGui.QFont()
                         editedFont.setItalic(False)
                         editedFont.setBold(False)
                         item.setFont(0, editedFont)
-                        item.setTextColor(0, QtGui.QColor(0, 0, 0))
+                        item.setTextColor(0, QtGui.QColor(220, 220, 220))
 
     def buildCategoryTree(self):
         """
@@ -159,7 +159,8 @@ class ToolSettings(QtGui.QMainWindow, toolSettingsDialogUI.Ui_mw_toolSettings):
                                 item.itemWidget.setVisible(True)
                             else:
                                 item.itemWidget.setVisible(False)
-                selItems[0].itemWidget.buildTree()
+                if selItems[0].itemWidget is not None:
+                    selItems[0].itemWidget.buildTree()
 
     def on_save(self):
         """

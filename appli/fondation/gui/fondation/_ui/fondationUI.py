@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\fondation\src\fondation.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\fondation\_src\fondation.ui'
 #
-# Created: Sat Dec 05 15:48:03 2015
+# Created: Fri Dec 18 20:53:07 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -41,7 +41,7 @@ class Ui_mw_fondation(object):
         self.page.setObjectName(_fromUtf8("page"))
         self.toolBox.addItem(self.page, _fromUtf8(""))
         self.page_2 = QtGui.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0, 0, 98, 28))
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 774, 487))
         self.page_2.setObjectName(_fromUtf8("page_2"))
         self.toolBox.addItem(self.page_2, _fromUtf8(""))
         self.gridLayout.addWidget(self.toolBox, 0, 1, 1, 1)

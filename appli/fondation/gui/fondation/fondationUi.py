@@ -36,6 +36,7 @@ class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mw_fondation):
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
         self._setupMenu()
+        self.setStyleSheet(self._styleSheet)
 
     # noinspection PyUnresolvedReferences
     def _setupMenu(self):
@@ -47,8 +48,24 @@ class FondationUi(QtGui.QMainWindow, fondationUI.Ui_mw_fondation):
         self.log.detail("Menu Settings ...")
         self.mi_fondationSettings.triggered.connect(self.on_miFondationSettings)
         #-- Check UserGrp --#
-        if not self.fondation.userGrps._user.userGroup in ['ADMIN', 'DEV']:
+        if not self.fondation.userGrps._user.grade <= 1:
             self.mi_fondationSettings.setEnabled(False)
+
+    @property
+    def _styleSheet(self):
+        """
+        Fondation Ui styleSheet
+
+        :return: Style sheet
+        :rtype: str
+        """
+        color_1 = "rgb(220, 220, 220)"
+        bgColor_1 = "rgb(60, 60, 60)"
+        bgColor_2 = "rgb(70, 70, 70)"
+        style = ["QWidget {background-color: %s; alternate-background-color: %s; color: %s;}" % (bgColor_1, bgColor_2, color_1),
+                 "QMenuBar::item {background-color: %s; color: %s;}" % (bgColor_1, color_1),
+                 "QHeaderView::section {background-color: %s;}" % bgColor_1]
+        return ''.join(style)
 
     @property
     def showToolTips(self):

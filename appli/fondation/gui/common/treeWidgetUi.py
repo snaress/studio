@@ -21,6 +21,7 @@ class TreeWidgetSettings(QtGui.QWidget, treeWidgetSettingsUI.Ui_wg_treeWidget):
         self.setupUi(self)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
+        self.tw_tree.setIndentation(0)
         self._setupIcons()
         self._setupConnections()
         self.rf_headers()

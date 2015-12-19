@@ -14,29 +14,97 @@
    <string>TreeWidget Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="5" column="0">
+    <widget class="QFrame" name="qf_apply">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="l_title">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-       <underline>true</underline>
-      </font>
-     </property>
-     <property name="text">
-      <string>Title</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
+     <layout class="QHBoxLayout" name="hl_apply">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="Line" name="line_16">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pb_apply">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Apply</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line_17">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pb_cancel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Cancel</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line_18">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="2" column="0">
@@ -64,7 +132,7 @@
        </property>
        <layout class="QVBoxLayout" name="vl_treeEdit_L">
         <property name="spacing">
-         <number>6</number>
+         <number>0</number>
         </property>
         <property name="leftMargin">
          <number>0</number>
@@ -80,6 +148,9 @@
         </property>
         <item>
          <widget class="QFrame" name="qf_moveItem">
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
           <layout class="QHBoxLayout" name="hl_moveItem">
            <property name="spacing">
             <number>0</number>
@@ -88,21 +159,44 @@
             <number>0</number>
            </property>
            <item>
+            <widget class="Line" name="line_13">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QPushButton" name="pb_itemUp">
              <property name="minimumSize">
               <size>
-               <width>22</width>
-               <height>22</height>
+               <width>24</width>
+               <height>24</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>22</width>
-               <height>22</height>
+               <width>24</width>
+               <height>24</height>
               </size>
              </property>
              <property name="text">
               <string/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_14">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
              </property>
             </widget>
            </item>
@@ -110,18 +204,34 @@
             <widget class="QPushButton" name="pb_itemDn">
              <property name="minimumSize">
               <size>
-               <width>22</width>
-               <height>22</height>
+               <width>24</width>
+               <height>24</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>22</width>
-               <height>22</height>
+               <width>24</width>
+               <height>24</height>
               </size>
              </property>
              <property name="text">
               <string/>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_15">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
              </property>
             </widget>
            </item>
@@ -142,11 +252,18 @@
          </spacer>
         </item>
         <item>
+         <widget class="Line" name="line_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pb_add">
           <property name="maximumSize">
            <size>
-            <width>55</width>
-            <height>20</height>
+            <width>60</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
@@ -155,14 +272,30 @@
           <property name="text">
            <string>Add</string>
           </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pb_del">
           <property name="maximumSize">
            <size>
-            <width>55</width>
-            <height>20</height>
+            <width>60</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
@@ -170,6 +303,22 @@
           </property>
           <property name="text">
            <string>Del</string>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_9">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -187,11 +336,18 @@
          </spacer>
         </item>
         <item>
+         <widget class="Line" name="line_10">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pb_edit1">
           <property name="maximumSize">
            <size>
-            <width>55</width>
-            <height>20</height>
+            <width>60</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
@@ -200,14 +356,30 @@
           <property name="text">
            <string>Edit_1</string>
           </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_11">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pb_edit2">
           <property name="maximumSize">
            <size>
-            <width>55</width>
-            <height>20</height>
+            <width>60</width>
+            <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
@@ -215,6 +387,22 @@
           </property>
           <property name="text">
            <string>Edit_2</string>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_12">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -293,6 +481,24 @@
      </item>
     </layout>
    </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="l_title">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+       <underline>true</underline>
+      </font>
+     </property>
+     <property name="text">
+      <string>Title</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
    <item row="4" column="0">
     <widget class="Line" name="line_2">
      <property name="orientation">
@@ -300,58 +506,11 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QFrame" name="qf_apply">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+   <item row="0" column="0">
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <layout class="QHBoxLayout" name="hl_apply">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QPushButton" name="pb_apply">
-        <property name="maximumSize">
-         <size>
-          <width>60</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Apply</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pb_cancel">
-        <property name="maximumSize">
-         <size>
-          <width>60</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Cancel</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
     </widget>
    </item>
    <item row="6" column="0">

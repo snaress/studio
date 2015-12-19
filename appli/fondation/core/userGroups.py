@@ -117,6 +117,19 @@ class User(object):
         return pFile.conformPath(os.path.join(self.userPath, '%s.py' % self.userName))
 
     @property
+    def grade(self):
+        """
+        Get user grade
+
+        :return: User grade
+        :rtype: int
+        """
+        if self.userGroup is not None:
+            grpObj = self._parent.getGroupObjFromName(self.userGroup)
+            if grpObj is not None:
+                return grpObj.grpGrade
+
+    @property
     def attributes(self):
         """
         List all attributes
@@ -194,7 +207,7 @@ class UserGroups(object):
     :type logLvl: str
     """
 
-    log = pFile.Logger(title="UserGrp")
+    log = pFile.Logger(title="UserGroups")
     __usersDir__ = 'users'
     __install__ = False
 
@@ -293,6 +306,19 @@ class UserGroups(object):
             if userObj.userName == userName:
                 return userObj
 
+    def getGroupObjFromName(self, groupName):
+        """
+        Get group object from given groupName
+
+        :param groupName: Group name
+        :type groupName: str
+        :return: Group object
+        :rtype: Group
+        """
+        for grpObj in self._groups:
+            if grpObj.grpName == groupName:
+                return grpObj
+
     def collecteUsers(self, index=None, userName=None, clearUsers=False):
         """
         Collecte Users from disk
@@ -384,17 +410,35 @@ class UserGroups(object):
         if forceUpdate:
             self.collecteUsers(userName=userName)
         if userName in self.users:
-            mess = "!!! UserName %r already exists !!!"
+            mess = "!!! UserName %r already exists !!!" % userName
             self.log.error(mess)
             raise AttributeError(mess)
         #-- Add User Object --#
         userObj = User(userName, parent=self)
         if self.__install__:
             self.log.detail("Install mode, %s ---> 'ADMIN'" % userName)
-            userObj.userGroup = 'ADMIN'
-        userObj.writeFile()
+            userObj.setDatas(userGroup='ADMIN', userGrade=0)
+            userObj.writeFile()
         self._users.append(userObj)
         return userObj
+
+    def deleteUser(self, userName):
+        """
+        Delete given user
+
+        :param userName: User name
+        :type userName: str
+        """
+        userObj = self.getUserObjFromName(userName)
+        #-- Check User Object --#
+        if userObj is None:
+            mess = "!!! User not found: %s !!!" % userName
+            self.log.error(mess)
+            raise AttributeError(mess)
+        #-- Delete User --#
+        self.log.info("Deleting User %s ..." % userName)
+        self._users.remove(userObj)
+        self.log.info("---> %s deleted." % userName)
 
     def newGroup(self, grpCode, **kwargs):
         """
@@ -438,6 +482,9 @@ class UserGroups(object):
             self._groups.append(newGroup)
 
     def pushGroupsToSettings(self):
+        """
+        Push Groups to settings file
+        """
         self.log.debug("Push groups datas to settings ...")
         #-- Refresh Settings --#
         self.log.detail("---> Refresh settings ...")

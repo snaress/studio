@@ -1,4 +1,4 @@
-import os
+import os, pprint
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
 from lib.system import procMath as pMath
@@ -154,7 +154,7 @@ class Groups(treeWidgetUi.TreeWidgetSettings):
         grpDict = dict()
         treeDict = self.getDatas()
         for n in sorted(treeDict.keys()):
-            if treeDict[n]['grpCode'] not in ['', ' ', 'None', None]:
+            if not treeDict[n]['grpCode'] in ['', ' ', 'None', None]:
                 if not ind in grpDict.keys():
                     grpDict[ind] = dict()
                 for k, v in treeDict[n].iteritems():
@@ -310,6 +310,8 @@ class Users(treeWidgetUi.TreeWidgetSettings):
         self.fondation = self.pWidget.fondation
         self.userGrps = self.fondation.userGrps
         super(Users, self).__init__()
+        self.usersCollected = False
+        self.editedItems = []
 
     def _setupUi(self):
         super(Users, self)._setupUi()
@@ -318,7 +320,7 @@ class Users(treeWidgetUi.TreeWidgetSettings):
         self.pb_edit2.setVisible(False)
         self.qf_treeEdit_R.setVisible(False)
         self.tw_tree.header().setStretchLastSection(False)
-        self.rf_headers('User Name', 'Group', 'First Name', 'Last Name', 'Photo')
+        self.rf_headers('User Name', 'Group', 'First Name', 'Last Name')
         self.rf_treeColumns()
 
     def _setupIcons(self):
@@ -327,6 +329,22 @@ class Users(treeWidgetUi.TreeWidgetSettings):
         """
         super(Users, self)._setupIcons()
         self.pb_edit1.setText("Edit")
+
+    def getDatas(self, asString=False):
+        """
+        Get Users datas
+
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: Tree datas
+        :rtype: dict
+        """
+        datas = dict()
+        for n, item in enumerate(self.editedItems):
+            datas[n] = item.itemObj.getDatas()
+        if asString:
+            return pprint.pformat(datas)
+        return datas
 
     def rf_toolTips(self):
         """
@@ -345,7 +363,9 @@ class Users(treeWidgetUi.TreeWidgetSettings):
         Build Users tree widget
         """
         super(Users, self).buildTree()
-        self.userGrps.collecteUsers(clearUsers=True)
+        if not self.usersCollected:
+            self.userGrps.collecteUsers(clearUsers=True)
+            self.usersCollected = True
         userItems = []
         if self.userGrps._users:
             for userObj in self.userGrps._users:
@@ -370,6 +390,35 @@ class Users(treeWidgetUi.TreeWidgetSettings):
         item.setText(2, str(item.itemObj.userFirstName))
         item.setText(3, str(item.itemObj.userLastName))
 
+    def on_addItem(self):
+        """
+        Command launched when 'Add' QPushButton is clicked
+
+        Create new user
+        """
+        super(Users, self).on_editItem1()
+        itemObj = self.userGrps.newUser(userName='newUser')
+        itemObj.setDatas(userGroup='VST')
+        newItem = self.new_treeItem(itemObj)
+        self.tw_tree.addTopLevelItem(newItem)
+        self.rf_treeColumns()
+        self.tw_tree.clearSelection()
+        self.tw_tree.setItemSelected(newItem, True)
+        self.editedItems.append(newItem)
+
+    def on_delItem(self):
+        """
+        Command launched when 'Del' QPushButton is clicked
+
+        Delete selected user from tree
+        """
+        selItems = self.tw_tree.selectedItems() or []
+        if selItems:
+            if selItems[0] in self.editedItems:
+                self.editedItems.remove(selItems[0])
+            self.userGrps.deleteUser(selItems[0].itemObj.userName)
+        super(Users, self).on_delItem()
+
     def on_editItem1(self):
         """
         Command launched when 'Edit' QPushButton is clicked
@@ -384,6 +433,36 @@ class Users(treeWidgetUi.TreeWidgetSettings):
         else:
             message = "!!! Select at least one user item !!!"
             pQt.errorDialog(message, self)
+
+    def on_apply(self):
+        """
+        Command launched when 'Apply' QPushButton is clicked
+
+        Store datas to itemObject
+        """
+        super(Users, self).on_apply()
+        #-- Parse User Tree --#
+        treeDict = self.getDatas()
+        for n in sorted(treeDict.keys()):
+            if not treeDict[n]['userName'] in ['', ' ', 'None', None]:
+                if not treeDict[n]['userName'] in self.userGrps.users:
+                    userObj = self.userGrps.newUser(userName=treeDict[n]['userName'])
+                    self.userGrps.append(userObj)
+                else:
+                    userObj = self.userGrps.getUserObjFromName(treeDict[n]['userName'])
+                userObj.setDatas()
+        self.pWidget.rf_editedItemStyle()
+
+    def on_cancel(self):
+        """
+        Command launched when 'Cancel' QPushButton is clicked
+
+        Remove edited users
+        """
+        for item in self.editedItems:
+            self.userGrps.deleteUser(item.itemObj.userName)
+        self.editedItems = []
+        super(Users, self).on_cancel()
 
 
 class UsersDialog(QtGui.QDialog, tsUgUsersDialUI.Ui_dial_users):
@@ -470,6 +549,8 @@ class UsersDialog(QtGui.QDialog, tsUgUsersDialUI.Ui_dial_users):
         #-- Edit Group --#
         self.parent().ud_treeItem(self.selItem, userName=userName, userGroup=userGroup, userFirstName=userFirstName,
                                   userLastName=userLastName)
+        if not self.selItem in self.parent().editedItems:
+            self.parent().editedItems.append(self.selItem)
         #-- Quit --#
         self.parent().rf_treeColumns()
         self.close()

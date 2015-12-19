@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\common\_src\toolSettingsDialog.ui'
 #
-# Created: Wed Dec 09 00:29:58 2015
+# Created: Sat Dec 19 13:17:25 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,7 +45,7 @@ class Ui_mw_toolSettings(object):
         self.tw_category = QtGui.QTreeWidget(self.qf_category)
         self.tw_category.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.tw_category.setAlternatingRowColors(True)
-        self.tw_category.setIndentation(12)
+        self.tw_category.setIndentation(20)
         self.tw_category.setObjectName(_fromUtf8("tw_category"))
         self.tw_category.headerItem().setText(0, _fromUtf8("1"))
         self.tw_category.header().setVisible(False)
@@ -75,14 +75,31 @@ class Ui_mw_toolSettings(object):
         self.hl_settingsOptions.setObjectName(_fromUtf8("hl_settingsOptions"))
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hl_settingsOptions.addItem(spacerItem1)
+        self.line_2 = QtGui.QFrame(self.centralwidget)
+        self.line_2.setFrameShape(QtGui.QFrame.VLine)
+        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_2.setObjectName(_fromUtf8("line_2"))
+        self.hl_settingsOptions.addWidget(self.line_2)
         self.pb_save = QtGui.QPushButton(self.centralwidget)
         self.pb_save.setMaximumSize(QtCore.QSize(60, 20))
+        self.pb_save.setFlat(True)
         self.pb_save.setObjectName(_fromUtf8("pb_save"))
         self.hl_settingsOptions.addWidget(self.pb_save)
+        self.line_3 = QtGui.QFrame(self.centralwidget)
+        self.line_3.setFrameShape(QtGui.QFrame.VLine)
+        self.line_3.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_3.setObjectName(_fromUtf8("line_3"))
+        self.hl_settingsOptions.addWidget(self.line_3)
         self.pb_close = QtGui.QPushButton(self.centralwidget)
         self.pb_close.setMaximumSize(QtCore.QSize(60, 20))
+        self.pb_close.setFlat(True)
         self.pb_close.setObjectName(_fromUtf8("pb_close"))
         self.hl_settingsOptions.addWidget(self.pb_close)
+        self.line_4 = QtGui.QFrame(self.centralwidget)
+        self.line_4.setFrameShape(QtGui.QFrame.VLine)
+        self.line_4.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_4.setObjectName(_fromUtf8("line_4"))
+        self.hl_settingsOptions.addWidget(self.line_4)
         self.vl_settings.addLayout(self.hl_settingsOptions)
         self.hl_toolSettings.addLayout(self.vl_settings)
         self.gridLayout.addLayout(self.hl_toolSettings, 0, 0, 1, 1)

@@ -44,6 +44,7 @@ class ToolSettings(toolSettingsUi.ToolSettings):
         self.wgUsers = tsUserGroups.Users(self)
         self.wgUsers.setVisible(False)
         self.vl_settingsWidget.addWidget(self.wgUsers)
+        self.setStyleSheet(self.mainUi._styleSheet)
 
     @property
     def category(self):
@@ -54,7 +55,7 @@ class ToolSettings(toolSettingsUi.ToolSettings):
         :rtype: dict
         """
         return {0: self._userGroups,
-                1: self._structure}
+                1: self._entities}
 
     @property
     def _userGroups(self):
@@ -74,18 +75,24 @@ class ToolSettings(toolSettingsUi.ToolSettings):
                                                         'label': 'Users'}}}}}
 
     @property
-    def _structure(self):
+    def _entities(self):
         """
         Get Structure category
 
         :return: Structure category
         :rtype: dict
         """
-        return {'structure': {'code': 'projectStructure',
-                              'label': 'Project Structure',
-                              'subCat': {1: {'entity': {'widget': None,
-                                                        'code': 'entity',
-                                                        'label': 'Entity'}}}}}
+        return {'entities': {'code': 'entities',
+                             'label': 'Entities',
+                             'subCat': {0: {'entity': {'widget': None,
+                                                       'code': 'entity',
+                                                       'label': 'Entity'}},
+                                        1: {'entityType': {'widget': None,
+                                                           'code': 'entityType',
+                                                           'label': 'Entity Type'}},
+                                        2: {'entitySubType': {'widget': None,
+                                                              'code': 'entitySubType',
+                                                              'label': 'Entity SubType'}}}}}
 
     def on_save(self):
         """
@@ -100,7 +107,21 @@ class ToolSettings(toolSettingsUi.ToolSettings):
             if item.parent().itemCode == 'userGroups':
                 if item.itemCode == 'groups':
                     self.userGrps.pushGroupsToSettings()
+                elif item.itemCode == 'users':
+                    for editedItem in self.wgUsers.editedItems:
+                        editedItem.itemObj.writeFile()
+                    self.wgUsers.editedItems = []
             item.itemWidget.__edited__ = False
         #-- Write And Refresh --#
         self.fondation.writeSettings()
         self.rf_editedItemStyle()
+
+    def _discardSettings(self):
+        """
+        Discard action confirmed
+        """
+        if self.wgUsers.editedItems:
+            for editedItem in self.wgUsers.editedItems:
+                self.userGrps.deleteUser(editedItem.itemObj.userName)
+            self.wgUsers.editedItems = []
+        super(ToolSettings, self)._discardSettings()
