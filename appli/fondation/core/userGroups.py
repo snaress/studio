@@ -199,7 +199,7 @@ class User(object):
 
 class UserGroups(object):
     """
-    UserGroups Class: Contains groups and users datas, child of Project
+    UserGroups Class: Contains groups and users datas, child of Fondation
 
     :param fdtObj: Fondation object
     :type fdtObj: Fondation
@@ -338,9 +338,9 @@ class UserGroups(object):
             self._users = []
         #-- Collecte Users --#
         userObjects = []
-        userList, indexPath = self.parseUsers(index, userName)
+        userList = self.parseUsers(index, userName)
         for user in userList:
-            userPath = pFile.conformPath(os.path.join(indexPath, user))
+            userPath = pFile.conformPath(os.path.join(self.usersPath, user[0].lower(), user))
             if not user.startswith('_') and os.path.isdir(userPath):
                 #-- Remove Existing object --#
                 userCheck = self.getUserObjFromName(user)
@@ -366,8 +366,8 @@ class UserGroups(object):
         :type index: str
         :param userName: User name
         :type userName: str
-        :return: Users list, index path
-        :rtype: list, str
+        :return: Users list
+        :rtype: list
         """
         #-- Get Index List --#
         if index is not None:
@@ -379,7 +379,6 @@ class UserGroups(object):
                 indexList = os.listdir(self.usersPath) or []
         #-- Collecte Index --#
         userList = []
-        indexPath = None
         for index in indexList:
             indexPath = pFile.conformPath(os.path.join(self.usersPath, index))
             if len(index) == 1 and os.path.isdir(indexPath):
@@ -387,9 +386,9 @@ class UserGroups(object):
                 if userName is not None:
                     userList = [userName]
                 else:
-                    userList = os.listdir(indexPath) or []
+                    userList.extend(os.listdir(indexPath) or [])
         #-- Result --#
-        return userList, indexPath
+        return userList
 
     def newUser(self, userName=None, forceUpdate=False):
         """
@@ -470,7 +469,7 @@ class UserGroups(object):
 
     def buildGroupsFromDict(self, grpDict):
         """
-        Populate _groups from fiven dict
+        Populate _groups from given dict
 
         :param grpDict: Groups dict
         :type grpDict: dict

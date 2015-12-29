@@ -160,6 +160,8 @@ class Groups(treeWidgetUi.TreeWidgetSettings):
                 for k, v in treeDict[n].iteritems():
                     grpDict[ind][k] = v
                 ind += 1
+            else:
+                self.log.warning("!!! ERROR: Group 'code' value not valide, skipp %s !!!" % treeDict[n]['grpCode'])
         #-- Store and refresh --#
         self.userGrps.buildGroupsFromDict(grpDict)
         self.pWidget.rf_editedItemStyle()
@@ -444,13 +446,15 @@ class Users(treeWidgetUi.TreeWidgetSettings):
         #-- Parse User Tree --#
         treeDict = self.getDatas()
         for n in sorted(treeDict.keys()):
-            if not treeDict[n]['userName'] in ['', ' ', 'None', None]:
+            if not treeDict[n]['userName'] in ['', ' ', 'None', 'newUser', None]:
                 if not treeDict[n]['userName'] in self.userGrps.users:
                     userObj = self.userGrps.newUser(userName=treeDict[n]['userName'])
                     self.userGrps.append(userObj)
                 else:
                     userObj = self.userGrps.getUserObjFromName(treeDict[n]['userName'])
                 userObj.setDatas()
+            else:
+                self.log.warning("!!! ERROR: User 'name' value not valide, skipp %s !!!" % treeDict[n]['userName'])
         self.pWidget.rf_editedItemStyle()
 
     def on_cancel(self):

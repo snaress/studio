@@ -1,6 +1,6 @@
 from lib.system import procFile as pFile
 from appli.fondation.gui.common import toolSettingsUi
-from appli.fondation.gui.fondation import tsUserGroups
+from appli.fondation.gui.fondation import tsUserGroups, tsEntities
 
 
 class ToolSettings(toolSettingsUi.ToolSettings):
@@ -37,6 +37,7 @@ class ToolSettings(toolSettingsUi.ToolSettings):
         Init Fondation toolSettings widgets
         """
         super(ToolSettings, self)._initWidgets()
+        self.setStyleSheet(self.mainUi._styleSheet)
         #-- UserGroups --#
         self.wgGroups = tsUserGroups.Groups(self)
         self.wgGroups.setVisible(False)
@@ -44,7 +45,10 @@ class ToolSettings(toolSettingsUi.ToolSettings):
         self.wgUsers = tsUserGroups.Users(self)
         self.wgUsers.setVisible(False)
         self.vl_settingsWidget.addWidget(self.wgUsers)
-        self.setStyleSheet(self.mainUi._styleSheet)
+        #-- Entities --#
+        self.wgEntities = tsEntities.Entities(self)
+        self.wgEntities.setVisible(False)
+        self.vl_settingsWidget.addWidget(self.wgEntities)
 
     @property
     def category(self):
@@ -84,15 +88,12 @@ class ToolSettings(toolSettingsUi.ToolSettings):
         """
         return {'entities': {'code': 'entities',
                              'label': 'Entities',
-                             'subCat': {0: {'entity': {'widget': None,
-                                                       'code': 'entity',
-                                                       'label': 'Entity'}},
-                                        1: {'entityType': {'widget': None,
-                                                           'code': 'entityType',
-                                                           'label': 'Entity Type'}},
-                                        2: {'entitySubType': {'widget': None,
-                                                              'code': 'entitySubType',
-                                                              'label': 'Entity SubType'}}}}}
+                             'subCat': {0: {'structure': {'widget': self.wgEntities,
+                                                          'code': 'structure',
+                                                          'label': 'Structure'}},
+                                        1: {'attributes': {'widget': None,
+                                                           'code': 'attributes',
+                                                           'label': 'Attributes'}}}}}
 
     def on_save(self):
         """

@@ -1,6 +1,6 @@
 import os
 from lib.system import procFile as pFile
-from appli.fondation.core import userGroups
+from appli.fondation.core import userGroups, entities
 
 
 class Fondation(object):
@@ -23,6 +23,7 @@ class Fondation(object):
         self.settings = dict()
         self._setup()
         self.userGrps = userGroups.UserGroups(self, logLvl=self.log.level)
+        self.entities = entities.Entities(self, logLvl=self.log.level)
 
     def _setup(self):
         """
