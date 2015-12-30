@@ -149,8 +149,8 @@ class Groups(treeWidgetUi.TreeWidgetSettings):
         Store datas to itemObject
         """
         super(Groups, self).on_apply()
-        #-- Parse Group Tree --#
         ind = 0
+        #-- Parse Group Tree --#
         grpDict = dict()
         treeDict = self.getDatas()
         for n in sorted(treeDict.keys()):

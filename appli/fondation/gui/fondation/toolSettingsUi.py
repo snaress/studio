@@ -21,6 +21,7 @@ class ToolSettings(toolSettingsUi.ToolSettings):
         self.log.info("########## Launching Tool Settings Ui ##########", newLinesBefore=1)
         self.fondation = self.mainUi.fondation
         self.userGrps = self.fondation.userGrps
+        self.entities = self.fondation.entities
         super(ToolSettings, self).__init__()
 
     def _initSettings(self):
@@ -29,8 +30,9 @@ class ToolSettings(toolSettingsUi.ToolSettings):
         """
         super(ToolSettings, self)._initSettings()
         self.fondation.storeSettings()
-        self.fondation.userGrps.collecteUsers(userName=self.fondation.__user__)
-        self.fondation.userGrps.buildGroupsFromSettings()
+        self.userGrps.collecteUsers(userName=self.fondation.__user__)
+        self.userGrps.buildGroupsFromSettings()
+        self.entities.buildEntitiesFromSettings()
 
     def _initWidgets(self):
         """
@@ -112,6 +114,10 @@ class ToolSettings(toolSettingsUi.ToolSettings):
                     for editedItem in self.wgUsers.editedItems:
                         editedItem.itemObj.writeFile()
                     self.wgUsers.editedItems = []
+            #-- Save Entities --#
+            elif item.parent().itemCode == 'entities':
+                if item.itemCode == 'structure':
+                    self.entities.pushEntitiesToSettings()
             item.itemWidget.__edited__ = False
         #-- Write And Refresh --#
         self.fondation.writeSettings()

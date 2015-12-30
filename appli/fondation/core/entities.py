@@ -17,10 +17,21 @@ class Entity(object):
         self.log = self._parent.log
         #-- Datas --#
         self.entityType = None
+        self.entityParent = None
         self.entityName = None
         self.entityLabel = None
         self.entityFolder = None
-        self._entities = []
+
+    @property
+    def _entityParent(self):
+        """
+        Get parent entity object
+
+        :return: Parent entity
+        :rtype: Entity
+        """
+        if self.entityParent is not None:
+            return self._parent.getEntityObjFromName(self.entityParent)
 
     @property
     def attributes(self):
@@ -83,13 +94,52 @@ class Entities(object):
         #-- Datas --#
         self._entities = []
 
-    def buildGroupsFromSettings(self):
+    def _setup(self):
+        """
+        Setup Entities core object
+        """
+        self.log.detail("#===== Setup Entities Core =====#", newLinesBefore=1)
+        #-- Store Entities Data --#
+        self.log.debug("#--- Store Entities Datas ---#")
+
+
+    def getEntitiesDatas(self, asString=False):
+        """
+        Get entities datas
+
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: Entities datas
+        :rtype: dict | str
+        """
+        entitiesDict = dict()
+        for n, entityObj in enumerate(self._entities):
+            entitiesDict[n] = entityObj.getDatas(asString=asString)
+        #-- Result --#
+        if asString:
+            return pprint.pformat(entitiesDict)
+        return entitiesDict
+
+    def getEntityObjFromName(self, entityName):
+        """
+        Get group object from given groupName
+
+        :param entityName: Entity name
+        :type entityName: str
+        :return: Entity object
+        :rtype: Entity
+        """
+        for entity in self._entities:
+            if entity.entityName == entityName:
+                return entity
+
+    def buildEntitiesFromSettings(self):
         """
         Populate _entities from settings
         """
         if 'entities' in self.fondation.settings.keys():
-            if 'entity' in self.fondation.settings['entities'].keys():
-                self.buildEntitiesFromDict(self.fondation.settings['entities']['entity'])
+            if 'structure' in self.fondation.settings['entities'].keys():
+                self.buildEntitiesFromDict(self.fondation.settings['entities']['structure'])
 
     def buildEntitiesFromDict(self, entityDict):
         """
@@ -99,8 +149,37 @@ class Entities(object):
         :type entityDict: dict
         """
         self._entities = []
+        for n in sorted(entityDict.keys()):
+            newEntity = self.newEntity(**entityDict[n])
+            self._entities.append(newEntity)
 
-    def newEntity(self, entityName, entityType, entityParent, **kwargs):
+    def pushEntitiesToSettings(self):
+        """
+        Push Groups to settings file
+        """
+        self.log.debug("Push entities datas to settings ...")
+        #-- Refresh Settings --#
+        self.log.detail("---> Refresh settings ...")
+        self.fondation.storeSettings()
+        #-- Check Keys --#
+        if not 'entities' in self.fondation.settings:
+            self.log.detail("---> Add 'entities' ...")
+            self.fondation.settings['entities'] = dict()
+        if not 'structure' in self.fondation.settings['entities']:
+            self.log.detail("---> Add 'structure' to 'entities' ...")
+            self.fondation.settings['entities']['structure'] = dict()
+        #-- Push Settings --#
+        self.fondation.settings['entities']['structure'] = self.getEntitiesDatas()
+
+    def newEntity(self, **kwargs):
+        """
+        Create new Entity object
+
+        :param kwargs: Entity datas (key must starts with 'entity')
+        :type kwargs: dict
+        :return: Entity object
+        :rtype: Entity
+        """
         entityObj = Entity(parent=self)
-        entityObj.setDatas(entityName=entityName, entityType=entityType, **kwargs)
+        entityObj.setDatas(**kwargs)
         return entityObj

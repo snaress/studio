@@ -22,6 +22,7 @@ class TreeWidgetSettings(QtGui.QWidget, treeWidgetSettingsUI.Ui_wg_treeWidget):
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
         self.tw_tree.setIndentation(0)
+        self.tw_tree.setAlternatingRowColors(True)
         self._setupIcons()
         self._setupConnections()
         self.rf_headers()
@@ -73,11 +74,27 @@ class TreeWidgetSettings(QtGui.QWidget, treeWidgetSettingsUI.Ui_wg_treeWidget):
         :rtype: dict
         """
         datas = dict()
-        for n, item in enumerate(pQt.getTopItems(self.tw_tree)):
+        for n, item in enumerate(pQt.getAllItems(self.tw_tree)):
             datas[n] = item.itemObj.getDatas()
         if asString:
             return pprint.pformat(datas)
         return datas
+
+    def getItemFromAttrValue(self, attr, value):
+        """
+        Get tree item from attribute and value
+
+        :param attr: Item attribute name
+        :type attr: str
+        :param value: Item attribute value
+        :type value: str
+        :return: Tree item
+        :rtype: QtGui.QtreeWidgetItem
+        """
+        for item in pQt.getAllItems(self.tw_tree):
+            if hasattr(item.itemObj, attr):
+                if getattr(item.itemObj, attr) == value:
+                    return item
 
     def rf_toolTips(self):
         """
@@ -118,6 +135,7 @@ class TreeWidgetSettings(QtGui.QWidget, treeWidgetSettingsUI.Ui_wg_treeWidget):
         """
         Build tree widget
         """
+        self.log.detail(">>> Build tree ...")
         self.tw_tree.clear()
 
     def new_treeItem(self, itemObj):
@@ -160,21 +178,35 @@ class TreeWidgetSettings(QtGui.QWidget, treeWidgetSettingsUI.Ui_wg_treeWidget):
         selItems = self.tw_tree.selectedItems() or []
         if selItems:
             movedItem = None
-            index = self.tw_tree.indexOfTopLevelItem(selItems[0])
+            #-- Get Current Index --#
+            if selItems[0].parent() is None:
+                parent = None
+                index = self.tw_tree.indexOfTopLevelItem(selItems[0])
+            else:
+                parent = selItems[0].parent()
+                index = parent.indexOfChild(selItems[0])
             #-- Move Up --#
             if side == 'up':
-                if index > 1:
-                    movedItem = self.tw_tree.takeTopLevelItem(self.tw_tree.indexOfTopLevelItem(selItems[0]))
-                    self.tw_tree.insertTopLevelItem((index - 1), movedItem)
+                if index > 0:
+                    if parent is None:
+                        movedItem = self.tw_tree.takeTopLevelItem(self.tw_tree.indexOfTopLevelItem(selItems[0]))
+                        self.tw_tree.insertTopLevelItem((index - 1), movedItem)
+                    else:
+                        movedItem = parent.takeChild(parent.indexOfChild(selItems[0]))
+                        parent.insertChild((index - 1), movedItem)
             #-- Move Down --#
             else:
                 if index < (self.tw_tree.topLevelItemCount() - 1):
-                    movedItem = self.tw_tree.takeTopLevelItem(self.tw_tree.indexOfTopLevelItem(selItems[0]))
-                    self.tw_tree.insertTopLevelItem((index + 1), movedItem)
+                    if parent is None:
+                        movedItem = self.tw_tree.takeTopLevelItem(self.tw_tree.indexOfTopLevelItem(selItems[0]))
+                        self.tw_tree.insertTopLevelItem((index + 1), movedItem)
+                    else:
+                        movedItem = parent.takeChild(parent.indexOfChild(selItems[0]))
+                        parent.insertChild((index + 1), movedItem)
             #-- Select Moved Item --#
             if movedItem is not None:
                 self.tw_tree.clearSelection()
-                for item in pQt.getTopItems(self.tw_tree):
+                for item in pQt.getAllItems(self.tw_tree):
                     if item == movedItem:
                         self.tw_tree.setItemSelected(movedItem, True)
 
@@ -195,7 +227,10 @@ class TreeWidgetSettings(QtGui.QWidget, treeWidgetSettingsUI.Ui_wg_treeWidget):
         self.log.detail(">>> Launch 'Del' <<<")
         selItems = self.tw_tree.selectedItems() or []
         if selItems:
-            self.tw_tree.takeTopLevelItem(self.tw_tree.indexOfTopLevelItem(selItems[0]))
+            if selItems[0].parent() is None:
+                self.tw_tree.takeTopLevelItem(self.tw_tree.indexOfTopLevelItem(selItems[0]))
+            else:
+                selItems[0].parent().takeChild(selItems[0].parent().indexOfChild(selItems[0]))
 
     def on_editItem1(self):
         """

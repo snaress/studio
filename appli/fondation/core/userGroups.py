@@ -442,9 +442,10 @@ class UserGroups(object):
     def newGroup(self, grpCode, **kwargs):
         """
         Create new group
+
         :param grpCode: Group code
         :type grpCode: str
-        :param kwargs: Group datas (key must ends with '_grp')
+        :param kwargs: Group datas (key must starts with 'grp')
         :type kwargs: dict
         :return: Group object
         :rtype: Group
@@ -495,4 +496,5 @@ class UserGroups(object):
         if not 'groups' in self.fondation.settings['userGroups']:
             self.log.detail("---> Add 'groups' to 'userGroups' ...")
             self.fondation.settings['userGroups']['groups'] = dict()
+        #-- Push Settings --#
         self.fondation.settings['userGroups']['groups'] = self.getGroupsDatas()

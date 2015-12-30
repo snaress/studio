@@ -30,6 +30,7 @@ class Entities(treeWidgetUi.TreeWidgetSettings):
         super(Entities, self)._setupUi()
         self.l_title.setText('Entities')
         self.qf_treeEdit_R.setVisible(False)
+        self.tw_tree.setIndentation(15)
         self.tw_tree.header().setStretchLastSection(False)
         self.rf_headers('Entities', 'Types', 'SubTypes')
         self.rf_treeColumns()
@@ -62,6 +63,23 @@ class Entities(treeWidgetUi.TreeWidgetSettings):
             self.pb_apply.setToolTip("Apply datas to Fondation object")
             self.pb_cancel.setToolTip("Restore datas from Fondation object")
 
+    def buildTree(self):
+        """
+        Build Groups tree widget
+        """
+        super(Entities, self).buildTree()
+        if self.entities._entities:
+            for entityObj in self.entities._entities:
+                newItem = self.new_treeItem(entityObj)
+                if entityObj.entityParent is None:
+                    self.tw_tree.addTopLevelItem(newItem)
+                else:
+                    parent = self.getItemFromAttrValue('entityName', entityObj.entityParent)
+                    if parent is not None:
+                        parent.addChild(newItem)
+        self.tw_tree.expandAll()
+        self.rf_treeColumns()
+
     def ud_treeItem(self, item, **kwargs):
         """
         Update item datas and settings
@@ -75,10 +93,13 @@ class Entities(treeWidgetUi.TreeWidgetSettings):
         #-- Edit Item --#
         if item.itemObj.entityType == 'entity':
             item.setText(0, str(item.itemObj.entityLabel))
+            item.setToolTip(0, item.itemObj.getDatas(asString=True))
         elif item.itemObj.entityType == 'type':
             item.setText(1, str(item.itemObj.entityLabel))
+            item.setToolTip(1, item.itemObj.getDatas(asString=True))
         elif item.itemObj.entityType == 'subType':
             item.setText(2, str(item.itemObj.entityLabel))
+            item.setToolTip(2, item.itemObj.getDatas(asString=True))
 
     def on_addItem(self):
         """
@@ -90,14 +111,20 @@ class Entities(treeWidgetUi.TreeWidgetSettings):
         selItems = self.tw_tree.selectedItems() or []
         #-- Create Entity Object --#
         if not selItems:
-            entityObj = self.entities.newEntity('None', 'entity', None)
+            entityObj = self.entities.newEntity(entityName='None', entityType='entity', entityParent=None)
+            newItem = self.new_treeItem(entityObj)
+            self.tw_tree.addTopLevelItem(newItem)
         else:
             if selItems[0].itemObj.entityType == 'entity':
-                entityObj = self.entities.newEntity('None', 'type', selItems[0])
+                entityObj = self.entities.newEntity(entityName='None', entityType='type',
+                                                    entityParent=selItems[0].itemObj.entityName)
             else:
-                entityObj = self.entities.newEntity('None', 'subType', selItems[0])
-        newItem = self.new_treeItem(entityObj)
-        self.tw_tree.addTopLevelItem(newItem)
+                entityObj = self.entities.newEntity(entityName='None', entityType='subType',
+                                                    entityParent=selItems[0].itemObj.entityName)
+            newItem = self.new_treeItem(entityObj)
+            selItems[0].addChild(newItem)
+            #-- Refresh --#
+            self.tw_tree.setItemExpanded(selItems[0], True)
 
     def on_editItem1(self):
         """
@@ -122,6 +149,30 @@ class Entities(treeWidgetUi.TreeWidgetSettings):
         """
         super(Entities, self).on_editItem2()
         self.tw_tree.clearSelection()
+
+    def on_apply(self):
+        """
+        Command launched when 'Apply' QPushButton is clicked
+
+        Store datas to itemObject
+        """
+        super(Entities, self).on_apply()
+        ind = 0
+        exclusionList = ['', ' ', 'None', None]
+        #-- Parse Entity Tree --#
+        entityDict = dict()
+        treeDict = self.getDatas()
+        for n in sorted(treeDict.keys()):
+            if (not treeDict[n]['entityName'] in exclusionList and not treeDict[n]['entityLabel'] in exclusionList
+                and not treeDict[n]['entityFolder'] in exclusionList):
+                entityDict[ind] = treeDict[n]
+                ind += 1
+            else:
+                self.log.warning("!!! ERROR: Entity values not valide, skipp %s !!!" % treeDict[n]['entityName'])
+        #-- Store and refresh --#
+        self.entities.buildEntitiesFromDict(entityDict)
+        self.pWidget.rf_editedItemStyle()
+        self.buildTree()
 
 
 class EntitiesDialog(QtGui.QDialog, tsEntitiesDialUI.Ui_dial_entity):
@@ -200,8 +251,6 @@ class EntitiesDialog(QtGui.QDialog, tsEntitiesDialUI.Ui_dial_entity):
         #-- Check New Entity Datas --#
         message = None
         entitiesDatas = self.parent().getDatas()
-        from pprint import pprint
-        pprint(entitiesDatas)
         for n in sorted(entitiesDatas.keys()):
             if entityType == entitiesDatas[n]['entityType']:
                 if not entityName == self.selItem.itemObj.entityName:
