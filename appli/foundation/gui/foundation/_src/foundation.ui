@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>502</width>
+    <height>398</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,11 +39,59 @@
        <property name="margin">
         <number>0</number>
        </property>
+       <item>
+        <widget class="QFrame" name="qf_treeUp">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>250</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>250</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QVBoxLayout" name="vl_treeUp">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="margin">
+           <number>0</number>
+          </property>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="qf_treeDn">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <layout class="QVBoxLayout" name="vl_treeDn">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="margin">
+           <number>0</number>
+          </property>
+         </layout>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
     <item row="0" column="1">
      <widget class="QFrame" name="qf_right">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -94,7 +142,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>502</width>
      <height>21</height>
     </rect>
    </property>
@@ -117,6 +165,7 @@
      </property>
     </widget>
     <addaction name="m_logLevel"/>
+    <addaction name="mi_toolTips"/>
    </widget>
    <addaction name="m_project"/>
    <addaction name="m_help"/>
@@ -152,6 +201,17 @@
   <action name="actionTmp1">
    <property name="text">
     <string>tmp1</string>
+   </property>
+  </action>
+  <action name="mi_toolTips">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tool Tips</string>
    </property>
   </action>
  </widget>

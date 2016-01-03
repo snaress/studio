@@ -2,12 +2,14 @@ import os
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
+from appli.foundation.gui.common import dialogsUi
+from appli.foundation.gui.foundation import settingsUserGroups
 from appli.foundation.gui.foundation._ui import dial_newProjectUI, dial_loadProjectUI
 
 
 class NewProject(QtGui.QDialog, dial_newProjectUI.Ui_dial_newProject):
     """
-    NewProject Dialog: Project creation, child of Foundation
+    NewProject Dialog: Project creation, child of FoundationUi
 
     :param parent: Parent Ui
     :type parent: Foundation
@@ -57,7 +59,7 @@ class NewProject(QtGui.QDialog, dial_newProjectUI.Ui_dial_newProject):
 
 class LoadProject(QtGui.QDialog, dial_loadProjectUI.Ui_Dialog):
     """
-    LoadProject Dialog: Project load, child of Foundation
+    LoadProject Dialog: Project load, child of FoundationUi
 
     :param parent: Parent Ui
     :type parent: Foundation
@@ -234,4 +236,104 @@ class LoadProject(QtGui.QDialog, dial_loadProjectUI.Ui_Dialog):
         #-- Load Project --#
         if selItems:
             self.foundation.project.loadProject(selItems[0].project)
+            self.parent().loadProject()
             self.close()
+
+
+class ProjectSettings(dialogsUi.ToolSettings):
+    """
+    ProjectSettings Dialog: Contains project settings, child of FoundationUi
+
+    :param parent: Parent Ui
+    :type parent: Foundation
+    """
+
+    def __init__(self, parent=None):
+        self.log = parent.log
+        self.foundation = parent.foundation
+        self.userGroups = self.foundation.userGroups
+        self.project = self.foundation.project
+        super(ProjectSettings, self).__init__(parent)
+
+    def _initSettings(self):
+        """
+        Init Foundation settings
+        """
+        super(ProjectSettings, self)._initSettings()
+        self.userGroups.collecteUsers(userName=self.foundation.__user__)
+        self.userGroups.buildGroupsFromSettings()
+
+    def _initWidgets(self):
+        """
+        Init tool widgets
+        """
+        super(ProjectSettings, self)._initWidgets()
+        #-- UserGroups --#
+        self.wg_groups = settingsUserGroups.Groups(self)
+        self.wg_groups.setVisible(False)
+        self.vl_settingsWidget.addWidget(self.wg_groups)
+        self.wg_users = settingsUserGroups.Users(self)
+        self.wg_users.setVisible(False)
+        self.vl_settingsWidget.addWidget(self.wg_users)
+
+    @property
+    def category(self):
+        """
+        Get settings category
+
+        :return: Category datas
+        :rtype: dict
+        """
+        return {0: self.userGroupsCategory}
+
+    @property
+    def userGroupsCategory(self):
+        """
+        Get UserGroups category
+
+        :return: UserGroups category
+        :rtype: dict
+        """
+        return {'userGroups': {'code': 'userGroups',
+                               'label': 'User Groups',
+                               'subCat': {0: {'groups': {'widget': self.wg_groups,
+                                                         'code': 'groups',
+                                                         'label': 'Groups'}},
+                                          1: {'users': {'widget': self.wg_users,
+                                                        'code': 'users',
+                                                        'label': 'Users'}},
+                                          2: {'watchers': {'widget': None,
+                                                           'code': 'watchers',
+                                                           'label': 'Watchers'}}}}}
+
+    def on_save(self):
+        """
+        Command launched when 'Save' QPushButton is clicked
+
+        Save settings to disk
+        """
+        super(ProjectSettings, self).on_save()
+        for item in self.getEditedItems():
+            self.log.detail("---> %s | %s" % (item.parent().itemCode, item.itemCode))
+            #-- Save UserGroups --#
+            if item.parent().itemCode == 'userGroups':
+                if item.itemCode == 'groups':
+                    self.userGroups.writeUserGroupsFile()
+                # elif item.itemCode == 'users':
+                #     for editedItem in self.wgUsers.editedItems:
+                #         editedItem.itemObj.writeFile()
+                #     self.wgUsers.editedItems = []
+            #-- Update Edited State --#
+            item.itemWidget.__edited__ = False
+        #-- Write And Refresh --#
+        self.rf_editedItemStyle()
+
+    # def _discardSettings(self):
+    #     """
+    #     Discard action confirmed
+    #     """
+    #     if self.wgUsers.editedItems:
+    #         for editedItem in self.wgUsers.editedItems:
+    #             self.userGrps.deleteUser(editedItem.itemObj.userName)
+    #         self.wgUsers.editedItems = []
+    #     super(ProjectSettings, self)._discardSettings()

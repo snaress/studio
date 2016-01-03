@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>wg_treeWidget</class>
- <widget class="QWidget" name="wg_treeWidget">
+ <class>wg_basicTree</class>
+ <widget class="QWidget" name="wg_basicTree">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>510</width>
-    <height>419</height>
+    <height>299</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>TreeWidget Settings</string>
+   <string>Basic Tree</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="5" column="0">
@@ -26,13 +26,6 @@
       <property name="margin">
        <number>0</number>
       </property>
-      <item>
-       <widget class="Line" name="line_16">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
       <item>
        <widget class="QPushButton" name="pb_apply">
         <property name="maximumSize">
@@ -50,15 +43,11 @@
           <height>16</height>
          </size>
         </property>
-        <property name="flat">
-         <bool>true</bool>
+        <property name="autoDefault">
+         <bool>false</bool>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="Line" name="line_17">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+        <property name="flat">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -79,15 +68,11 @@
           <height>16</height>
          </size>
         </property>
-        <property name="flat">
-         <bool>true</bool>
+        <property name="autoDefault">
+         <bool>false</bool>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="Line" name="line_18">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+        <property name="flat">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -147,7 +132,17 @@
          <number>0</number>
         </property>
         <item>
+         <widget class="Line" name="line_11">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QFrame" name="qf_moveItem">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
           <property name="lineWidth">
            <number>0</number>
           </property>
@@ -158,13 +153,6 @@
            <property name="margin">
             <number>0</number>
            </property>
-           <item>
-            <widget class="Line" name="line_13">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-            </widget>
-           </item>
            <item>
             <widget class="QPushButton" name="pb_itemUp">
              <property name="minimumSize">
@@ -188,15 +176,11 @@
                <height>16</height>
               </size>
              </property>
-             <property name="flat">
-              <bool>true</bool>
+             <property name="autoDefault">
+              <bool>false</bool>
              </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="line_14">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+             <property name="flat">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -223,15 +207,11 @@
                <height>16</height>
               </size>
              </property>
-             <property name="flat">
-              <bool>true</bool>
+             <property name="autoDefault">
+              <bool>false</bool>
              </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="line_15">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+             <property name="flat">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -239,7 +219,54 @@
          </widget>
         </item>
         <item>
+         <widget class="Line" name="line_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="Line" name="line_13">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pb_template">
+          <property name="maximumSize">
+           <size>
+            <width>60</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Tpl</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_14">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_5">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -278,15 +305,11 @@
             <height>16</height>
            </size>
           </property>
-          <property name="flat">
-           <bool>true</bool>
+          <property name="autoDefault">
+           <bool>false</bool>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Line" name="line_8">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+          <property name="flat">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -310,8 +333,11 @@
             <height>16</height>
            </size>
           </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
           <property name="flat">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -362,15 +388,11 @@
             <height>16</height>
            </size>
           </property>
-          <property name="flat">
-           <bool>true</bool>
+          <property name="autoDefault">
+           <bool>false</bool>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Line" name="line_11">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+          <property name="flat">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -394,8 +416,11 @@
             <height>16</height>
            </size>
           </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
           <property name="flat">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>

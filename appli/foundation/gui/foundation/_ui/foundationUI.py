@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\_src\foundation.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\foundation\_src\foundation.ui'
 #
-# Created: Fri Jan 01 18:25:44 2016
+# Created: Sat Jan 02 18:19:55 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_mw_foundation(object):
     def setupUi(self, mw_foundation):
         mw_foundation.setObjectName(_fromUtf8("mw_foundation"))
-        mw_foundation.resize(800, 600)
+        mw_foundation.resize(502, 398)
         self.centralwidget = QtGui.QWidget(mw_foundation)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
@@ -40,8 +40,31 @@ class Ui_mw_foundation(object):
         self.vl_left.setSpacing(0)
         self.vl_left.setMargin(0)
         self.vl_left.setObjectName(_fromUtf8("vl_left"))
+        self.qf_treeUp = QtGui.QFrame(self.qf_left)
+        self.qf_treeUp.setMinimumSize(QtCore.QSize(0, 250))
+        self.qf_treeUp.setMaximumSize(QtCore.QSize(16777215, 250))
+        self.qf_treeUp.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.qf_treeUp.setObjectName(_fromUtf8("qf_treeUp"))
+        self.vl_treeUp = QtGui.QVBoxLayout(self.qf_treeUp)
+        self.vl_treeUp.setSpacing(0)
+        self.vl_treeUp.setMargin(0)
+        self.vl_treeUp.setObjectName(_fromUtf8("vl_treeUp"))
+        self.vl_left.addWidget(self.qf_treeUp)
+        self.qf_treeDn = QtGui.QFrame(self.qf_left)
+        self.qf_treeDn.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.qf_treeDn.setObjectName(_fromUtf8("qf_treeDn"))
+        self.vl_treeDn = QtGui.QVBoxLayout(self.qf_treeDn)
+        self.vl_treeDn.setSpacing(0)
+        self.vl_treeDn.setMargin(0)
+        self.vl_treeDn.setObjectName(_fromUtf8("vl_treeDn"))
+        self.vl_left.addWidget(self.qf_treeDn)
         self.gridLayout.addWidget(self.qf_left, 0, 0, 1, 1)
         self.qf_right = QtGui.QFrame(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.qf_right.sizePolicy().hasHeightForWidth())
+        self.qf_right.setSizePolicy(sizePolicy)
         self.qf_right.setFrameShape(QtGui.QFrame.StyledPanel)
         self.qf_right.setObjectName(_fromUtf8("qf_right"))
         self.vl_right = QtGui.QVBoxLayout(self.qf_right)
@@ -67,7 +90,7 @@ class Ui_mw_foundation(object):
         self.gridLayout.addWidget(self.qf_right, 0, 1, 1, 1)
         mw_foundation.setCentralWidget(self.centralwidget)
         self.menuBar = QtGui.QMenuBar(mw_foundation)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 800, 21))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 502, 21))
         self.menuBar.setObjectName(_fromUtf8("menuBar"))
         self.m_project = QtGui.QMenu(self.menuBar)
         self.m_project.setObjectName(_fromUtf8("m_project"))
@@ -89,11 +112,16 @@ class Ui_mw_foundation(object):
         self.mi_projectSettings.setObjectName(_fromUtf8("mi_projectSettings"))
         self.actionTmp1 = QtGui.QAction(mw_foundation)
         self.actionTmp1.setObjectName(_fromUtf8("actionTmp1"))
+        self.mi_toolTips = QtGui.QAction(mw_foundation)
+        self.mi_toolTips.setCheckable(True)
+        self.mi_toolTips.setChecked(True)
+        self.mi_toolTips.setObjectName(_fromUtf8("mi_toolTips"))
         self.m_project.addAction(self.mi_newProject)
         self.m_project.addAction(self.mi_loadProject)
         self.m_project.addSeparator()
         self.m_project.addAction(self.mi_projectSettings)
         self.m_help.addAction(self.m_logLevel.menuAction())
+        self.m_help.addAction(self.mi_toolTips)
         self.menuBar.addAction(self.m_project.menuAction())
         self.menuBar.addAction(self.m_help.menuAction())
 
@@ -111,4 +139,5 @@ class Ui_mw_foundation(object):
         self.mi_loadProject.setText(_translate("mw_foundation", "Load Project", None))
         self.mi_projectSettings.setText(_translate("mw_foundation", "Project Settings", None))
         self.actionTmp1.setText(_translate("mw_foundation", "tmp1", None))
+        self.mi_toolTips.setText(_translate("mw_foundation", "Tool Tips", None))
 

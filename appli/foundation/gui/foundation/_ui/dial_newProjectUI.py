@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\_src\dial_newProject.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\foundation\_src\dial_newProject.ui'
 #
-# Created: Fri Jan 01 18:14:13 2016
+# Created: Sat Jan 02 01:11:05 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -61,35 +61,20 @@ class Ui_dial_newProject(object):
         self.hl_buttons.setObjectName(_fromUtf8("hl_buttons"))
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hl_buttons.addItem(spacerItem)
-        self.line_5 = QtGui.QFrame(dial_newProject)
-        self.line_5.setFrameShape(QtGui.QFrame.VLine)
-        self.line_5.setFrameShadow(QtGui.QFrame.Sunken)
-        self.line_5.setObjectName(_fromUtf8("line_5"))
-        self.hl_buttons.addWidget(self.line_5)
         self.pb_save = QtGui.QPushButton(dial_newProject)
         self.pb_save.setMinimumSize(QtCore.QSize(60, 0))
         self.pb_save.setMaximumSize(QtCore.QSize(60, 16777215))
-        self.pb_save.setAutoDefault(False)
+        self.pb_save.setAutoDefault(True)
         self.pb_save.setFlat(False)
         self.pb_save.setObjectName(_fromUtf8("pb_save"))
         self.hl_buttons.addWidget(self.pb_save)
-        self.line_6 = QtGui.QFrame(dial_newProject)
-        self.line_6.setFrameShape(QtGui.QFrame.VLine)
-        self.line_6.setFrameShadow(QtGui.QFrame.Sunken)
-        self.line_6.setObjectName(_fromUtf8("line_6"))
-        self.hl_buttons.addWidget(self.line_6)
         self.pb_cancel = QtGui.QPushButton(dial_newProject)
         self.pb_cancel.setMinimumSize(QtCore.QSize(60, 0))
         self.pb_cancel.setMaximumSize(QtCore.QSize(60, 16777215))
-        self.pb_cancel.setAutoDefault(False)
+        self.pb_cancel.setAutoDefault(True)
         self.pb_cancel.setFlat(False)
         self.pb_cancel.setObjectName(_fromUtf8("pb_cancel"))
         self.hl_buttons.addWidget(self.pb_cancel)
-        self.line_7 = QtGui.QFrame(dial_newProject)
-        self.line_7.setFrameShape(QtGui.QFrame.VLine)
-        self.line_7.setFrameShadow(QtGui.QFrame.Sunken)
-        self.line_7.setObjectName(_fromUtf8("line_7"))
-        self.hl_buttons.addWidget(self.line_7)
         self.gridLayout.addLayout(self.hl_buttons, 7, 0, 1, 1)
         self.hl_projectCode = QtGui.QHBoxLayout()
         self.hl_projectCode.setContentsMargins(6, -1, 0, -1)

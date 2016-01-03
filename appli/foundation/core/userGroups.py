@@ -450,7 +450,7 @@ class UserGroups(object):
             newGroup.setDatas(**grpDict[n])
             self._groups.append(newGroup)
 
-    def writeGroupsToSettings(self):
+    def writeUserGroupsFile(self):
         """
         Write userGroups to settings file
         """

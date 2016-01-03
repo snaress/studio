@@ -20,31 +20,6 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="2" column="0">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="l_loadProject">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-       <underline>true</underline>
-      </font>
-     </property>
-     <property name="text">
-      <string>Load Project</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="Line" name="line">
      <property name="orientation">
@@ -71,13 +46,6 @@
       </spacer>
      </item>
      <item>
-      <widget class="Line" name="line_5">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="pb_cancel">
        <property name="minimumSize">
         <size>
@@ -95,26 +63,37 @@
         <string>Cancel</string>
        </property>
        <property name="autoDefault">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="flat">
         <bool>false</bool>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="Line" name="line_7">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
-   <item row="6" column="0">
-    <widget class="Line" name="line_3">
+   <item row="2" column="0">
+    <widget class="Line" name="line_2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="l_loadProject">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+       <underline>true</underline>
+      </font>
+     </property>
+     <property name="text">
+      <string>Load Project</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
@@ -136,10 +115,17 @@
       <string>Load Project</string>
      </property>
      <property name="autoDefault">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="flat">
       <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -223,7 +209,7 @@
           <string>Store In 'My Projects'</string>
          </property>
          <property name="autoDefault">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="flat">
           <bool>false</bool>
@@ -256,29 +242,15 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="Line" name="line_6">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="pb_remove">
            <property name="text">
             <string>Remove From 'My Projects'</string>
            </property>
            <property name="autoDefault">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="flat">
             <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="Line" name="line_12">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
            </property>
           </widget>
          </item>
@@ -288,17 +260,10 @@
             <string>Refresh</string>
            </property>
            <property name="autoDefault">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="flat">
             <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="Line" name="line_13">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
            </property>
           </widget>
          </item>
@@ -322,7 +287,7 @@
           <bool>true</bool>
          </property>
          <property name="headerHidden">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="expandsOnDoubleClick">
           <bool>false</bool>
