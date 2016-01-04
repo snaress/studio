@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\common\_src\wg_basicTree.ui'
 #
-# Created: Sat Jan 02 18:26:43 2016
+# Created: Sun Jan 03 20:24:09 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_wg_basicTree(object):
     def setupUi(self, wg_basicTree):
         wg_basicTree.setObjectName(_fromUtf8("wg_basicTree"))
-        wg_basicTree.resize(510, 299)
+        wg_basicTree.resize(510, 382)
         self.gridLayout = QtGui.QGridLayout(wg_basicTree)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.qf_apply = QtGui.QFrame(wg_basicTree)
@@ -121,6 +121,13 @@ class Ui_wg_basicTree(object):
         self.pb_template.setMaximumSize(QtCore.QSize(60, 16777215))
         self.pb_template.setObjectName(_fromUtf8("pb_template"))
         self.vl_treeEdit_L.addWidget(self.pb_template)
+        self.cbb_filter = QtGui.QComboBox(self.qf_treeEdit_L)
+        self.cbb_filter.setMaximumSize(QtCore.QSize(60, 16777215))
+        self.cbb_filter.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.cbb_filter.setMaxVisibleItems(12)
+        self.cbb_filter.setFrame(False)
+        self.cbb_filter.setObjectName(_fromUtf8("cbb_filter"))
+        self.vl_treeEdit_L.addWidget(self.cbb_filter)
         self.line_14 = QtGui.QFrame(self.qf_treeEdit_L)
         self.line_14.setFrameShape(QtGui.QFrame.HLine)
         self.line_14.setFrameShadow(QtGui.QFrame.Sunken)

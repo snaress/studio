@@ -151,6 +151,7 @@ class ToolSettings(QtGui.QDialog, dial_toolSettingsUI.Ui_dial_projectSettings):
         Update settings
         """
         selItems = self.tw_category.selectedItems() or []
+        #-- Update Display --#
         if not selItems:
             self.qf_settingsWidget.setVisible(False)
         else:
@@ -158,13 +159,18 @@ class ToolSettings(QtGui.QDialog, dial_toolSettingsUI.Ui_dial_projectSettings):
                 self.qf_settingsWidget.setVisible(False)
             else:
                 self.qf_settingsWidget.setVisible(True)
+                #-- Reset Visibility (resize bug) --#
                 for item in pQt.getAllItems(self.tw_category):
                     if hasattr(item, 'itemWidget'):
                         if item.itemWidget is not None:
-                            if not item.itemLabel == selItems[0].itemLabel:
-                                item.itemWidget.setVisible(False)
-                            else:
+                            item.itemWidget.setVisible(False)
+                #-- Edit Visibility --#
+                for item in pQt.getAllItems(self.tw_category):
+                    if hasattr(item, 'itemWidget'):
+                        if item.itemWidget is not None:
+                            if item.itemLabel == selItems[0].itemLabel:
                                 item.itemWidget.setVisible(True)
+                #-- Build Tree --#
                 if selItems[0].itemWidget is not None:
                     selItems[0].itemWidget.buildTree()
 

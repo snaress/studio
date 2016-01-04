@@ -94,6 +94,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -145,6 +148,9 @@
          <width>100</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -236,6 +242,9 @@
          <width>100</width>
          <height>16777215</height>
         </size>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

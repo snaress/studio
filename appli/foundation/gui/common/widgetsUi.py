@@ -106,7 +106,7 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
         Refresh widgets toolTips
         """
         if not self.mainUi.showToolTips:
-            wList = [self.pb_itemUp, self.pb_itemDn, self.pb_template, self.pb_add, self.pb_del,
+            wList = [self.pb_itemUp, self.pb_itemDn, self.pb_template, self.cbb_filter, self.pb_add, self.pb_del,
                      self.pb_edit1, self.pb_edit2, self.pb_apply, self.pb_cancel]
             for widget in wList:
                 widget.setToolTip('')
@@ -134,6 +134,13 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
         """
         for n in range(self.tw_tree.columnCount()):
             self.tw_tree.resizeColumnToContents(n)
+
+    def buildFilters(self):
+        """
+        Build comboBox items
+        """
+        self.log.detail(">>> Build filters ...")
+        self.cbb_filter.clear()
 
     def buildTree(self):
         """
@@ -213,6 +220,14 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
                 for item in pQt.getAllItems(self.tw_tree):
                     if item == movedItem:
                         self.tw_tree.setItemSelected(movedItem, True)
+
+    def on_filter(self):
+        """
+        Command launched when 'Filter' QComboBox item is clicked
+
+        Update tree display
+        """
+        self.log.detail(">>> Launch 'Filter' ...")
 
     def on_addItem(self):
         """

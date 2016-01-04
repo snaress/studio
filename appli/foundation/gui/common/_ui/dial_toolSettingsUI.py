@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\common\_src\dial_toolSettings.ui'
 #
-# Created: Sun Jan 03 02:07:19 2016
+# Created: Sun Jan 03 02:48:04 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,6 +66,8 @@ class Ui_dial_projectSettings(object):
         self.vl_settingsWidget.setMargin(0)
         self.vl_settingsWidget.setObjectName(_fromUtf8("vl_settingsWidget"))
         self.vl_settings.addWidget(self.qf_settingsWidget)
+        spacerItem = QtGui.QSpacerItem(20, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.vl_settings.addItem(spacerItem)
         self.line_2 = QtGui.QFrame(dial_projectSettings)
         self.line_2.setFrameShape(QtGui.QFrame.HLine)
         self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
@@ -75,8 +77,8 @@ class Ui_dial_projectSettings(object):
         self.hl_settingsOptions.setSpacing(0)
         self.hl_settingsOptions.setContentsMargins(-1, 0, -1, -1)
         self.hl_settingsOptions.setObjectName(_fromUtf8("hl_settingsOptions"))
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.hl_settingsOptions.addItem(spacerItem)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.hl_settingsOptions.addItem(spacerItem1)
         self.pb_save = QtGui.QPushButton(dial_projectSettings)
         self.pb_save.setMaximumSize(QtCore.QSize(60, 20))
         self.pb_save.setFlat(False)

@@ -478,6 +478,24 @@ class UserGroups(object):
             userList.append(user.userName)
         return sorted(userList)
 
+    def getIndexes(self, capital=False):
+        """
+        Get user index list
+
+        :param capital: Return upper form index
+        :type capital: bool
+        :return: User index list
+        :rtype: list
+        """
+        indexList = []
+        for userObj in self._users:
+            if not userObj.userPrefixFolder in indexList:
+                if capital:
+                    indexList.append(userObj.userPrefixFolder.upper())
+                else:
+                    indexList.append(userObj.userPrefixFolder)
+        return sorted(indexList)
+
     def getUserObjFromName(self, userName):
         """
         Get user object from given userName
@@ -592,24 +610,34 @@ class UserGroups(object):
             self.log.detail("Install mode, %s ---> 'ADMIN'" % userName)
             userObj.setDatas(userGroup='ADMIN')
             userObj.writeFile()
-        self._users.append(userObj)
+            self._users.append(userObj)
         return userObj
 
-    def deleteUser(self, userName):
+    def deleteUser(self, userName=None, userObj=None, archive=False):
         """
         Delete given user
 
         :param userName: User name
         :type userName: str
+        :param userObj: User object
+        :type userObj: User
+        :param archive: Archives datas (clean disk)
+        :type archive: bool
         """
-        userObj = self.getUserObjFromName(userName)
+        if userObj is None:
+            userObj = self.getUserObjFromName(userName)
         #-- Check User Object --#
         if userObj is None:
             mess = "!!! User not found: %s !!!" % userName
             self.log.error(mess)
             raise AttributeError(mess)
-        #-- Delete User --#
-        self.log.info("Deleting User %s ..." % userName)
-        self._users.remove(userObj)
-        #ToDo: Move user folder to archive
-        self.log.info("---> %s deleted." % userName)
+        #-- Archive User --#
+        if archive:
+            self.log.info("Archive user %r" % userObj.userName)
+        #-- Delete User Object --#
+        if userObj in self._users:
+            self.log.info("Deleting user object %r ..." % userObj.userName)
+            self._users.remove(userObj)
+        else:
+            self.log.debug("User object %r already deleted. Skipp !!!" % userObj.userName)
+        self.log.info("---> %r deleted." % userObj.userName)

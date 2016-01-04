@@ -319,21 +319,24 @@ class ProjectSettings(dialogsUi.ToolSettings):
             if item.parent().itemCode == 'userGroups':
                 if item.itemCode == 'groups':
                     self.userGroups.writeUserGroupsFile()
-                # elif item.itemCode == 'users':
-                #     for editedItem in self.wgUsers.editedItems:
-                #         editedItem.itemObj.writeFile()
-                #     self.wgUsers.editedItems = []
+                elif item.itemCode == 'users':
+                    for editedItem in self.wg_users.editedItems['added']:
+                        editedItem.itemObj.writeFile()
+                    for editedItem in self.wg_users.editedItems['edited']:
+                        editedItem.itemObj.writeFile()
+                    for editedItem in self.wg_users.editedItems['deleted']:
+                        self.userGroups.deleteUser(userObj=editedItem.itemObj, archive=True)
+                    self.wg_users.editedItems = dict(added=[], edited=[], deleted=[])
             #-- Update Edited State --#
             item.itemWidget.__edited__ = False
         #-- Write And Refresh --#
         self.rf_editedItemStyle()
 
-    # def _discardSettings(self):
-    #     """
-    #     Discard action confirmed
-    #     """
-    #     if self.wgUsers.editedItems:
-    #         for editedItem in self.wgUsers.editedItems:
-    #             self.userGrps.deleteUser(editedItem.itemObj.userName)
-    #         self.wgUsers.editedItems = []
-    #     super(ProjectSettings, self)._discardSettings()
+    def _discardSettings(self):
+        """
+        Discard action confirmed
+        """
+        for editedItem in self.wg_users.editedItems['added']:
+            self.userGroups.deleteUser(userObj=editedItem.itemObj)
+        self.wg_users.editedItems = []
+        super(ProjectSettings, self)._discardSettings()

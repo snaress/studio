@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\fondation\_src\tsUgGroupsDial.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\foundation\_src\ts_ugGroupsDial.ui'
 #
-# Created: Sun Dec 13 19:17:38 2015
+# Created: Sun Jan 03 00:39:10 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -135,6 +135,7 @@ class Ui_dial_groups(object):
         self.le_userGrpCode = QtGui.QLineEdit(dial_groups)
         self.le_userGrpCode.setMinimumSize(QtCore.QSize(100, 0))
         self.le_userGrpCode.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.le_userGrpCode.setFrame(False)
         self.le_userGrpCode.setObjectName(_fromUtf8("le_userGrpCode"))
         self.hl_userGrpCode.addWidget(self.le_userGrpCode)
         spacerItem6 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -148,6 +149,7 @@ class Ui_dial_groups(object):
         self.l_userGrpName.setObjectName(_fromUtf8("l_userGrpName"))
         self.hl_userGrpName.addWidget(self.l_userGrpName)
         self.le_userGrpName = QtGui.QLineEdit(dial_groups)
+        self.le_userGrpName.setFrame(False)
         self.le_userGrpName.setObjectName(_fromUtf8("le_userGrpName"))
         self.hl_userGrpName.addWidget(self.le_userGrpName)
         self.gridLayout.addLayout(self.hl_userGrpName, 4, 0, 1, 1)

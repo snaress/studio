@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\fondation\gui\fondation\_src\tsUgUsersDial.ui'
+# Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\foundation\_src\ts_ugUsersDial.ui'
 #
-# Created: Sun Dec 13 19:17:38 2015
+# Created: Sun Jan 03 14:38:47 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -65,6 +65,7 @@ class Ui_dial_users(object):
         self.le_userName = QtGui.QLineEdit(dial_users)
         self.le_userName.setMinimumSize(QtCore.QSize(100, 0))
         self.le_userName.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.le_userName.setFrame(False)
         self.le_userName.setObjectName(_fromUtf8("le_userName"))
         self.hl_useName.addWidget(self.le_userName)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -80,6 +81,7 @@ class Ui_dial_users(object):
         self.le_userFirstName = QtGui.QLineEdit(dial_users)
         self.le_userFirstName.setMinimumSize(QtCore.QSize(100, 0))
         self.le_userFirstName.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.le_userFirstName.setFrame(False)
         self.le_userFirstName.setObjectName(_fromUtf8("le_userFirstName"))
         self.hl_useFirstName.addWidget(self.le_userFirstName)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -108,6 +110,7 @@ class Ui_dial_users(object):
         self.le_userLastName = QtGui.QLineEdit(dial_users)
         self.le_userLastName.setMinimumSize(QtCore.QSize(100, 0))
         self.le_userLastName.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.le_userLastName.setFrame(False)
         self.le_userLastName.setObjectName(_fromUtf8("le_userLastName"))
         self.hl_useLastName.addWidget(self.le_userLastName)
         spacerItem3 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
