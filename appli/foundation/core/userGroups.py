@@ -1,5 +1,4 @@
-import os
-import pprint
+import os, pprint, shutil
 from lib.system import procFile as pFile
 
 
@@ -634,6 +633,24 @@ class UserGroups(object):
         #-- Archive User --#
         if archive:
             self.log.info("Archive user %r" % userObj.userName)
+            dateTime = '%s--%s' % (pFile.getDate(), pFile.getTime())
+            archivePath = pFile.conformPath(os.path.join(self.archivePath, userObj.userPrefixFolder, userObj.userName,
+                                                         dateTime))
+            self.foundation.createPath(archivePath, recursive=True, root=self.archivePath)
+            archiveFullPath = pFile.conformPath(os.path.join(archivePath, userObj.userName))
+            if os.path.exists(userObj.userPath):
+                try:
+                    shutil.copytree(userObj.userPath, archiveFullPath)
+                    shutil.rmtree(userObj.userPath)
+                    self.log.debug("---> User %r archived in %s" % (userObj.userName, archivePath))
+                except:
+                    mess = "!!! Can not copy tree: %s !!!" % userObj.userPath
+                    self.log.error(mess)
+                    raise IOError(mess)
+            else:
+                mess = "!!! User path not found: %s !!!" % userObj.userPath
+                self.log.error(mess)
+                raise IOError(mess)
         #-- Delete User Object --#
         if userObj in self._users:
             self.log.info("Deleting user object %r ..." % userObj.userName)

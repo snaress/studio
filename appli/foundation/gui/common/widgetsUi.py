@@ -18,6 +18,7 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
 
     def __init__(self, parent=None):
         super(BasicTree, self).__init__(parent)
+        #-- Icons --#
         self.iconUp = QtGui.QIcon(os.path.join(self.iconPath, 'arrowUpBlue.png'))
         self.iconDn = QtGui.QIcon(os.path.join(self.iconPath, 'arrowDnBlue.png'))
         self.iconTpl = QtGui.QIcon(os.path.join(self.iconPath, 'template.png'))
@@ -26,6 +27,7 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
         self.iconEdit = QtGui.QIcon(os.path.join(self.iconPath, 'edit.png'))
         self.iconApply = QtGui.QIcon(os.path.join(self.iconPath, 'apply.png'))
         self.iconCancel = QtGui.QIcon(os.path.join(self.iconPath, 'cancel.png'))
+        #-- Edition Colors --#
         self._setupWidget()
 
     def _setupWidget(self):
@@ -62,6 +64,7 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
         """
         self.pb_itemUp.clicked.connect(partial(self.on_moveItem, 'up'))
         self.pb_itemDn.clicked.connect(partial(self.on_moveItem, 'down'))
+        self.cbb_filter.currentIndexChanged.connect(self.on_filter)
         self.pb_add.clicked.connect(self.on_addItem)
         self.pb_del.clicked.connect(self.on_delItem)
         self.pb_edit1.clicked.connect(self.on_editItem1)
@@ -134,6 +137,24 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
         """
         for n in range(self.tw_tree.columnCount()):
             self.tw_tree.resizeColumnToContents(n)
+
+    def rf_itemStyle(self):
+        """
+        refresh tree item style
+        """
+        for item in pQt.getAllItems(self.tw_tree) or []:
+            #-- Get Color --#
+            if item in self.editedItems['added']:
+                color = (0, 255, 0)
+            elif item in self.editedItems['edited']:
+                color = (50, 150, 255)
+            elif item in self.editedItems['deleted']:
+                color = (255, 0, 0)
+            else:
+                color = (200, 200, 200)
+            #-- Set Color --#
+            for n in range(self.tw_tree.columnCount()):
+                item.setTextColor(n, QtGui.QColor(color[0], color[1], color[2]))
 
     def buildFilters(self):
         """

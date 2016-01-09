@@ -1,5 +1,6 @@
 import os
-from PyQt4 import QtGui
+from functools import partial
+from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procMath as pMath
 from appli.foundation.gui.common import widgetsUi
@@ -49,6 +50,9 @@ class Groups(widgetsUi.BasicTree):
         #-- Edit Label --#
         self.pb_edit1.setText("Edit")
         self.pb_edit2.setText("Style")
+        #-- Edit Grade --#
+        if not self.userGroups._user.grade == 0:
+            self.pb_del.setEnabled(False)
 
     def rf_toolTips(self):
         """
@@ -60,6 +64,8 @@ class Groups(widgetsUi.BasicTree):
             self.pb_itemDn.setToolTip("Move down selected group")
             self.pb_add.setToolTip("Create new user group")
             self.pb_del.setToolTip("Delete selected group")
+            if not self.userGroups._user.grade == 0:
+                self.pb_del.setToolTip("Delete selected group (Disabled for your grade)")
             self.pb_edit1.setToolTip("Edit selected group")
             self.pb_edit2.setToolTip("Update style auto")
             self.pb_apply.setToolTip("Apply datas to Fondation object")
@@ -313,6 +319,7 @@ class Users(widgetsUi.BasicTree):
         self.mainUi = self.pWidget.parent()
         self.foundation = self.pWidget.foundation
         self.userGroups = self.foundation.userGroups
+        self.project = self.foundation.project
         super(Users, self).__init__(pWidget)
         self.usersCollected = False
         self.editedItems = dict(added=[], edited=[], deleted=[])
@@ -325,9 +332,11 @@ class Users(widgetsUi.BasicTree):
         self.l_title.setText('Users')
         self.qf_moveItem.setVisible(False)
         self.pb_template.setVisible(False)
+        self.pb_edit2.setVisible(False)
         self.qf_treeEdit_R.setVisible(False)
+        self.tw_tree.setSortingEnabled(True)
         self.tw_tree.header().setStretchLastSection(False)
-        self.rf_headers('User Name', 'Group', 'First Name', 'Last Name')
+        self.rf_headers('User Name', 'Group', 'First Name', 'Last Name', 'Watch')
         self.rf_treeColumns()
 
     def _setupIcons(self):
@@ -337,12 +346,13 @@ class Users(widgetsUi.BasicTree):
         super(Users, self)._setupIcons()
         #-- Init Icons --#
         self.iconWatch = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'pinGreen.png'))
-        #-- Add Icons --#
-        self.pb_edit2.setIcon(self.iconWatch)
+        self.iconNotWatch = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'pinRed.png'))
         #-- Edit Label --#
         self.buildFilters()
         self.pb_edit1.setText("Edit")
-        self.pb_edit2.setText("Watch")
+        #-- Edit Grade --#
+        if not self.userGroups._user.grade == 0:
+            self.pb_del.setEnabled(False)
 
     def rf_toolTips(self):
         """
@@ -353,28 +363,24 @@ class Users(widgetsUi.BasicTree):
             self.cbb_filter.setToolTip("User index filter")
             self.pb_add.setToolTip("Create new user")
             self.pb_del.setToolTip("Delete selected user")
+            if not self.userGroups._user.grade == 0:
+                self.pb_del.setToolTip("Delete selected user (Disabled for your grade)")
             self.pb_edit1.setToolTip("Edit selected user")
             self.pb_edit2.setToolTip("Allow selected user to load project")
             self.pb_apply.setToolTip("Apply datas to Fondation object")
             self.pb_cancel.setToolTip("Restore datas from Fondation object")
 
-    def rf_itemStyle(self):
+    def rf_watchState(self, itemWidget):
         """
-        refresh tree item style
+        Refresh watch button icon
+
+        :param itemWidget: User item button
+        :type itemWidget: QtGui.QPushButton
         """
-        for item in pQt.getAllItems(self.tw_tree) or []:
-            #-- Get Color --#
-            if item in self.editedItems['added']:
-                color = (0, 255, 0)
-            elif item in self.editedItems['edited']:
-                color = (50, 150, 255)
-            elif item in self.editedItems['deleted']:
-                color = (255, 0, 0)
-            else:
-                color = (200, 200, 200)
-            #-- Set Color --#
-            for n in range(self.tw_tree.columnCount()):
-                item.setTextColor(n, QtGui.QColor(color[0], color[1], color[2]))
+        if itemWidget.isChecked():
+            itemWidget.setIcon(self.iconWatch)
+        else:
+            itemWidget.setIcon(self.iconNotWatch)
 
     def buildFilters(self):
         """
@@ -384,8 +390,13 @@ class Users(widgetsUi.BasicTree):
         self.cbb_filter.addItems(['All', 'Added', 'Edited', 'Deleted', 'Changed'])
         self.cbb_filter.addItems(self.userGroups.getIndexes(capital=True))
         self.cbb_filter.insertSeparator(5)
-        self.cbb_filter.setCurrentIndex(6)
+        self.cbb_filter.setEditable(True)
+        self.cbb_filter.lineEdit().setReadOnly(True)
+        self.cbb_filter.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
+        for n in range(self.cbb_filter.count()):
+            self.cbb_filter.setItemData(n, QtCore.Qt.AlignCenter, QtCore.Qt.TextAlignmentRole)
 
+    # noinspection PyUnresolvedReferences
     def buildTree(self):
         """
         Build Users tree widget
@@ -398,14 +409,20 @@ class Users(widgetsUi.BasicTree):
             self.usersCollected = True
         #-- Populate Tree --#
         if self.userGroups._users:
-            userItems = []
             for userObj in self.userGroups._users:
                 newItem = self.new_treeItem(userObj)
-                # newItem.setHidden(True)
-                userItems.append(newItem)
-            self.tw_tree.addTopLevelItems(userItems)
+                #-- Add Button --#
+                if userObj.userName in self.project.projectUsers:
+                    newItem.itemWidget = self.new_itemButton(True)
+                else:
+                    newItem.itemWidget = self.new_itemButton(False)
+                #-- Add Item --#
+                newItem.itemWidget.clicked.connect(partial(self.on_watchState, newItem))
+                self.tw_tree.addTopLevelItem(newItem)
+                self.tw_tree.setItemWidget(newItem, 4, newItem.itemWidget)
         #-- Refresh --#
         self.rf_treeColumns()
+        self.tw_tree.sortItems(0, QtCore.Qt.AscendingOrder)
         self.buildFilters()
 
     def ud_treeItem(self, item, **kwargs):
@@ -423,6 +440,55 @@ class Users(widgetsUi.BasicTree):
         item.setText(1, str(item.itemObj.userGroup))
         item.setText(2, str(item.itemObj.userFirstName))
         item.setText(3, str(item.itemObj.userLastName))
+
+    def new_itemButton(self, state):
+        """
+        Create tree item button
+
+        :param state: Check state
+        :type state: bool
+        :return: Tree item button
+        :rtype: QtGui.QPushButton
+        """
+        newButton = QtGui.QPushButton()
+        newButton.setText('')
+        newButton.setCheckable(True)
+        newButton.setChecked(state)
+        newButton.setIconSize(QtCore.QSize(18, 18))
+        self.rf_watchState(newButton)
+        return newButton
+
+    def on_filter(self):
+        """
+        Command launched when 'Filter' QComboBox item is clicked
+
+        Update use tree display
+        """
+        super(Users, self).on_filter()
+        filter = str(self.cbb_filter.currentText())
+        for item in pQt.getAllItems(self.tw_tree):
+            #-- Prefix --#
+            if len(filter) == 1:
+                if item.itemObj.userPrefixFolder == filter.lower():
+                    item.setHidden(False)
+                else:
+                    item.setHidden(True)
+            #-- All --#
+            elif filter == 'All':
+                item.setHidden(False)
+            #-- Added, Edited, Deleted --#
+            elif filter in ['Added', 'Edited', 'Deleted']:
+                if item in self.editedItems[filter.lower()]:
+                    item.setHidden(False)
+                else:
+                    item.setHidden(True)
+            #-- Changed --#
+            elif filter == 'Changed':
+                if (item in self.editedItems['added'] or item in self.editedItems['edited']
+                    or item in self.editedItems['deleted']):
+                    item.setHidden(False)
+                else:
+                    item.setHidden(True)
 
     def on_addItem(self):
         """
@@ -465,6 +531,22 @@ class Users(widgetsUi.BasicTree):
             message = "!!! Select at least one user item !!!"
             pQt.errorDialog(message, self)
 
+    # noinspection PyUnresolvedReferences
+    def on_watchState(self, item):
+        """
+        Command launched when 'Watch' QPushButton is clicked
+
+        Tag user as project watcher
+        :param item: User tree item
+        :type item: QtGui.QTreeWidgetItem
+        """
+        #-- Store Edition --#
+        if (not item in self.editedItems['edited'] and not item in self.editedItems['added']
+            and not item in self.editedItems['deleted']):
+            self.editedItems['edited'].append(item)
+        #-- Refresh Item Style --#
+        self.rf_watchState(item.itemWidget)
+
     def on_apply(self):
         """
         Command launched when 'Apply' QPushButton is clicked
@@ -476,10 +558,17 @@ class Users(widgetsUi.BasicTree):
         for item in self.editedItems['added']:
             if not item.itemObj.userName in self.userGroups.users:
                 self.userGroups._users.append(item.itemObj)
+        #-- Edited User --#
+        for item in self.editedItems['edited']:
+            watchState = item.itemWidget.isChecked()
+            if watchState:
+                self.project.addProjectUser(item.itemObj.userName)
+            else:
+                self.project.removeProjectUser(item.itemObj.userName)
         #-- Del User --#
         for item in self.editedItems['deleted']:
             if item.itemObj.userName in self.userGroups.users:
-                self.userGroups._users.deleteUser(userObj=item.itemObj)
+                self.userGroups.deleteUser(userObj=item.itemObj)
         #-- refresh --#
         self.pWidget.rf_editedItemStyle()
         self.buildTree()
@@ -606,8 +695,8 @@ class UsersDialog(QtGui.QDialog, ts_ugUsersDialUI.Ui_dial_users):
             if not userName[0].upper() in pQt.getComboBoxItems(self.parent().cbb_filter):
                 self.parent().cbb_filter.addItem(userName[0].upper())
                 self.parent().cbb_filter.setCurrentIndex(self.parent().cbb_filter.findText(userName[0].upper()))
+        #-- Store Edition --#
         elif self.dialogMode == 'edit':
-            #-- Store Edition --#
             if not self.selItem in self.parent().editedItems['edited']:
                 if not self.selItem in self.parent().editedItems['added']:
                     self.parent().editedItems['edited'].append(self.selItem)

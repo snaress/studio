@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\common\_src\dial_toolSettings.ui'
 #
-# Created: Sun Jan 03 02:48:04 2016
+# Created: Fri Jan 08 21:28:39 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_dial_projectSettings(object):
     def setupUi(self, dial_projectSettings):
         dial_projectSettings.setObjectName(_fromUtf8("dial_projectSettings"))
-        dial_projectSettings.resize(599, 400)
+        dial_projectSettings.resize(785, 400)
         self.gridLayout = QtGui.QGridLayout(dial_projectSettings)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.hl_toolSettings = QtGui.QHBoxLayout()

@@ -13,6 +13,7 @@ class Foundation(object):
 
     log = pFile.Logger(title="Foundation")
     __user__ = os.environ['USERNAME']
+    # __user__ = "Hari"
     __rootPath__ = "E:/foundation"
     __projectsPath__ = pFile.conformPath(os.path.join(__rootPath__, 'projects'))
     __settingsPath__ = pFile.conformPath(os.path.join(__rootPath__, 'settings'))

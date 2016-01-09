@@ -144,19 +144,22 @@ class LoadProject(QtGui.QDialog, dial_loadProjectUI.Ui_Dialog):
         #-- Populate Tree --#
         treeWidget.clear()
         for project in projects:
-            newItem = self.new_projectItem(project, treeWidget)
+            projectFile = pFile.conformPath(os.path.join(self.foundation.__projectsPath__, project, '%s.py' % project))
+            datas = pFile.readDictFile(projectFile)
+            newItem = self.new_projectItem(project, datas, treeWidget)
             treeWidget.addTopLevelItem(newItem)
         #-- Refresh --#
         self.rf_treeColumns(treeWidget)
         treeWidget.sortItems(0, QtCore.Qt.AscendingOrder)
 
-    @staticmethod
-    def new_projectItem(project, twTree):
+    def new_projectItem(self, project, datas, twTree):
         """
         Create new project item
 
         :param project: Project (name--code)
         :type project: str
+        :param datas: Project Datas
+        :type datas: dict
         :param twTree: Tree to refresh
         :type twTree: QtGui.QTreeWidget
         :return: Project tree item
@@ -165,11 +168,18 @@ class LoadProject(QtGui.QDialog, dial_loadProjectUI.Ui_Dialog):
         newItem = QtGui.QTreeWidgetItem()
         newItem.projectName = project.split('--')[0]
         newItem.projectCode = project.split('--')[1]
+        newItem.projectDatas = datas
         newItem.project = project
         newItem.setText(0, newItem.projectName)
         newItem.setText(1, newItem.projectCode)
+        #-- Font --#
+        newFont = QtGui.QFont()
+        newFont.setItalic(True)
         for n in range(twTree.columnCount()):
             newItem.setTextAlignment(n, 5)
+            if not self.foundation.userGroups._user.userName in datas['projectUsers']:
+                newItem.setFont(n, newFont)
+                newItem.setTextColor(n, QtGui.QColor(125, 125, 125))
         return newItem
 
     def on_storeProject(self):
@@ -235,6 +245,11 @@ class LoadProject(QtGui.QDialog, dial_loadProjectUI.Ui_Dialog):
             selItems = self.tw_myProjects.selectedItems() or []
         #-- Load Project --#
         if selItems:
+            userName = self.foundation.userGroups._user.userName
+            if not userName in selItems[0].projectDatas['projectUsers']:
+                mess = "User %r is not set as projectUser in %s !" % (userName, selItems[0].project)
+                pQt.errorDialog(mess, self)
+                raise ValueError(mess)
             self.foundation.project.loadProject(selItems[0].project)
             self.parent().loadProject()
             self.close()
@@ -301,10 +316,7 @@ class ProjectSettings(dialogsUi.ToolSettings):
                                                          'label': 'Groups'}},
                                           1: {'users': {'widget': self.wg_users,
                                                         'code': 'users',
-                                                        'label': 'Users'}},
-                                          2: {'watchers': {'widget': None,
-                                                           'code': 'watchers',
-                                                           'label': 'Watchers'}}}}}
+                                                        'label': 'Users'}}}}}
 
     def on_save(self):
         """
@@ -313,6 +325,7 @@ class ProjectSettings(dialogsUi.ToolSettings):
         Save settings to disk
         """
         super(ProjectSettings, self).on_save()
+        editedSubCat = []
         for item in self.getEditedItems():
             self.log.detail("---> %s | %s" % (item.parent().itemCode, item.itemCode))
             #-- Save UserGroups --#
@@ -328,8 +341,14 @@ class ProjectSettings(dialogsUi.ToolSettings):
                         self.userGroups.deleteUser(userObj=editedItem.itemObj, archive=True)
                     self.wg_users.editedItems = dict(added=[], edited=[], deleted=[])
             #-- Update Edited State --#
+            if not item.itemCode in editedSubCat:
+                editedSubCat.append(item.itemCode)
             item.itemWidget.__edited__ = False
-        #-- Write And Refresh --#
+        #-- Write Files --#
+        for subCat in editedSubCat:
+            if subCat in ['users']:
+                self.project.writeProject()
+        #-- Refresh --#
         self.rf_editedItemStyle()
 
     def _discardSettings(self):

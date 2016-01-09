@@ -1,4 +1,4 @@
-import os
+import os, pprint
 from lib.system import procFile as pFile
 
 
@@ -68,6 +68,18 @@ class Project(object):
             return self.project.split('--')[1]
 
     @property
+    def projectFile(self):
+        """
+        Get project file full path
+
+        :return: Project file path
+        :rtype: str
+        """
+        if self.project is not None:
+            return pFile.conformPath(os.path.join(self.foundation.__projectsPath__,
+                                                  self.project, '%s.py' % self.project))
+
+    @property
     def attributes(self):
         """
         List all attributes
@@ -80,6 +92,23 @@ class Project(object):
             if key.startswith(self.__attrPrefix__):
                 attrs.append(key)
         return attrs
+
+    def getDatas(self, asString=False):
+        """
+        Get project datas
+
+        :param asString: Return string instead of dict
+        :type asString: bool
+        :return: User datas
+        :rtype: dict | str
+        """
+        datas = dict()
+        for attr in self.attributes:
+            datas[attr] = getattr(self, attr)
+        #-- Result --#
+        if asString:
+            return pprint.pformat(datas)
+        return datas
 
     def setDatas(self, **kwargs):
         """
@@ -141,12 +170,54 @@ class Project(object):
             mess = "!!! Project %r not found !!!" % project
             self.log.error(mess)
             raise ValueError(mess)
-        #-- Load Project --#
+        #-- Get Project --#
         try:
             projectDict = pFile.readDictFile(projectFile)
-            self.setDatas(**projectDict)
-            self.log.info("---> Project %r successfully loaded" % project)
         except:
             mess = "!!! Can not load project %r !!!" % project
             self.log.error(mess)
             raise IOError(mess)
+        #-- Load Project --#
+        if self.foundation.userGroups._user.userName in projectDict['projectUsers']:
+            self.setDatas(**projectDict)
+            self.log.info("---> Project %r successfully loaded" % project)
+        else:
+            mess = "User %r is not set as projectUser in %s !" % (self.foundation.userGroups._user.userName, project)
+            self.log.warning(mess)
+            raise ValueError(mess)
+
+    def writeProject(self):
+        """
+        Write project file
+        """
+        self.log.debug("#--- Write Project File: %s ---#" % self.project)
+        try:
+            pFile.writeDictFile(self.projectFile, self.getDatas())
+            self.log.debug("---> Project file successfully written: %s" % self.projectFile)
+        except:
+            mess = "!!! Can not write projectFile: %s !!!" % self.projectFile
+            self.log.error(mess)
+            raise IOError(mess)
+
+    def addProjectUser(self, userName):
+        """
+        Add project user (watcher)
+
+        :param userName: User name
+        :type userName: str
+        """
+        if not userName in self.projectUsers:
+            self.projectUsers.append(userName)
+            self.log.detail("User %r added to project %r" % (userName, self.project))
+
+    def removeProjectUser(self, userName):
+        """
+        Remove project user (watcher)
+
+        :param userName: User name
+        :type userName: str
+        """
+        if userName in self.projectUsers:
+            self.projectUsers.remove(userName)
+            self.log.detail("User %r removed from project %r" % (userName, self.project))
+            print self.projectUsers
