@@ -2,6 +2,7 @@ from tools.maya.cmds import pRigg
 from lib.system import procMath as pMath
 try:
     import maya.cmds as mc
+    import maya.OpenMaya as om
 except:
     pass
 
@@ -116,6 +117,7 @@ def creeBox(bboxDict=None, name=None, returnShape=False):
 
 def polySelectTraverse(traversal=1):
     """ Grow polyComponent selection
+
         :param traversal: 0 = Off.
                           1 = More : will add current selection border to current selection.
                           2 = Less : will remove current selection border from current selection.
@@ -144,6 +146,7 @@ def polySelectTraverse(traversal=1):
 
 def duplicateSelected(selObjects=None, name=None, worldParent=True):
     """ Duplicate and parent to world selected objects
+
         :param selObjects: Objects to duplicate.
                            If None, duplicate selected scene nodes.
         :type selObjects: str | list
@@ -176,6 +179,63 @@ def duplicateSelected(selObjects=None, name=None, worldParent=True):
                 newName = mc.parent(cpObject[0], w=True)
         cpList.append(newName[0])
     return cpList
+
+def symmetrizePose(baseObj, srcObj, dstObj, axe=(-1, 1, 1), delta=0.01):
+    """
+    Symmetrize Pose
+
+    :param baseObj: Base object (bind pose)
+    :type baseObj: str
+    :param srcObj: Source object (morph pose)
+    :type srcObj: str
+    :param dstObj: Destination object (symmetry pose)
+    :type dstObj: str
+    :param axe: Symmetry axe (defaultAxe = 'X')
+    :type axe: tuple
+    :param delta: Precision coef
+    :type delta: float
+    """
+    #-- Get Base Datas --#
+    base = mc.xform(baseObj + ".vtx[*]", q=True, os=True, t=True)
+    basePos = zip(base[::3], base[1::3], base[2::3])
+    basePosPoints = [om.MPoint(*v) for v in basePos]
+
+    #-- Get Source Datas --#
+    base = mc.xform(srcObj + ".vtx[*]", q=True, os=True, t=True)
+    srcPos = zip(base[::3], base[1::3], base[2::3])
+    srcPosPoints = [om.MPoint(*v) for v in srcPos]
+
+    #-- Get Matrix --#
+    number = len(mc.getAttr(baseObj + ".pnts[*]"))
+    mirrorMatrix = om.MTransformationMatrix()
+    scaleUtil = om.MScriptUtil()
+    scaleUtil.createFromDouble(*axe)
+    scalePtr = scaleUtil.asDoublePtr()
+    mirrorMatrix.setScale(scalePtr, om.MSpace.kObject)
+    mirrorMatrix = mirrorMatrix.asScaleMatrix()
+
+    #-- Mapping loop --#
+    pointMap = {}
+    for i in xrange(number):
+        bpp = basePosPoints[i]
+        for j in xrange(number):
+            if i == j:
+                continue
+            cmpPos = basePosPoints[j]
+            if bpp == cmpPos:
+                mc.warning("Index %s and %s have the same position, check them..." % (i, j))
+            mirrPos = bpp * mirrorMatrix
+            if (mirrPos.x - delta <= cmpPos.x <= mirrPos.x + delta and
+                mirrPos.y - delta <= cmpPos.y <= mirrPos.y + delta and
+                mirrPos.z - delta <= cmpPos.z <= mirrPos.z + delta):
+                pointMap[i] = j
+
+    #-- Transfert Datas --#
+    for i in xrange(number):
+        if not i in pointMap:
+            pointMap[i] = i
+        dstPosPoints = srcPosPoints[i] * mirrorMatrix
+        mc.xform("%s.vtx[%s]" % (dstObj, pointMap[i]), os=True, t=[dstPosPoints.x, dstPosPoints.y, dstPosPoints.z])
 
 def connectOutMesh(srcMesh=None, outMesh=None, force=True):
     """ Connect srcMesh.outMesh to outMesh.inMesh
