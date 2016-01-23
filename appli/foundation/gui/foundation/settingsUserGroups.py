@@ -64,12 +64,13 @@ class Groups(widgetsUi.BasicTree):
             self.pb_itemDn.setToolTip("Move down selected group")
             self.pb_add.setToolTip("Create new user group")
             self.pb_del.setToolTip("Delete selected group")
-            if not self.userGroups._user.grade == 0:
-                self.pb_del.setToolTip("Delete selected group (Disabled for your grade)")
             self.pb_edit1.setToolTip("Edit selected group")
             self.pb_edit2.setToolTip("Update style auto")
-            self.pb_apply.setToolTip("Apply datas to Fondation object")
-            self.pb_cancel.setToolTip("Restore datas from Fondation object")
+            self.pb_apply.setToolTip("Apply datas to Foundation object")
+            self.pb_cancel.setToolTip("Restore datas from Foundation object")
+            #-- Edit Grade --#
+            if not self.userGroups._user.grade == 0:
+                self.pb_del.setToolTip("Delete selected group (Disabled for your grade)")
 
     def buildTree(self):
         """
@@ -110,12 +111,8 @@ class Groups(widgetsUi.BasicTree):
         Add new group to tree
         """
         super(Groups, self).on_addItem()
-        itemObj = self.userGroups.newGroup(grpCode='None', grpName='None', grpGrade=9, grpColor=(0, 0, 0))
-        newItem = self.new_treeItem(itemObj)
-        self.tw_tree.addTopLevelItem(newItem)
-        self.rf_treeColumns()
-        self.tw_tree.clearSelection()
-        self.tw_tree.setItemSelected(newItem, True)
+        self.dial_groups = GroupsDialog(dialogMode='add', parent=self)
+        self.dial_groups.exec_()
 
     def on_editItem1(self):
         """
@@ -126,7 +123,7 @@ class Groups(widgetsUi.BasicTree):
         super(Groups, self).on_editItem1()
         selItems = self.tw_tree.selectedItems() or []
         if selItems:
-            self.dial_groups = GroupsDialog(selItems[0], parent=self)
+            self.dial_groups = GroupsDialog(dialogMode='edit', selItem=selItems[0], parent=self)
             self.dial_groups.exec_()
         else:
             message = "!!! Select at least one group item !!!"
@@ -181,15 +178,19 @@ class GroupsDialog(QtGui.QDialog, ts_ugGroupsDialUI.Ui_dial_groups):
     """
     Groups Dialog: UserGroups edition, child of Groups
 
+    :param dialogMode: 'add' or 'edit'
+    :type dialogMode: str
     :param selItem: Selected group item
     :type selItem: QtGui.QTreeWidgetItem
     :param parent: Parent Ui
     :type parent: Groups
     """
 
-    def __init__(self, selItem, parent=None):
+    def __init__(self, dialogMode='add', selItem=None, parent=None):
+        self.dialogMode = dialogMode
         self.selItem = selItem
         self.log = parent.log
+        self.log.title = 'TS_ugGroups'
         super(GroupsDialog, self).__init__(parent)
         self._setupUi()
 
@@ -199,6 +200,11 @@ class GroupsDialog(QtGui.QDialog, ts_ugGroupsDialUI.Ui_dial_groups):
         """
         self.log.detail("#----- Setup GroupsDialog Ui -----#")
         self.setupUi(self)
+        #-- Mode --#
+        if self.dialogMode == 'add':
+            self.le_userGrpCode.setEnabled(True)
+        else:
+            self.le_userGrpCode.setEnabled(False)
         #-- Grade --#
         for n in range(10):
             self.cb_grade.addItem(str(n))
@@ -220,15 +226,21 @@ class GroupsDialog(QtGui.QDialog, ts_ugGroupsDialUI.Ui_dial_groups):
         """
         Refresh dialog values
         """
-        self.le_userGrpCode.setText(str(self.selItem.itemObj.grpCode))
-        self.le_userGrpName.setText(str(self.selItem.itemObj.grpName))
-        self.cb_grade.setCurrentIndex(self.selItem.itemObj.grpGrade)
-        self.pb_userGrpStyle.setStyleSheet("background-color: rgb(%s, %s, %s)" % (self.selItem.itemObj.grpColor[0],
-                                                                                  self.selItem.itemObj.grpColor[1],
-                                                                                  self.selItem.itemObj.grpColor[2]))
-        self.sb_styleR.setValue(self.selItem.itemObj.grpColor[0])
-        self.sb_styleG.setValue(self.selItem.itemObj.grpColor[1])
-        self.sb_styleB.setValue(self.selItem.itemObj.grpColor[2])
+        if self.selItem is not None:
+            self.le_userGrpCode.setText(str(self.selItem.itemObj.grpCode))
+            self.le_userGrpName.setText(str(self.selItem.itemObj.grpName))
+            self.cb_grade.setCurrentIndex(self.selItem.itemObj.grpGrade)
+            self.pb_userGrpStyle.setStyleSheet("background-color: rgb(%s, %s, %s)" % (self.selItem.itemObj.grpColor[0],
+                                                                                      self.selItem.itemObj.grpColor[1],
+                                                                                      self.selItem.itemObj.grpColor[2]))
+            self.sb_styleR.setValue(self.selItem.itemObj.grpColor[0])
+            self.sb_styleG.setValue(self.selItem.itemObj.grpColor[1])
+            self.sb_styleB.setValue(self.selItem.itemObj.grpColor[2])
+        else:
+            self.pb_userGrpStyle.setStyleSheet("background-color: rgb(0, 0, 0)")
+            self.sb_styleR.setValue(0)
+            self.sb_styleG.setValue(0)
+            self.sb_styleB.setValue(0)
 
     def rf_toolTips(self):
         """
@@ -288,8 +300,8 @@ class GroupsDialog(QtGui.QDialog, ts_ugGroupsDialUI.Ui_dial_groups):
             message = "!!! 'code' or 'name' invalid: %s -- %s !!!" % (grpCode, grpName)
             pQt.errorDialog(message, self)
             raise AttributeError(message)
-        #-- Check New Code Name --#
-        if not grpCode == self.selItem.itemObj.grpCode:
+        #-- Check New Code --#
+        if self.dialogMode == 'add':
             grpDatas = self.parent().getDatas()
             for n in grpDatas.keys():
                 if grpCode == grpDatas[n]['grpCode']:
@@ -297,6 +309,13 @@ class GroupsDialog(QtGui.QDialog, ts_ugGroupsDialUI.Ui_dial_groups):
                     pQt.errorDialog(message, self)
                     raise AttributeError(message)
         #-- Edit Group --#
+        if self.dialogMode == 'add':
+            itemObj = self.parent().userGroups.newGroup(grpCode=grpCode, grpName=grpName, grpGrade=grpGrade,
+                                                        grpColor=grpColor)
+            self.selItem = self.parent().new_treeItem(itemObj)
+            self.parent().tw_tree.addTopLevelItem(self.selItem)
+            self.parent().tw_tree.clearSelection()
+            self.parent().tw_tree.setItemSelected(self.selItem, True)
         self.parent().ud_treeItem(self.selItem, grpCode=grpCode, grpName=grpName, grpGrade=grpGrade, grpColor=grpColor)
         #-- Quit --#
         self.parent().rf_treeColumns()
@@ -363,12 +382,12 @@ class Users(widgetsUi.BasicTree):
             self.cbb_filter.setToolTip("User index filter")
             self.pb_add.setToolTip("Create new user")
             self.pb_del.setToolTip("Delete selected user")
+            self.pb_edit1.setToolTip("Edit selected user")
+            self.pb_apply.setToolTip("Apply datas to Foundation object")
+            self.pb_cancel.setToolTip("Restore datas from Foundation object")
+            #-- Edit Grade --#
             if not self.userGroups._user.grade == 0:
                 self.pb_del.setToolTip("Delete selected user (Disabled for your grade)")
-            self.pb_edit1.setToolTip("Edit selected user")
-            self.pb_edit2.setToolTip("Allow selected user to load project")
-            self.pb_apply.setToolTip("Apply datas to Fondation object")
-            self.pb_cancel.setToolTip("Restore datas from Fondation object")
 
     def rf_watchState(self, itemWidget):
         """
@@ -607,6 +626,7 @@ class UsersDialog(QtGui.QDialog, ts_ugUsersDialUI.Ui_dial_users):
         self.dialogMode = dialogMode
         self.selItem = selItem
         self.log = parent.log
+        self.log.title = 'TS_ugUsers'
         super(UsersDialog, self).__init__(parent)
         self._setupUi()
 
@@ -674,17 +694,17 @@ class UsersDialog(QtGui.QDialog, ts_ugUsersDialUI.Ui_dial_users):
             message = "!!! 'userName' invalid: %s !!!" % userName
             pQt.errorDialog(message, self)
             raise AttributeError(message)
-        #-- Check New Code Name From Ui --#
-        userDatas = self.parent().getDatas()
+        #-- Check New Code --#
         if self.dialogMode == 'add':
+            userDatas = self.parent().getDatas()
             for n in sorted(userDatas.keys()):
                 if userName == userDatas[n]['userName']:
                     message = "!!! %s already exists !!!" % userName
                     pQt.errorDialog(message, self)
                     raise AttributeError(message)
         #-- Edit User --#
-        self.log.detail("Adding new user: %s" % userName)
         if self.dialogMode == 'add':
+            self.log.detail("Adding new user: %s" % userName)
             userObj = self.parent().userGroups.newUser(userName=userName)
             self.selItem = self.parent().new_treeItem(userObj)
             self.parent().tw_tree.addTopLevelItem(self.selItem)
@@ -697,6 +717,7 @@ class UsersDialog(QtGui.QDialog, ts_ugUsersDialUI.Ui_dial_users):
                 self.parent().cbb_filter.setCurrentIndex(self.parent().cbb_filter.findText(userName[0].upper()))
         #-- Store Edition --#
         elif self.dialogMode == 'edit':
+            self.log.detail("Editing user: %s" % userName)
             if not self.selItem in self.parent().editedItems['edited']:
                 if not self.selItem in self.parent().editedItems['added']:
                     self.parent().editedItems['edited'].append(self.selItem)

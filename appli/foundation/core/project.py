@@ -1,5 +1,6 @@
 import os, pprint
 from lib.system import procFile as pFile
+from appli.foundation.core import entities
 
 
 class Project(object):
@@ -14,11 +15,14 @@ class Project(object):
 
     def __init__(self, foundationObj):
         self.foundation = foundationObj
+        self.entities = entities.Entities(self.foundation, self)
         self.log = self.foundation.log
         self.log.title = 'Project'
         #-- Datas --#
         self.project = None
         self.projectUsers = []
+        self.projectAssets = dict()
+        self.projectShots = dict()
         #-- Update --#
         self._setup()
 
@@ -68,6 +72,17 @@ class Project(object):
             return self.project.split('--')[1]
 
     @property
+    def projectPath(self):
+        """
+        Get project path
+
+        :return: Project path
+        :rtype: str
+        """
+        if self.project is not None:
+            return pFile.conformPath(os.path.join(self.foundation.__projectsPath__, self.project))
+
+    @property
     def projectFile(self):
         """
         Get project file full path
@@ -76,8 +91,7 @@ class Project(object):
         :rtype: str
         """
         if self.project is not None:
-            return pFile.conformPath(os.path.join(self.foundation.__projectsPath__,
-                                                  self.project, '%s.py' % self.project))
+            return pFile.conformPath(os.path.join(self.projectPath, '%s.py' % self.project))
 
     @property
     def attributes(self):
@@ -122,7 +136,7 @@ class Project(object):
                 if k in self.attributes:
                     setattr(self, k, v)
                 else:
-                    self.log.warning("!!! Unrecognized attribute: %s. Skipp !!!" % k)
+                    self.log.warning("!!! Unrecognized attribute: %s. Skip !!!" % k)
 
     def createNewProject(self, projectName, projectCode):
         """
@@ -180,6 +194,8 @@ class Project(object):
         #-- Load Project --#
         if self.foundation.userGroups._user.userName in projectDict['projectUsers']:
             self.setDatas(**projectDict)
+            self.entities.updateEntitiesFromDict('asset', self.projectAssets)
+            self.entities.updateEntitiesFromDict('shot', self.projectShots)
             self.log.info("---> Project %r successfully loaded" % project)
         else:
             mess = "User %r is not set as projectUser in %s !" % (self.foundation.userGroups._user.userName, project)
@@ -220,4 +236,3 @@ class Project(object):
         if userName in self.projectUsers:
             self.projectUsers.remove(userName)
             self.log.detail("User %r removed from project %r" % (userName, self.project))
-            print self.projectUsers

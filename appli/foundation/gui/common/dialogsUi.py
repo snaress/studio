@@ -26,13 +26,12 @@ class ToolSettings(QtGui.QDialog, dial_toolSettingsUI.Ui_dial_projectSettings):
         """
         Init tool settings
         """
-        self.log.detail("#===== Init Tool Settings =====#")
+        self.log.detail("#===== Init Tool Settings =====#", newLinesBefore=1)
 
     def _initWidgets(self):
         """
         Init ToolSettings widgets
         """
-        self.log.detail("#===== Init Tool Widgets =====#")
         self.setWindowTitle("ToolSettings | %s" % self.foundation.__user__)
         #-- Category Font --#
         self.categoryFont = QtGui.QFont()
@@ -43,7 +42,6 @@ class ToolSettings(QtGui.QDialog, dial_toolSettingsUI.Ui_dial_projectSettings):
         """
         Setup ToolSettings Ui
         """
-        self.log.detail("#===== Setup ToolSettings Ui =====#")
         self.setupUi(self)
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)

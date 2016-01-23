@@ -243,8 +243,8 @@ class UserGroups(object):
     :type foundationObj: Foundation
     """
 
-    __usersDir__ = 'users'
-    __archiveDir__ = '_archive'
+    __usersDir__ = "users"
+    __archiveDir__ = "_archive"
     __install__ = False
 
     def __init__(self, foundationObj):

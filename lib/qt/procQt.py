@@ -303,6 +303,8 @@ def moveSelItem(twTree, item, side):
     """ Move Selected item
         :param twTree: (object) : QTreeWidget
         :type twTree: QtGui.QTreeWidget
+        :param item: Selected tree item
+        :type item: QtGui.QTreeWidgetItem
         :param side: (str) : 'up' or 'down'
         :type side: str
         :return: Moved QTreeWidgetItem

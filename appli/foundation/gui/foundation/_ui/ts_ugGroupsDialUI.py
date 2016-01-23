@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\foundation\_src\ts_ugGroupsDial.ui'
 #
-# Created: Sun Jan 03 00:39:10 2016
+# Created: Sun Jan 10 03:01:00 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -190,5 +190,5 @@ class Ui_dial_groups(object):
         self.l_message.setText(_translate("dial_groups", "Edit User Group", None))
         self.l_userGrpCode.setText(_translate("dial_groups", "User Group Code: ", None))
         self.l_userGrpName.setText(_translate("dial_groups", "User Group Name: ", None))
-        self.l_userGrpGrade.setText(_translate("dial_groups", "UserGroup Grade:", None))
+        self.l_userGrpGrade.setText(_translate("dial_groups", "User Group Grade:", None))
 

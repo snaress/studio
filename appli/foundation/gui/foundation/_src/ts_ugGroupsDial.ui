@@ -410,7 +410,7 @@
         </size>
        </property>
        <property name="text">
-        <string>UserGroup Grade:</string>
+        <string>User Group Grade:</string>
        </property>
       </widget>
      </item>

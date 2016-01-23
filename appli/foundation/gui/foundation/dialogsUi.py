@@ -3,7 +3,7 @@ from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from appli.foundation.gui.common import dialogsUi
-from appli.foundation.gui.foundation import settingsUserGroups
+from appli.foundation.gui.foundation import settingsUserGroups, settingsEntities
 from appli.foundation.gui.foundation._ui import dial_newProjectUI, dial_loadProjectUI
 
 
@@ -265,9 +265,11 @@ class ProjectSettings(dialogsUi.ToolSettings):
 
     def __init__(self, parent=None):
         self.log = parent.log
+        self.log.title = 'ToolSettingsUi'
         self.foundation = parent.foundation
         self.userGroups = self.foundation.userGroups
         self.project = self.foundation.project
+        self.entities = self.project.entities
         super(ProjectSettings, self).__init__(parent)
 
     def _initSettings(self):
@@ -285,11 +287,14 @@ class ProjectSettings(dialogsUi.ToolSettings):
         super(ProjectSettings, self)._initWidgets()
         #-- UserGroups --#
         self.wg_groups = settingsUserGroups.Groups(self)
-        self.wg_groups.setVisible(False)
-        self.vl_settingsWidget.addWidget(self.wg_groups)
         self.wg_users = settingsUserGroups.Users(self)
-        self.wg_users.setVisible(False)
-        self.vl_settingsWidget.addWidget(self.wg_users)
+        #-- Entities --#
+        self.wg_assets = settingsEntities.Assets(self)
+        self.wg_shots = settingsEntities.Shots(self)
+        #-- Refresh --#
+        for widget in [self.wg_groups, self.wg_users, self.wg_assets, self.wg_shots]:
+            widget.setVisible(False)
+            self.vl_settingsWidget.addWidget(widget)
 
     @property
     def category(self):
@@ -299,7 +304,8 @@ class ProjectSettings(dialogsUi.ToolSettings):
         :return: Category datas
         :rtype: dict
         """
-        return {0: self.userGroupsCategory}
+        return {0: self.userGroupsCategory,
+                1: self.entitiesCategory}
 
     @property
     def userGroupsCategory(self):
@@ -317,6 +323,23 @@ class ProjectSettings(dialogsUi.ToolSettings):
                                           1: {'users': {'widget': self.wg_users,
                                                         'code': 'users',
                                                         'label': 'Users'}}}}}
+
+    @property
+    def entitiesCategory(self):
+        """
+        Get Entities category
+
+        :return: Entities category
+        :rtype: dict
+        """
+        return {'entities': {'code': 'entities',
+                             'label': 'Entities',
+                             'subCat': {0: {'assets': {'widget': self.wg_assets,
+                                                       'code': 'assets',
+                                                       'label': 'Assets'}},
+                                        1: {'shots': {'widget': self.wg_shots,
+                                                      'code': 'shots',
+                                                      'label': 'Shots'}}}}}
 
     def on_save(self):
         """
@@ -340,13 +363,19 @@ class ProjectSettings(dialogsUi.ToolSettings):
                     for editedItem in self.wg_users.editedItems['deleted']:
                         self.userGroups.deleteUser(userObj=editedItem.itemObj, archive=True)
                     self.wg_users.editedItems = dict(added=[], edited=[], deleted=[])
+            #-- Save Entities --#
+            if item.parent().itemCode == 'entities':
+                if item.itemCode == 'assets':
+                    self.entities.updateProject('asset')
+                elif item.itemCode == 'shots':
+                    self.entities.updateProject('shot')
             #-- Update Edited State --#
             if not item.itemCode in editedSubCat:
                 editedSubCat.append(item.itemCode)
             item.itemWidget.__edited__ = False
         #-- Write Files --#
         for subCat in editedSubCat:
-            if subCat in ['users']:
+            if subCat in ['users', 'assets', 'shots']:
                 self.project.writeProject()
         #-- Refresh --#
         self.rf_editedItemStyle()

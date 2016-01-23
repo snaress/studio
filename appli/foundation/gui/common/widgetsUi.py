@@ -25,6 +25,7 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
         self.iconAdd = QtGui.QIcon(os.path.join(self.iconPath, 'add.png'))
         self.iconDel = QtGui.QIcon(os.path.join(self.iconPath, 'del.png'))
         self.iconEdit = QtGui.QIcon(os.path.join(self.iconPath, 'edit.png'))
+        self.iconClear = QtGui.QIcon(os.path.join(self.iconPath, 'clear.png'))
         self.iconApply = QtGui.QIcon(os.path.join(self.iconPath, 'apply.png'))
         self.iconCancel = QtGui.QIcon(os.path.join(self.iconPath, 'cancel.png'))
         #-- Edition Colors --#
@@ -82,8 +83,11 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
         :rtype: dict
         """
         datas = dict()
-        for n, item in enumerate(pQt.getAllItems(self.tw_tree)):
+        for n, item in enumerate(pQt.getTopItems(self.tw_tree)):
             datas[n] = item.itemObj.getDatas()
+            datas[n]['childs'] = dict()
+            for c in range(item.childCount()):
+                datas[n]['childs'][c] = item.child(c).itemObj.getDatas()
         if asString:
             return pprint.pformat(datas)
         return datas
@@ -228,7 +232,7 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
                         parent.insertChild((index - 1), movedItem)
             #-- Move Down --#
             else:
-                if index < (self.tw_tree.topLevelItemCount() - 1):
+                if index < (self.tw_tree.topLevelItemCount()):
                     if parent is None:
                         movedItem = self.tw_tree.takeTopLevelItem(self.tw_tree.indexOfTopLevelItem(selItems[0]))
                         self.tw_tree.insertTopLevelItem((index + 1), movedItem)
