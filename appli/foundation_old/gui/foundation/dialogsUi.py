@@ -2,9 +2,9 @@ import os
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.foundation.gui.common import dialogsUi
-from appli.foundation.gui.foundation import settingsUserGroups, settingsEntities
-from appli.foundation.gui.foundation._ui import dial_newProjectUI, dial_loadProjectUI
+from appli.foundation_old.gui.common import dialogsUi
+from appli.foundation_old.gui.foundation import settingsUserGroups, settingsEntities
+from appli.foundation_old.gui.foundation._ui import dial_newProjectUI, dial_loadProjectUI
 
 
 class NewProject(QtGui.QDialog, dial_newProjectUI.Ui_dial_newProject):

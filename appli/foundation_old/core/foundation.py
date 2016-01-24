@@ -1,6 +1,6 @@
 import os
 from lib.system import procFile as pFile
-from appli.foundation.core import userGroups, project
+from appli.foundation_old.core import userGroups, project
 
 
 class Foundation(object):

@@ -4,9 +4,9 @@ from PyQt4 import QtGui
 from functools import partial
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.foundation.core import foundation
-from appli.foundation.gui.foundation._ui import foundationUI
-from appli.foundation.gui.foundation import dialogsUi, projectTree
+from appli.foundation_old.core import foundation
+from appli.foundation_old.gui.foundation._ui import foundationUI
+from appli.foundation_old.gui.foundation import dialogsUi, projectTree
 
 
 class FoundationUi(QtGui.QMainWindow, foundationUI.Ui_mw_foundation):

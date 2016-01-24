@@ -2,7 +2,7 @@ import os
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.foundation.gui.common._ui import dial_toolSettingsUI
+from appli.foundation_old.gui.common._ui import dial_toolSettingsUI
 
 
 class ToolSettings(QtGui.QDialog, dial_toolSettingsUI.Ui_dial_projectSettings):

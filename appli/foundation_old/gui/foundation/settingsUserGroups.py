@@ -3,8 +3,8 @@ from functools import partial
 from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procMath as pMath
-from appli.foundation.gui.common import widgetsUi
-from appli.foundation.gui.foundation._ui import ts_ugGroupsDialUI, ts_ugUsersDialUI
+from appli.foundation_old.gui.common import widgetsUi
+from appli.foundation_old.gui.foundation._ui import ts_ugGroupsDialUI, ts_ugUsersDialUI
 
 
 class Groups(widgetsUi.BasicTree):

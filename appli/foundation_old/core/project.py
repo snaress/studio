@@ -1,6 +1,6 @@
 import os, pprint
 from lib.system import procFile as pFile
-from appli.foundation.core import entities
+from appli.foundation_old.core import entities
 
 
 class Project(object):

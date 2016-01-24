@@ -3,7 +3,7 @@ from PyQt4 import QtGui
 from functools import partial
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
-from appli.foundation.gui.common._ui import wg_basicTreeUI
+from appli.foundation_old.gui.common._ui import wg_basicTreeUI
 
 
 class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):

@@ -1,5 +1,5 @@
 from PyQt4 import QtGui
-from appli.foundation.gui.foundation._ui import wg_projectTreeUI
+from appli.foundation_old.gui.foundation._ui import wg_projectTreeUI
 
 
 class ProjectTree(QtGui.QWidget, wg_projectTreeUI.Ui_wg_projectTree):

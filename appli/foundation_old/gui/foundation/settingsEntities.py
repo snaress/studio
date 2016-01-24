@@ -1,7 +1,7 @@
 from PyQt4 import QtGui
 from lib.qt import procQt as pQt
-from appli.foundation.gui.common import widgetsUi
-from appli.foundation.gui.foundation._ui import ts_entitiesDialUI
+from appli.foundation_old.gui.common import widgetsUi
+from appli.foundation_old.gui.foundation._ui import ts_entitiesDialUI
 
 
 class CommonEntity(widgetsUi.BasicTree):
