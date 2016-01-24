@@ -36,27 +36,64 @@ def pathToDict(path, conformed=False):
         pathDict[rootPath] = {'folders': flds, 'files': files}
     return pathDict
 
-def makeDir(directory, verbose=False):
+def makeDir(path, log=None):
     """
-    Create given directory
+    Create Given Path
 
-    :param directory: Full directory path
-    :type directory: str
-    :param verbose: Enable verbose
-    :type verbose: bool
+    :param path: Directory full path
+    :type path: str
+    :param log: Log object (verbose)
+    :type log: Logger
     """
-    path = os.path.normpath(directory)
     if not os.path.exists(path):
         try:
             os.mkdir(path)
-            if verbose:
-                print "\t Create folder '%s' in '%s'" % (path.split(os.sep)[-1],
-                                                         conformPath(os.sep.join(path.split(os.sep)[:-1])))
-        except(IOError, os.error) as log:
-            raise IOError, log
-    else:
-        if verbose:
-            print "\t Skip folder creation, directory already exists: %s !!!" % path
+            if log is not None:
+                log.debug("Path Created: %s" % path)
+            else:
+                print "Path Created: %s" % path
+        except:
+            mess = "!!! Can not create path: %s !!!" % path
+            if log is not None:
+                log.critical(mess)
+            else:
+                print mess
+            raise IOError(mess)
+
+def createPath(paths, recursive=False, root=None, log=None):
+    """
+    Create given path list
+
+    :param paths: Paths to create
+    :type paths: str | list
+    :param recursive: Create paths recursively considering 'root'
+    :type recursive: bool
+    :param root: Root path for recursive methode
+    :type root: str
+    :param log: Log object (verbose)
+    :type log: Logger
+    """
+    #-- Check Args --#
+    if isinstance(paths, basestring):
+        paths = [paths]
+    #-- Create Paths --#
+    for path in paths:
+        if recursive:
+            if root is None:
+                mess = "!!! In recursive mode, root can not be None !!!"
+                if log is not None:
+                    log.critical(mess)
+                else:
+                    print mess
+                raise AttributeError(mess)
+            #-- Decompose Folders --#
+            folders = path.replace('%s/' % root, '').split('/')
+            recPath = root
+            for fld in folders:
+                recPath = conformPath(os.path.join(recPath, fld))
+                makeDir(recPath, log=log)
+        else:
+            makeDir(path, log=log)
 
 def mkPathFolders(rootPath, absPath, sep=None):
     """
