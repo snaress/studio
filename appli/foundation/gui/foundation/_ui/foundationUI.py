@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'F:\rnd\workspace\studio\appli\foundation\gui\foundation\_src\foundation.ui'
 #
-# Created: Sat Jan 02 18:19:55 2016
+# Created: Sun Jan 24 13:37:57 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -116,8 +116,15 @@ class Ui_mw_foundation(object):
         self.mi_toolTips.setCheckable(True)
         self.mi_toolTips.setChecked(True)
         self.mi_toolTips.setObjectName(_fromUtf8("mi_toolTips"))
+        self.mi_newAsset = QtGui.QAction(mw_foundation)
+        self.mi_newAsset.setObjectName(_fromUtf8("mi_newAsset"))
+        self.mi_newShot = QtGui.QAction(mw_foundation)
+        self.mi_newShot.setObjectName(_fromUtf8("mi_newShot"))
         self.m_project.addAction(self.mi_newProject)
         self.m_project.addAction(self.mi_loadProject)
+        self.m_project.addSeparator()
+        self.m_project.addAction(self.mi_newAsset)
+        self.m_project.addAction(self.mi_newShot)
         self.m_project.addSeparator()
         self.m_project.addAction(self.mi_projectSettings)
         self.m_help.addAction(self.m_logLevel.menuAction())
@@ -140,4 +147,6 @@ class Ui_mw_foundation(object):
         self.mi_projectSettings.setText(_translate("mw_foundation", "Project Settings", None))
         self.actionTmp1.setText(_translate("mw_foundation", "tmp1", None))
         self.mi_toolTips.setText(_translate("mw_foundation", "Tool Tips", None))
+        self.mi_newAsset.setText(_translate("mw_foundation", "New Asset", None))
+        self.mi_newShot.setText(_translate("mw_foundation", "New Shot", None))
 

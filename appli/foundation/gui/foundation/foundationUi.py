@@ -125,6 +125,7 @@ class FoundationUi(QtGui.QMainWindow, foundationUI.Ui_mw_foundation):
             self.foundation.project.loadProject(project)
         self.setWindowTitle("Foundation | %s | %s" % (self.foundation.project.project, self.foundation.__user__))
         self.qf_left.setVisible(True)
+        self.wg_projectTree.buildTree()
 
     def on_miNewProject(self):
         """

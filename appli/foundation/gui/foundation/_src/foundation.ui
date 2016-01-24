@@ -153,6 +153,9 @@
     <addaction name="mi_newProject"/>
     <addaction name="mi_loadProject"/>
     <addaction name="separator"/>
+    <addaction name="mi_newAsset"/>
+    <addaction name="mi_newShot"/>
+    <addaction name="separator"/>
     <addaction name="mi_projectSettings"/>
    </widget>
    <widget class="QMenu" name="m_help">
@@ -212,6 +215,16 @@
    </property>
    <property name="text">
     <string>Tool Tips</string>
+   </property>
+  </action>
+  <action name="mi_newAsset">
+   <property name="text">
+    <string>New Asset</string>
+   </property>
+  </action>
+  <action name="mi_newShot">
+   <property name="text">
+    <string>New Shot</string>
    </property>
   </action>
  </widget>
