@@ -4,9 +4,9 @@ from appli.foundation.gui.common import widgetsUi
 from appli.foundation.gui.foundation._ui import ts_entitiesDialUI
 
 
-class Assets(widgetsUi.BasicTree):
+class CommonEntity(widgetsUi.BasicTree):
     """
-    Assets Class: Contains Assets settings, child of ToolSettings
+    CommonEntity Class: Contains Entities common settings, child of Assets or Shots
 
     :param pWidget: Parent widget
     :type pWidget: ProjectSettings
@@ -21,26 +21,27 @@ class Assets(widgetsUi.BasicTree):
         self.foundation = self.pWidget.foundation
         self.userGroups = self.foundation.userGroups
         self.entities = self.foundation.project.entities
-        super(Assets, self).__init__(pWidget)
+        super(CommonEntity, self).__init__(pWidget)
+        self.editedItems = dict(added=[], edited=[], deleted=[])
 
     def _setupWidget(self):
         """
-        Setup Assets widget
+        Setup CommonEntity widget
         """
-        super(Assets, self)._setupWidget()
-        self.l_title.setText('Assets')
+        super(CommonEntity, self)._setupWidget()
+        self.l_title.setText('%ss' % self.__context__.capitalize())
         self.cbb_filter.setVisible(False)
         self.qf_treeEdit_R.setVisible(False)
         self.tw_tree.setIndentation(20)
         self.tw_tree.header().setStretchLastSection(False)
-        self.rf_headers('Asset Type', 'Asset SubType')
+        self.rf_headers('%s Type' % self.__context__.capitalize(), '%s SubType' % self.__context__.capitalize())
         self.rf_treeColumns()
 
     def _setupIcons(self):
         """
-        Setup Assets icons
+        Setup CommonEntity icons
         """
-        super(Assets, self)._setupIcons()
+        super(CommonEntity, self)._setupIcons()
         #-- Edit Label --#
         self.pb_edit1.setText("Edit")
         self.pb_edit2.setText("Clear")
@@ -53,7 +54,7 @@ class Assets(widgetsUi.BasicTree):
         """
         Refresh widgets toolTips
         """
-        super(Assets, self).rf_toolTips()
+        super(CommonEntity, self).rf_toolTips()
         if self.mainUi.showToolTips:
             self.pb_itemUp.setToolTip("Move up selected entity")
             self.pb_itemDn.setToolTip("Move down selected entity")
@@ -69,11 +70,11 @@ class Assets(widgetsUi.BasicTree):
 
     def buildTree(self):
         """
-        Build Assets tree widget
+        Build CommonEntity tree widget
         """
-        super(Assets, self).buildTree()
-        self.log.detail("---> Assets tree")
-        for entityObj in self.entities.contextTree('asset'):
+        super(CommonEntity, self).buildTree()
+        self.log.detail("---> %ss tree" % self.__context__.capitalize())
+        for entityObj in self.entities.contextTree(self.__context__):
             entityItem = self.new_treeItem(entityObj)
             self.tw_tree.addTopLevelItem(entityItem)
             for subEntityObj in entityObj._childs:
@@ -90,7 +91,7 @@ class Assets(widgetsUi.BasicTree):
         :param kwargs: Entity item datas (key must starts with 'entity')
         :type kwargs: dict
         """
-        super(Assets, self).ud_treeItem(item, **kwargs)
+        super(CommonEntity, self).ud_treeItem(item, **kwargs)
         #-- Edit Item --#
         if item.itemObj.entityType == 'mainType':
             item.setText(0, str(item.itemObj.entityLabel))
@@ -103,16 +104,32 @@ class Assets(widgetsUi.BasicTree):
 
         Add new entity to tree
         """
-        super(Assets, self).on_addItem()
+        super(CommonEntity, self).on_addItem()
         selItems = self.tw_tree.selectedItems() or []
         if selItems:
             if selItems[0].itemObj.entityType == 'mainType':
-                self.dial_entities = EntitiesDialog('asset', 'add', selItem=selItems[0], parent=self)
+                self.dial_entities = EntitiesDialog(self.__context__, 'add', selItem=selItems[0], parent=self)
             else:
-                self.dial_entities = EntitiesDialog('asset', 'add', selItem=selItems[0].parent(), parent=self)
+                self.dial_entities = EntitiesDialog(self.__context__, 'add', selItem=selItems[0].parent(), parent=self)
         else:
-            self.dial_entities = EntitiesDialog('asset', 'add', parent=self)
+            self.dial_entities = EntitiesDialog(self.__context__, 'add', parent=self)
         self.dial_entities.exec_()
+
+    def on_delItem(self):
+        """
+        Command launched when 'Del' QPushButton is clicked
+
+        Delete selected entity from tree
+        """
+        selItems = self.tw_tree.selectedItems() or []
+        if selItems:
+            if not selItems[0] in self.editedItems['deleted']:
+                self.editedItems['deleted'].append(selItems[0])
+                if selItems[0] in self.editedItems['added']:
+                    self.editedItems['added'].remove(selItems[0])
+                if selItems[0] in self.editedItems['edited']:
+                    self.editedItems['edited'].remove(selItems[0])
+        self.rf_itemStyle()
 
     def on_editItem1(self):
         """
@@ -120,10 +137,10 @@ class Assets(widgetsUi.BasicTree):
 
         Launch Entity editing dialog
         """
-        super(Assets, self).on_editItem1()
+        super(CommonEntity, self).on_editItem1()
         selItems = self.tw_tree.selectedItems() or []
         if selItems:
-            self.dial_entities = EntitiesDialog('asset', 'edit', selItem=selItems[0], parent=self)
+            self.dial_entities = EntitiesDialog(self.__context__, 'edit', selItem=selItems[0], parent=self)
             self.dial_entities.exec_()
         else:
             message = "!!! Select at least one entity item !!!"
@@ -135,7 +152,7 @@ class Assets(widgetsUi.BasicTree):
 
         Clear selection
         """
-        super(Assets, self).on_editItem1()
+        super(CommonEntity, self).on_editItem1()
         self.tw_tree.clearSelection()
 
     def on_apply(self):
@@ -144,15 +161,37 @@ class Assets(widgetsUi.BasicTree):
 
         Store datas to itemObject
         """
-        super(Assets, self).on_apply()
-        #-- Parse Tree --#
+        super(CommonEntity, self).on_apply()
+        #-- Delete Entity --#
+        for item in self.editedItems['deleted']:
+            if item.parent() is None:
+                self.tw_tree.takeTopLevelItem(self.tw_tree.indexOfTopLevelItem(item))
+            else:
+                item.parent().takeChild(item.parent().indexOfChild(item))
+        #-- Add / Edit Entity --#
         treeDict = self.getDatas()
-        self.entities.updateEntitiesFromDict('asset', treeDict)
+        self.entities.resetContextTree(self.__context__)
+        self.entities.updateEntitiesFromDict(self.__context__, treeDict)
+        #-- Refresh --#
         self.pWidget.rf_editedItemStyle()
         self.buildTree()
 
 
-class Shots(widgetsUi.BasicTree):
+class Assets(CommonEntity):
+    """
+    Assets Class: Contains Assets settings, child of ToolSettings
+
+    :param pWidget: Parent widget
+    :type pWidget: ProjectSettings
+    """
+
+    __context__ = 'asset'
+
+    def __init__(self, pWidget):
+        super(Assets, self).__init__(pWidget)
+
+
+class Shots(CommonEntity):
     """
     Shots Class: Contains Shots settings, child of ToolSettings
 
@@ -160,117 +199,10 @@ class Shots(widgetsUi.BasicTree):
     :type pWidget: ProjectSettings
     """
 
-    __edited__ = False
+    __context__ = 'shot'
 
     def __init__(self, pWidget):
-        self.pWidget = pWidget
-        self.log = self.pWidget.log
-        self.mainUi = self.pWidget.parent()
-        self.foundation = self.pWidget.foundation
-        self.userGroups = self.foundation.userGroups
-        self.entities = self.foundation.project.entities
         super(Shots, self).__init__(pWidget)
-
-    def _setupWidget(self):
-        """
-        Setup Assets widget
-        """
-        super(Shots, self)._setupWidget()
-        self.l_title.setText('Shots')
-        self.cbb_filter.setVisible(False)
-        self.qf_treeEdit_R.setVisible(False)
-        self.tw_tree.setIndentation(20)
-        self.tw_tree.header().setStretchLastSection(False)
-        self.rf_headers('Shot Type', 'Shot SubType')
-        self.rf_treeColumns()
-
-    def _setupIcons(self):
-        """
-        Setup Assets icons
-        """
-        super(Shots, self)._setupIcons()
-        #-- Edit Label --#
-        self.pb_edit1.setText("Edit")
-        self.pb_edit2.setText("Clear")
-        self.pb_edit2.setIcon(self.iconClear)
-        #-- Edit Grade --#
-        if not self.userGroups._user.grade == 0:
-            self.pb_del.setEnabled(False)
-
-    def rf_toolTips(self):
-        """
-        Refresh widgets toolTips
-        """
-        super(Shots, self).rf_toolTips()
-        if self.mainUi.showToolTips:
-            self.pb_itemUp.setToolTip("Move up selected entity")
-            self.pb_itemDn.setToolTip("Move down selected entity")
-            self.pb_add.setToolTip("Create new entity")
-            self.pb_del.setToolTip("Delete selected entity")
-            self.pb_edit1.setToolTip("Edit selected entity")
-            self.pb_edit2.setToolTip("Clear selection")
-            self.pb_apply.setToolTip("Apply datas to Foundation object")
-            self.pb_cancel.setToolTip("Restore datas from Foundation object")
-            #-- Edit Grade --#
-            if not self.userGroups._user.grade == 0:
-                self.pb_del.setToolTip("Delete selected entity (Disabled for your grade)")
-
-    def ud_treeItem(self, item, **kwargs):
-        """
-        Update item datas and settings
-
-        :param item: Entity tree item
-        :type item: QtGui.QTreeWidgetItem
-        :param kwargs: Entity item datas (key must starts with 'entity')
-        :type kwargs: dict
-        """
-        super(Shots, self).ud_treeItem(item, **kwargs)
-        #-- Edit Item --#
-        if item.itemObj.entityType == 'mainType':
-            item.setText(0, str(item.itemObj.entityLabel))
-        else:
-            item.setText(1, str(item.itemObj.entityLabel))
-
-    def on_addItem(self):
-        """
-        Command launched when 'Add' QPushButton is clicked
-
-        Add new entity to tree
-        """
-        super(Shots, self).on_addItem()
-        selItems = self.tw_tree.selectedItems() or []
-        if selItems:
-            if selItems[0].itemObj.entityType == 'mainType':
-                self.dial_entities = EntitiesDialog('shot', 'add', selItem=selItems[0], parent=self)
-            else:
-                self.dial_entities = EntitiesDialog('shot', 'add', selItem=selItems[0].parent(), parent=self)
-        else:
-            self.dial_entities = EntitiesDialog('shot', 'add', parent=self)
-        self.dial_entities.exec_()
-
-    def on_editItem1(self):
-        """
-        Command launched when 'Edit' QPushButton is clicked
-
-        Launch Entity editing dialog
-        """
-        super(Shots, self).on_editItem1()
-        selItems = self.tw_tree.selectedItems() or []
-        if selItems:
-            self.dial_entities = EntitiesDialog('shot', 'edit', selItem=selItems[0], parent=self)
-            self.dial_entities.exec_()
-        else:
-            message = "!!! Select at least one entity item !!!"
-            pQt.errorDialog(message, self)
-
-    def on_editItem2(self):
-        """
-        Command launched when 'Clear' QPushButton is clicked
-
-        Clear selection
-        """
-        super(Shots, self).on_editItem1()
-        self.tw_tree.clearSelection()
 
 
 class EntitiesDialog(QtGui.QDialog, ts_entitiesDialUI.Ui_Dial_entities):
@@ -390,25 +322,36 @@ class EntitiesDialog(QtGui.QDialog, ts_entitiesDialUI.Ui_Dial_entities):
         #-- Add Entity --#
         if self.dialogMode == 'add':
             self.log.detail("Adding new %s entity %s: %s" % (entityContext, entityType, entityName))
+            #-- Get ItemObj --#
             if self.selItem is None:
                 itemObj = None
             else:
                 itemObj = self.selItem.itemObj
+            #-- Create Entity --#
             entityObj = self.parent().entities.newEntity(parent=itemObj,
                                                          entityContext=entityContext, entityType=entityType,
                                                          entityCode=entityCode, entityName=entityName,
                                                          entityLabel=entityLabel, entityFolder=entityFolder)
             entityItem = self.parent().new_treeItem(entityObj)
+            #-- Add Entity --#
             if self.selItem is None:
                 self.parent().tw_tree.addTopLevelItem(entityItem)
             else:
                 self.selItem.addChild(entityItem)
+            #-- Store edition and refresh --#
+            if not entityItem in self.parent().editedItems['added']:
+                self.parent().editedItems['added'].append(entityItem)
             self.parent().ud_treeItem(entityItem)
         #-- Edit Entity --#
         elif self.dialogMode == 'edit':
             self.log.detail("Editing %s entity %s: %s" % (entityContext, entityType, entityName))
+            #-- Store edition and refresh --#
+            if not self.selItem in self.parent().editedItems['edited']:
+                if not self.selItem in self.parent().editedItems['added']:
+                    self.parent().editedItems['edited'].append(self.selItem)
             self.parent().ud_treeItem(self.selItem, entityName=entityName, entityLabel=entityLabel,
                                       entityFolder=entityFolder)
         #-- Quit --#
         self.parent().rf_treeColumns()
+        self.parent().rf_itemStyle()
         self.close()

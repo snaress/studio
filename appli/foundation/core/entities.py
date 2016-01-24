@@ -197,6 +197,15 @@ class Entities(object):
         """
         return getattr(self, '_%ss' % context)
 
+    def resetContextTree(self, context):
+        """
+        Reset given context tree
+
+        :param context: 'asset' or 'shot'
+        :type: str
+        """
+        setattr(self, '_%ss' % context, [])
+
     def mainTypes(self, context):
         """
         Get entities mainTypes considering given context

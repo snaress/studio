@@ -588,7 +588,7 @@ class Users(widgetsUi.BasicTree):
         for item in self.editedItems['deleted']:
             if item.itemObj.userName in self.userGroups.users:
                 self.userGroups.deleteUser(userObj=item.itemObj)
-        #-- refresh --#
+        #-- Refresh --#
         self.pWidget.rf_editedItemStyle()
         self.buildTree()
 

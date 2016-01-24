@@ -369,6 +369,8 @@ class ProjectSettings(dialogsUi.ToolSettings):
                     self.entities.updateProject('asset')
                 elif item.itemCode == 'shots':
                     self.entities.updateProject('shot')
+                self.wg_assets.editedItems = dict(added=[], edited=[], deleted=[])
+                self.wg_shots.editedItems = dict(added=[], edited=[], deleted=[])
             #-- Update Edited State --#
             if not item.itemCode in editedSubCat:
                 editedSubCat.append(item.itemCode)
@@ -384,7 +386,20 @@ class ProjectSettings(dialogsUi.ToolSettings):
         """
         Discard action confirmed
         """
+        #-- UserGroups --#
         for editedItem in self.wg_users.editedItems['added']:
             self.userGroups.deleteUser(userObj=editedItem.itemObj)
-        self.wg_users.editedItems = []
+        self.wg_users.editedItems = dict(added=[], edited=[], deleted=[])
+        #-- Entities --#
+        if (self.wg_assets.editedItems['added'] or self.wg_assets.editedItems['edited']
+            or self.wg_assets.editedItems['deleted']):
+            self.entities.resetContextTree('asset')
+            self.entities.updateEntitiesFromDict('asset', self.project.projectAssets)
+        self.wg_assets.editedItems = dict(added=[], edited=[], deleted=[])
+        if (self.wg_shots.editedItems['added'] or self.wg_shots.editedItems['edited']
+            or self.wg_shots.editedItems['deleted']):
+            self.entities.resetContextTree('shot')
+            self.entities.updateEntitiesFromDict('shot', self.project.projectShots)
+        self.wg_shots.editedItems = dict(added=[], edited=[], deleted=[])
+        #-- Update --#
         super(ProjectSettings, self)._discardSettings()

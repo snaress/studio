@@ -194,7 +194,9 @@ class Project(object):
         #-- Load Project --#
         if self.foundation.userGroups._user.userName in projectDict['projectUsers']:
             self.setDatas(**projectDict)
+            self.entities.resetContextTree('asset')
             self.entities.updateEntitiesFromDict('asset', self.projectAssets)
+            self.entities.resetContextTree('shot')
             self.entities.updateEntitiesFromDict('shot', self.projectShots)
             self.log.info("---> Project %r successfully loaded" % project)
         else:
