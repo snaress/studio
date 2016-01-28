@@ -144,6 +144,65 @@ def polySelectTraverse(traversal=1):
                 if result:
                     mc.polySelectConstraint(pp=traversal, t=0x0010)
 
+def invertSelection():
+    """
+    Invert current selection
+
+    Preference is given to objects if both objects and components are selected.
+    there is no user case where the user wants to invert a mixed selection of objects and components
+    """
+    #// determine if anything is selected
+    selection = mc.ls(sl=True)
+    if selection:
+        #// now determine if any objects are selected
+        objects = mc.ls(sl=True, dag=True, v=True)
+        if objects:
+            mc.select(tgl=True, ado=True, vis=True)
+            #//check if selection is in a hierarchy
+            parents = mc.listRelatives()
+            if parents:
+                mc.select(parents, d=True)
+                for parent in parents:
+                    children = mc.listRelatives(parent, c=True, path=True)
+                    mc.select(children, add=True)
+                #// make sure the original objects are not selected
+                mc.select(selection, d=True)
+        else:
+            #// must be a component selected
+            newComponents = []
+            for component in selection:
+                newComponents.append('%s[*]' % component.split('[')[0])
+            mc.select(newComponents, r=True)
+            mc.select(selection, d=True)
+    else:
+        #// nothing is selected
+        print "!!! Nothing is selected !!!"
+
+def getVertexPosition(obj, toRound=5, ws=True) :
+    """
+    Get object vertex position, with approximation
+
+    :param obj = obj to get vtx
+    :type obj = str
+    :param toRound = approximation
+    :type toRound = int
+    :param ws: World space state
+    :type ws: bool
+    :return: Vertex position
+    :rtype: list
+    """
+    toR = []
+    if not mc.ls(obj+".vtx[*]") :
+        return toR
+    tpos = mc.xform(obj+".vtx[*]", q=1, ws=ws, t=1)
+    pos = zip(tpos[::3], tpos[1::3], tpos[2::3])
+    for vtx in pos :
+        x = round(vtx[0] , toRound)
+        y = round(vtx[1] , toRound)
+        z = round(vtx[2] , toRound)
+        toR.append((x,y,z))
+    return toR
+
 def duplicateSelected(selObjects=None, name=None, worldParent=True):
     """ Duplicate and parent to world selected objects
 
@@ -179,6 +238,71 @@ def duplicateSelected(selObjects=None, name=None, worldParent=True):
                 newName = mc.parent(cpObject[0], w=True)
         cpList.append(newName[0])
     return cpList
+
+def duplicateGeom(selObjects=None, name=None):
+    """
+    Duplicate and parent to world selected objects via outMesh / inMesh
+
+    :param selObjects: Objects to duplicate.
+                       If None, duplicate selected scene nodes.
+    :type selObjects: str | list
+    :param name: New object name
+    :type name: str
+    :return: Duplicate objects
+    :rtype: list
+    """
+    #-- Check Object List --#
+    if selObjects is None:
+        objectList = mc.ls(sl=True)
+    else:
+        if isinstance(selObjects, basestring):
+            objectList = [selObjects]
+        else:
+            objectList = selObjects
+    #-- Duplicate Objects --#
+    cpList = []
+    for obj in objectList:
+        #-- Create Base Object --#
+        if name is None:
+            cpName = "%s__cp#" % obj.split(':')[-1].split('__')[0]
+        else:
+            cpName = name
+        baseObj = mc.polySphere(n=cpName)[0]
+        mc.delete(baseObj, ch=True)
+        baseMesh = mc.listRelatives(baseObj, s=True, ni=True)[0]
+        #-- Get Shape --#
+        if not mc.nodeType(obj) == 'mesh':
+            meshName = mc.listRelatives(obj, s=True, ni=True)[0]
+        else:
+            meshName = obj
+        #-- Transfert Geom --#
+        updateOutMesh(srcMesh=meshName, outMesh=baseMesh, force=True)
+        cpList.append(baseObj)
+    #-- Result --#
+    return cpList
+
+def decoupeMesh():
+    """
+    Extract selected faces via duplicate
+    """
+    #-- Check Selection --#
+    selObject = mc.ls(sl=True, o=True)
+    if not len(selObject) == 1:
+        raise IOError("!!! Select only one object !!!")
+    #-- Get Selected Components --#
+    selection = mc.ls(sl=True, fl=True)
+    selFaces = []
+    for sel in selection:
+        selFaces.append(int(sel.split('.')[-1].replace('f[', '').replace(']', '')))
+    #-- Duplique Object --#
+    tForm = mc.listRelatives(selObject[0], p=True)[0]
+    dup = duplicateSelected(selObjects=tForm, name='%s__cut#' % tForm, worldParent=False)
+    mc.select(cl=True)
+    for f in selFaces:
+        mc.select('%s.f[%s]' % (dup[0], f), add=True)
+    #-- Remove Unselected --#
+    invertSelection()
+    mc.delete()
 
 def symmetrizePose(baseObj, srcObj, dstObj, axe=(-1, 1, 1), delta=0.01):
     """
