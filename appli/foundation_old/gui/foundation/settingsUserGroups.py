@@ -488,7 +488,7 @@ class Users(widgetsUi.BasicTree):
         for item in pQt.getAllItems(self.tw_tree):
             #-- Prefix --#
             if len(filter) == 1:
-                if item.itemObj.userPrefixFolder == filter.lower():
+                if item.itemObj.userPrefix == filter.lower():
                     item.setHidden(False)
                 else:
                     item.setHidden(True)

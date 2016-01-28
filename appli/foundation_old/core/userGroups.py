@@ -488,11 +488,11 @@ class UserGroups(object):
         """
         indexList = []
         for userObj in self._users:
-            if not userObj.userPrefixFolder in indexList:
+            if not userObj.userPrefix in indexList:
                 if capital:
-                    indexList.append(userObj.userPrefixFolder.upper())
+                    indexList.append(userObj.userPrefix.upper())
                 else:
-                    indexList.append(userObj.userPrefixFolder)
+                    indexList.append(userObj.userPrefix)
         return sorted(indexList)
 
     def getUserObjFromName(self, userName):

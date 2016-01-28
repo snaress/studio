@@ -28,7 +28,7 @@ class BasicTree(QtGui.QWidget, wg_basicTreeUI.Ui_wg_basicTree):
         self.iconClear = QtGui.QIcon(os.path.join(self.iconPath, 'clear.png'))
         self.iconApply = QtGui.QIcon(os.path.join(self.iconPath, 'apply.png'))
         self.iconCancel = QtGui.QIcon(os.path.join(self.iconPath, 'cancel.png'))
-        #-- Edition Colors --#
+        #-- Setup --#
         self._setupWidget()
 
     def _setupWidget(self):
