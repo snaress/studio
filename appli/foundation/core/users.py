@@ -1,4 +1,4 @@
-import os, pprint
+import os, pprint, shutil
 from lib.system import procFile as pFile
 
 
@@ -20,7 +20,7 @@ class User(object):
         self.log = self.users.log
         #-- data --#
         self.userName = userName
-        self.userStatus = None
+        self.userStatus = True
         self.userGroup = None
         self.userFirstName = None
         self.userLastName = None
@@ -180,6 +180,7 @@ class Users(object):
     """
 
     __usersDir__ = "users"
+    __archiveDir__ = "_archive"
 
     def __init__(self, fdnObj):
         self.foundation = self.fdn = fdnObj
@@ -215,6 +216,16 @@ class Users(object):
         :rtype: str
         """
         return pFile.conformPath(os.path.join(self.fdn.__rootPath__, self.__usersDir__))
+
+    @property
+    def archivePath(self):
+        """
+        Get archive path
+
+        :return: Archive path
+        :rtype: str
+        """
+        return pFile.conformPath(os.path.join(self.usersPath, self.__archiveDir__))
 
     @property
     def users(self):
@@ -360,3 +371,50 @@ class Users(object):
             userObj.setData(userGroup=self.userGrps.defaultGroups[0]['grpCode'], userStatus=True)
             userObj.writeFile()
         return userObj
+
+    def deleteUser(self, userName=None, userObj=None, archive=False):
+        """
+        Delete given user
+
+        :param userName: User name
+        :type userName: str
+        :param userObj: User object
+        :type userObj: User
+        :param archive: Archives datas (clean disk)
+        :type archive: bool
+        """
+        if userObj is None:
+            userObj = self.getUserObjFromName(userName)
+        #-- Check User Object --#
+        if userObj is None:
+            mess = "!!! User not found: %s !!!" % userName
+            self.log.error(mess)
+            raise AttributeError(mess)
+        #-- Archive User --#
+        if archive:
+            self.log.info("Archive user %r" % userObj.userName)
+            dateTime = '%s--%s' % (pFile.getDate(), pFile.getTime())
+            archivePath = pFile.conformPath(os.path.join(self.archivePath, userObj.userPrefix, userObj.userName,
+                                                         dateTime))
+            pFile.createPath(archivePath, recursive=True, root=self.usersPath)
+            archiveFullPath = pFile.conformPath(os.path.join(archivePath, userObj.userName))
+            if os.path.exists(userObj.userPath):
+                try:
+                    shutil.copytree(userObj.userPath, archiveFullPath)
+                    shutil.rmtree(userObj.userPath)
+                    self.log.debug("---> User %r archived in %s" % (userObj.userName, archivePath))
+                except:
+                    mess = "!!! Can not copy tree: %s !!!" % userObj.userPath
+                    self.log.error(mess)
+                    raise IOError(mess)
+            else:
+                mess = "!!! User path not found: %s !!!" % userObj.userPath
+                self.log.error(mess)
+                raise IOError(mess)
+        #-- Delete User Object --#
+        if userObj in self._users:
+            self.log.info("Deleting user object %r ..." % userObj.userName)
+            self._users.remove(userObj)
+        else:
+            self.log.debug("User object %r already deleted. Skipp !!!" % userObj.userName)
+        self.log.info("---> %r deleted." % userObj.userName)

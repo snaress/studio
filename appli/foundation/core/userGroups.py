@@ -163,6 +163,20 @@ class UserGroups(object):
             grpList.append(grp.grpName)
         return grpList
 
+    @property
+    def grades(self):
+        """
+        Get all userGroups grades
+
+        :return: User groups grade
+        :rtype: list
+        """
+        gradeList = []
+        for grp in self._groups:
+            if not grp.grpGrade in gradeList:
+                gradeList.append(grp.grpGrade)
+        return gradeList
+
     def getData(self, asString=False):
         """
         Get groups data
@@ -174,7 +188,7 @@ class UserGroups(object):
         """
         data = dict()
         for n, grpObj in enumerate(self._groups):
-            data[n] = grpObj.getDatas(asString=asString)
+            data[n] = grpObj.getData(asString=asString)
         #-- Result --#
         if asString:
             return pprint.pformat(data)

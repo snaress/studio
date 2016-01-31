@@ -56,6 +56,8 @@ class ToolSettings(QtGui.QDialog, dial_settingsUI.Ui_dial_settings):
         self.pb_close.setIcon(self.iconDisable)
         #-- Connect --#
         self.tw_category.clicked.connect(self.on_category)
+        self.pb_save.clicked.connect(self.on_save)
+        self.pb_close.clicked.connect(self.on_close)
         #-- Update --#
         self._initWidgets()
         self.buildTree()
@@ -167,5 +169,61 @@ class ToolSettings(QtGui.QDialog, dial_settingsUI.Ui_dial_settings):
                             if item.itemLabel == selItems[0].itemLabel:
                                 item.itemWidget.setVisible(True)
                 #-- Build Tree --#
-                # if selItems[0].itemWidget is not None:
-                #     selItems[0].itemWidget.buildTree()
+                if selItems[0].itemWidget is not None:
+                    if not selItems[0].itemWidget.__edited__:
+                        selItems[0].itemWidget._initWidget()
+                    selItems[0].itemWidget.buildTree()
+
+    def on_save(self):
+        """
+        Command launched when 'Save' QPushButton is clicked
+
+        Save settings to disk
+        """
+        self.log.debug("#--- Save Settings ---#")
+        #-- Parse Edited Items --#
+        for item in self.getEditedItems():
+            self.log.detail("---> %s | %s" % (item.parent().itemCode, item.itemCode))
+            item.itemWidget.on_save()
+            item.itemWidget.__edited__ = False
+        #-- Refresh --#
+        self.rf_editedItemStyle()
+
+    def on_close(self):
+        """
+        Command launched when 'Close' QPushButton is clicked
+
+        Close settings ui
+        """
+        self.log.debug("#--- Close Dialog ---#")
+        editedItems = self.getEditedItems()
+        #-- Edited Widget Found --#
+        if editedItems:
+            message = ["!!! Warning !!!",
+                       "Unsaved category detected:"]
+            for item in editedItems:
+                message.append("---> %s" % item.itemLabel)
+            self.cd_closeSettings = pQt.ConfirmDialog('\n'.join(message), ['Save', 'Discard'],
+                                                      [self._saveSettings, self._discardSettings])
+            self.cd_closeSettings.setStyleSheet(self.parent()._styleSheet)
+            self.cd_closeSettings.exec_()
+        #-- Close Settings --#
+        else:
+            self.close()
+
+    def _saveSettings(self):
+        """
+        Save action confirmed
+        """
+        self.on_save()
+        self.cd_closeSettings.close()
+        self.close()
+
+    def _discardSettings(self):
+        """
+        Discard action confirmed
+        """
+        for item in self.getEditedItems():
+            item.itemWidget.on_discard()
+        self.cd_closeSettings.close()
+        self.close()
