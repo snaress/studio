@@ -1,5 +1,4 @@
-import os
-import sys
+import os, sys
 from PyQt4 import QtGui
 from functools import partial
 from lib.qt import procQt as pQt
@@ -52,14 +51,23 @@ class FoundationUi(QtGui.QMainWindow, foundationUI.Ui_mw_foundation):
         """
         Init main ui menus
         """
+        #-- Menu Project --#
+        self.mi_newProject.setShortcut("Ctrl+Shift+N")
+        self.mi_newProject.triggered.connect(self.on_miNewProject)
+        self.mi_loadProject.setShortcut("Ctrl+Shift+L")
+        self.mi_loadProject.triggered.connect(self.on_miLoadProject)
         #-- Menu Settings --#
+        self.mi_toolSettings.setShortcut("Ctrl+Shift+T")
         self.mi_toolSettings.triggered.connect(self.on_miToolSettings)
+        self.mi_projectSettings.setShortcut("Ctrl+Shift+P")
         #-- Menu Help --#
         for level in self.log.levels:
             menuItem = self.m_logLevel.addAction(level)
             menuItem.setCheckable(True)
             menuItem.triggered.connect(partial(self.on_miLogLevel, level))
         self.on_miLogLevel(self.log.level)
+        self.mi_defaultStyle.triggered.connect(partial(self.on_style, 'default'))
+        self.mi_darkGreyStyle.triggered.connect(partial(self.on_style, 'darkGrey'))
 
     @property
     def _styleSheet(self):
@@ -101,6 +109,46 @@ class FoundationUi(QtGui.QMainWindow, foundationUI.Ui_mw_foundation):
         """
         return self.mi_toolTips.isChecked()
 
+    def loadProject(self, project=None):
+        """
+        Load given project. If project is None, load current core project
+
+        :param project: Project (name--code)
+        :type project: str
+        """
+        if project is not None:
+            self.foundation.project.loadProject(project)
+        self.setWindowTitle("Foundation | %s | %s" % (self.fdn.project.project, self.fdn.__user__))
+        self.qf_left.setVisible(True)
+        # self.wg_projectTree.buildTree()
+
+    def on_miNewProject(self):
+        """
+        Command launched when 'New Project' QMenuItem is triggered
+
+        Launch NewProject dialog
+        """
+        self.log.detail(">>> Launch 'New Project' ...")
+        #-- Check User Grade --#
+        if not self.fdn.users._user.grade <= 2:
+            mess = "Your grade does not allow you to create new project !"
+            self.log.error(mess)
+            pQt.errorDialog(mess, self)
+            raise UserWarning(mess)
+        #-- Launch Dialog --#
+        self.dial_newProject = dialogsUi.NewProject(self)
+        self.dial_newProject.exec_()
+
+    def on_miLoadProject(self):
+        """
+        Command launched when 'Load Project' QMenuItem is triggered
+
+        Launch LoadProject dialog
+        """
+        self.log.detail(">>> Launch 'Load Project' ...")
+        self.dial_loadProject = dialogsUi.LoadProject(self)
+        self.dial_loadProject.exec_()
+
     def on_miToolSettings(self):
         """
         Command launched when 'Tool Settings' QMenuItem is triggered
@@ -138,6 +186,19 @@ class FoundationUi(QtGui.QMainWindow, foundationUI.Ui_mw_foundation):
         #-- Set Log Level --#
         self.log.level = logLevel
         self.foundation.log.level = logLevel
+
+    def on_style(self, style):
+        """
+        Command launched when 'Style' QMenuItem is triggered
+
+        :param style: 'default' or 'darkGrey'
+        :type style: str
+        """
+        self.log.detail(">>> Launch 'Style' ...")
+        if style == 'default':
+            self.setStyleSheet('')
+        elif style == 'darkGrey':
+            self.setStyleSheet(self._styleSheet)
 
 
 def launch(project=None, logLvl='info'):

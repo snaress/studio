@@ -185,7 +185,7 @@ class Users(object):
     def __init__(self, fdnObj):
         self.foundation = self.fdn = fdnObj
         self.userGrps = self.fdn.userGrps
-        self.log = self.foundation.log
+        self.log = self.fdn.log
         self.log.title = "Users"
         #-- data --#
         self._user = None

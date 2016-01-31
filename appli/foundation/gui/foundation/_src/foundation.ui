@@ -165,8 +165,16 @@
       <string>Log Level</string>
      </property>
     </widget>
-    <addaction name="m_logLevel"/>
+    <widget class="QMenu" name="m_style">
+     <property name="title">
+      <string>Style</string>
+     </property>
+     <addaction name="mi_defaultStyle"/>
+     <addaction name="mi_darkGreyStyle"/>
+    </widget>
     <addaction name="mi_toolTips"/>
+    <addaction name="m_logLevel"/>
+    <addaction name="m_style"/>
    </widget>
    <widget class="QMenu" name="m_settings">
     <property name="title">
@@ -236,6 +244,16 @@
   <action name="mi_toolSettings">
    <property name="text">
     <string>Tool Settings</string>
+   </property>
+  </action>
+  <action name="mi_defaultStyle">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="mi_darkGreyStyle">
+   <property name="text">
+    <string>DarkGrey</string>
    </property>
   </action>
  </widget>

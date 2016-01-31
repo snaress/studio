@@ -78,7 +78,7 @@ class UserGroups(object):
 
     def __init__(self, fdnObj):
         self.foundation = self.fdn = fdnObj
-        self.log = self.foundation.log
+        self.log = self.fdn.log
         self.log.title = "UserGrps"
         #-- Datas --#
         self._groups = []

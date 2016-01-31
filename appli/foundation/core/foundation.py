@@ -1,6 +1,6 @@
 import os
-from appli.foundation.core import users, userGroups
 from lib.system import procFile as pFile
+from appli.foundation.core import users, userGroups, project
 
 
 class Foundation(object):
@@ -12,8 +12,8 @@ class Foundation(object):
     """
 
     log = pFile.Logger(title="Foundation")
-    # __user__ = os.environ['USERNAME']
-    __user__ = 'Daneel'
+    __user__ = os.environ['USERNAME']
+    # __user__ = 'Daneel'
     __rootPath__ = "E:/foundation"
     __tmpPath__ = pFile.conformPath(os.path.join(__rootPath__, "tmp"))
     __projectsPath__ = pFile.conformPath(os.path.join(__rootPath__, "projects"))
@@ -25,6 +25,7 @@ class Foundation(object):
         self._setup()
         self.userGrps = userGroups.UserGroups(self)
         self.users = users.Users(self)
+        self.project = project.Project(self)
 
     def _setup(self):
         """
