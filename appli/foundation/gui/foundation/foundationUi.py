@@ -32,8 +32,14 @@ class FoundationUi(QtGui.QMainWindow, foundationUI.Ui_mw_foundation):
         """
         self.log.info("#===== Setup Foundation Ui =====#", newLinesBefore=1)
         self.setupUi(self)
+        #-- MenuItem Fonts --#
+        self.enableFont = QtGui.QFont()
+        self.disableFont = QtGui.QFont()
+        self.disableFont.setItalic(True)
+        #-- Refresh
         self._initMainUi()
         self._initMenu()
+        self.rf_menuVisibility()
 
     def _initMainUi(self):
         """
@@ -108,6 +114,54 @@ class FoundationUi(QtGui.QMainWindow, foundationUI.Ui_mw_foundation):
         :rtype: bool
         """
         return self.mi_toolTips.isChecked()
+
+    def rf_menuVisibility(self):
+        """
+        Refresh menuItem visibility considering user grade
+        """
+        #-- Project Settings --#
+        if self.fdn.project.project is None:
+            self._editMenuVisibility(self.mi_projectSettings, state=False)
+        else:
+            self._editMenuVisibility(self.mi_projectSettings, state=True)
+        #-- Grade 1 --#
+        for menuItem in [self.mi_toolSettings]:
+            self._editMenuVisibility(menuItem, grade=1)
+        #-- Grade 2 --#
+        for menuItem in [self.mi_newProject]:
+            self._editMenuVisibility(menuItem, grade=2)
+        #-- Grade 4 --#
+        for menuItem in [self.mi_projectSettings]:
+            if self.fdn.project.project is not None:
+                self._editMenuVisibility(menuItem, grade=4)
+
+    def _editMenuVisibility(self, menuItem, grade=None, state=None):
+        """
+        Edit menu item visibility
+
+        :param menuItem: Menu item to edit
+        :type menuItem: QMenuAction
+        :param grade: Max allowed grade
+        :type grade: int
+        :param state: Visibility state
+        :type state: bool
+        """
+        #-- Get State And Font --#
+        if state is not None:
+            if state:
+                _font = self.enableFont
+            else:
+                _font = self.disableFont
+        else:
+            if self.fdn.users._user.grade <= grade:
+                _font = self.enableFont
+                state = True
+            else:
+                _font = self.disableFont
+                state = False
+        #-- Edit Menu Item --#
+        menuItem.setFont(_font)
+        menuItem.setEnabled(state)
 
     def loadProject(self, project=None):
         """
