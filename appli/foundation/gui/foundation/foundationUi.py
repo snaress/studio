@@ -66,6 +66,7 @@ class FoundationUi(QtGui.QMainWindow, foundationUI.Ui_mw_foundation):
         self.mi_toolSettings.setShortcut("Ctrl+Shift+T")
         self.mi_toolSettings.triggered.connect(self.on_miToolSettings)
         self.mi_projectSettings.setShortcut("Ctrl+Shift+P")
+        self.mi_projectSettings.triggered.connect(self.on_miProjectSettings)
         #-- Menu Help --#
         for level in self.log.levels:
             menuItem = self.m_logLevel.addAction(level)
@@ -173,6 +174,7 @@ class FoundationUi(QtGui.QMainWindow, foundationUI.Ui_mw_foundation):
         if project is not None:
             self.foundation.project.loadProject(project)
         self.setWindowTitle("Foundation | %s | %s" % (self.fdn.project.project, self.fdn.__user__))
+        self.rf_menuVisibility()
         self.qf_left.setVisible(True)
         # self.wg_projectTree.buildTree()
 
@@ -212,13 +214,30 @@ class FoundationUi(QtGui.QMainWindow, foundationUI.Ui_mw_foundation):
         self.log.detail(">>> Launch 'Tool Settings' ...")
         #-- Check User Grade --#
         if not self.fdn.users._user.grade <= 1:
-            mess = "Your grade does not allow you to edit project settings !"
+            mess = "Your grade does not allow you to edit tool settings !"
             self.log.error(mess)
             pQt.errorDialog(mess, self)
             raise UserWarning(mess)
         #-- Launch Dialog --#
         self.dial_toolSettings = dialogsUi.ToolSettings(parent=self)
         self.dial_toolSettings.exec_()
+
+    def on_miProjectSettings(self):
+        """
+        Command launched when 'Tool Settings' QMenuItem is triggered
+
+        Launch toolSettings dialog
+        """
+        self.log.detail(">>> Launch 'Project Settings' ...")
+        #-- Check User Grade --#
+        if not self.fdn.users._user.grade <= 3:
+            mess = "Your grade does not allow you to edit project settings !"
+            self.log.error(mess)
+            pQt.errorDialog(mess, self)
+            raise UserWarning(mess)
+        #-- Launch Dialog --#
+        self.dial_projectSettings = dialogsUi.ProjectSettings(parent=self)
+        self.dial_projectSettings.exec_()
 
     def on_miLogLevel(self, logLevel):
         """
@@ -259,15 +278,18 @@ def launch(project=None, logLvl='info'):
     """
     Foundation launcher
 
+    :param project: Project name (projectName--projectCode)
+    :type project: str
     :param logLvl: Log level ('critical', 'error', 'warning', 'info', 'debug', 'detail')
     :type logLvl: str
     """
     app = QtGui.QApplication(sys.argv)
     window = FoundationUi(logLvl=logLvl)
     window.show()
-    # window.loadProject('animTest--AT')
+    if project is not None:
+        window.loadProject(project=project)
     sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
-    launch(logLvl='detail')
+    launch(project='animTest--ANT', logLvl='detail')

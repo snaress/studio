@@ -367,6 +367,8 @@ class Users(widgetsUi.BasicTree):
 
     :param pWidget: Parent widget
     :type pWidget: ToolSettings | ProjectSettings
+    :param settingsMode: 'tool' or 'project'
+    :type settingsMode: str
     """
 
     __usersCollected__ = False
@@ -379,6 +381,7 @@ class Users(widgetsUi.BasicTree):
         self.foundation = self.fdn = self.pWidget.foundation
         self.users = self.fdn.users
         self.userGrps = self.fdn.userGrps
+        self.project = self.fdn.project
         super(Users, self).__init__(pWidget)
 
     def _initWidget(self):
@@ -387,6 +390,8 @@ class Users(widgetsUi.BasicTree):
         """
         super(Users, self)._initWidget()
         self.users.collecteUsers(clearUsers=True)
+        if self.settingsMode == 'project':
+            self.project.loadProject(self.project.project)
 
     def _setupWidget(self):
         """
@@ -403,6 +408,9 @@ class Users(widgetsUi.BasicTree):
         if self.settingsMode == 'tool':
             self.rf_headers('User Name', 'Group', 'First Name', 'Last Name', 'Status')
         elif self.settingsMode == 'project':
+            self.pb_add.setVisible(False)
+            self.pb_del.setVisible(False)
+            self.pb_edit1.setVisible(False)
             self.rf_headers('User Name', 'Group', 'First Name', 'Last Name', 'Watch')
         self.rf_treeColumns()
 
@@ -411,15 +419,24 @@ class Users(widgetsUi.BasicTree):
         Setup Users icons
         """
         super(Users, self)._setupIcons()
-        #-- Init Icons --#
-        self.iconActive = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'enable.png'))
-        self.iconInactive = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'disable.png'))
-        #-- Edit Label --#
-        self.buildFilters()
-        self.pb_edit1.setText("Edit")
-        #-- Edit Grade --#
-        if not self.users._user.grade == 0:
-            self.pb_del.setEnabled(False)
+        #-- Tool Settings --#
+        if self.settingsMode == 'tool':
+            #-- Init Icons --#
+            self.iconActive = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'enable.png'))
+            self.iconInactive = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'disable.png'))
+            #-- Edit Label --#
+            self.buildFilters()
+            self.pb_edit1.setText("Edit")
+            #-- Edit Grade --#
+            if not self.users._user.grade == 0:
+                self.pb_del.setEnabled(False)
+        #-- Project Settings --#
+        elif self.settingsMode == 'project':
+            #-- Init Icons --#
+            self.iconActive = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'pinGreen.png'))
+            self.iconInactive = QtGui.QIcon(os.path.join(self.mainUi.iconPath, 'pinRed.png'))
+            #-- Edit Label --#
+            self.buildFilters()
 
     @staticmethod
     def getStatus(userItem):
@@ -509,7 +526,13 @@ class Users(widgetsUi.BasicTree):
         """
         newItem = QtGui.QTreeWidgetItem()
         newItem.itemObj = itemObj
-        newItem.itemWidget = self.new_itemButton(itemObj.userStatus)
+        if self.settingsMode == 'tool':
+            newItem.itemWidget = self.new_itemButton(itemObj.userStatus)
+        elif self.settingsMode == 'project':
+            if itemObj.userName in self.project.projectUsers:
+                newItem.itemWidget = self.new_itemButton(True)
+            else:
+                newItem.itemWidget = self.new_itemButton(False)
         # noinspection PyUnresolvedReferences
         newItem.itemWidget.clicked.connect(partial(self.on_status, newItem))
         self.ud_treeItem(newItem)
@@ -641,6 +664,11 @@ class Users(widgetsUi.BasicTree):
         for item in self.__editedItems__['edited']:
             if self.settingsMode == 'tool':
                 item.itemObj.userStatus = self.getStatus(item)
+            elif self.settingsMode == 'project':
+                if self.getStatus(item):
+                    self.project.addProjectUser(item.itemObj.userName)
+                else:
+                    self.project.removeProjectUser(item.itemObj.userName)
         #-- Deleted User --#
         for item in self.__editedItems__['deleted']:
             if item.itemObj.userName in self.users.users:
@@ -656,12 +684,18 @@ class Users(widgetsUi.BasicTree):
         Save data
         """
         super(Users, self).on_save()
-        for item in self.__editedItems__['added']:
-            item.itemObj.writeFile()
-        for item in self.__editedItems__['edited']:
-            item.itemObj.writeFile()
-        for item in self.__editedItems__['deleted']:
-            self.users.deleteUser(userObj=item.itemObj, archive=True)
+        #-- Tool Settings --#
+        if self.settingsMode == 'tool':
+            for item in self.__editedItems__['added']:
+                item.itemObj.writeFile()
+            for item in self.__editedItems__['edited']:
+                item.itemObj.writeFile()
+            for item in self.__editedItems__['deleted']:
+                self.users.deleteUser(userObj=item.itemObj, archive=True)
+        #-- Project Settings --#
+        elif self.settingsMode == 'project':
+            pass
+        #-- Reset --#
         self.__editedItems__ = dict(added=[], edited=[], deleted=[])
 
 

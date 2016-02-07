@@ -3,8 +3,8 @@ from PyQt4 import QtGui, QtCore
 from lib.qt import procQt as pQt
 from lib.system import procFile as pFile
 from appli.foundation.gui.common import dialogsUi
-from appli.foundation.gui.foundation import settingsUserGrps
 from appli.foundation.gui.foundation._ui import newProjectUI, loadProjectUI
+from appli.foundation.gui.foundation import settingsUserGrps, settingsEntities
 
 
 class NewProject(QtGui.QDialog, newProjectUI.Ui_dial_newProject):
@@ -270,7 +270,7 @@ class ToolSettings(dialogsUi.ToolSettings):
 
     def __init__(self, parent=None):
         self.log = parent.log
-        self.log.title = 'ToolSettingsUi'
+        self.log.title = 'ToolSettings'
         self.foundation = self.fdn = parent.foundation
         self.userGrps = self.fdn.userGrps
         self.users = self.fdn.users
@@ -288,11 +288,15 @@ class ToolSettings(dialogsUi.ToolSettings):
         Init tool widgets
         """
         super(ToolSettings, self)._initWidgets()
+        self.setWindowTitle("%s | %s" % (self.log.title, self.fdn.__user__))
         #-- UserGroups --#
         self.wg_groups = settingsUserGrps.Groups(self)
-        self.wg_users = settingsUserGrps.Users(self)
+        self.wg_users = settingsUserGrps.Users(self, settingsMode='tool')
+        #-- Entities --#
+        self.wg_assets = settingsEntities.Assets(self, settingsMode='tool')
+        self.wg_shots = settingsEntities.Shots(self, settingsMode='tool')
         #-- Refresh --#
-        for widget in [self.wg_groups, self.wg_users]:
+        for widget in [self.wg_groups, self.wg_users, self.wg_assets, self.wg_shots]:
             widget.setVisible(False)
             self.vl_settingsWidget.addWidget(widget)
 
@@ -304,7 +308,8 @@ class ToolSettings(dialogsUi.ToolSettings):
         :return: Category datas
         :rtype: dict
         """
-        return {0: self.userGrpsCategory}
+        return {0: self.userGrpsCategory,
+                1: self.entitiesCategory}
 
     @property
     def userGrpsCategory(self):
@@ -322,3 +327,102 @@ class ToolSettings(dialogsUi.ToolSettings):
                                           1: {'users': {'widget': self.wg_users,
                                                         'code': 'users',
                                                         'label': 'Users'}}}}}
+
+    @property
+    def entitiesCategory(self):
+        """
+        Get Entities category
+
+        :return: Entities category
+        :rtype: dict
+        """
+        return {'entities': {'code': 'entities',
+                             'label': 'Entities',
+                             'subCat': {0: {'assets': {'widget': self.wg_assets,
+                                                       'code': 'assets',
+                                                       'label': 'Assets'}},
+                                        1: {'shots': {'widget': self.wg_shots,
+                                                      'code': 'shots',
+                                                      'label': 'Shots'}}}}}
+
+
+class ProjectSettings(dialogsUi.ToolSettings):
+    """
+    ProjectSettings Dialog: Contains Foundation project settings, child of FoundationUi
+
+    :param parent: Parent Ui
+    :type parent: FoundationUi
+    """
+
+    def __init__(self, parent=None):
+        self.log = parent.log
+        self.log.title = 'ProjectSettings'
+        self.foundation = self.fdn = parent.foundation
+        self.userGrps = self.fdn.userGrps
+        self.users = self.fdn.users
+        self.project = self.fdn.project
+        super(ProjectSettings, self).__init__(parent)
+
+    def _initWidgets(self):
+        """
+        Init tool widgets
+        """
+        super(ProjectSettings, self)._initWidgets()
+        self.setWindowTitle("%s | %s" % (self.log.title, self.fdn.__user__))
+        #-- Project --#
+        self.wg_watchers = settingsUserGrps.Users(self, settingsMode='project')
+        #-- Refresh --#
+        for widget in [self.wg_watchers]:
+            widget.setVisible(False)
+            self.vl_settingsWidget.addWidget(widget)
+
+    @property
+    def category(self):
+        """
+        Get settings category
+
+        :return: Category datas
+        :rtype: dict
+        """
+        return {0: self.projectCategory,
+                1: self.entitiesCategory}
+
+    @property
+    def projectCategory(self):
+        """
+        Get Project category
+
+        :return: Project category
+        :rtype: dict
+        """
+        return {'project': {'code': 'project',
+                            'label': 'Project',
+                            'subCat': {0: {'watchers': {'widget': self.wg_watchers,
+                                                        'code': 'watchers',
+                                                        'label': 'Watchers'}}}}}
+
+    @property
+    def entitiesCategory(self):
+        """
+        Get Entities category
+
+        :return: Entities category
+        :rtype: dict
+        """
+        return {'entities': {'code': 'entities',
+                             'label': 'Entities',
+                             'subCat': {0: {'assets': {'widget': None,
+                                                       'code': 'assets',
+                                                       'label': 'Assets'}},
+                                        1: {'shots': {'widget': None,
+                                                      'code': 'shots',
+                                                      'label': 'Shots'}}}}}
+
+    def on_save(self):
+        """
+        Command launched when 'Save' QPushButton is clicked
+
+        Save settings to disk
+        """
+        super(ProjectSettings, self).on_save()
+        self.project.writeProject()

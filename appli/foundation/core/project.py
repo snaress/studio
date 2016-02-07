@@ -1,5 +1,6 @@
 import os, pprint
 from lib.system import procFile as pFile
+from appli.foundation.core import entities
 
 
 class Project(object):
@@ -14,6 +15,7 @@ class Project(object):
 
     def __init__(self, fdnObj):
         self.foundation = self.fdn = fdnObj
+        self.entities = entities.Entities(self.fdn, self)
         self.log = self.fdn.log
         self.log.title = "Users"
         #-- Datas --#

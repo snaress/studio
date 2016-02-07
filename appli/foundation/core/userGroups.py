@@ -266,7 +266,7 @@ class UserGroups(object):
 
     def createSettingsFile(self):
         """
-        Create default user group file
+        Create default settings file
         """
         try:
             pFile.writeDictFile(self.settingsFile, self.defaultGroups)
